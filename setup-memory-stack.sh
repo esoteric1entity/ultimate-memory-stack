@@ -189,12 +189,17 @@ else
         ADDONS=("memory-vault" "memory-graphiti" "memory-graphify" "memory-llmlingua")
     fi
 
-    declare -A ADDON_DIR_MAP=(
-        [memory-vault]="recommended-addons/obsidian-vault-config"
-        [memory-graphiti]="recommended-addons/graphiti-installer"
-        [memory-graphify]="recommended-addons/graphify-installer"
-        [memory-llmlingua]="recommended-addons/llmlingua-installer"
-    )
+    # Addon-name → package-directory lookup. Deliberately a case statement,
+    # not an associative array: macOS ships bash 3.2, which has no `declare -A`.
+    addon_dir() {
+        case "$1" in
+            memory-vault)     echo "recommended-addons/obsidian-vault-config" ;;
+            memory-graphiti)  echo "recommended-addons/graphiti-installer" ;;
+            memory-graphify)  echo "recommended-addons/graphify-installer" ;;
+            memory-llmlingua) echo "recommended-addons/llmlingua-installer" ;;
+            *)                echo "" ;;
+        esac
+    }
 
     SKILLS_DIR="$TARGET/.claude/skills"
     mkdir -p "$SKILLS_DIR"
@@ -207,7 +212,7 @@ else
     # and the printed slash-command hints didn't match the real names —
     # every advertised addon command was dead.)
     for addon in "${ADDONS[@]}"; do
-        DIR="${ADDON_DIR_MAP[$addon]:-}"
+        DIR="$(addon_dir "$addon")"
         if [ -z "$DIR" ]; then
             echo "  ⚠ Unknown addon: $addon (skipping)"
             continue

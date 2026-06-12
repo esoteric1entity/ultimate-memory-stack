@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **macOS: installer failed at addon registration** — `setup-memory-stack.sh` used a bash-4 associative array (`declare -A`), but macOS ships bash 3.2; replaced with a portable case-statement lookup. Caught by the cross-OS install CI on launch day (the macOS leg had never run on real Apple hardware before).
+
 ---
 
 ## [3.6.0] — 2026-06-12 — first public release
