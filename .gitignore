@@ -1,0 +1,152 @@
+# =============================================================================
+# Agent Architect Stack — Root .gitignore
+# =============================================================================
+# Purpose: prevent accidental commit of secrets, build artifacts, OS files,
+#          editor temp files, and large generated files. This is the FIRST
+#          line of defense for secrets hygiene. DO NOT commit
+#          .env files, .pem files, or anything under secrets/.
+#
+# Authors: see /AUTHORS.md
+# License: Apache 2.0 (see /LICENSE)
+# =============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+*.pyo
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# --- Node (only if any branch uses Node tooling) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- Secrets & credentials (CRITICAL — DO NOT COMMIT) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+*.token
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.keystore
+
+# --- IDE / editor temp files ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+
+# --- OS-specific noise ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+[Tt]humbs.db
+[Tt]humbs.db:encryptable
+[Bb]ackup*
+Desktop.ini
+$RECYCLE.BIN/
+
+# --- Build / distribution artifacts ---
+*.tar.gz
+*.zip
+*.tgz
+target/
+out/
+build/
+*.deb
+*.rpm
+
+# --- Test artifacts ---
+.tox/
+.nox/
+htmlcov/
+coverage.xml
+*.cover
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vite/
+
+# --- Logs (committed logs are intentional; this is for noisy debug logs) ---
+*.log
+*.log.*
+!decisions.md
+!vetting_log.md
+!audit_log.jsonl
+
+# --- Agent-shield specific (Python guards) ---
+agent_shield/__pycache__/
+tests/__pycache__/
+.pytest_cache/
+
+# --- Large generated files ---
+*.db
+*.sqlite
+*.sqlite3
+*.duckdb
+.mypy_cache/
+*.prof
+*.pstats
+
+# --- Local config that should not be shared ---
+openclaw.json
+.openclaw/
+.worktree-state/
+*.local.json
+*.local.yaml
+*.local.yml

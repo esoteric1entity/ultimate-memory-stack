@@ -1,0 +1,57 @@
+---
+scope: file
+file_type: master_index
+purpose: "Master pointer index for all memory entries — Tier 1 / HOT loaded at every session start"
+loaded_when: bootstrap
+priority: hot
+schema_version: "3.0"
+edition: general
+adapter_version: "1.0"
+last_compacted: <!-- populated by heartbeat_compactor.py -->
+content_sha256: <!-- populated at write time per MEMORY_PROTOCOL §5.1 CAS -->
+---
+
+# Memory Index — Ultimate Memory Stack General Edition
+
+> **Purpose:** Master pointer index. Browse what's in memory, jump to detail files.
+> **Loaded:** Tier 1 / HOT — auto-loaded every session.
+> **Budget:** ~5K chars (compactor enforces).
+
+---
+
+## Categories
+
+| Category | Pointer | Count | Last updated |
+|---|---|---|---|
+| Decisions | [memory/decisions/decisions.md](./memory/decisions/decisions.md) | 0 | — |
+| Sessions | [memory/sessions/session_state.md](./memory/sessions/session_state.md) | 0 | — |
+| Feedback | [memory/feedback/feedback.md](./memory/feedback/feedback.md) | 0 | — |
+| Vetting | [memory/security/vetting_log.md](./memory/security/vetting_log.md) | 0 | — |
+| Audit log | [memory/security/audit_log.jsonl](./memory/security/audit_log.jsonl) | 0 lines | — |
+| Quarantine | [memory/quarantine/quarantine_log.jsonl](./memory/quarantine/quarantine_log.jsonl) | 0 lines | — |
+| References | [memory/references/](./memory/references/) | 0 | — |
+| User profile | [IDENTITY.md](./IDENTITY.md) | 1 | — |
+| Projects | [memory/projects/](./memory/projects/) | 0 | — |
+| Archive | [memory/archive/](./memory/archive/) | 0 | — |
+
+## Key cross-references
+
+- Agent topology → [AGENTS.md](./AGENTS.md)
+- Standing principles → [SOUL.md](./SOUL.md)
+- Installed addons → [TOOLS.md](./TOOLS.md)
+- User profile → [IDENTITY.md](./IDENTITY.md)
+- Recent feedback → [USER.md](./USER.md)
+- Active heartbeat → [HEARTBEAT.md](./HEARTBEAT.md)
+- Next-actions handoff → [BOOTSTRAP.md](./BOOTSTRAP.md)
+- Auto-Dream (v4.0 placeholder) → [DREAMS.md](./DREAMS.md)
+
+## What lives where
+
+This file is a POINTER index, not a content store. Detail files carry the actual entries. The heartbeat compactor (`scripts/heartbeat_compactor.py`) keeps this index synchronized with the underlying files.
+
+If you're looking for a specific entry, search by:
+- DEC-### → grep `memory/decisions/decisions.md`
+- VET-### → grep `memory/security/vetting_log.md`
+- FB-### → grep `memory/feedback/feedback.md`
+- Recent work → see [HEARTBEAT.md](./HEARTBEAT.md)
+- What to do next → see [BOOTSTRAP.md](./BOOTSTRAP.md)

@@ -1,0 +1,78 @@
+---
+scope: file
+file_type: user_profile
+purpose: "User profile — sanitized for general-edition; PII fields redacted by default"
+loaded_when: bootstrap
+priority: hot
+schema_version: "3.0"
+edition: general
+compliance_preset: none
+pii_redaction: enabled
+adapter_version: "1.0"
+---
+
+# User Identity — Ultimate Memory Stack General Edition
+
+> **Purpose:** Compact profile of who the harness is working with.
+> **Loaded:** Tier 1 / HOT.
+> **Budget:** ~3K chars.
+> **PII rule:** Fields tagged PII are redacted; user fills in via PROFILE.md if comfortable.
+
+---
+
+## Basic profile
+
+- **Name:** [user-configurable]
+- **Role:** [user-configurable]
+- **Organization:** [user-configurable]
+- **Email:** [REDACTED — user-configurable]
+- **Phone:** [REDACTED — user-configurable]
+
+## Domains of expertise
+
+[user-configurable — list 3-5 primary domains]
+
+## Working preferences
+
+- **Documentation discipline:** Mandatory (purpose/rationale/scope CAN/CANNOT in every decision)
+- **Security posture:** Sentinel vetting required for all new tools
+- **Decision-making style:** [user-configurable — e.g., "ideal-first; document deviations"]
+- **Preferred environments:** [user-configurable — e.g., a dedicated conda env / uv venv / system Python]
+
+## Hardware inventory
+
+| Machine | Role | OS | Tier |
+|---|---|---|---|
+| [user-configurable] | [primary work] | — | — |
+| [user-configurable] | [secondary] | — | — |
+
+---
+
+## Compliance preset
+
+This profile honors **general-edition `compliance: none`** by default. To upgrade:
+
+- **`enterprise` preset:** GDPR/SOC2 baseline → no SSN, no financial IDs, consent tracking enabled
+- **`healthcare` preset:** NOT available in general-edition adapter (requires biotech-edition adapter; B7 compliance review pending)
+
+To change compliance preset, edit `<edition>/PROFILE.md` and re-run `setup-openclaw.sh --update-profile`.
+
+---
+
+## What's INTENTIONALLY not stored here
+
+Per MEMORY_PROTOCOL §7 standing rules:
+- **NEVER** passwords, API keys, tokens, secrets
+- **NEVER** SSN, credit card, financial account numbers
+- **NEVER** PII/PHI (patient data, MRN, specimen IDs, genomic identifiers)
+
+If you find any of the above in this file or any other memory file, treat it as a SCHEMA_quarantine event per MEMORY_PROTOCOL §5.3.
+
+---
+
+## Cross-references
+
+- `memory/user/user_profile.md` (full version, may contain richer detail behind opt-in PII gate)
+- `<edition>/PROFILE.md` (edition + compliance preset)
+- MEMORY_PROTOCOL §7 (standing rules — what we don't store)
+- MEMORY_PROTOCOL §17 (healthcare compliance — NOT active here)

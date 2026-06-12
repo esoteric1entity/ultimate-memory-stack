@@ -1,0 +1,106 @@
+---
+scope: file
+file_type: agent_topology
+purpose: "Agent topology specification — Warden/Sentinel/Vault/Clerk flat hierarchy + spawning rules"
+loaded_when: bootstrap
+priority: warm
+schema_version: "3.0"
+edition: general
+adapter_version: "1.0"
+runtime_note: "Spec is ADVISORY on OpenClaw runtime until peer-agent spawning supported"
+---
+
+# Agent Topology — Ultimate Memory Stack General Edition
+
+> **Purpose:** Define the 4-peer agent topology that the harness should support. On Claude Code, these agents execute via Claude's Task tool. On OpenClaw, this spec is **advisory** until OpenClaw runtime supports peer-agent spawning.
+> **Loaded:** Tier 1 / WARM — auto-loaded every session.
+> **Budget:** ~6K chars.
+
+---
+
+## Flat hierarchy
+
+```
+                    USER (approves all)
+                          │
+                    ORCHESTRATOR
+              (main harness instance)
+          ┌────────┬────────┬────────┐
+          │        │        │        │
+       WARDEN   SENTINEL   VAULT   CLERK
+      (security) (vetting) (memory)  (PM)
+```
+
+All 4 agents are **peers** reporting to the Orchestrator. No agent is subordinate to another. The Orchestrator brokers all inter-agent communication.
+
+---
+
+## Agents
+
+| Agent | Codename | When to spawn | Tool restrictions |
+|---|---|---|---|
+| Chief Security Agent | **Warden** | Security oversight, session audits, posture reports, CVE impact assessment | Read, Glob, Grep, WebSearch, WebFetch |
+| Security Vetting Agent | **Sentinel** | Before installing ANY skill / tool / MCP / hook / plugin | Read, Glob, Grep, WebFetch, WebSearch |
+| Memory Stack Agent | **Vault** | Session start/end, storing/retrieving persistent context | Read, Write, Edit, Glob, Grep |
+| Project Management Agent | **Clerk** | Task tracking, kanban, daily logs, status reports | Read, Write, Edit, Glob, Grep, Bash |
+
+---
+
+## Spawning protocol
+
+### Before installing any new tool/skill
+
+1. Spawn Warden for pre-vetting context (CVE history, author reputation, conflict analysis)
+2. Spawn Sentinel with the tool's source URL/files + Warden's context
+3. Wait for Sentinel's Security Vetting Report
+4. Warden reviews Sentinel's report and adds final assessment
+5. Present combined report to the user
+6. Only proceed if the user approves
+7. Log the vetting via Vault to `memory/security/`
+
+### At session start
+
+1. Read `BOOTSTRAP.md` for entry-point
+2. Spawn Warden for config integrity check
+3. Spawn Vault to retrieve relevant context for pending tasks
+4. Spawn Clerk to load the kanban + generate standup
+5. Remind the user to review any pending logs
+
+### At session end
+
+1. Spawn Warden for session security audit
+2. Spawn Clerk to update Daily_Activity_Log
+3. Spawn Vault to store session context + archive Warden's audit
+4. Update `BOOTSTRAP.md` with next-session entry-point
+
+---
+
+## Parallel spawning rules
+
+| Pair | Can run parallel? | Notes |
+|---|---|---|
+| Warden + Clerk | YES | Independent domains (security vs PM) |
+| Warden + Sentinel | YES (pre-vetting only) | Warden researches context while Sentinel analyzes code |
+| Sentinel + Clerk | YES | Independent |
+| Vault + Clerk | NO | Both write to logs |
+| Vault + Warden | NO | Vault archives Warden's output; Warden must complete first |
+
+---
+
+## OpenClaw runtime caveat
+
+This SPEC defines the topology. On Claude Code, the harness executes agents via Claude's Task tool. On OpenClaw, until peer-agent spawning is natively supported, this spec is **advisory**:
+
+- User invokes the agent role manually (or via OpenClaw subagent equivalents like Meta Hyperagents)
+- The spawning protocol above describes what SHOULD happen; OpenClaw runtime determines what CAN happen
+- This file should be kept current as OpenClaw's runtime capabilities evolve
+
+---
+
+## Cross-references
+
+- 4-peer flat hierarchy (settled design decision)
+- Modular consumer architecture — agents are pluggable
+- Other-harness compatibility (design goal)
+- OpenClaw runtimes may provide subagent equivalents via the Meta Hyperagents lineage
+- SOUL.md (standing principles agents enforce)

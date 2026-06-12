@@ -1,0 +1,38 @@
+{
+  "templater-obsidian:insert-templater": [
+    {
+      "modifiers": ["Mod", "Shift"],
+      "key": "T"
+    }
+  ],
+  "templater-obsidian:create-new-note-from-template": [
+    {
+      "modifiers": ["Mod", "Shift"],
+      "key": "N"
+    }
+  ],
+  "obsidian-tasks-plugin:edit-task": [
+    {
+      "modifiers": ["Mod", "Shift"],
+      "key": "K"
+    }
+  ],
+  "editor:toggle-checklist-status": [
+    {
+      "modifiers": ["Mod"],
+      "key": "L"
+    }
+  ],
+  "graph:open": [
+    {
+      "modifiers": ["Mod", "Shift"],
+      "key": "G"
+    }
+  ],
+  "command-palette:open": [
+    {
+      "modifiers": ["Mod"],
+      "key": "P"
+    }
+  ]
+}

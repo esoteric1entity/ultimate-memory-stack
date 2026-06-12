@@ -1,0 +1,30 @@
+# Graphiti Installer — Pinned Dependency Manifest
+# Generated for v3.5 Ultimate release per VET-010 PASS verdict (2026-05-27 PM)
+# Authority: DEC-001 (Sentinel vetting required), DEC-029 C2 (biotech-first designed-in),
+#            DEC-037 (MCP + Ollama path research), DEC-048 (3 PASS addons proceed)
+#
+# Rationale for each pin:
+#   - graphiti-core>=0.29.1  → FLOOR pin (not exact) — security floor for CVE-2026-32247 patch (Cypher Injection, fixed at 0.28.2)
+#                              upstream is actively maintained with coordinated CVE disclosure track record
+#                              floor pin allows security patches to flow in via standard pip upgrade
+#   - kuzu>=0.4.0             → embedded backend; parameterized labels prevent Cypher injection class
+#                              RECOMMENDED backend per VET-010 condition #3
+#   - mcp>=1.0.2              → ONLY install if user chose MCP server option (Step 3)
+#                              uncomment line below if applicable
+#
+# Optional alternative backends (uncomment ONE if user chose non-Kuzu):
+#   - neo4j>=5.0.0            → server-based; exposes Cypher injection class; user assumes app-code parameterization responsibility
+#   - falkordb>=1.0.0         → Redis-based alternative for advanced users
+#
+# Per VET-010 condition #5: subscribe to upstream security advisories at github.com/getzep/graphiti/security/advisories
+# Per VET-010 condition #2: set GRAPHITI_TELEMETRY_ENABLED=false in environment BEFORE first import
+
+graphiti-core>=0.29.1
+kuzu>=0.4.0,<1.0.0
+
+# Optional — uncomment ONE based on Skill Step 1 backend selection:
+# neo4j>=5.0.0,<6.0.0
+# falkordb>=1.0.0,<2.0.0
+
+# Optional — uncomment if Skill Step 3 chose MCP server:
+# mcp>=1.0.2,<2.0.0

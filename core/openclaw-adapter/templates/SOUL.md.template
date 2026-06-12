@@ -1,0 +1,78 @@
+---
+scope: file
+file_type: standing_principles
+purpose: "Identity-stable principles distilled from FINAL decisions — DOES NOT change session-to-session"
+loaded_when: bootstrap
+priority: hot
+schema_version: "3.0"
+edition: general
+adapter_version: "1.0"
+distillation_source: "memory/decisions/decisions.md FINAL entries"
+---
+
+# Standing Principles — Ultimate Memory Stack
+
+> **Purpose:** Identity-stable principles. These DON'T change session-to-session. They're the WHY behind every decision-time tradeoff.
+> **Loaded:** Tier 1 / HOT — auto-loaded every session.
+> **Budget:** ~5K chars.
+> **Source:** distilled from `memory/decisions/decisions.md` FINAL entries with `confidence: 1.0` and tag `standing-principle`.
+
+---
+
+## Core principles (v3.5 baseline — 8 principles)
+
+### 1. Security-first tool installation
+
+ALL tools, skills, MCP servers, hooks, and plugins MUST pass Sentinel security vetting before installation. No exceptions. Defense-in-depth principle.
+
+### 2. Mirror discipline
+
+Canonical location → mirror location at byte parity. Both sides verified after every write batch. Single source of truth, replicated for resilience.
+
+### 3. Ideal-first design
+
+Design for the cleanest topology BEFORE compromising. Compromises must be documented (why we couldn't ship the ideal). This prevents architectural drift from convenience.
+
+### 4. Documentation discipline
+
+Every decision, schema, feature, or standing rule MUST carry 5 elements: purpose, rationale, sound reasoning, scope CAN, scope CANNOT. Undocumented features do NOT ship.
+
+### 5. Borrow ideas, not numbers
+
+When evaluating external benchmarks or vendor claims, borrow the IDEAS (architectural patterns, design choices) but NOT the NUMBERS (specific performance claims). Numbers are situational; ideas are transferable.
+
+### 6. Karpathy Lint surface-only
+
+Memory hygiene scanners SURFACE problems for user review. They NEVER auto-mutate content. The user decides what to act on. This preserves auditability and prevents feedback-loop reward hacking.
+
+### 7. Modular consumer architecture
+
+The memory stack is the branded module. The agent topology (Warden/Sentinel/Vault/Clerk vs OpenClaw's Meta Hyperagents vs any future harness's equivalents) is pluggable. The stack defines what's needed; the harness defines how to execute.
+
+### 8. Convergence is signal
+
+When two independent implementations arrive at the same architectural pattern from first principles, that's the strongest possible validation. Codify the convergence; resist the temptation to "improve" what multiple independent thinkers agreed on.
+
+---
+
+## How to use this file
+
+- **At decision time:** when weighing tradeoffs, ask "does this respect all 8 principles?" If not, document the deviation (ideal-first design in action).
+- **At review time:** when auditing past work, check against principles for missed-discipline patterns (documentation discipline in action).
+- **At onboarding time:** when a new contributor joins, this file is the first read. Principles before procedures.
+
+---
+
+## What this file is NOT
+
+- **NOT rules-as-code** — AGENTS.md says "HOW we act," this says "WHAT we believe."
+- **NOT exhaustive** — these are the LOAD-BEARING principles. There are more in `memory/decisions/decisions.md`.
+- **NOT static** — when a new FINAL decision earns the `standing-principle` tag, distill it here. When a principle is superseded (rare), mark it `invalid_at: <date>` per MEMORY_PROTOCOL §3 B5.
+
+---
+
+## Cross-references
+
+- `memory/decisions/decisions.md` — source of truth for FINAL DECs
+- The 8 principles above — distill your own from your decision log's FINAL `standing-principle` entries
+- MEMORY_PROTOCOL §7 (standing rules — operational equivalents of these principles)

@@ -1,0 +1,19 @@
+# Graphify Installer — Pinned Dependency Manifest
+# Generated for v3.5 Ultimate release per VET-009 PASS verdict (2026-05-27 PM)
+# Authority: DEC-001 (Sentinel vetting), DEC-029 C3 (Tier C adjacent tool),
+#            DEC-040 (Iter #004 Skill registration), DEC-048 (3 PASS addons proceed)
+#
+# ⚠️ CRITICAL: PACKAGE NAME IS `graphifyy` (DOUBLE-Y)
+#   - CORRECT:    graphifyy==0.8.21
+#   - INCORRECT:  graphify  (single-y) — UNRELATED package, typosquat risk
+#
+# This file is L2 defense layer per VET-009. Editing it requires fresh Sentinel vetting.
+#
+# Rationale for pins:
+#   - graphifyy==0.8.21    → EXACT pin (not floor) — active upstream means new versions
+#                            need fresh Sentinel vetting before pin advancement
+#                            Defense layer L4 per VET-009
+#   - tree-sitter           → bounded range; parser engine; required by graphifyy
+
+graphifyy==0.8.21
+tree-sitter>=0.20.0,<0.22.0

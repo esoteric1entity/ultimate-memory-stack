@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/esoteric1entity/ultimate-memory-stack/discussions
+    about: For usage questions, design feedback, or open-ended discussion.
+  - name: Security vulnerability
+    url: https://github.com/esoteric1entity/ultimate-memory-stack/security/advisories/new
+    about: Use GitHub Security Advisories for private vulnerability reports.

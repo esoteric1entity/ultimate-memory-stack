@@ -1,0 +1,114 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    name: unit tests (pytest, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Run unit suite
+        run: python -m pytest tests/ -q
+
+  install-bash:
+    name: install + verify (bash, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install (default — all addons, general-edition)
+        env:
+          WORKING_DIR: ${{ runner.temp }}/ums-test
+        run: |
+          mkdir -p "$WORKING_DIR"
+          cd "$WORKING_DIR"
+          bash "${{ github.workspace }}/setup-memory-stack.sh" --skip-wizard --compliance=none
+
+      - name: Verify install
+        env:
+          WORKING_DIR: ${{ runner.temp }}/ums-test
+        run: |
+          bash "${{ github.workspace }}/verify.sh" "$WORKING_DIR"
+
+  install-minimal:
+    name: install --minimal (bash, ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal (no addons)
+        env:
+          WORKING_DIR: ${{ runner.temp }}/ums-minimal
+        run: |
+          mkdir -p "$WORKING_DIR"
+          cd "$WORKING_DIR"
+          bash "${{ github.workspace }}/setup-memory-stack.sh" --minimal --skip-wizard --compliance=none
+
+      - name: Verify install
+        env:
+          WORKING_DIR: ${{ runner.temp }}/ums-minimal
+        run: |
+          bash "${{ github.workspace }}/verify.sh" "$WORKING_DIR"
+
+  install-windows:
+    name: install + verify (powershell, windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install (PowerShell, all addons)
+        shell: pwsh
+        env:
+          WORKING_DIR: ${{ runner.temp }}\ums-test-win
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:WORKING_DIR | Out-Null
+          Set-Location $env:WORKING_DIR
+          & "$env:GITHUB_WORKSPACE\setup-memory-stack.ps1" -SkipWizard -Compliance none
+
+      - name: Verify install (via bash since verify.sh is bash-only)
+        shell: bash
+        env:
+          WORKING_DIR: ${{ runner.temp }}\ums-test-win
+        run: |
+          bash "${{ github.workspace }}/verify.sh" "$WORKING_DIR"

@@ -1,0 +1,90 @@
+name: Bug report
+description: Report a defect in UMS behavior
+labels: ["bug", "triage"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: "One-sentence description of what's broken"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - setup-memory-stack.sh / .ps1 (install entry-point)
+        - verify.sh
+        - general-edition/setup.sh / .ps1 / .py
+        - common-specs/ (schemas, MEMORY_PROTOCOL, ARCHITECTURE)
+        - Skills (install-ultimate-memory-stack, audit-quarantine, openclaw-adapter)
+        - Recommended addons (graphify / graphiti / llmlingua / obsidian-vault-config)
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Cloned the repo at commit ...
+        2. Ran `./setup-memory-stack.sh ...`
+        3. Observed ...
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior (errors, logs, paste full output)
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: UMS version
+      placeholder: "v3.6.0"
+
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options:
+        - general-edition
+        - biotech-edition (institutional / private)
+        - unknown
+
+  - type: dropdown
+    id: harness
+    attributes:
+      label: Harness
+      options:
+        - Claude Code
+        - OpenClaw
+        - Other (specify in additional context)
+        - Not yet integrated with a harness
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Ubuntu 24.04 / macOS 14 / Windows 11 + WSL2"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context (workspace path, addons enabled, etc.)

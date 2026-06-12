@@ -1,0 +1,13 @@
+{
+  "name": "ultimate-memory-stack",
+  "description": "Persistent, modular memory for AI agents — markdown vault, knowledge graphs, compliance presets. Installs via the /install-ultimate-memory-stack skill.",
+  "version": "3.6.0",
+  "author": {
+    "name": "esoteric1entity",
+    "url": "https://github.com/esoteric1entity"
+  },
+  "homepage": "https://github.com/esoteric1entity/ultimate-memory-stack",
+  "repository": "https://github.com/esoteric1entity/ultimate-memory-stack",
+  "license": "Apache-2.0",
+  "keywords": ["memory", "agents", "knowledge-graph", "obsidian", "claude-code", "openclaw"]
+}

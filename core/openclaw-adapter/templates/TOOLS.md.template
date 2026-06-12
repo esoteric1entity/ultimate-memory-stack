@@ -1,0 +1,99 @@
+---
+scope: file
+file_type: addon_registry
+purpose: "Registry of installed addons — what's available, what's vetted, how to invoke"
+loaded_when: bootstrap
+priority: warm
+schema_version: "3.0"
+edition: general
+adapter_version: "1.0"
+last_addon_install: <!-- populated when an addon installer Skill completes -->
+---
+
+# Tool Registry — Ultimate Memory Stack General Edition
+
+> **Purpose:** What addons are installed on this deployment, what's available to install, and how to invoke each. Driven by the addon installer Skills under `recommended-addons/`.
+> **Loaded:** Tier 1 / WARM.
+> **Budget:** ~5K chars.
+
+---
+
+## Installed addons
+
+Status updated by each addon's installer Skill on completion. NOT INSTALLED is the default.
+
+| Addon | Status | Version | Installer Skill | Vetting | Last installed |
+|---|---|---|---|---|---|
+| **LLMLingua** | NOT INSTALLED | — | `/install-llmlingua` | [PASS](./memory/security/vetting_log.md) | — |
+| **Graphiti** | NOT INSTALLED | — | `/install-graphiti` | [PASS](./memory/security/vetting_log.md) | — |
+| **Graphify** | NOT INSTALLED | — | `/install-graphify` | [PASS](./memory/security/vetting_log.md) | — |
+| **Obsidian vault config** | NOT INSTALLED | — | `/config-obsidian-vault` | n/a (config-only) | — |
+
+---
+
+## What each addon does
+
+### LLMLingua (token compression)
+- Pinned `llmlingua==0.2.2` exactly per security vetting
+- Token-level perplexity-based prompt compression
+- 5-20× compression on long prompts with minimal quality loss
+- Upstream stale (~2 years); v3.6+ migration to SecurityLingua planned
+
+### Graphiti (knowledge graph)
+- Pinned `graphiti-core>=0.29.1` (CVE-2026-32247 floor) per security vetting
+- Bi-temporal fact graph; backends: Kuzu (RECOMMENDED), Neo4j, FalkorDB
+- PostHog telemetry DISABLED by default
+- Apache 2.0 licensed
+
+### Graphify (codebase symbol graph)
+- Pinned `graphifyy==0.8.21` (DOUBLE-y; typosquat defended) per security vetting
+- Tree-sitter based, 31 languages
+- 4-layer typosquat defense (L1-L4)
+- MIT licensed; 48h security response SLA
+
+### Obsidian vault config (PKM addon)
+- MVP scope shipped in v3.5 (memory_bank/ templates deferred to v3.5.1)
+- 10 files: SKILL + README + INSTALL + 3 templates + community-plugins.json + hotkeys.json + obsidian_config/README
+- No Python install; pure markdown + JSON config
+- Obsidian desktop app: https://obsidian.md/ (user installs separately)
+
+---
+
+## Tier C activation reference
+
+Full per-tool activation guide at:
+- `ultimate-memory-stack/common-specs/TIER_C_ACTIVATION.md`
+
+Each section there points back to the installer Skill folder under `recommended-addons/`.
+
+---
+
+## Addons NOT included in v3.5 (out of scope)
+
+| Addon | Why not | Status |
+|---|---|---|
+| **DGM-H** | Combined Sentinel REVIEW_REQUIRED + Warden CONCUR+ELEVATE → deferred from v3.5 | Phase 4+ candidate; 5 Warden gates required for future inclusion |
+| **Auto-Dream** | C1 — Anthropic Dreaming beta gated | v4.0 candidate |
+| **OpenClaw-family harness coverage** (e.g. NVIDIA NemoClaw, NanoClaw) | Roadmap phasing | Deferred |
+| **Multi-Machine Sync** | Scheduled for Phase 4+ | Design notes drafted; impl gated |
+
+---
+
+## How addons interact with the memory stack
+
+1. **Installation:** Each addon ships its own installer Skill under `recommended-addons/<addon>-installer/`
+2. **Activation:** Skill prompts user for opt-in (Tier C designation enforced)
+3. **Registration:** Installer updates this file's status table on completion
+4. **Integration:** Optional — installer offers to register the addon in `<edition>/PROFILE.md` for runtime awareness
+5. **Removal:** Standard pip uninstall + remove from PROFILE.md + log via Vault
+
+---
+
+## Cross-references
+
+- `recommended-addons/llmlingua-installer/` (Tier C C6)
+- `recommended-addons/graphiti-installer/` (Tier C C2)
+- `recommended-addons/graphify-installer/` (Tier C C3)
+- `recommended-addons/obsidian-vault-config/` (Tier B recommended)
+- `common-specs/TIER_C_ACTIVATION.md` (per-tool activation guide)
+- Design rationale: Tier C designed-in framework; v3.5 addons batch ships the 3 vetted PASS addons (DGM-H deferred)

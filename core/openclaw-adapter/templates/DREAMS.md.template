@@ -1,0 +1,45 @@
+---
+scope: file
+file_type: dream_log_placeholder
+purpose: "v4.0 placeholder for Auto-Dream offline consolidation — empty in v3.5 (Anthropic beta gated)"
+loaded_when: bootstrap
+priority: warm
+schema_version: "3.0"
+edition: general
+adapter_version: "1.0"
+v3_5_status: placeholder
+v4_0_activation_gate: "Anthropic Dreaming beta access (Tier C feature C1; v4.0 roadmap candidate #2)"
+---
+
+# Dreams — Ultimate Memory Stack General Edition
+
+> **v4.0 placeholder.** Auto-Dream will populate this file with offline-consolidated entry summaries when active. v3.5 ships empty.
+> **Loaded:** Tier 1 / WARM (lower priority than HOT root files). **Budget:** ~2K chars now; ~5-10K when Auto-Dream activates.
+
+---
+
+## v3.5 status
+
+Auto-Dream is **not yet active**. This file exists so OpenClaw's bootstrap loader finds all 9 expected root files. Content populates when Anthropic Dreaming beta access lands and Phase 4+ candidate #2 work begins.
+
+---
+
+## What Auto-Dream will do (when active)
+
+Planned scope (Tier C feature C1; v4.0 roadmap candidate #2): offline async consolidation (overnight / idle), entry clustering by topic, auto-summarization to condense Tier 1, insight surfacing across sessions. Phase 4+ scope; NOT in v3.5.
+
+---
+
+## Activation gate
+
+Activation trigger: Anthropic Dreaming beta access granted. Until then this file is a placeholder; no code mutation possible (beta required).
+
+---
+
+## Cross-references
+
+- Tier C feature C1 (Auto-Dream designed-in)
+- Phase 4+ Evolution Layer roadmap (candidate #2)
+- v3.5 trajectory — Auto-Dream deferred
+- v4.0 roadmap (full candidate list)
+- ARCHITECTURE.md §9 Tier C activation

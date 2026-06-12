@@ -1,0 +1,88 @@
+---
+scope: file
+file_type: heartbeat_active
+purpose: "Active heartbeat + rolling 3-deep history — critical for compaction-safe handoff per §15"
+loaded_when: bootstrap
+priority: hot
+schema_version: "3.0"
+edition: general
+adapter_version: "1.0"
+rolling_window_depth: 3
+last_heartbeat: <!-- populated at each heartbeat write -->
+---
+
+# Heartbeat — Ultimate Memory Stack General Edition
+
+> **Purpose:** Per MEMORY_PROTOCOL §4.4 — capture current state every ~30 min of active work. Critical for compaction-safe handoff per §15.
+> **Loaded:** Tier 1 / HOT.
+> **Budget:** ~5K chars (rolling 3-deep window).
+> **Compactor:** archives oldest heartbeat when 4th enters; archives to `memory/archive/heartbeats/<YYYY-MM>.md`.
+
+---
+
+## 🔵 Current heartbeat (most recent)
+
+**Status:** _One-line state of play_
+
+### Current task
+- **Task name:**
+- **Sub-step:**
+- **File(s) being modified:**
+- **Specific blocker (if any):**
+
+### Decisions in progress
+- _Any TENTATIVE decisions being weighed; cite DEC-### if drafted_
+
+### Recent completed (this slice)
+-
+
+### Next up (post-this-task)
+-
+
+### Files mirrored (D ↔ C) since last heartbeat
+-
+
+### Open threads (don't lose these)
+-
+
+---
+
+## 🟦 Prior heartbeat (1 back)
+
+_(Populated automatically when a new heartbeat is written; rolling window)_
+
+---
+
+## 🟦 Prior heartbeat (2 back)
+
+_(Populated automatically when a new heartbeat is written; rolling window)_
+
+---
+
+## Heartbeat protocol (MEMORY_PROTOCOL §4.4 reference)
+
+**When to heartbeat:**
+- Every ~30 min of active work
+- Before any `/compact` invocation
+- Before laptop lid close / long pause
+- When switching to a meaningfully different task
+
+**What to include:**
+- Current task name + sub-step
+- File(s) being modified with line numbers
+- Specific blocker if any
+- Updated timestamp
+
+**Compaction safety (§15):**
+After compaction, the next session reads this heartbeat FIRST. Be SPECIFIC — vague heartbeats are useless after context loss. Say exactly what file, function, line, issue.
+
+---
+
+## Cross-references
+
+- MEMORY_PROTOCOL §4.4 (heartbeat protocol)
+- MEMORY_PROTOCOL §15 (compaction-safe handoff)
+- `BOOTSTRAP.md` (companion file — captures next-session entry-point, not active heartbeat)
+- `memory/archive/heartbeats/` (rotated heartbeats)
+- `scripts/heartbeat_compactor.py` (rotates heartbeats + surfaces Lint findings)
+- `recommended-addons/obsidian-vault-config/templates/session_heartbeat_template.md`

@@ -1,0 +1,82 @@
+---
+scope: file
+file_type: feedback_log
+purpose: "Recent feedback (last 5 sessions) + standing rules promoted from recurring patterns"
+loaded_when: bootstrap
+priority: warm
+schema_version: "3.0"
+edition: general
+promotion_threshold: 5
+adapter_version: "1.0"
+last_rotation: <!-- populated by heartbeat_compactor.py -->
+---
+
+# User Feedback + Standing Rules — Ultimate Memory Stack General Edition
+
+> **Purpose:** Capture user corrections and preferences. Promote recurring patterns to standing rules. Pruned by heartbeat compactor — feedback older than 5 sessions rotates to `memory/feedback/archive/`.
+> **Loaded:** Tier 1 / WARM.
+> **Budget:** ~5K chars.
+> **Promotion threshold:** `recurrence_count >= 5` for general-edition per MEMORY_PROTOCOL §4.2 B6.
+
+---
+
+## Recent feedback (last 5 sessions, rolling window)
+
+_(Entries appear here as Vault writes them; oldest rotates out when 6th feedback enters.)_
+
+### Example entry (delete on first real feedback)
+
+> **FB-EXAMPLE:** _User preference / correction summary_
+> - **Date:** YYYY-MM-DD
+> - **Session:** N
+> - **Trigger:** _What the user said_
+> - **Correction / preference:** _Exact instruction_
+> - **Pattern key:** `<stable.dotted.identifier>`
+> - **Recurrence count:** 1
+> - **Tags:** feedback, [topic]
+
+Full FB template at `recommended-addons/obsidian-vault-config/templates/FB_template.md`.
+
+---
+
+## Standing rules (promoted from recurring feedback)
+
+_(Entries appear here when `recurrence_count >= 5` for general-edition. Each gets a full DEC entry capturing the promotion provenance.)_
+
+### Example promoted rule (delete on first real promotion)
+
+> **Rule:** _Concise standing rule statement_
+> - **Source feedback chain:** [[FB-001]] [[FB-007]] [[FB-014]] [[FB-022]] [[FB-031]]
+> - **Promoted in DEC:** [[DEC-XXX]]
+> - **Promoted on:** YYYY-MM-DD
+> - **Applies to:** [scope — global / per-project / per-edition]
+
+---
+
+## How feedback flows
+
+1. **Capture:** User correction or preference observed mid-session → orchestrator (or Vault) writes FB entry to `memory/feedback/feedback.md`
+2. **Surface:** FB entry replicated to this file (USER.md) for Tier 1 visibility
+3. **Increment:** Same pattern_key observed again → increment `recurrence_count`, update `last_seen`
+4. **Promote:** When `recurrence_count >= 5` (general-edition), prompt user to promote to standing rule
+5. **Standing rule:** Captured as DEC-### with full documentation discipline (purpose/rationale/scope CAN/CANNOT) + cross-reference chain back to original FB entries
+6. **Rotate:** Original FB entries rotated to `memory/feedback/archive/` after 5 sessions
+
+---
+
+## What this file is NOT
+
+- **NOT a real-time user preference store** — that's IDENTITY.md
+- **NOT a complaint log** — feedback here is for behavioral correction or preference, not venting
+- **NOT exhaustive** — only the last 5 sessions of feedback + promoted rules. Archive has the full history.
+
+---
+
+## Cross-references
+
+- `memory/feedback/feedback.md` (source of truth for FB entries)
+- `memory/feedback/archive/` (rotated FB entries older than 5 sessions)
+- `memory/decisions/decisions.md` (where promoted rules become DEC entries)
+- MEMORY_PROTOCOL §4.2 (pattern-key promotion logic)
+- SCHEMA_A18 (FB entry frontmatter spec)
+- `recommended-addons/obsidian-vault-config/templates/FB_template.md` (full FB template)

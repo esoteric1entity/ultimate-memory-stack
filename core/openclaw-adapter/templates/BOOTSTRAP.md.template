@@ -1,0 +1,65 @@
+---
+scope: file
+file_type: bootstrap_handoff
+purpose: "Next-session entry-point + top 3-5 immediate actions — updated at session-end per §14"
+loaded_when: bootstrap
+priority: hot
+schema_version: "3.0"
+edition: general
+adapter_version: "1.0"
+last_updated: <!-- populated at each session-end per MEMORY_PROTOCOL §14 -->
+---
+
+# Bootstrap — Ultimate Memory Stack General Edition
+
+> **Purpose:** Where to pick up the next time the harness starts. Top 3-5 immediate actions for the orchestrator. Updated at session-end (NOT at heartbeat — see HEARTBEAT.md for that).
+> **Loaded:** Tier 1 / HOT.
+> **Budget:** ~4K chars.
+
+---
+
+## 🎯 Top of mind for next session
+
+1. _Action item #1 — specific and actionable_
+2. _Action item #2_
+3. _Action item #3_
+4. _(optional) #4_
+5. _(optional) #5_
+
+---
+
+## Where we left off
+
+**Last session:** Session N (YYYY-MM-DD)
+
+**Last completed:** _Concrete deliverable shipped_
+
+**In flight:** _Anything not finished_
+
+**Pending review:** _Anything awaiting user approval_
+
+---
+
+## Active threads (carry forward)
+
+- _Open threads from prior sessions that aren't yet resolved_
+- _Things to remember to surface to user_
+
+---
+
+## What's stable (don't re-litigate)
+
+Per MEMORY_PROTOCOL §3 conflict resolution hierarchy — FINAL decisions in `memory/decisions/decisions.md` are SETTLED. Don't re-litigate unless new information warrants a fresh DEC entry.
+
+Key stable decisions:
+- _List of FINAL DECs that constrain current work_
+
+---
+
+## Cross-references
+
+- MEMORY_PROTOCOL §14 (session-end protocol — when this file gets updated)
+- `HEARTBEAT.md` (active heartbeat — companion file; this captures next-session, that captures current-task)
+- `memory/sessions/session_state.md` (full session history)
+- `memory/decisions/decisions.md` (FINAL decisions that constrain current work)
+- `BOOTSTRAP.md` is loaded BEFORE HEARTBEAT.md in some OpenClaw configurations — keep this file concise and actionable
