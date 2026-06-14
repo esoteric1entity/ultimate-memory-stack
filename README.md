@@ -202,7 +202,6 @@ credits, or GitHub's "Cite this repository" button (powered by
 ## Authors
 
 - **`esoteric1entity`** — architect + design lead. A PDuk Brainworks project.
-- **An early collaborator** — see Acknowledgements in [`AUTHORS.md`](AUTHORS.md).
 
 This stack was developed across multiple deployments with peer-review at each step. See [`AUTHORS.md`](AUTHORS.md) for the full contributor list and [`CONTRIBUTING.md`](CONTRIBUTING.md) for how the work is governed.
 

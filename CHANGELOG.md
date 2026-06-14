@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - License decision locked: **Apache-2.0** (was: deferred per the long-standing DEC-017 placeholder)
 - All internal `branches/memory/package/` paths in install + spec docs rewritten to be self-contained for the per-package repo layout
 - Top-level README replaced with the v3.6.0 debut release version (former v3.0 R&D README archived in the umbrella's R&D tree)
-- Author attribution moved to `esoteric1entity` handle (per Option B privacy-preserving copyright pattern) with "an early collaborator" placeholder in NOTICE / AUTHORS
+- Author attribution consolidated under the `esoteric1entity` handle across NOTICE / AUTHORS (privacy-preserving copyright pattern)
 - Branding aligned: package is a PDuk Brainworks project under the Agent Architect Stack umbrella
 - Repo layout flattened for standalone publication (no longer requires the umbrella's `branches/<branch>/` nesting)
 - Schema discipline (SCHEMA_A18) is the canonical entry shape

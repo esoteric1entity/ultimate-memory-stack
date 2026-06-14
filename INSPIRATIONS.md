@@ -132,11 +132,19 @@ specific performance claims and benchmarks are situational and not borrowed.
   formulas). Our install model is `git clone` + per-branch install
   script — simpler, no orchestration runtime required.
 
-### Anthropic Claude / Claude Code — supported harness (not a design source)
+### [Anthropic Claude](https://www.anthropic.com/) / Claude Code — supported harness (not a design source)
 
 - **Documentation:** https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview
-- **Role here:** Claude Code is one of the LLM harnesses the stack runs on (alongside OpenClaw and any 9-root-file harness) — a runtime, not a source we borrowed design from.
-- **Provenance, to be unambiguous** the agent architecture — the four-peer Warden / Sentinel / Vault / Clerk role model, the modular branch topology, and the spawn protocol — was conceived, designed, and specified independently by esoteric1entity on private hardware, and is original to this project (see §4). It does not derive from, and does not use, Anthropic's tool-use API contracts or function-calling schemas; it is implementation-agnostic and runs on Claude, OpenClaw, or any harness.
+- **Role here:** Claude Code is one of the LLM harnesses the stack *runs on*
+  (alongside OpenClaw and any 9-root-file harness) — a runtime, not a source
+  we borrowed design from.
+- **Provenance, to be unambiguous:** the agent architecture — the four-peer
+  **Warden / Sentinel / Vault / Clerk** role model, the modular branch
+  topology, and the spawn protocol — was conceived, designed, and specified
+  **independently by esoteric1entity on private hardware**, and is original to
+  this project (see §4). It does not derive from, and does not use, Anthropic's
+  tool-use API contracts or function-calling schemas; it is
+  implementation-agnostic and runs on Claude, OpenClaw, or any harness.
 
 ---
 
@@ -276,6 +284,24 @@ The following are *not* borrowed from anywhere; they are original
 contributions from esoteric1entity (sole project owner) and the broader
 team's collective work:
 
+- **The agentic-AI architecture itself — original to esoteric1entity.** This is
+  the root contribution: the Stack grew out of a sustained personal design effort
+  begun in **early 2026** (built on the founder's prior AI/ML study — the CalTech CTME AIML program, 2025). It started as
+  an original OpenClaw architecture developed across a series of design
+  notebooks plus a multi-agent topology spec, then was **first deployed as the
+  founder's own OpenClaw stack in March 2026** — the earliest and longest-running
+  deployment in the lineage. The Memory and Security branches that make up this
+  public release were **built afterward, by the founder's own directed agents on
+  his own machines, on top of that original design** — they are its descendants,
+  not its source. Concepts that carried over **directly** from that design into the
+  public branches:
+  - the **tiered (HOT/WARM/COLD) memory model** and the **9-root-file interface**;
+  - **journaling-as-governance** with traceable provenance → the SHA-256-chained **audit log**;
+  - the **approval-gate / human-in-the-loop** workflow → the **Tribunal** cross-review pattern;
+  - **tiered local-vs-paid routing**, **local-first autonomy**, and **component separation** (agent ≠ runtime ≠ UI);
+  - the **sandbox / least-privilege** model and **skill-vetting** → agent-shield Layers 1–4;
+  - **immutable provenance logging** → agent-shield Layer 7 (audit);
+  - the **modular, install-what-you-need** branch philosophy → the umbrella topology below.
 - The **modular umbrella topology** (DEC-031, DEC-062): the idea that
   Memory, Security, PM, and Orchestration are *peer sibling branches*
   with no hard runtime dependencies.
