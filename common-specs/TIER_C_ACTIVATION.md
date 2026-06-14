@@ -2,7 +2,7 @@
 
 > **File:** `common-specs/TIER_C_ACTIVATION.md`
 > **Version:** 1.0 — 2026-05-19
-> **Author:** Claude Code (orchestrator) for esoteric1entity
+> **Author:** esoteric1entity, AI-Assisted
 > **Design basis:** ideal-first design principle; Tier C designed-in feature set; 2026-05-19 research refresh
 
 ---
