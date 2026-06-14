@@ -19,7 +19,7 @@ headers; git commit history is the source of truth for line-level attribution.
 
 ## Acknowledgements
 
-- **[@JTCneo](https://github.com/JTCneo)** — with thanks for help with some of the pull-request iteration cycles on the Memory Stack.
+- **[@JTCneo](https://github.com/JTCneo)** — with special thanks for support and help with some of the pull-request iteration cycles during the Memory Stack's early exploratory phase.
 
 ## How to add yourself
 
