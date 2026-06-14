@@ -132,15 +132,11 @@ specific performance claims and benchmarks are situational and not borrowed.
   formulas). Our install model is `git clone` + per-branch install
   script — simpler, no orchestration runtime required.
 
-### [Anthropic Claude](https://www.anthropic.com/) agent pattern documentation
+### Anthropic Claude / Claude Code — supported harness (not a design source)
 
 - **Documentation:** https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview
-- **What we borrowed:** the orchestrator + branch + tool model in the
-  umbrella architecture (the four-peer agent topology: Warden / Sentinel
-  / Vault / Clerk).
-- **What we did NOT borrow:** Anthropic's specific tool-use API contracts
-  or function-calling schemas. Our agent topology is implementation-
-  agnostic — it can run on Claude, OpenClaw, or any LLM harness.
+- **Role here:** Claude Code is one of the LLM harnesses the stack runs on (alongside OpenClaw and any 9-root-file harness) — a runtime, not a source we borrowed design from.
+- **Provenance, to be unambiguous** the agent architecture — the four-peer Warden / Sentinel / Vault / Clerk role model, the modular branch topology, and the spawn protocol — was conceived, designed, and specified independently by esoteric1entity on private hardware, and is original to this project (see §4). It does not derive from, and does not use, Anthropic's tool-use API contracts or function-calling schemas; it is implementation-agnostic and runs on Claude, OpenClaw, or any harness.
 
 ---
 
