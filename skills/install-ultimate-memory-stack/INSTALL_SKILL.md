@@ -1,14 +1,14 @@
 # How to Install the `install-ultimate-memory-stack` Skill
 
-> **Version:** 1.0 — 2026-05-15
+> **Skill version:** 1.3 — see `SKILL.md` frontmatter + changelog for the authoritative version  ·  **This guide revised:** 2026-06-16
 > **Audience:** Users who want to register the Ultimate Memory Stack Skill installer in Claude Code
-> **Status:** v1.0 STABLE — executed end-to-end 2026-06-10 (fresh install, general-edition; T1–T9 all pass)
+> **Status:** STABLE — v1.0 validated end-to-end 2026-06-10 (fresh install, general-edition; T1–T9 all pass); v1.1–v1.3 added existing-store data-safety (backup + preserve) and `$HOME`/system-dir install guards — see SKILL.md changelog.
 
 ---
 
 ## What This Skill Does
 
-Once registered with Claude Code, this skill lets you install the Ultimate Memory Stack v3.6.0 with a single slash command: `/install-ultimate-memory-stack`. See `SKILL.md` (in this same directory) for the full workflow specification.
+Once registered with Claude Code, this skill lets you install the Ultimate Memory Stack v3.6.1 with a single slash command: `/install-ultimate-memory-stack`. See `SKILL.md` (in this same directory) for the full workflow specification.
 
 This is one of 3 primary install methods (alongside Manual Drag-and-Drop and Bash setup.sh) — see `../../INSTALLATION_GUIDE.md` §6 for the user-facing description.
 
@@ -60,7 +60,7 @@ After restart, in Claude Code:
 /install-ultimate-memory-stack
 ```
 
-**Expected:** The skill triggers and asks "You're about to install the Ultimate Memory Stack v3.6.0..." (Step 0 of the workflow).
+**Expected:** The skill triggers and asks "You're about to install the Ultimate Memory Stack v3.6.1..." (Step 0 of the workflow).
 
 If the slash command isn't recognized, see [Troubleshooting](#troubleshooting) below.
 
@@ -83,7 +83,7 @@ Claude Code recognizes the skill and runs the workflow from `SKILL.md`.
 You can also say things like:
 - "Install the Ultimate Memory Stack"
 - "Set up the memory stack here"
-- "Deploy the v3.6.0 memory stack in this directory"
+- "Deploy the v3.6.1 memory stack in this directory"
 
 Claude should map these to the skill automatically (based on the `description:` field in SKILL.md's frontmatter).
 
@@ -211,7 +211,7 @@ This skill is the **easiest UX** when available but has a dependency on Skills b
 
 ## Status + Tracking
 
-- **Skill version:** 1.0 STABLE (end-to-end validated 2026-06-10)
+- **Skill version:** 1.3 (authoritative version in `SKILL.md` frontmatter + changelog); v1.0 baseline validated end-to-end 2026-06-10 (T1–T9 pass)
 - **Cross-reference:** `SKILL.md` (the actual workflow); `../../INSTALLATION_GUIDE.md` §6 (user-facing description)
 
 ---

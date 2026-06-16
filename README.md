@@ -3,7 +3,7 @@
 > **Persistent, modular memory for AI agents.** Works with Claude Code, OpenClaw, and any harness that supports the 9-root-file convention. Install in one command; opt-in to addons; verify after install.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status: v3.6.0](https://img.shields.io/badge/Status-v3.6.0-green.svg)](#)
+[![Status: v3.6.1](https://img.shields.io/badge/Status-v3.6.1-green.svg)](#)
 [![Skills: 7](https://img.shields.io/badge/Skills-7-orange.svg)](#)
 [![Tests](https://github.com/esoteric1entity/ultimate-memory-stack/actions/workflows/test.yml/badge.svg)](https://github.com/esoteric1entity/ultimate-memory-stack/actions/workflows/test.yml)
 
@@ -51,12 +51,20 @@ Then tell your agent — Claude Code, OpenClaw, or any capable harness — *"ins
 
 **🚪 Door 3 — Marketplace (Claude Code)**
 
-```
-/plugin marketplace add esoteric1entity/ultimate-memory-stack
-/plugin install ultimate-memory-stack@ultimate-memory-stack
-```
+> ⚠️ **These are Claude Code slash commands, not shell commands** — type them **inside a running Claude Code session**, not in bash/PowerShell. **Prerequisite:** Claude Code already installed and authenticated.
+>
+> 🛟 **Re-installing, or already have a `memory/` store in the target project? Back it up first** — or use **Door 1 (Script)** or **Door 2 (agent)**, which detect and preserve an existing store automatically. The marketplace door is the one path that can overwrite an existing store on installs from before v3.6.1.
 
-Then, in the project where the memory should live: `/install-ultimate-memory-stack` — the skill scaffolds and verifies the whole workspace interactively. **Already have a `memory/` store there? Back it up first** (or use Door 1 / Door 2, which detect and preserve an existing store automatically). *(If `marketplace add` reports "not found", the plugin hasn't propagated yet — use Door 1 or Door 2 in the meantime.)*
+1. **In Claude Code**, add the marketplace + install the plugin:
+   ```
+   /plugin marketplace add esoteric1entity/ultimate-memory-stack
+   /plugin install ultimate-memory-stack@ultimate-memory-stack
+   ```
+2. **Exit Claude Code** (`/exit` or Ctrl-D), then in your shell **`cd` to the project** where the memory should live.
+3. **Relaunch Claude Code** from inside that directory.
+4. Run `/install-ultimate-memory-stack` — the skill scaffolds and verifies the workspace interactively.
+
+*(If `marketplace add` reports "not found", the plugin hasn't propagated yet — use Door 1 or Door 2 in the meantime.)*
 
 **🚪 Door 4 — Manual**
 
@@ -171,7 +179,7 @@ To set expectations:
 
 ## Project status
 
-**v3.6.0 — first public release.** Predecessor versions (v3.0/v3.5) have run in production on the maintainer's own machines since 2026-05-19, across Claude Code and OpenClaw deployments on three platforms, with a cross-machine validation cycle before this release was cut.
+**v3.6.1 (patch) — current.** A data-safety + install-UX patch over **v3.6.0, the first public release.** Predecessor versions (v3.0/v3.5) have run in production on the maintainer's own machines since 2026-05-19, across Claude Code and OpenClaw deployments on three platforms, with a cross-machine validation cycle before v3.6.0 was cut.
 
 - Build: production-ready
 - Verification: two complementary layers — `verify.sh` validates an *install* (scaffold, registration, manifest), and `tests/` holds a **177-test pytest unit suite** covering the logic modules (lint runner, heartbeat compactor, edition setup, quarantine review). Run the units with `python -m pytest tests/`

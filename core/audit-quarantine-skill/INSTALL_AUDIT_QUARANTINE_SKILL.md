@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-1. **Ultimate Memory Stack v3.6.0 installed** at your working directory
+1. **Ultimate Memory Stack v3.6.0 (or later) installed** at your working directory
 2. **`memory/quarantine/` directory exists** — adapter or the edition setup creates this
 3. **Python 3.10+** for the standalone script
 4. **Optional:** biotech-edition or general-edition profile loaded (Skill detects via PROFILE.md)

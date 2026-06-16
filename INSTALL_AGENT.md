@@ -9,7 +9,7 @@
 
 ---
 
-You are an agent installing the **Ultimate Memory Stack v3.6.0** — a file-based
+You are an agent installing the **Ultimate Memory Stack v3.6.1** — a file-based
 persistent-memory scaffold (markdown specs + a `memory/` directory + optional skills)
 that your harness reads. Execute the steps below **in order**. Be honest in every
 report: never claim a step succeeded without checking its result.
@@ -95,7 +95,7 @@ by hand, write it yourself:
 ```json
 {
   "package": "ultimate-memory-stack",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "edition": "general",
   "installed_at": "<ISO-8601 UTC>",
   "install_door": "agent",

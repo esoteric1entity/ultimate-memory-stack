@@ -9,14 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.1] — 2026-06-16
+
 ### Fixed
 - **macOS: installer failed at addon registration** — `setup-memory-stack.sh` used a bash-4 associative array (`declare -A`), but macOS ships bash 3.2; replaced with a portable case-statement lookup. Caught by the cross-OS install CI on launch day (the macOS leg had never run on real Apple hardware before).
 - **Install skill could overwrite an existing `memory/` store** — the `/install-ultimate-memory-stack` skill (≤ v1.1) created `session_state.md` / `MEMORY_INDEX.md` / `user_profile.md` / project briefs / `feedback.md` without checking whether they already existed, so re-running it over an existing project-local memory store reset accumulated memory to empty templates. Skill **v1.2** adds an existing-store safety gate (detect → timestamped `memory.backup.<ts>/` → preserve mode; user-data files are now create-if-absent), matching the shell and agent install doors, which already preserved data. (Claude Code's native memory and `CLAUDE.md` are unaffected — UMS writes only to the project-local `memory/`.)
 - **Windows installer accepted a compliance preset it then rejected** — `general-edition/setup.ps1` listed `healthcare` as a valid preset/extension while `setup.sh`/`setup.py` refuse it, so passing `-Compliance healthcare` produced a confusing downstream failure. The PS1 now rejects it up-front with the institutional-edition message, matching the other installers.
+- **Install skill now refuses unsafe install locations** — the `/install-ultimate-memory-stack` skill (v1.3) guards against scaffolding into `$HOME` or a system directory (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`), which would otherwise scatter `memory/`, `.claude/`, and `ultimate-memory-stack/` across the user's home/root. It now stops and asks the user to `cd` into a dedicated project directory first. (PUBREL-UX-007.)
+- **Install-skill data-preservation guard made explicit** — Step 8 of the install skill (v1.3) now spells out the per-file existence check (`[ -e <target> ]` → preserve, do not write, ask first) so the Step 0.5 existing-store protection is mechanical rather than advisory prose; Step 7f now confirms before resetting a user-customized `PROFILE.md` on a re-install. (PUBREL-UX-021 residual.)
 
 ### Changed
 - **Install doors reordered to lead with the safe paths** — the landing page, `README.md`, and `INSTALL.md` now present the **script** and **agent** doors first (both detect and preserve an existing `memory/` store); the Claude Code **marketplace** door follows, with a "back up an existing store first" note. The backup guidance is scoped to the marketplace door — the only one with overwrite potential.
 - **Gated the public biotech/healthcare offer** — the public package ships **general-edition only** (compliance presets `none`/`enterprise`/`custom`; extensions `gdpr`/`soc2`/`pci-dss`). Docs, prompts, the install skill, and `setup.ps1` no longer offer the `healthcare` preset/extension or a selectable biotech edition (the installers already refused them — this aligns the docs to that gate). A HIPAA/PHI-focused institutional edition is **planned for a future release (not yet available)**; all references are now forward-looking rather than present-availability claims.
+- **Marketplace (Door 3) install docs hardened** — added a "these are Claude Code slash commands, not shell commands" callout, a Prerequisites line (Claude Code installed + authenticated), and the explicit exit → `cd` → relaunch steps, and promoted the back-up-an-existing-store note from a parenthetical to a prominent warning (README, INSTALL.md, landing page). Addresses the marketplace-door UX gaps surfaced by the post-launch install test (PUBREL-UX-001/002/003).
+- **Version bumped 3.6.0 → 3.6.1** so existing marketplace installs receive the install-skill data-safety fix (existing-store backup + preserve, shipped in skill v1.1/1.2) via `/plugin update` — the fix was committed but undelivered while the package still advertised 3.6.0.
+
+### Known issues
+- The always-loaded `memory_protocol.md` (~55k chars) exceeds Claude Code's 40k rules-file recommendation, so Claude Code shows a per-session performance notice at launch. A protocol core/extended split that brings the always-loaded core under the threshold is scheduled for **v3.6.2**. No functional impact — sessions work normally.
 
 ### Documentation
 - `INSPIRATIONS.md`: documented the project's architecture-origin provenance — the architecture is original to esoteric1entity (design begun early 2026; the Memory and Security branches are descendants of that original design) — and clarified contributor / inspiration credit across `AUTHORS.md` and `NOTICE`.

@@ -1,6 +1,6 @@
 ---
 file: INSTALL
-title: "Install Guide (UMS v3.6.0)"
+title: "Install Guide (UMS v3.6.1)"
 license: Apache 2.0
 ---
 
@@ -14,7 +14,7 @@ This is the **short install guide** for users who just want to get going. Four d
 |---|---|---|
 | **Script** | CLI users | below ↓ |
 | **Tell your agent** | any agent harness | clone, then: *"install this — read `INSTALL_AGENT.md`"* |
-| **Marketplace** | Claude Code users | `/plugin marketplace add esoteric1entity/ultimate-memory-stack` … then `/plugin install` + `/install-ultimate-memory-stack` (see README Door 3). **Back up an existing `memory/` store first** — or use the Script / agent door, which preserve it automatically. |
+| **Marketplace** | Claude Code users | Run **inside Claude Code** (these are slash commands, not shell): `/plugin marketplace add …` → `/plugin install …` → exit Claude Code (`/exit` or Ctrl-D), `cd` to your project in your shell, relaunch, `/install-ultimate-memory-stack` (see README Door 3). Prereq: Claude Code installed + authenticated. **Re-installing, or have an existing `memory/` store? Back it up first** — or use the Script / agent door, which preserve it automatically. |
 | **Manual** | no tooling | drag 2 folders + paste `common-specs/BOOTSTRAP_PROMPT.md` |
 
 ## TL;DR (script door)

@@ -1,4 +1,4 @@
-# Ultimate Memory Stack v3.6.0 — Installation Guide
+# Ultimate Memory Stack v3.6.1 — Installation Guide
 
 > **The deep guide** — prerequisites, pre-install decisions, every install method step-by-step, multi-machine deployment, v2→v3 migration. In a hurry? [`INSTALL.md`](./INSTALL.md) is the fast path.
 
@@ -188,7 +188,7 @@ Copy the **entire activation prompt below** (the text inside the gray code block
 **The activation prompt** (verbatim — also available in `common-specs/BOOTSTRAP_PROMPT.md`):
 
 ```
-You are deploying the Ultimate Memory Stack v3.6.0 in this working directory.
+You are deploying the Ultimate Memory Stack v3.6.1 in this working directory.
 
 The complete spec lives in `common-specs/` plus your edition's profile in `<edition>/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
 
@@ -446,7 +446,7 @@ The script confirms the install target interactively (auto-detecting an OpenClaw
 ```
 ==========================================
 Ultimate Memory Stack — General-Edition Setup
-Version: 3.6.0
+Version: 3.6.1
 Working directory: <working-dir>
 Compliance preset: none
 Extensions: none
@@ -488,7 +488,7 @@ Same as Method A Step 4.
 /path/to/ultimate-memory-stack/verify.sh    # run from the working directory; or pass it as an argument
 ```
 
-Expected: ends with `✅ All checks passed — Ultimate Memory Stack v3.6.0 install is valid.` If anything fails, see §10 Troubleshooting.
+Expected: ends with `✅ All checks passed — Ultimate Memory Stack v3.6.1 install is valid.` If anything fails, see §10 Troubleshooting.
 
 **Total time: ~30 sec for script + ~2-3 min for wizard.**
 
@@ -593,7 +593,7 @@ After ANY install method, verify these:
 
 **Expected output (verify.sh, preset `none`):** sectioned `[T1]`–`[T7]` checks (memory dirs, edition profile, audit logs per preset, common-specs, registered skills, bootstrap prompt), ending with:
 ```
-✅ All checks passed — Ultimate Memory Stack v3.6.0 install is valid.
+✅ All checks passed — Ultimate Memory Stack v3.6.1 install is valid.
 ```
 
 (The edition-level alternative `general-edition/setup.sh --verify` prints a shorter check: T1/T2 lines, an audit-log status line, and a "Deployment tier:" section.)
@@ -895,7 +895,7 @@ python3 setup.py --generate-hmac-secret
 
 ## §18. Recommended Addons + Core Skills
 
-> These components ship as part of v3.6.0.
+> These components ship as part of v3.6.1.
 
 ### §18.1 What the Addons Add Beyond the Base Stack
 

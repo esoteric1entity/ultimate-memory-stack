@@ -96,7 +96,7 @@
 ## The Activation Prompt
 
 ```
-You are deploying the Ultimate Memory Stack v3.6.0 in this working directory.
+You are deploying the Ultimate Memory Stack v3.6.1 in this working directory.
 
 The complete spec lives in `common-specs/` plus the general-edition profile in `general-edition/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
 

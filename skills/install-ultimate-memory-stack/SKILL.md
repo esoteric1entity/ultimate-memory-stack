@@ -1,14 +1,14 @@
 ---
 name: install-ultimate-memory-stack
-version: "1.2"
-description: Interactive installer for the Ultimate Memory Stack v3.6.0. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
+version: "1.3"
+description: Interactive installer for the Ultimate Memory Stack v3.6.1. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
 edition: any
 license: Apache-2.0
 ---
 
-# Install Ultimate Memory Stack v3.6.0 — Skill Workflow
+# Install Ultimate Memory Stack v3.6.1 — Skill Workflow
 
 When this skill is invoked (typically via `/install-ultimate-memory-stack` slash command or when the user asks Claude to install/deploy/activate the memory stack), execute the workflow below **IN ORDER**. Treat each step as required unless the user explicitly opts to skip.
 
@@ -18,10 +18,26 @@ This skill is one of the primary install methods, alongside the manual copy and 
 
 ## Step 0 — Confirm Install Intent
 
-Greet the user briefly and confirm intent:
+**First, refuse unsafe install locations.** Before anything else, check the current working directory:
+
+```bash
+case "$PWD" in
+  "$HOME"|/|/etc|/usr|/var|/root|/tmp|/bin|/sbin)     echo "REFUSE" ;;
+  /etc/*|/usr/*|/var/*|/root/*|/tmp/*|/bin/*|/sbin/*) echo "REFUSE" ;;
+  *)                                                  echo "OK" ;;
+esac
+```
+
+If this returns `REFUSE`, **STOP** and tell the user:
+
+> ⚠️ Refusing to install into `<PWD>`. The installer scaffolds `memory/`, `.claude/`, and `ultimate-memory-stack/` into the current directory — installing into your home or a system directory would scatter these across it. `cd` into a dedicated project directory first, then re-run `/install-ultimate-memory-stack`.
+
+Do not proceed until the working directory is a project directory (not `$HOME` or a system path).
+
+Then greet the user briefly and confirm intent:
 
 ```
-👋 You're about to install the Ultimate Memory Stack v3.6.0 in:
+👋 You're about to install the Ultimate Memory Stack v3.6.1 in:
     <current working directory>
 
 This will:
@@ -272,7 +288,7 @@ touch "<MEMORY_DIR>/quarantine/quarantine_log.jsonl"
 
 Append initialization entry to audit_log.jsonl (if created):
 ```json
-{"ts":"<ISO-8601-UTC>","actor":"install-skill","actor_session":0,"action":"initialize","entry_id":"<bootstrap>","entry_path":"memory/","entry_category":"system","entry_summary":"Ultimate Memory Stack v3.6.0 deployment initialized via Skill installer; edition=<EDITION>; preset=<COMPLIANCE_PRESET>; extensions=<EXTENSIONS>","outcome":"success"}
+{"ts":"<ISO-8601-UTC>","actor":"install-skill","actor_session":0,"action":"initialize","entry_id":"<bootstrap>","entry_path":"memory/","entry_category":"system","entry_summary":"Ultimate Memory Stack v3.6.1 deployment initialized via Skill installer; edition=<EDITION>; preset=<COMPLIANCE_PRESET>; extensions=<EXTENSIONS>","outcome":"success"}
 ```
 
 Report appropriately based on what was initialized.
@@ -283,6 +299,8 @@ Use Edit tool to modify `<STACK_DIR>/general-edition/PROFILE.md`:
 - Set `compliance: <COMPLIANCE_PRESET>` (was `compliance: none`)
 - Add `extensions:` list if extensions were selected
 
+> **PRESERVE mode (Step 0.5):** on a re-install, if `PROFILE.md` already carries user customizations (a `compliance:`/`extensions:` value different from the package default, or hand-added fields), do **NOT** blindly reset it — show the user the current values and confirm before editing. The spec tree is regenerable, but an edited PROFILE is the user's configuration.
+
 ---
 
 ## Step 8 — Setup Wizard
@@ -290,6 +308,12 @@ Use Edit tool to modify `<STACK_DIR>/general-edition/PROFILE.md`:
 This is per BOOTSTRAP_PROMPT.md Step 7. Ask the user in order, saving answers to indicated files:
 
 > **PRESERVE mode (Step 0.5):** if a target file already exists (`user_profile.md`, a project's `projectbrief.md`, `feedback.md`), do **NOT** overwrite it — the existing content is the user's real data. Skip it, or show the user the existing content and ask before changing anything. Only write these files when they are absent (fresh install).
+
+> **Explicit guard:** before writing ANY file in 8a–8c, check existence first — never overwrite user data:
+> ```bash
+> [ -e "<target_file>" ] && echo "EXISTS — preserve: do NOT Write/Edit; show the user and ask first" || echo "ABSENT — safe to create"
+> ```
+> Apply to `user_profile.md`, each project's `projectbrief.md`, and `feedback.md`.
 
 ### 8a. Identity (→ memory/user/user_profile.md)
 
@@ -356,7 +380,7 @@ schema_version: "3.0"
 ---
 
 ### Session Summary
-Initial setup via Skill installer. Ultimate Memory Stack v3.6.0 deployed:
+Initial setup via Skill installer. Ultimate Memory Stack v3.6.1 deployed:
 - Edition: <EDITION>
 - Compliance preset: <COMPLIANCE_PRESET>
 - Extensions: <EXTENSIONS>
@@ -397,7 +421,7 @@ Final summary:
 
 ```
 ========================================
-✅ Ultimate Memory Stack v3.6.0 — INSTALLED
+✅ Ultimate Memory Stack v3.6.1 — INSTALLED
 ========================================
 
 Edition: <EDITION>
@@ -466,6 +490,7 @@ If any step fails:
 | 1.0 STABLE | 2026-06-10 | Public-readiness fixes (edition-availability detection in Step 2; genericized internal refs); executed end-to-end (fresh install, general-edition, preset=none, T2) — T1–T9 self-test 9/9 PASS → promoted DRAFT → STABLE |
 | 1.1 | 2026-06-15 | **Data-safety fix.** Added Step 0.5 existing-store gate: a re-install over an existing `memory/` now backs it up (`memory.backup.<ts>/`) and preserves it. Steps 7e/8/9 are now create-if-absent — the skill no longer overwrites `session_state.md`, `MEMORY_INDEX.md`, `user_profile.md`, project briefs, or `feedback.md` on an existing store (the prior behavior silently reset accumulated memory to empty templates). Corrected the false "reversible via backup" claim. Brings the skill door in line with `setup-memory-stack.sh` + `INSTALL_AGENT.md`, which already preserved user data. |
 | 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public biotech-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare/biotech with "institutional edition only"). Deleted the dead biotech branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). |
+| 1.3 | 2026-06-16 | **Data-safety hardening + Door-3 alignment (v3.6.1).** Added a Step 0 guard refusing installs into `$HOME` / system directories (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`). Made the Step 0.5 PRESERVE guard explicit in Step 8 (per-file `[ -e ]` existence check before any Write; never overwrite user data) + a Step 7f note to confirm before resetting a user-customized `PROFILE.md`. No behavior change for fresh installs. |
 
 When this skill is updated, bump `version:` in the frontmatter + record changes here. Treat the skill itself like any other memory stack artifact — schema_version compatibility matters.
 
