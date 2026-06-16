@@ -11,7 +11,7 @@
 ## 1. Purpose
 
 Define a **compliance preset** system that:
-- Lets users select a regulatory posture appropriate for their deployment context (solo developer / healthcare / enterprise / power user with custom needs)
+- Lets users select a regulatory posture appropriate for their deployment context (solo developer / enterprise / power user with custom needs)
 - Maps each preset to concrete behaviors (detection patterns, redaction rules, audit defaults, delete semantics, quarantine triggers)
 - Is **non-overridable for biotech edition** (preset is locked to `healthcare`)
 - Is **fully configurable for general edition** (user picks at bootstrap; can change later)
@@ -52,7 +52,7 @@ Per the project's design philosophy and the B7 preset decision:
 
 - Most general-edition use cases are non-regulated (personal projects, open-source contribution, hobby work)
 - Compliance detection has a friction cost (toasts, quarantines, redactions); defaulting to `none` keeps general edition lightweight
-- Users who DO have regulatory exposure (e.g., personal work that touches HIPAA) explicitly select `healthcare` preset — that's a thoughtful act, not an accidental one
+- Users who DO have regulatory exposure in general-edition map it to the `enterprise` preset (GDPR + SOC2 baseline) or `custom` — that's a thoughtful act, not an accidental one. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ### Why `custom` exists at all?
 
@@ -94,7 +94,7 @@ compliance: <preset-name>
 
 Where `<preset-name>` is one of:
 - `none` — no regulatory detection; standard secrets/credentials hygiene only
-- `healthcare` — full HIPAA Section 11 profile
+- `healthcare` — full HIPAA Section 11 profile (**biotech-edition-reserved; not selectable in general-edition** — the value is defined here because the future biotech edition consumes it)
 - `enterprise` — GDPR + SOC2 baseline
 - `custom` — fully configured via `<edition>/overrides/compliance.override.md`
 
@@ -197,7 +197,7 @@ The `custom` preset is a thin layer on top of one of the 3 base presets — `non
 - Full PHI detection (MRN format, specimen IDs, accession numbers, hospital IDs, genomic identifiers, clinical data flags)
 - Redaction-on-sight (substitute `[REDACTED — PHI detected]` in any memory write)
 - Warning to user when PHI detection fires
-- Audit log: REQUIRED (biotech edition non-overridable) / DEFAULT ON (general edition with healthcare preset)
+- Audit log: REQUIRED (biotech edition, non-overridable)
 - Quarantine triggers: PHI detection + signature-mismatch + frontmatter validation
 - Delete = tombstone with 30-day retention (per HIPAA forensic requirements)
 - Consent tracking: implicit via HIPAA covered entity context
@@ -289,9 +289,9 @@ compliance: none                    # DEFAULT; user-selectable at bootstrap
 compliance_overridable: true
 compliance_choices_at_bootstrap:
   - none      (recommended for solo dev / personal projects)
-  - healthcare (recommended if you touch PHI even occasionally)
   - enterprise (recommended for business/regulated work)
   - custom    (advanced — requires writing compliance.override.md)
+  # healthcare is biotech-edition-reserved (not selectable in general-edition)
 audit_log: opt-in                   # Configurable
 quarantine_ux: toast                # One-line approval toast
 pattern_key_threshold: 5
@@ -302,65 +302,67 @@ delete_semantics: hard
 
 ---
 
-## 7. Worked Example — General Edition User Picks `healthcare`
+## 7. Worked Example — General Edition User Picks `enterprise`
 
-A user installs general edition for personal projects but periodically does HIPAA-adjacent volunteer work for a clinic.
+A user installs general edition for personal projects but starts doing GDPR-relevant consulting work that touches EU customer PII.
 
-**At bootstrap, user selects:** `compliance: healthcare`
+**At bootstrap, user selects:** `compliance: enterprise`
 
 **Behavior after selection:**
-- Detection patterns from `detection_patterns_healthcare.md` activate
-- Audit log enables (DEFAULT ON for general with healthcare preset)
-- Quarantine triggers extend to include PHI detection
-- Delete semantics shift to tombstone + 30-day retention
-- WebFetch entries quarantined pending validation (per healthcare preset)
+- Detection patterns from `detection_patterns_enterprise.md` activate (broad PII)
+- Audit log enables (REQUIRED ON for enterprise preset)
+- Quarantine triggers extend to include PII detection + consent-violation
+- Delete semantics shift to hard delete with 7-day recovery window (GDPR right-to-be-forgotten compliant)
+- WebFetch entries logged with `external_source: true` for compliance review
 
-**Their general edition is now functionally equivalent to biotech edition for compliance behavior** — but they retain general-edition UX (one-line toast for quarantine, less friction overall).
+**Their general edition now carries the enterprise GDPR + SOC2 baseline** — while retaining general-edition UX (one-line toast for quarantine, less friction overall).
 
-If they later want to revert: they can change `compliance: healthcare` → `compliance: none` in their PROFILE.md, which:
-- Deactivates PHI detection
+If they later want to revert: they can change `compliance: enterprise` → `compliance: none` in their PROFILE.md, which:
+- Deactivates broad PII detection
 - Audit log retains historical entries but stops adding new ones (unless explicitly re-enabled)
 - Quarantined entries remain quarantined (require manual disposition)
 - A migration note is logged
+
+> A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 
 ## 8. Worked Example — `custom` Preset
 
-A research lab needs HIPAA-style PHI detection but also GDPR-style consent tracking for their EU collaborators.
+A research lab needs broad PII detection plus GDPR-style consent tracking for their EU collaborators, with a couple of project-specific additions.
 
 ```markdown
 # general-edition/overrides/compliance.override.md
 
 ---
 compliance: custom
-base_preset: healthcare
+base_preset: enterprise
 ---
 
-## Consent Tracking — Add (from enterprise preset)
+## Consent Tracking — Add
 
 Entries that originate from EU collaborator data MUST carry consent_at / consent_revoked_at:
 - consent_at: when collaborator gave consent
 - consent_revoked_at: if consent revoked, entry gets discarded within 24 hours
 
 Add to SCHEMA_A18 frontmatter (custom field):
-- consent_basis: hipaa-baa | gdpr-collaborator | both
+- consent_basis: gdpr-collaborator | internal | both
 - consent_party_email: <pointer to consent record, NOT the party themselves>
 
 ## Audit Log — Override
 
-(Inherit `healthcare`: REQUIRED ON)
+(Inherit `enterprise`: REQUIRED ON)
 
 Add field: every entry includes consent_basis in entry_summary if applicable.
 
 ## Quarantine — Override
 
-(Inherit `healthcare`)
+(Inherit `enterprise`)
 
 Add trigger: GDPR consent revocation → automatic quarantine pending discard
 ```
 
-This composes HIPAA-style detection + GDPR-style consent → covers their unique regulatory profile.
+This composes enterprise PII detection + GDPR-style consent → covers their regulatory profile. (PHI/HIPAA detection is biotech-edition-reserved — not selectable in general-edition; a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available. See CONTRIBUTING.md.)
 
 ---
 
@@ -386,7 +388,7 @@ This composes HIPAA-style detection + GDPR-style consent → covers their unique
 ### Edition fit
 
 - **Biotech-edition:** `compliance: healthcare` ONLY (non-overridable). User cannot select another preset.
-- **General-edition:** All 4 presets available at bootstrap. User selects; can change later with logging.
+- **General-edition:** none/enterprise/custom available at bootstrap; healthcare is biotech-edition-reserved (not selectable in general-edition). User selects; can change later with logging.
 
 ### Deployment tier
 
@@ -403,7 +405,7 @@ This composes HIPAA-style detection + GDPR-style consent → covers their unique
 v2.0's `memory_protocol.md` had a "Healthcare Compliance Profile" section that loosely corresponds to v3.0's `healthcare` preset. The migration:
 
 1. **Biotech edition deployments:** Auto-set `compliance: healthcare` (non-overridable). No user interaction needed.
-2. **General edition deployments:** At bootstrap, prompt user: "Your v2.0 had healthcare-style compliance active. Continue with `healthcare` preset, or change?" Save choice to PROFILE.md.
+2. **General edition deployments:** At bootstrap, prompt user to select a general-edition preset (`none` / `enterprise` / `custom`). If their v2.0 deployment had compliance detection active, default the prompt to `enterprise` (GDPR + SOC2 baseline) and let them change. Save choice to PROFILE.md. (A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.)
 3. **No-compliance v2.0 deployments:** Default to `compliance: none`; prompt user to confirm.
 
 Migration is logged to audit log per `SCHEMA_audit_log.md` §4 (action: `migrate`).
@@ -413,10 +415,10 @@ Migration is logged to audit log per `SCHEMA_audit_log.md` §4 (action: `migrate
 ## 11. Open Questions
 
 1. **`custom` complexity floor** — should `custom` require the user to write a minimum viable override file (with at least 1 override), or can it be `compliance: custom` with empty override (just inherits base)? Lean: require ≥1 override to prevent accidental "I picked custom but didn't configure" footgun.
-2. **Preset change during active session** — if user changes `compliance: none` → `compliance: healthcare` mid-session, what happens to entries written in the prior preset? Probably: re-validate them at next session start (re-scan with new detection patterns). Performance cost on big deployments. Defer.
+2. **Preset change during active session** — if a general-edition user changes `compliance: none` → `compliance: enterprise` mid-session, what happens to entries written in the prior preset? Probably: re-validate them at next session start (re-scan with new detection patterns). Performance cost on big deployments. Defer.
 3. **Multi-preset support** — can a deployment have multiple presets active simultaneously (e.g., different presets for different projects)? Lean: NO for v3.0 — keeps semantics simple. Phase 4+ consideration.
 4. **Detection pattern updates** — patterns will evolve (new PHI formats, GDPR amendments, etc.). How does an existing deployment receive pattern updates? Lean: detection_patterns_*.md files versioned; user pulls updates manually; old patterns still work but log a warning.
-5. **Custom preset audit transparency** — `custom` lets a sophisticated user weaken compliance (e.g., turn off PHI detection while claiming `healthcare` base). Should custom overrides require a justification text field that gets logged? Lean: YES for biotech-adjacent (general-with-healthcare-base + custom), regardless for `none`.
+5. **Custom preset audit transparency** — `custom` lets a sophisticated user weaken compliance (e.g., relax PII detection while claiming an `enterprise` base). Should custom overrides require a justification text field that gets logged? Lean: YES for any general-edition `custom` built on the `enterprise` base, regardless for `none`. (In general-edition, `custom` inherits from `none` or `enterprise`; the `healthcare` base is biotech-edition-reserved and not selectable in general-edition.)
 
 ---
 

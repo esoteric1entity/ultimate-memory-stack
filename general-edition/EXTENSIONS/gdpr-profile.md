@@ -83,13 +83,12 @@ extensions:
 |-------------|--------|
 | `enterprise` + `gdpr` | Broad PII + explicit consent + RTBF (most common EU scenario) |
 | `none` + `gdpr` | Lightweight consent tracking without broad PII detection |
-| `enterprise` + `gdpr` + `healthcare` | GDPR + HIPAA simultaneously (EU healthcare provider) |
 | `enterprise` + `gdpr` + `soc2` | EU SaaS with SOC2 audit requirements |
 
 ## Standing Rules (Universal Floor)
 
 - NEVER store: passwords, API keys, credit cards (universal)
-- NEVER store: PHI when `healthcare` extension also active
+- NEVER store: PHI — PHI/HIPAA handling is biotech-edition-reserved, not part of general-edition
 
 ## Risks + Mitigations
 

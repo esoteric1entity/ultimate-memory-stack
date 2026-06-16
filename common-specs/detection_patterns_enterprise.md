@@ -5,7 +5,7 @@
 > **Note:** Audit logging (B1) is required in the `enterprise` preset.
 > **Companion:** SCHEMA_compliance_profile.md §5.3 (`enterprise` preset behaviors)
 > **Inherits:** All patterns from `detection_patterns_none.md` (secrets/credentials NEVER allowed regardless of preset)
-> **Does NOT inherit:** `detection_patterns_healthcare.md` patterns. Enterprise is PII-focused, NOT PHI-focused. Use `custom` preset with healthcare base + enterprise additions if you need both.
+> **Does NOT inherit:** `detection_patterns_healthcare.md` patterns. Enterprise is PII-focused, NOT PHI-focused. PHI/HIPAA detection is biotech-edition-reserved — not selectable in general-edition (the installer refuses the `healthcare` preset and extension).
 
 ---
 
@@ -26,7 +26,7 @@ Broad Personally Identifiable Information (PII) profile + business-identifier pa
 ## What this preset does NOT detect
 
 - PHI (MRN, specimen IDs, genomic identifiers, clinical data) — those are in `detection_patterns_healthcare.md`
-- For deployments needing BOTH PII and PHI detection: use `compliance: custom` with `base_preset: healthcare` and add enterprise patterns via override
+- PHI/HIPAA detection is biotech-edition-reserved — not available in general-edition (the installer refuses the `healthcare` preset and extension). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ## Detection rules
 

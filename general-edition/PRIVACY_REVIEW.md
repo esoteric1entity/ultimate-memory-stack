@@ -134,7 +134,7 @@ These items remain biotech-edition-private (per `biotech-edition/PRIVACY_REVIEW.
 - Institution-specific customer-account-ID / report-ID / specimen-ID formats
 - Internal R&D process details
 
-Users wanting biotech-grade behavior in general-edition use the `healthcare-profile.md` EXTENSION (without institution-specific patterns).
+Users wanting biotech-grade PHI/HIPAA behavior should note: the `healthcare` preset and extension are biotech-edition-reserved — not selectable in general-edition (the installer refuses them). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 

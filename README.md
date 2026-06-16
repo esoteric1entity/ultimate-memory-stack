@@ -29,24 +29,7 @@ It's not a replacement for your agent harness. It's an **integration layer** tha
 
 ## Install — pick your door
 
-**🚪 Door 1 — Marketplace (Claude Code)**
-
-```
-/plugin marketplace add esoteric1entity/ultimate-memory-stack
-/plugin install ultimate-memory-stack@ultimate-memory-stack
-```
-
-Then, in the project where the memory should live: `/install-ultimate-memory-stack` — the skill scaffolds and verifies the whole workspace interactively. *(If `marketplace add` reports "not found", the plugin hasn't propagated yet — use Door 2 or Door 3 in the meantime.)*
-
-**🚪 Door 2 — Tell your agent**
-
-```bash
-git clone https://github.com/esoteric1entity/ultimate-memory-stack.git
-```
-
-Then tell your agent — Claude Code, OpenClaw, or any capable harness — *"install this: read `INSTALL_AGENT.md` and follow it."* The agent walks a documented flow: detect your harness → confirm the target → scaffold → register → verify. `INSTALL_AGENT.md` is the entire spec, human-readable — review it before you run it.
-
-**🚪 Door 3 — Script**
+**🚪 Door 1 — Script**
 
 ```bash
 git clone https://github.com/esoteric1entity/ultimate-memory-stack.git
@@ -58,11 +41,28 @@ cd /path/to/your/workspace                       # where the memory stack should
 
 Windows: `setup-memory-stack.ps1` — same options, PowerShell-style: `-Minimal`, `-Addon`, `-Compliance`, … (requires Python 3.8+). The installer detects your harness (Claude Code project, OpenClaw workspace, or generic), confirms the target, and registers the protocol so it auto-loads.
 
+**🚪 Door 2 — Tell your agent**
+
+```bash
+git clone https://github.com/esoteric1entity/ultimate-memory-stack.git
+```
+
+Then tell your agent — Claude Code, OpenClaw, or any capable harness — *"install this: read `INSTALL_AGENT.md` and follow it."* The agent walks a documented flow: detect your harness → confirm the target → scaffold → register → verify. `INSTALL_AGENT.md` is the entire spec, human-readable — review it before you run it.
+
+**🚪 Door 3 — Marketplace (Claude Code)**
+
+```
+/plugin marketplace add esoteric1entity/ultimate-memory-stack
+/plugin install ultimate-memory-stack@ultimate-memory-stack
+```
+
+Then, in the project where the memory should live: `/install-ultimate-memory-stack` — the skill scaffolds and verifies the whole workspace interactively. **Already have a `memory/` store there? Back it up first** (or use Door 1 / Door 2, which detect and preserve an existing store automatically). *(If `marketplace add` reports "not found", the plugin hasn't propagated yet — use Door 1 or Door 2 in the meantime.)*
+
 **🚪 Door 4 — Manual**
 
 Drag `common-specs/` + `general-edition/` into your workspace and paste the activation prompt from `common-specs/BOOTSTRAP_PROMPT.md`. No tooling needed at all. New to the stack? Read [`QUICKSTART.md`](./QUICKSTART.md) first for a 5-minute tour. (Full step-by-step: the **Manual** section in [`INSTALL.md`](./INSTALL.md).)
 
-> **Your data stays yours:** every door refuses to install into the package's own directory, never touches your `memory/` data on re-install, and records exactly what it did in `.ums-manifest.json`.
+> **Your data stays yours:** every door refuses to install into the package's own directory and records exactly what it did in `.ums-manifest.json`.
 
 ---
 
@@ -165,7 +165,7 @@ To set expectations:
 - ❌ NOT a replacement for your existing memory — integrates with, doesn't replace
 - ❌ NOT specific to any business or compliance regime — general-purpose by default
 
-> **Looking for the biotech edition?** This public release ships the general edition. The biotech-edition (HIPAA-grade) is also available for institutional adopters — see [CONTRIBUTING.md](CONTRIBUTING.md) for licensing terms.
+> **Looking for the biotech edition?** This public release ships the general edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 

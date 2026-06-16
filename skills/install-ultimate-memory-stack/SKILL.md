@@ -1,7 +1,7 @@
 ---
 name: install-ultimate-memory-stack
-description: Interactive installer for the Ultimate Memory Stack v3.6.0. Detects which editions are actually present and offers only those (the public package ships general-edition; biotech-edition is a separate institutional package). Walks the user through edition confirmation, compliance preset (general-edition supports none/enterprise/custom — PHI/healthcare is institutional biotech-edition only), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + chosen edition into the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
-version: "1.0"
+version: "1.2"
+description: Interactive installer for the Ultimate Memory Stack v3.6.0. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
 edition: any
@@ -39,6 +39,30 @@ If the user says no, stop gracefully and explain how to invoke this skill again.
 
 ---
 
+## Step 0.5 — Existing-store safety gate (DATA-SAFETY — do this BEFORE any write)
+
+**Before copying or creating anything,** check the working directory for an existing memory store — a prior Ultimate Memory Stack install, *or* the user's own `memory/` at this path:
+
+```bash
+ls -d "<WORKING_DIR>/memory" 2>/dev/null            # existing memory store?
+cat "<WORKING_DIR>/.ums-manifest.json" 2>/dev/null  # prior install manifest?
+```
+
+If `<WORKING_DIR>/memory/` **or** `<WORKING_DIR>/.ums-manifest.json` exists, this is a **re-install / install-over-existing-data**, NOT a fresh install. The user's accumulated memory is irreplaceable — you MUST NOT overwrite it. Do all of the following:
+
+1. **Back up first**, before any write:
+   ```bash
+   cp -r "<WORKING_DIR>/memory" "<WORKING_DIR>/memory.backup.$(date -u +%Y%m%d-%H%M%SZ)"
+   ```
+2. **Tell the user plainly:** an existing memory store was found and backed up to `memory.backup.<ts>/`, and their data will be preserved.
+3. **Switch to PRESERVE mode** for the rest of this skill. The product-owned spec tree (`common-specs/`, `<edition>-edition/`) is regenerable and may be refreshed, but **every user-data file is create-only-if-absent — NEVER overwritten.** This binds Steps 7e, 8, and 9: when a target user-data file (`session_state.md`, `MEMORY_INDEX.md`, `user_profile.md`, project briefs, `feedback.md`, audit/quarantine logs) already exists, **skip it** (the existing data is authoritative) or ask the user before touching it — do not `Write` over it.
+
+If neither is found, this is a fresh install — proceed normally.
+
+> This mirrors what the shell installer (`setup-memory-stack.sh`) and the agent flow (`INSTALL_AGENT.md` Step 1.2) already do; the skill door must match them.
+
+---
+
 ## Step 1 — Locate Source Package
 
 Ask the user for the location of the Ultimate Memory Stack source package:
@@ -48,7 +72,8 @@ Where is the Ultimate Memory Stack source package located?
 
 You need a folder containing:
   - common-specs/ (the universal foundation)
-  - At least one of: biotech-edition/ OR general-edition/
+  - general-edition/ (the edition shipped publicly)
+    (biotech-edition/ is the separate institutional package, if you have it)
 
 Common locations (substitute your actual path):
   - A local git clone (Linux/Mac): ~/projects/ultimate-memory-stack
@@ -64,66 +89,53 @@ Path:
 Validate the response:
 1. Read the directory listing at the provided path
 2. Confirm `common-specs/` exists at that path
-3. Confirm at least one edition directory (`biotech-edition/` or `general-edition/`) exists
+3. Confirm `general-edition/` exists (the edition shipped publicly)
 4. If validation fails, explain what's missing and ask again (up to 3 retries before suggesting Method A manual install)
 
 Save this as `SOURCE_PATH` for use in subsequent steps.
 
 ---
 
-## Step 2 — Select Edition
+## Step 2 — Confirm Edition
 
-First check which edition directories actually exist at `SOURCE_PATH` and offer only those (the public package ships `general-edition/` only; biotech-edition is a separate institutional package). If only one edition is present, confirm it rather than presenting a choice. Ask:
+First check which edition directories actually exist at `SOURCE_PATH` and confirm — do not present a choice. The public package ships `general-edition/` only (a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available — see CONTRIBUTING.md), so skip any menu and confirm general-edition. `EDITION` is always `general`.
 
 ```
-Which edition do you want to install?
-
-  [1] biotech-edition — HIPAA-active, non-overridable.
-                        Recommended for: healthcare R&D, regulated biotech contexts.
-
-  [2] general-edition — User-configurable compliance.
-                        Recommended for: software dev, research, writing, education, B2B SaaS, enterprise.
-
-Pick 1 or 2:
+Installing the general-edition (the public package).
+Continuing with general-edition...
 ```
 
-Validate input is exactly `1` or `2`. Save as `EDITION` (`biotech` or `general`).
-
-Verify that the chosen edition directory exists at `<SOURCE_PATH>/<edition>-edition/`. If not, surface the error and stop.
+Verify that the general-edition directory exists at `<SOURCE_PATH>/general-edition/`. If not, surface the error and stop.
 
 ---
 
 ## Step 3 — Compliance Preset Selection (general-edition only)
 
-If `EDITION == general`, ask:
+Ask:
 
 ```
 Compliance preset?
 
   [1] none — solo dev / personal projects / no regulatory exposure (RECOMMENDED for most)
-  [2] healthcare — HIPAA-adjacent work (volunteer clinical, side consulting)
-  [3] enterprise — Business-customer PII, SOC2 prep, GDPR awareness
-  [4] custom — Multiple regimes; requires overrides/compliance.override.md
+  [2] enterprise — Business-customer PII, SOC2 prep, GDPR awareness
+  [3] custom — Multiple regimes; requires overrides/compliance.override.md
 
-Pick 1, 2, 3, or 4:
+Pick 1, 2, or 3:
 ```
 
 Validate input. Save as `COMPLIANCE_PRESET`.
 
-If user picks `4` (custom), additionally verify that `<SOURCE_PATH>/general-edition/overrides/compliance.override.md` exists. Custom requires ≥1 explicit override; if missing, refuse and ask user to either provide that file or pick a base preset.
-
-If `EDITION == biotech`, automatically set `COMPLIANCE_PRESET = healthcare` (non-overridable in biotech-edition). Tell user: "Biotech-edition locks compliance to `healthcare`. Continuing with `healthcare` preset."
+If user picks `3` (custom), additionally verify that `<SOURCE_PATH>/general-edition/overrides/compliance.override.md` exists. Custom requires ≥1 explicit override; if missing, refuse and ask user to either provide that file or pick a base preset.
 
 ---
 
-## Step 4 — Extensions (general-edition only, optional)
+## Step 4 — Extensions (optional)
 
-If `EDITION == general`, ask:
+Ask:
 
 ```
 Compliance extensions? (optional, comma-separated; or "none")
 
-  - healthcare — HIPAA detection without biotech-edition's mandatory enforcement
   - gdpr — EU jurisdiction + consent tracking + right-to-be-forgotten
   - soc2 — SOC2 Trust Services Criteria audit-ready evidence
   - pci-dss — Payment card data context (aggressive PAN detection)
@@ -133,9 +145,7 @@ Most users start with NONE. Compose multiple if needed (e.g., "soc2,gdpr").
 Your selection:
 ```
 
-Parse the comma-separated list. Validate each extension name against the allowed set: `{healthcare, gdpr, soc2, pci-dss}`. Save as `EXTENSIONS` (list, possibly empty).
-
-If `EDITION == biotech`, skip this step (extensions not applicable).
+Parse the comma-separated list. Validate each extension name against the allowed set: `{gdpr, soc2, pci-dss}`. Save as `EXTENSIONS` (list, possibly empty).
 
 ---
 
@@ -207,6 +217,8 @@ Proceeding with install...
 
 This is the file-copy + scaffold step. Use Read, Write, Edit tools as needed.
 
+> **Re-install (Step 0.5 PRESERVE mode):** the spec copy in 7b is regenerable (safe to refresh), and `mkdir -p` (7d) / `touch` (7e) are non-destructive — but never `Write` over an existing user-data file. Honor the gate below in 7e, 8, and 9.
+
 ### 7a. Set target paths
 - `WORKING_DIR` = current working directory (where the user is)
 - `STACK_DIR` = `<WORKING_DIR>/ultimate-memory-stack`
@@ -251,14 +263,12 @@ Report: "✓ memory/ directory structure initialized (9 subdirs)"
 
 ### 7e. Initialize audit log + quarantine log (preset-dependent)
 
-For `biotech` edition (audit is REQUIRED):
+For preset `none`: SKIP this step (audit is OPT-IN).
+For preset `enterprise/custom`: create both files:
 ```bash
 touch "<MEMORY_DIR>/security/audit_log.jsonl"
 touch "<MEMORY_DIR>/quarantine/quarantine_log.jsonl"
 ```
-
-For `general` edition with preset `none`: SKIP this step (audit is OPT-IN).
-For `general` edition with preset `healthcare/enterprise/custom`: create both files.
 
 Append initialization entry to audit_log.jsonl (if created):
 ```json
@@ -267,19 +277,19 @@ Append initialization entry to audit_log.jsonl (if created):
 
 Report appropriately based on what was initialized.
 
-### 7f. Update PROFILE.md with selected preset + extensions (general edition only)
+### 7f. Update PROFILE.md with selected preset + extensions
 
 Use Edit tool to modify `<STACK_DIR>/general-edition/PROFILE.md`:
 - Set `compliance: <COMPLIANCE_PRESET>` (was `compliance: none`)
 - Add `extensions:` list if extensions were selected
-
-Skip for biotech-edition (preset is locked).
 
 ---
 
 ## Step 8 — Setup Wizard
 
 This is per BOOTSTRAP_PROMPT.md Step 7. Ask the user in order, saving answers to indicated files:
+
+> **PRESERVE mode (Step 0.5):** if a target file already exists (`user_profile.md`, a project's `projectbrief.md`, `feedback.md`), do **NOT** overwrite it — the existing content is the user's real data. Skip it, or show the user the existing content and ask before changing anything. Only write these files when they are absent (fresh install).
 
 ### 8a. Identity (→ memory/user/user_profile.md)
 
@@ -319,7 +329,9 @@ Already detected in Step 6. Append to user_profile.md as `deployment_tier: T<X>`
 
 ## Step 9 — Initialize session_state.md + MEMORY_INDEX.md
 
-Create `<MEMORY_DIR>/sessions/session_state.md` with Session 1 — Initial Setup:
+> **PRESERVE mode (Step 0.5) — this is the highest-risk step.** Create `session_state.md` and `MEMORY_INDEX.md` **ONLY if they do not already exist.** If either is present, leave it **completely untouched** — an existing store already holds accumulated session history and a populated index, and overwriting them with a fresh "Session 1" / empty-counts template is exactly the data loss this gate exists to prevent. Skip to Step 10 in that case.
+
+For a fresh install (neither file exists), create `<MEMORY_DIR>/sessions/session_state.md` with Session 1 — Initial Setup:
 
 ```markdown
 # Session State
@@ -424,7 +436,7 @@ If any step fails:
    - "Try Method A manual install per INSTALLATION_GUIDE.md §4"
    - "Try Method B Bash install per INSTALLATION_GUIDE.md §5"
    - "Check that SOURCE_PATH exists and contains common-specs/ + edition/"
-4. Log the failure event if audit log exists (for biotech-edition forensic completeness)
+4. Log the failure event if an audit log exists
 
 ---
 
@@ -432,9 +444,8 @@ If any step fails:
 
 - This skill operates with Read / Write / Edit / Bash tools as needed
 - It does NOT modify files outside the working directory + ~/.config/keys/ (if T3+ key generation)
-- For biotech-edition: audit log creation is mandatory; this skill cannot bypass the biotech compliance lock
 - For custom preset: refuses to proceed without `overrides/compliance.override.md`
-- All file operations are reversible via the backup created in Step 11 (if migration mode)
+- When an existing store is detected (Step 0.5), it is backed up to `memory.backup.<ts>/` before any write, and user-data files are never overwritten — so an install-over-existing-data is recoverable. (Fresh installs create no backup because there is nothing yet to preserve.)
 
 ---
 
@@ -453,6 +464,8 @@ If any step fails:
 |---------|------|---------|
 | 1.0 DRAFT | 2026-05-15 | Initial implementation |
 | 1.0 STABLE | 2026-06-10 | Public-readiness fixes (edition-availability detection in Step 2; genericized internal refs); executed end-to-end (fresh install, general-edition, preset=none, T2) — T1–T9 self-test 9/9 PASS → promoted DRAFT → STABLE |
+| 1.1 | 2026-06-15 | **Data-safety fix.** Added Step 0.5 existing-store gate: a re-install over an existing `memory/` now backs it up (`memory.backup.<ts>/`) and preserves it. Steps 7e/8/9 are now create-if-absent — the skill no longer overwrites `session_state.md`, `MEMORY_INDEX.md`, `user_profile.md`, project briefs, or `feedback.md` on an existing store (the prior behavior silently reset accumulated memory to empty templates). Corrected the false "reversible via backup" claim. Brings the skill door in line with `setup-memory-stack.sh` + `INSTALL_AGENT.md`, which already preserved user data. |
+| 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public biotech-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare/biotech with "institutional edition only"). Deleted the dead biotech branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). |
 
 When this skill is updated, bump `version:` in the frontmatter + record changes here. Treat the skill itself like any other memory stack artifact — schema_version compatibility matters.
 
@@ -464,7 +477,7 @@ When this skill is updated, bump `version:` in the frontmatter + record changes 
 
 Remaining test scenarios for future versions:
 
-1. **HIPAA install scenario** — empty working directory + biotech-edition (requires the institutional package)
+1. **HIPAA install scenario** — empty working directory + the institutional edition (a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available — see CONTRIBUTING.md)
 2. **Edge cases:**
    - SOURCE_PATH doesn't exist (error handling)
    - Custom preset without override file (rejection path)

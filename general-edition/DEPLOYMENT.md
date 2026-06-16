@@ -32,7 +32,7 @@
 - More disk if audit log enabled (depends on preset + retention policy)
 
 ### Optional (T3+)
-- Code Execution for crypto signatures (HMAC default; Ed25519 if healthcare-profile extension)
+- Code Execution for crypto signatures (HMAC default; Ed25519 available for stronger-signature contexts)
 - LLMLingua for prompt compression (C6)
 - Aider integration for repo-map (C7)
 
@@ -64,8 +64,8 @@ From `common-specs/BOOTSTRAP_PROMPT.md` "The Activation Prompt" section.
 1. **Edition confirmation** (auto: `general`)
 2. **Identity** (name, role, org, domain)
 3. **Active projects** (with goals + status)
-4. **Compliance preset selection** ⭐ — pick from 4 options (none / healthcare / enterprise / custom)
-5. **Compliance extensions** (optional) — none / healthcare / gdpr / soc2 / pci-dss / multiple
+4. **Compliance preset selection** ⭐ — pick from 3 options (none / enterprise / custom)
+5. **Compliance extensions** (optional) — none / gdpr / soc2 / pci-dss / multiple
 6. **Consumer agent topology** (register sub-agent names if any, or "none")
 7. **Deployment tier** (auto-detect when possible)
 
@@ -136,7 +136,6 @@ Active features:
   ✓ Tier C at this tier — C4 HMAC signatures (optional), C6 LLMLingua compression
 
 Inactive (preset = none, so don't fire):
-  ⏸️ PHI detection (would activate if preset changes to healthcare or healthcare extension added)
   ⏸️ Enterprise PII detection (would activate if preset changes to enterprise)
 
 Quarantine queue: 0 entries (and quarantine is non-blocking anyway for general-edition)
@@ -155,10 +154,7 @@ Choose preset based on your context:
 - Memory entries are dev decisions, methodology, domain knowledge, project state
 - → Pick this
 
-### `healthcare` — HIPAA-Adjacent (occasional)
-- You occasionally touch PHI (volunteer work, side consulting)
-- You want HIPAA-grade detection but general-edition's lighter UX
-- → Pick this; consider biotech-edition if HIPAA is your primary context
+> **PHI / HIPAA context?** A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ### `enterprise` — Business / Regulated
 - You handle business-customer PII (names, emails, business identifiers)
@@ -168,7 +164,7 @@ Choose preset based on your context:
 
 ### `custom` — Advanced (sophisticated needs)
 - You need MULTIPLE compliance regimes simultaneously
-- The 4 preset options don't cover your context
+- The 3 preset options don't cover your context
 - You're prepared to write `overrides/compliance.override.md`
 - → Pick this; bootstrap requires ≥1 explicit override
 
@@ -180,7 +176,6 @@ Optional add-ons that compose with base preset:
 
 | Extension | When to add | Compose with |
 |-----------|-------------|--------------|
-| `healthcare-profile.md` | Occasional HIPAA-adjacent work | Any base |
 | `gdpr-profile.md` | EU jurisdiction OR serving EU subjects | Most common: enterprise |
 | `soc2-profile.md` | SOC2 audit prep | Most common: enterprise |
 | `pci-dss-profile.md` | Payment card data context | Most common: enterprise + soc2 |
@@ -212,9 +207,9 @@ echo "my SSN is 123-45-6789" | claude --add-to-memory
 echo "specimen ABC-12345" | claude --add-to-memory
 # Expected: NO detection fires (none preset doesn't have PHI detection)
 
-# For compliance: healthcare:
-echo "specimen ABC-12345" | claude --add-to-memory
-# Expected: ⚠️ PHI detected — entry rejected
+# For compliance: enterprise:
+echo "customer jane@acme.com" | claude --add-to-memory
+# Expected: ⚠️ Enterprise PII detected — consent tracking required
 ```
 
 ---
@@ -266,5 +261,5 @@ Or edit PROFILE.md directly. On preset change, system re-validates existing entr
 - `PRIVACY_REVIEW.md`
 - `overrides/compliance-presets.override.md` (preset selection details)
 - `overrides/generic-examples.override.md` (use case examples)
-- `EXTENSIONS/` (4 optional regulatory profiles)
+- `EXTENSIONS/` (3 selectable regulatory profiles: gdpr / soc2 / pci-dss)
 - `../common-specs/MEMORY_PROTOCOL.md`

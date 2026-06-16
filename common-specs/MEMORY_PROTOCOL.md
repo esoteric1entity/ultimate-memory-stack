@@ -882,7 +882,8 @@ Undocumented features do NOT ship. If a feature lacks any of the 5 elements, fla
 
 **Activated by:**
 - Biotech edition (mandatory, non-overridable per B7)
-- General edition with `compliance: healthcare` preset
+
+> The `healthcare` preset is **biotech-edition-reserved; not selectable in general-edition** — the installer refuses it. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. General-edition deployments with regulatory needs use the `enterprise` or `custom` preset instead.
 
 ### Detection triggers (activate this profile when encountering)
 - Patient identifiers (MRN, specimen IDs, accession numbers, hospital IDs)
@@ -931,4 +932,4 @@ Undocumented features do NOT ship. If a feature lacks any of the 5 elements, fla
 3. **Audit log retention defaults** — biotech (1 year minimum for HIPAA forensics?), general (90 days?). Per-edition PROFILE.md decides; this protocol defines the rotation mechanism (§11).
 4. **Pattern-key promotion target** — auto-promote where? `.claude/rules/auto_rules.md`? Or DEC entries? Lean toward DEC entries with `source_agent: auto-promoted-from-pattern` and full provenance.
 5. **Compaction trigger threshold** — protocol says "near context limit"; should it be deterministic (e.g., ~85%)? Community-derived guidance suggests ~95%.
-6. **Edition mixing** — what if a user wants `general` edition + `compliance: healthcare` (general-edition with HIPAA preset, no biotech-specific UX)? Currently supported via PROFILE.md customization.
+6. **Edition mixing** — the `healthcare` preset is **NOT supported in general-edition**: the installer refuses it (general-edition presets are `none` / `enterprise` / `custom` only; `healthcare` is biotech-edition-reserved). General-edition deployments with regulatory needs use the `enterprise` or `custom` preset. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.

@@ -245,7 +245,7 @@ If you open your `memory/` directory in Obsidian, wiki-links become clickable + 
 
 - **Setting up?** Read your edition's `DEPLOYMENT.md`.
 - **Upgrading from v2.0?** Read your edition's `MIGRATION_v2_to_v3.md`.
-- **Want HIPAA-grade behavior?** Enable the `healthcare-profile.md` extension in general-edition. (The institutional biotech-edition ships its own addendum — see CONTRIBUTING.md for licensing terms.)
+- **Want HIPAA-grade behavior?** A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 - **Tweaking presets?** Read `overrides/compliance-presets.override.md` (general-edition) or your edition's overrides.
 - **Curious about architecture?** Read `ARCHITECTURE.md` in common-specs (deeper, ~30 KB).
 

@@ -24,7 +24,7 @@ edition_version: "1.0"
 schema_version: "3.0"
 parent_spec: "../common-specs/"
 parent_spec_version: "3.0"
-target_audience: "Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts without strict regulatory requirements (or those wanting opt-in HIPAA/GDPR/SOC2/PCI-DSS)"
+target_audience: "Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts without strict regulatory requirements (or those wanting opt-in GDPR/SOC2/PCI-DSS). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md."
 license_posture: "Public-distribution candidate — pending PRIVACY_REVIEW.md approval"
 ```
 
@@ -36,7 +36,6 @@ compliance: none                    # DEFAULT — user changes at bootstrap if n
 compliance_overridable: true        # User CAN change this
 compliance_choices_at_bootstrap:
   - none       # (recommended for solo dev / personal projects)
-  - healthcare # (recommended if you touch PHI even occasionally)
   - enterprise # (recommended for business/regulated work)
   - custom     # (advanced — requires writing compliance.override.md)
 compliance_preset_change_requires_audit: true  # Preset changes log to audit trail even when audit is opt-in
@@ -45,7 +44,7 @@ compliance_preset_change_requires_audit: true  # Preset changes log to audit tra
 audit_log: opt-in                   # User selects ON or OFF at bootstrap (default OFF for `none` preset)
 audit_log_default_when_preset_is:
   none: false
-  healthcare: true
+  healthcare: true   # biotech-edition-reserved; not selectable in general-edition
   enterprise: true
   custom: configured_via_override
 audit_log_format: jsonl-append-only
@@ -64,7 +63,7 @@ pattern_key_auto_promote: false     # SUGGEST not auto-promote
 pattern_key_promote_target: ".claude/rules/auto_rules.md"
 
 # Cryptographic signatures — HMAC optional (C4)
-crypto_signatures: hmac-optional    # HMAC default if user enables; can be Ed25519 if user picks healthcare preset
+crypto_signatures: hmac-optional    # HMAC default if user enables
 crypto_signatures_scheme: "hmac-sha256"
 crypto_signatures_key_management: "session-derived-secret"
 crypto_signatures_activates_at_tier: 3  # Code Execution required
@@ -89,7 +88,7 @@ memory_poisoning_defenses:
 # WebFetch handling — preset-dependent
 webfetch_default_status:
   none: active                      # Trust by default
-  healthcare: preliminary           # Requires validation (matches biotech-edition behavior)
+  healthcare: preliminary           # biotech-edition-reserved; not selectable in general-edition (requires validation; matches biotech-edition behavior)
   enterprise: logged                # Logged for review
   custom: configured_via_override
 
@@ -122,7 +121,7 @@ lint:
 | Active preset | Detection patterns file |
 |---------------|-------------------------|
 | `none` | `../common-specs/detection_patterns_none.md` |
-| `healthcare` | `../common-specs/detection_patterns_healthcare.md` (Layer 1 universal; Layer 2 institution-specific via custom override if needed) |
+| `healthcare` _(biotech-edition-reserved; not selectable in general-edition)_ | `../common-specs/detection_patterns_healthcare.md` (Layer 1 universal; Layer 2 institution-specific via custom override if needed) |
 | `enterprise` | `../common-specs/detection_patterns_enterprise.md` |
 | `custom` | User-defined at `overrides/detection_patterns_custom.override.md` (must inherit a base preset) |
 
@@ -144,7 +143,6 @@ Located at `EXTENSIONS/`. Users select one or more at bootstrap (in addition to 
 
 | Extension | What it adds | When to enable |
 |-----------|--------------|----------------|
-| `EXTENSIONS/healthcare-profile.md` | HIPAA detection + audit + quarantine workflow (mirrors biotech-edition behavior) | Users wanting HIPAA without biotech-specific specimen/accession patterns |
 | `EXTENSIONS/gdpr-profile.md` | GDPR consent tracking, right-to-be-forgotten enforcement, EU jurisdiction patterns | EU-jurisdiction deployments |
 | `EXTENSIONS/soc2-profile.md` | SOC2 Trust Services Criteria — access controls, audit, change management patterns | SOC2-audited organizations |
 | `EXTENSIONS/pci-dss-profile.md` | PCI-DSS payment card data security patterns | Deployments handling payment card data |
@@ -168,7 +166,7 @@ What activates at each deployment tier (same architecture as biotech; different 
 
 | Tier | Infrastructure | General-edition features activated |
 |------|----------------|------------------------------------|
-| **T0** | Claude Code default | All Tier A + most Tier B; audit log opt-in; quarantine non-blocking; PHI detection optional via `healthcare` preset |
+| **T0** | Claude Code default | All Tier A + most Tier B; audit log opt-in; quarantine non-blocking |
 | **T1** | + Ollama | + B9 semantic search (opt-in) |
 | **T2** | + Node.js | + B11 hybrid retrieval (v2.2 opt-in); B12 error-detector hook; C6 graph backend; **C9 Transformers.js embeddings as Ollama alternative** |
 | **T3** | + Code Execution | + C4 cryptographic signatures (HMAC optional); LLMLingua compression; advanced compaction |
@@ -181,9 +179,9 @@ What activates at each deployment tier (same architecture as biotech; different 
 Same canonical elements as biotech-edition (stack name, layer structure, schemas, protocols, compliance preset system, deployment-tier markers, bi-temporal model, documentation discipline). General-edition does NOT modify these.
 
 What general-edition does ALLOW user to choose:
-- Compliance preset (none / healthcare / enterprise / custom)
+- Compliance preset (none / enterprise / custom)
 - Audit log on/off
-- Cryptographic signature scheme (HMAC default; Ed25519 if healthcare preset)
+- Cryptographic signature scheme (HMAC default)
 - Optional regulatory extensions
 
 See `../common-specs/MODULARITY.md` for full brand-protection vs modularity distinction.
@@ -194,8 +192,8 @@ When deploying general-edition, the setup wizard MUST collect:
 
 1. **Identity** — name, role, primary tech stack, domain
 2. **Active projects** — high-level list with goals + status
-3. **Compliance preset selection** — none / healthcare / enterprise / custom (with explanations)
-4. **Compliance extensions** (optional) — none / GDPR / SOC2 / PCI-DSS / healthcare-add-on
+3. **Compliance preset selection** — none / enterprise / custom (with explanations)
+4. **Compliance extensions** (optional) — none / GDPR / SOC2 / PCI-DSS
 5. **Pet peeves** — things to NEVER do
 6. **Consumer agent topology** — sub-agent names if any (empty for no-sub-agent setup)
 7. **Deployment tier** — what infrastructure is available (auto-detect when possible)
@@ -204,10 +202,10 @@ When deploying general-edition, the setup wizard MUST collect:
 
 | Risk | Mitigation |
 |------|------------|
-| User accidentally picks `none` then realizes they need HIPAA later | Preset change supported at any time via PROFILE.md edit; audit-log captures preset change; backwards re-validation pass available |
+| User realizes they need HIPAA/PHI coverage later | A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. Preset change between general-edition presets is supported at any time via PROFILE.md edit; audit-log captures preset change; backwards re-validation pass available |
 | User picks `custom` without configuring anything | Bootstrap rejects bare `compliance: custom`; requires ≥1 override file present |
-| Multiple regulatory contexts (e.g., EU + healthcare provider) | Extensions compose — user can enable both `gdpr-profile.md` + `healthcare-profile.md` simultaneously |
-| Audit log opt-in is forgotten by user | Default ON when compliance preset is healthcare or enterprise; never silent for those presets |
+| Multiple regulatory contexts (e.g., EU + payment-card data) | Extensions compose — user can enable both `gdpr-profile.md` + `pci-dss-profile.md` simultaneously |
+| Audit log opt-in is forgotten by user | Default ON when compliance preset is enterprise; never silent for that preset |
 | Hard delete loses data accidentally | 7-day recovery window per delete_recovery_window_days; archived to `memory/archive/discarded/` before purge |
 | Public-distribution candidate may inadvertently leak personal info | PRIVACY_REVIEW.md gates public release; review checklist explicit |
 
@@ -218,7 +216,7 @@ When deploying general-edition, the setup wizard MUST collect:
 - `MEMORY_PROTOCOL.md` §1.1 (edition detection loads this file)
 - `SCHEMA_compliance_profile.md` §5 (preset definitions)
 - `BOOTSTRAP_PROMPT.md` Step 7 (setup wizard reads this file)
-- `EXTENSIONS/` (4 regulatory profile add-ons)
+- `EXTENSIONS/` (3 selectable regulatory profile add-ons: GDPR / SOC2 / PCI-DSS; the healthcare profile is biotech-edition-reserved and not selectable in general-edition)
 - `overrides/` (3 override files for general-specific behavior)
 - `B1/B2/B6/B7/B8` (per-edition Tier B configurations)
 - `C4/C9` (HMAC signatures + Transformers.js embeddings designed-in)

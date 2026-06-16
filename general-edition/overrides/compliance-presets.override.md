@@ -11,7 +11,7 @@
 
 ## §5 Preset Definitions — General-Edition Implementation
 
-This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with general-edition-specific implementation details. The 4 presets themselves (none / healthcare / enterprise / custom) are defined in the common-spec; this file specifies HOW they work in general-edition.
+This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with general-edition-specific implementation details. The presets selectable in general-edition are `none` / `enterprise` / `custom`; this file specifies HOW they work in general-edition. The shared common-spec also defines a `healthcare` preset value, but it is biotech-edition-reserved and **not selectable in general-edition** (the setup wizard refuses it with an "institutional edition only" message) — see §5.2.
 
 ### §5.1 `none` Preset (General-Edition Default)
 
@@ -33,9 +33,8 @@ This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with gener
 ```
 Q: Compliance preset selection
 > [1] none — solo dev / personal projects (recommended)
-  [2] healthcare — HIPAA-active
-  [3] enterprise — GDPR + SOC2 baseline
-  [4] custom — advanced (requires writing compliance.override.md)
+  [2] enterprise — GDPR + SOC2 baseline
+  [3] custom — advanced (requires writing compliance.override.md)
 
 Your choice [1]: _
 
@@ -43,45 +42,21 @@ Your choice [1]: _
   You can change this later by editing PROFILE.md.
 ```
 
-### §5.2 `healthcare` Preset (General-Edition Implementation)
+### §5.2 HIPAA / PHI Workloads — Institutional Edition (Planned)
 
-**Activation behavior:**
-- Selected at bootstrap if user has HIPAA-relevant work (e.g., personal volunteer work for clinic)
-- More aggressive than `none`; mirrors biotech-edition behavior
+The general-edition does **not** offer a selectable `healthcare` preset. The
+setup wizard accepts `none`, `enterprise`, and `custom` only; selecting a
+HIPAA/healthcare path is refused with an "institutional edition only" message.
 
-**Active in general-edition with `healthcare`:**
-- Detection patterns: `../common-specs/detection_patterns_healthcare.md` (Layer 1 + Layer 2 if user provides)
-- Audit log: ON by default (per `audit_log_default_when_preset_is.healthcare: true`)
-- Quarantine UX: toast (general-edition non-blocking) BUT with stronger language
-- Quarantine triggers: PHI detection + signature-mismatch + frontmatter
-- Delete semantics: tombstone + 30-day retention (matches biotech-edition healthcare)
-- Consent tracking: implicit via HIPAA covered entity context
-- WebFetch entries: quarantined pending validation (suspicious by default)
+A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
-**Difference from biotech-edition healthcare:**
-- General-edition healthcare is OPT-OUT supported (user picked it; can change to another preset)
-- Biotech-edition healthcare is NON-OVERRIDABLE
-- General-edition quarantine UX is non-blocking (toast); biotech is blocking (workflow)
-- Same detection patterns; different consequences
-
-**Setup wizard UX for `healthcare`:**
-```
-Q: Compliance preset selection
-Your choice [2]: 2
-
-✓ Compliance preset set to `healthcare`.
-  ⚠️ This activates HIPAA-grade PHI detection across all memory writes.
-  • Audit log will be ON by default (you can configure retention via PROFILE.md)
-  • Quarantine triggers on PHI detection (toast UX; non-blocking)
-  • Delete semantics: tombstone + 30-day retention
-  • Cryptographic signatures: Ed25519 recommended (activates at T3)
-
-  Continue? [Y/n]: _
-
-  ℹ️ Note: If your work is at a regulated biotech/healthcare institution, consider
-     deploying biotech-edition instead — it provides HIPAA-grade non-overridable
-     defaults and a blocking quarantine workflow.
-```
+**For comparison only** (this describes the planned institutional edition; it is
+not selectable here): the institutional edition is designed to provide
+HIPAA-grade, non-overridable PHI defaults and a blocking quarantine workflow,
+versus the general-edition's broad-PII `enterprise` preset with non-blocking
+toast UX. The `healthcare` detection-pattern value still lives in the shared
+schema (biotech-edition-reserved; not selectable in general-edition) so the
+future institutional edition can consume it.
 
 ### §5.3 `enterprise` Preset (General-Edition Implementation)
 
@@ -115,8 +90,7 @@ Your choice [3]: 3
     [2] GDPR (EU-jurisdiction)
     [3] SOC2 (audit-ready)
     [4] PCI-DSS (payment card)
-    [5] Healthcare add-on (HIPAA without biotech specifics)
-    [6] Multiple (combine)
+    [5] Multiple (combine)
 
   Your choice [1]: _
 ```
@@ -128,21 +102,20 @@ Your choice [3]: 3
 - Bootstrap REJECTS bare `compliance: custom` — requires user to provide ≥1 override (custom complexity floor)
 
 **Custom configuration requirements:**
-- User MUST inherit from a base preset (`none` / `healthcare` / `enterprise`)
+- User MUST inherit from a base preset (`none` / `enterprise`)
 - User MUST provide ≥1 override at `overrides/compliance.override.md`
 - Setup wizard guides user through composing the override
 
 **Setup wizard UX for `custom`:**
 ```
 Q: Compliance preset selection
-Your choice [4]: 4
+Your choice [3]: 3
 
 ⚠️ Custom preset selected. This requires you to provide explicit configuration.
 
 Step 1: Which base preset should `custom` inherit from?
   [1] none (start permissive, add restrictions)
-  [2] healthcare (start with HIPAA, customize)
-  [3] enterprise (start with GDPR+SOC2, customize)
+  [2] enterprise (start with GDPR+SOC2, customize)
 
 Your choice: _
 
@@ -180,10 +153,12 @@ Or by editing PROFILE.md directly. On preset change:
 
 If user starts with general-edition (`none` preset) and later realizes they need biotech-grade compliance:
 
-Option A: Switch to general-edition `healthcare` preset (lighter friction)
-Option B: Migrate to biotech-edition (full HIPAA non-overridable)
+A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
-Migration tool surfaces this choice at preset-change time with biotech-edition pointer.
+Within general-edition today, the strictest available path is the `enterprise`
+preset (broad PII detection + required audit log + consent tracking). Full
+HIPAA-grade, non-overridable defaults are reserved for the planned institutional
+edition above.
 
 ---
 
@@ -191,6 +166,6 @@ Migration tool surfaces this choice at preset-change time with biotech-edition p
 
 - Parent: `../../common-specs/SCHEMA_compliance_profile.md` §5 (overridden by this file)
 - `../PROFILE.md` (general-edition defaults + user-selectable choices)
-- `../EXTENSIONS/` (4 optional regulatory profile add-ons)
+- `../EXTENSIONS/` (optional regulatory profile add-ons: GDPR / SOC2 / PCI-DSS)
 - `../../common-specs/detection_patterns_none.md` / `_healthcare.md` / `_enterprise.md`
 - Design notes: B7 ⭐ 3-preset hybrid + custom; custom complexity floor (≥1 override required)

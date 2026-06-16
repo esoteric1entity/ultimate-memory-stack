@@ -13,7 +13,7 @@
 
 | Aspect | General behavior | Cross-ref |
 |---|---|---|
-| **Compliance preset** | `none` (default), `enterprise`, `healthcare`, or `custom` | `<edition>/PROFILE.md` |
+| **Compliance preset** | `none` (default), `enterprise`, or `custom` | `<edition>/PROFILE.md` |
 | **Audit log (§5.2)** | OPT-IN (default OFF) — set `audit_log: true` in PROFILE.md to enable | B1 |
 | **Quarantine UX (§5.3)** | Toast at session start: "X entries quarantined — review?"; full workflow Skill available | New v3.5 Skill at `core/audit-quarantine-skill/` |
 | **Pattern-key recurrence (§4.2)** | Threshold = 5 (less strict than biotech) | B6 |
@@ -48,8 +48,8 @@
 
 You're using general-edition. Three things matter:
 
-1. **YOU choose the compliance preset.** None / healthcare / enterprise / custom. Pick at install; can change later.
-2. **Audit log is OPT-IN.** Default OFF for `none` preset; ON for healthcare/enterprise. Enable manually if you want it on for `none`.
+1. **YOU choose the compliance preset.** None / enterprise / custom. Pick at install; can change later.
+2. **Audit log is OPT-IN.** Default OFF for `none` preset; ON for `enterprise`. Enable manually if you want it on for `none`.
 3. **Quarantine is NON-BLOCKING.** Suspicious entries surface as a toast at session start; you review at your pace. No queue blocking.
 
 General-edition is the lighter-touch sibling of biotech-edition. Most users start with `compliance: none` — that's fine.
@@ -61,7 +61,7 @@ General-edition is the lighter-touch sibling of biotech-edition. Most users star
 | Your context | Pick |
 |--------------|------|
 | Personal projects, hobby code, learning | `none` |
-| You occasionally touch HIPAA-adjacent work | `healthcare` (or `none` + `healthcare-profile.md` extension) |
+| HIPAA / PHI work | Not in general-edition — A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. |
 | You handle business customer PII or you're prepping for SOC2 | `enterprise` |
 | Multiple regulatory regimes simultaneously OR very specific needs | `custom` (advanced) |
 
@@ -76,7 +76,8 @@ If `enterprise` base preset isn't enough, add extensions:
 - **`gdpr-profile.md`** — EU jurisdiction; consent tracking; right-to-be-forgotten
 - **`soc2-profile.md`** — SOC2 audit prep; change management discipline; access controls
 - **`pci-dss-profile.md`** — Payment card data context; aggressive PAN detection
-- **`healthcare-profile.md`** — HIPAA without biotech-edition's mandatory enforcement
+
+For HIPAA/PHI: A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 Activate at install:
 ```bash
@@ -129,7 +130,7 @@ If you change presets often (more than once a month), reconsider — preset is m
 
 ## When to Choose `custom`
 
-The 4 base presets cover ~95% of deployments. `custom` is for the 5% with sophisticated needs:
+The 3 base presets cover ~95% of deployments. `custom` is for the 5% with sophisticated needs:
 
 - Multiple compliance regimes that need fine-grained composition
 - Industry-specific requirements not covered by extensions (FERPA, ITAR, FedRAMP — extensions for these aren't yet built)
@@ -150,7 +151,7 @@ General-edition uses HMAC by default for cryptographic signatures (lighter than 
 - Signatures activate at T3 (when Code Execution is available)
 - Without Code Execution: signatures are dormant; you're protected by validation-on-read
 
-If you need stronger cryptographic guarantees, switch to `healthcare-profile.md` extension which uses Ed25519 instead.
+Stronger cryptographic guarantees (e.g. Ed25519) are part of the planned institutional edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 
@@ -189,16 +190,18 @@ If you need stronger cryptographic guarantees, switch to `healthcare-profile.md`
 
 ---
 
-## When to Switch to Biotech-Edition
+## HIPAA / PHI Work — Institutional Edition
 
-You should consider switching from general-edition to biotech-edition if:
+If your work involves PHI or HIPAA-grade enforcement — for example:
 
-- Your work is PRIMARILY in healthcare/biotech R&D (not occasional)
-- You're at an institution with strict HIPAA enforcement requirements
-- You want mandatory PHI detection with blocking workflow
-- You can't tolerate user-instruction overrides of compliance rules
+- Work that is PRIMARILY in healthcare/biotech R&D (not occasional)
+- An institution with strict HIPAA enforcement requirements
+- A need for mandatory PHI detection with blocking workflow
+- Compliance rules that can't tolerate user-instruction overrides
 
-Otherwise, general-edition + `compliance: healthcare` preset is sufficient for occasional HIPAA-adjacent work.
+then note: A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+
+General-edition does not ship PHI/HIPAA compliance; its presets are `none`, `enterprise`, and `custom`.
 
 ---
 

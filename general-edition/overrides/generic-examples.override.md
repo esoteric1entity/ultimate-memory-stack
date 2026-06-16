@@ -285,16 +285,14 @@ Q: Pet peeves
 
 ---
 
-## What General-Edition Excludes (Use Biotech-Edition Instead)
+## What General-Edition Excludes (PHI / HIPAA)
 
-If your context involves:
+General-edition does not ship PHI/HIPAA compliance. Its presets are `none`, `enterprise`, and `custom`. If your context involves:
 - HIPAA-covered PHI (patient data, specimens, genomic linking)
 - Strict regulatory enforcement (no user override possible)
 - Healthcare provider operations
 
-→ Deploy **biotech-edition** instead. It has non-overridable HIPAA defaults + blocking quarantine workflow.
-
-General-edition with `compliance: healthcare` is a lighter version (user can change preset; quarantine non-blocking) — appropriate for occasional HIPAA-adjacent work but NOT for primary healthcare context.
+then note: A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 
@@ -304,5 +302,4 @@ General-edition with `compliance: healthcare` is a lighter version (user can cha
 - `./compliance-presets.override.md` (preset details)
 - `./generic-conflict-resolution.override.md` (preset-dependent enforcement)
 - `../PROFILE.md` (defaults + user choices)
-- `../EXTENSIONS/` (4 optional regulatory profile add-ons)
-- `../../biotech-edition/PROFILE.md` (compare for HIPAA-active contexts)
+- `../EXTENSIONS/` (optional regulatory profile add-ons)

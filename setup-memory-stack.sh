@@ -16,7 +16,7 @@
 #   ./setup-memory-stack.sh --help
 #
 # Pass-through flags forwarded to general-edition/setup.sh:
-#   --compliance=<none|healthcare|enterprise|custom>
+#   --compliance=<none|enterprise|custom>
 #   --extensions=<csv>
 #   --migrate-from=<old_version>
 #   --backup-location=<path>

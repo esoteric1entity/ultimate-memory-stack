@@ -48,7 +48,7 @@ if ($Help) {
     Write-Host "  .\setup.ps1 -Status                                        # Show state"
     Write-Host "  .\setup.ps1 -GenerateHmacSecret                            # Generate HMAC secret (T3+)"
     Write-Host ""
-    Write-Host "Compliance presets: none | enterprise | custom   (PHI/healthcare = biotech-edition only)"
+    Write-Host "Compliance presets: none | enterprise | custom   (PHI/healthcare = institutional biotech-edition, planned/not yet available)"
     Write-Host "Extensions: gdpr | soc2 | pci-dss (comma-separated)"
     Write-Host ""
     Write-Host "Note: Delegates to setup.py for most operations."
@@ -58,8 +58,17 @@ if ($Help) {
     exit 0
 }
 
+# PHI/healthcare (and biotech) is the planned institutional biotech-edition — refuse it
+# in the public general-edition BEFORE delegating to setup.py, so the Windows path
+# fails fast with a clear message instead of a confusing downstream exit. Mirrors setup.sh.
+if ($Compliance -in @("healthcare", "biotech")) {
+    Write-Host "X ERROR: PHI/healthcare compliance is part of the institutional biotech-edition, not the public general-edition." -ForegroundColor Red
+    Write-Host "  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md for institutional adoption."
+    exit 1
+}
+
 # Validate compliance preset
-$validPresets = @("none", "healthcare", "enterprise", "custom")
+$validPresets = @("none", "enterprise", "custom")
 if ($Compliance -notin $validPresets) {
     Write-Host "X Invalid compliance preset: $Compliance" -ForegroundColor Red
     Write-Host "  Valid: $($validPresets -join ' | ')"
@@ -67,7 +76,7 @@ if ($Compliance -notin $validPresets) {
 }
 
 # Validate extensions
-$validExtensions = @("healthcare", "gdpr", "soc2", "pci-dss")
+$validExtensions = @("gdpr", "soc2", "pci-dss")
 if ($Extensions) {
     $extList = $Extensions -split ","
     foreach ($ext in $extList) {

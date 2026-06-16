@@ -26,7 +26,7 @@ The Ultimate Memory Stack uses a **7-layer architecture (Layer 0 through Layer 6
 - **Markdown as source of truth** — every layer must defer to Layer 1 (markdown vault) as authoritative. Higher layers are indexes, caches, or signatures — never primary storage.
 - **Per-entry metadata over inline tags** — YAML frontmatter (SCHEMA_A18) is the convergent pattern. Avoid inline tags ([FINAL], [TENTATIVE]) that don't survive consolidation.
 
-> **Editions note:** the public release ships the **general edition**. The biotech-edition (HIPAA-grade) is also available for institutional adopters — see [`CONTRIBUTING.md`](../CONTRIBUTING.md) for licensing terms. Both editions share this architecture; the biotech defaults referenced throughout this document describe that edition's locked configuration.
+> **Editions note:** the public release ships the **general edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See [`CONTRIBUTING.md`](../CONTRIBUTING.md). Both editions share this architecture; the biotech defaults referenced throughout this document describe that edition's locked configuration.
 
 ---
 
@@ -227,7 +227,7 @@ Layer 1's directory structure + YAML frontmatter + wiki-link convention are 100%
 ## 6. Layer 2 — Compliance & Audit
 
 ### Purpose
-Regulated-data handling and forensic capability. Audit trail of read/write operations. Quarantine workflow for suspicious entries. Compliance preset selection (none / healthcare / enterprise / custom).
+Regulated-data handling and forensic capability. Audit trail of read/write operations. Quarantine workflow for suspicious entries. Compliance preset selection (general-edition: none / enterprise / custom; `healthcare` is biotech-edition-reserved).
 
 ### Rationale
 - Biotech edition MUST satisfy HIPAA §164.312 technical safeguards — audit controls, access controls, integrity controls
@@ -524,7 +524,7 @@ Both editions use the same Layer 0–6 architecture. PROFILE.md selects:
 
 | Layer Concern | Biotech Default | General Default |
 |---------------|-----------------|-----------------|
-| Compliance preset (B7) | `healthcare` (non-overridable) | `none` (overridable to healthcare/enterprise/custom) |
+| Compliance preset (B7) | `healthcare` (non-overridable) | `none` (overridable to enterprise/custom) |
 | Audit log (B1) | REQUIRED on every write | OPT-IN (configurable) |
 | Delete semantics | Tombstone + 30-day retention | Hard delete |
 | Quarantine UX | `/audit-quarantine` review workflow | One-line approval toast at session start |

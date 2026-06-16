@@ -82,7 +82,6 @@ extensions:
 |-------------|------------------|
 | `enterprise` + `soc2` | Most common — SOC2-audited B2B SaaS |
 | `enterprise` + `soc2` + `gdpr` | SOC2 + EU jurisdiction |
-| `enterprise` + `soc2` + `healthcare` | HIPAA-aware SOC2 (healthcare-adjacent SaaS) |
 | `enterprise` + `soc2` + `pci-dss` | SOC2 + payment card handling |
 
 ## Standing Rules (Universal Floor + SOC2-Specific)

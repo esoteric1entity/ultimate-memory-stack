@@ -148,9 +148,9 @@ Contributors are listed in [`AUTHORS.md`](./AUTHORS.md) in alphabetical order. Y
 
 ## Institutional adoption (biotech edition)
 
-This public repository ships the **general edition**. The biotech-edition (HIPAA-grade) is also available for institutional adopters — it layers non-overridable healthcare compliance (mandatory audit + quarantine workflows, HIPAA-aligned technical safeguards) on the same architecture you see here.
+This public repository ships the **general edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available); it will layer non-overridable healthcare compliance (mandatory audit + quarantine workflows, HIPAA-aligned technical safeguards) on the same architecture you see here. It is not selectable in the general-edition installer today.
 
-If your organization is interested: open a GitHub Issue describing your use case (or use GitHub Security Advisories for private/sensitive inquiries). Licensing terms for institutional deployments are discussed per-engagement.
+Interested in institutional adoption? Open a GitHub Issue describing your use case (or use GitHub Security Advisories for private/sensitive inquiries) so we can gauge demand. Licensing terms for any future institutional deployments will be defined when that edition becomes available.
 
 ## Questions?
 

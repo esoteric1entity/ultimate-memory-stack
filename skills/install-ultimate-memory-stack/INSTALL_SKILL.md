@@ -96,7 +96,7 @@ The skill itself doesn't require additional infrastructure — but for the insta
 1. **Claude Code installed** ✅ (you have it if you're running this skill)
 2. **Working directory** where the memory stack will be installed (the directory you're currently in when you invoke the skill)
 3. **The Ultimate Memory Stack source package** — the skill will ask for its location at Step 1
-   - This is typically a folder containing `common-specs/` + at least one edition directory
+   - This is typically a folder containing `common-specs/` + the shipped `general-edition/` directory
    - It can live anywhere: a local git clone, your downloads folder, a removable drive, a network share — wherever you have the unpacked source files
    - The skill will validate that the path you provide contains the required directories before proceeding
 4. **Pre-install decisions made** — edition, compliance preset (general only), extensions (general only), sub-agent topology
@@ -111,7 +111,7 @@ The skill does NOT:
 - Modify files outside the working directory + `~/.config/keys/` (only if T3+ key generation invoked)
 - Make network requests
 - Execute arbitrary code outside the documented workflow
-- Bypass biotech-edition's mandatory enforcement
+- Bypass the installer's compliance-preset gate (PHI/healthcare is not selectable in the general-edition)
 
 The skill DOES:
 - Read your source package files
@@ -144,7 +144,7 @@ Like any third-party skill, review it before registering: `SKILL.md` in this dir
 
 **Fix:**
 1. Locate the Ultimate Memory Stack source package on your system
-2. Verify it contains: `<path>/common-specs/` AND at least one of `<path>/biotech-edition/` or `<path>/general-edition/`
+2. Verify it contains: `<path>/common-specs/` AND the shipped `<path>/general-edition/` (the institutional `biotech-edition/` is a separate package and is not part of this public release)
 3. Provide the correct path when the skill retries the question
 
 ### Symptom: Skill runs but Claude doesn't have Write/Bash tool permissions

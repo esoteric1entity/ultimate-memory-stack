@@ -23,7 +23,7 @@ Procedure for upgrading an existing v2.0 memory stack deployment to v3.0 general
    ```
 - [ ] **Verify v2.0 stack is operational**
 - [ ] **Determine target compliance preset** for v3.0 — see `overrides/compliance-presets.override.md`
-- [ ] **Determine optional extensions** (gdpr, soc2, pci-dss, healthcare) if needed
+- [ ] **Determine optional extensions** (gdpr, soc2, pci-dss) if needed
 
 ### Recommended
 
@@ -74,7 +74,7 @@ The migration script:
    ---
    ```
 3. Preserves entry body verbatim
-4. If user selected `compliance: healthcare/enterprise`: initializes audit_log + quarantine (matches preset behavior)
+4. If user selected `compliance: enterprise`: initializes audit_log + quarantine (matches preset behavior)
 5. If user selected `compliance: none`: audit log defaults OFF; quarantine still initialized (always-on per B2)
 6. Logs migration to audit log (or to a one-time migration record if audit is off)
 7. Validation pass; quarantines failures per preset patterns
@@ -91,7 +91,7 @@ Same as biotech-edition manual path (see `biotech-edition/MIGRATION_v2_to_v3.md`
 
 2. **Enable audit log per preset**
    - Default OFF for `compliance: none`
-   - Default ON for `compliance: healthcare` or `enterprise`
+   - Default ON for `compliance: enterprise`
    - Configurable for `custom`
 
 3. **Activate optional extensions** (if user enabled)
@@ -105,7 +105,6 @@ Same as biotech-edition manual path (see `biotech-edition/MIGRATION_v2_to_v3.md`
 
 5. **Re-scan legacy entries**
    - For `compliance: none`: only universal standing-rule detection (secrets, basic PII)
-   - For `compliance: healthcare`: PHI detection — may flag entries
    - For `compliance: enterprise`: broad PII detection — may flag entries
    - Flagged entries → quarantine queue (non-blocking for general-edition; user reviews via toast)
 
@@ -151,8 +150,10 @@ Same as biotech-edition rollback procedure (see biotech `MIGRATION_v2_to_v3.md` 
 | Audit log | REQUIRED on migration | Optional (preset-dependent) |
 | Cryptographic signature | Ed25519 strongly recommended | HMAC default (or none if T0/T1/T2) |
 | Quarantine workflow | Blocking when >5 | Non-blocking |
-| HIPAA validation re-scan | Always | Only if preset includes PHI detection |
+| HIPAA validation re-scan | Always | Not applicable — PHI detection is biotech-edition-reserved (not selectable in general-edition) |
 | Required IP/Legal review | <your-institution>-context per `PRIVACY_REVIEW.md` | Just public-release readiness per `PRIVACY_REVIEW.md` |
+
+> This comparison describes the biotech-edition's locked configuration for reference; this public package ships the general-edition only. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 

@@ -87,7 +87,7 @@ Before ANY install method, decide:
 
 ### Decision 1: Edition
 
-This package ships the **general-edition** — suited to software dev, research, writing, education, B2B SaaS, and enterprise contexts, with compliance preset flexibility (see Decision 2). The biotech-edition (HIPAA-grade) is also available for institutional adopters — see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for licensing terms.
+This package ships the **general-edition** — suited to software dev, research, writing, education, B2B SaaS, and enterprise contexts, with compliance preset flexibility (see Decision 2). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 **Copy `common-specs/` + `general-edition/` into your working directory.**
 
@@ -96,7 +96,6 @@ This package ships the **general-edition** — suited to software dev, research,
 | Preset | If you need |
 |--------|-------------|
 | **`none`** | No regulatory exposure (personal projects, hobby code, learning) |
-| **`healthcare`** | Occasional HIPAA-adjacent work (volunteer clinical, side consulting) |
 | **`enterprise`** | Business-customer PII, SOC2 prep, GDPR awareness |
 | **`custom`** | Multiple regulatory regimes (advanced — requires `overrides/compliance.override.md`) |
 
@@ -105,7 +104,6 @@ This package ships the **general-edition** — suited to software dev, research,
 ### Decision 3: Extensions (general-edition only, optional)
 
 Optional add-ons that compose with base preset (per `EXTENSIONS/`):
-- `healthcare` — HIPAA detection without biotech-edition's mandatory enforcement
 - `gdpr` — EU jurisdiction + consent tracking
 - `soc2` — SOC2 Trust Services Criteria audit-ready evidence
 - `pci-dss` — Payment card data context
@@ -198,13 +196,13 @@ The complete spec lives in `common-specs/` plus your edition's profile in `<edit
 
 ### Step 1 — Confirm Edition
 
-Ask me: "Which edition are you deploying — biotech or general?"
+This package ships the **general-edition**. Confirm with me: "Deploying the general-edition in this directory — confirm?"
 
-Wait for my answer. Then load `<edition>/PROFILE.md` to determine which common-spec sections are active, which overrides apply, and which compliance preset is in effect.
+Wait for my answer. Then load `general-edition/PROFILE.md` to determine which common-spec sections are active, which overrides apply, and which compliance preset is in effect.
 
-If `general`: also ask "Which compliance preset — none, healthcare, enterprise, or custom?" Save the answer to my user profile.
+Ask "Which compliance preset — none, enterprise, or custom?" Save the answer to my user profile.
 
-If `biotech`: the `healthcare` preset is mandatory and non-overridable.
+If `custom`: ask which regulations apply — GDPR, SOC2, PCI-DSS. HIPAA/PHI is not a general-edition option. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 
@@ -245,7 +243,7 @@ memory/
     quarantine_log.jsonl         ← If quarantine enabled (B2)
 ultimate-memory-stack/           ← The spec itself, read-mostly during operation
   common-specs/                  ← Universal schemas + protocol + architecture
-  <edition>/                     ← The active edition (biotech OR general)
+  general-edition/               ← The active edition shipped in this package
 ```
 
 ---
@@ -260,16 +258,16 @@ Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code a
 
 ### Step 4 — Apply Edition Profile + Overrides
 
-Read `<edition>/PROFILE.md`. It declares:
+Read `general-edition/PROFILE.md`. It declares:
 - Which common-spec features are active (e.g., audit log: required vs opt-in)
-- Compliance preset (e.g., `healthcare` for biotech, configurable for general)
+- Compliance preset (`none` / `enterprise` / `custom` for general; the `healthcare` preset is biotech-edition-reserved and not selectable in general-edition)
 - Override-file map — each line says "override file X applies override Y" (the B4 override-file convention)
-- Pattern-key recurrence threshold (biotech ≥3, general ≥5)
-- Cryptographic signature scheme (Ed25519 vs HMAC, activates at T3)
+- Pattern-key recurrence threshold (general ≥5)
+- Cryptographic signature scheme (HMAC for general, activates at T3)
 - Audit log retention policy
-- Quarantine UX pattern (`/audit-quarantine` workflow vs one-line toast)
+- Quarantine UX pattern (one-line toast)
 
-Apply each `.override.md` file listed in PROFILE.md. The override pattern: if `common-specs/X.md` and `<edition>/overrides/X.override.md` both exist, the override's sections REPLACE the common-spec's sections of the same name (other sections inherit).
+Apply each `.override.md` file listed in PROFILE.md. The override pattern: if `common-specs/X.md` and `general-edition/overrides/X.override.md` both exist, the override's sections REPLACE the common-spec's sections of the same name (other sections inherit).
 
 ---
 
@@ -296,7 +294,7 @@ If `memory/` is empty (first deployment):
 
 If `memory/` exists (upgrading from v2.0):
 1. Detect schema version of existing files
-2. Migrate per `<edition>/MIGRATION_v2_to_v3.md` (separate file) — adds YAML frontmatter to existing entries, restructures projects into per-project subdirs
+2. Migrate per `general-edition/MIGRATION_v2_to_v3.md` (separate file) — adds YAML frontmatter to existing entries, restructures projects into per-project subdirs
 3. Preserve all FINAL decisions, security entries, user profile, standing rules — these survive any migration
 4. Tell me the migration plan BEFORE executing. Wait for approval.
 
@@ -316,9 +314,10 @@ Ask me these questions in order. Save my answers to the indicated files:
    - List active projects (1 per line, brief description each)
    - For each: high-level goal + current status
 
-3. **Compliance** (only if edition = `general`; → `user/user_profile.md` + active compliance profile)
-   - Compliance preset: none / healthcare / enterprise / custom
-   - If `custom`: which regulations apply (GDPR, SOC2, PCI-DSS, HIPAA, other)?
+3. **Compliance** (→ `user/user_profile.md` + active compliance profile)
+   - Compliance preset: none / enterprise / custom
+   - If `custom`: which regulations apply (GDPR, SOC2, PCI-DSS)?
+   - HIPAA/PHI is not a general-edition option. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 4. **Pet Peeves** (→ `feedback/feedback.md` as initial entries — the canonical location)
    - Anything you should NEVER do
@@ -477,7 +476,7 @@ Next steps:
   4. Answer setup wizard
 ```
 
-(Tier-detection lines vary by machine. With `--compliance=healthcare|enterprise|custom` the audit-log lines become "✓ Audit log initialized for compliance: `<preset>`".)
+(Tier-detection lines vary by machine. With `--compliance=enterprise|custom` the audit-log lines become "✓ Audit log initialized for compliance: `<preset>`".)
 
 **Step 3: Open Claude Code + paste activation prompt + answer wizard**
 
@@ -510,7 +509,7 @@ Welcome to the Ultimate Memory Stack installer.
 
 Edition? [general]: general
 
-Compliance preset? [none / healthcare / enterprise / custom]: none
+Compliance preset? [none / enterprise / custom]: none
 
 Extensions? (comma-separated, or 'none'): none
 
@@ -615,11 +614,11 @@ In Claude Code, say: "Remember that my preferred test framework is jest."
 
 **Expected:** Claude writes an entry. Verify by opening `memory/feedback/feedback.md` — should see a markdown entry with YAML frontmatter (id, dates, source_agent: user) and content mentioning jest.
 
-### Verification D: PHI Detection (healthcare preset or extension only)
+### Verification D: PII Detection (`enterprise` preset or `gdpr` extension only)
 
-With the `healthcare` preset (or extension) active, say: "Test detection: my fake MRN is 1234567 (testing only)."
+With the `enterprise` preset (or `gdpr` extension) active, say: "Test detection: my fake customer SSN is 123-45-6789 (testing only)."
 
-**Expected:** Claude flags the PHI, routes the entry to quarantine (non-blocking toast notification in general-edition), and the audit log captures the attempt.
+**Expected:** Claude flags the PII, routes the entry to quarantine (non-blocking toast notification in general-edition), and the audit log captures the attempt.
 
 ---
 
@@ -682,7 +681,7 @@ If you have an existing v2.0 memory stack:
 
 **Fix:** Run `chmod +x <script>` then re-run, or invoke it as `bash <script>` (interpreter invocation doesn't require the execute bit).
 
-### Symptom: "Audit log MISSING" (compliance preset healthcare/enterprise/custom)
+### Symptom: "Audit log MISSING" (compliance preset enterprise/custom)
 
 **Cause:** These presets enable the audit log by default; setup should have created it. (With preset `none` the audit log is OPT-IN — a missing log is normal, not an error.)
 
@@ -690,7 +689,7 @@ If you have an existing v2.0 memory stack:
 - Drag-and-drop create empty file `memory/security/audit_log.jsonl` (any text editor — save empty file)
 - Drag-and-drop create empty file `memory/quarantine/quarantine_log.jsonl`
 
-### Symptom: PHI detection misfiring (false positives)
+### Symptom: PII detection misfiring (false positives)
 
 **Cause:** Layer 2 patterns may be too aggressive for your context.
 
@@ -720,12 +719,12 @@ If you have an existing v2.0 memory stack:
 
 ## §11. Edition Switching
 
-**If you picked the wrong edition initially:**
+This package ships the **general-edition** only. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. For day-to-day regulatory tuning within the general-edition, use compliance-preset switching (§12) rather than an edition change.
 
-Edition is a structural choice — not a simple preset change. Recommended path:
+Edition is a structural choice — not a simple preset change. When a future edition becomes available, the recommended path between editions would be:
 1. Backup current deployment: copy `memory/` to `memory.backup.<date>/` via drag-and-drop
-2. Run fresh install with correct edition
-3. Manually port memory entries from backup (if switching from the institutional biotech-edition, verify HIPAA detection)
+2. Run a fresh install with the target edition
+3. Manually port memory entries from backup, then re-verify detection under the new edition's posture
 4. Test thoroughly before discarding backup
 
 **There's no automated `--change-edition`** — intentional, since editions have fundamentally different compliance posture.
@@ -754,7 +753,7 @@ Edition is a structural choice — not a simple preset change. Recommended path:
 
 **This is reversible** — change back with the same command.
 
-**The institutional biotech-edition cannot change preset** — locked to `healthcare` by design.
+**By design, the planned institutional edition would not change preset** — it is locked to `healthcare`. (That edition is planned for a future release, not yet available; see CONTRIBUTING.md.)
 
 ---
 
@@ -886,7 +885,7 @@ When Code Execution + the `cryptography` package are available, this method gene
 python3 setup.py --generate-hmac-secret
 ```
 
-**Action required after generation:** store the secret in your password manager. Ed25519 entry signing ships with the institutional biotech-edition — see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for licensing terms.
+**Action required after generation:** store the secret in your password manager. (Ed25519 offline-key entry signing is part of the planned institutional edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.)
 
 ---
 
@@ -919,7 +918,7 @@ After the base stack install (Methods A/B/C/D/E above), the package includes **6
 | 2 | `/install-llmlingua` | Security-reviewed | Exact pin `llmlingua==0.2.2`; planned migration → SecurityLingua in a future release |
 | 3 | `/install-graphiti` | Security-reviewed | Set `GRAPHITI_TELEMETRY_ENABLED=false` BEFORE first import; CVE-2026-32247 patched ≥0.29.1; Kuzu backend recommended |
 | 4 | `/install-graphify` | Security-reviewed | Pin `graphifyy==0.8.21` (DOUBLE-y); CLI command is `graphify` (single-y) by design; website https://graphify.net/ |
-| 5 | `/audit-quarantine` | n/a (built-in) | Edition-aware: quarantine review workflow (healthcare presets) / one-line toast (general default) |
+| 5 | `/audit-quarantine` | n/a (built-in) | Edition-aware: one-line toast (general default); the fuller quarantine review workflow belongs to the planned institutional edition |
 | 6 | `/install-openclaw-adapter` | n/a (built-in) | Requires OpenClaw harness installed at target; adapter generates 9 root files |
 
 ### §18.3 Install Order Recommendation

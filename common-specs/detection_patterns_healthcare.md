@@ -1,5 +1,7 @@
 # Detection Patterns — `healthcare` Preset (HIPAA-Active)
 
+> **Note:** The `healthcare` preset is **biotech-edition-reserved — not selectable in general-edition** (the installer refuses it). This file defines the preset's PHI-detection behavior for the planned institutional edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+
 > **Preset:** `compliance: healthcare`
 > **Purpose:** Full HIPAA §164.312 PHI detection. PHI redacted on sight; warnings + audit log on every detection.
 

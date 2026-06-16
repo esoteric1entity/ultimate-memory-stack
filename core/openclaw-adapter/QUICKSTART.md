@@ -96,8 +96,8 @@ The setup will:
 
 When prompted, choose:
 
-- **Edition** — `biotech` (HIPAA-grade defaults: full PHI detection, audit log required, quarantine workflow) OR `general` (lighter friction, opt-in audit log, toast-style quarantine UX)
-- **Compliance preset** — `none` / `healthcare` / `enterprise` / `custom` (per the edition)
+- **Edition** — `general-edition` (the only edition in this package): opt-in audit log, toast-style quarantine UX. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+- **Compliance preset** — `none` / `enterprise` / `custom`
 
 ### Step 3 — Wire the LLM endpoint
 
@@ -209,7 +209,7 @@ Stage 2 PASS criteria (from `DEPLOYMENT_GUIDE_v3.5.md §11.2`):
 | `T7 FAIL` in self_test output | A memory file accidentally contains PII/PHI-looking patterns | Review the flagged file; redact identifiers; re-run; if it's a false positive on an unusual format, tune the regex in `self_test.py` PII_PATTERNS |
 | LLM calls return errors but stack files are fine | LLM endpoint misconfigured (Step 3 incomplete) | Verify the endpoint with `curl`; confirm OpenClaw's env vars or config file points to it |
 | Bootstrap budget exceeds 60 K characters | A root file has bloated over time | Run `python3 .openclaw/heartbeat_compactor.py` to compact `HEARTBEAT.md`; review other root files for accumulated content |
-| Audit log grows quickly | Biotech edition writes audit entries on every memory operation (by design) | Rotation triggers at 50,000 lines per `MEMORY_PROTOCOL.md §11`; rotated logs land at `audit_log_<YYYY-MM>.jsonl` |
+| Audit log grows quickly | The opt-in audit log is enabled and writing entries on memory operations | Rotation triggers at 50,000 lines per `MEMORY_PROTOCOL.md §11`; rotated logs land at `audit_log_<YYYY-MM>.jsonl`. Disable the opt-in audit log in your edition profile if you don't need it |
 
 For deeper issues, consult `INSTALL_OPENCLAW_ADAPTER.md` (full install guide) and `MAPPING.md` (architecture reference).
 
@@ -221,7 +221,7 @@ For deeper issues, consult `INSTALL_OPENCLAW_ADAPTER.md` (full install guide) an
 | Architecture reference (what each root file does) | `MAPPING.md` |
 | Adding recommended Tier C addons (LLMLingua / Graphiti / Graphify / Obsidian) | `../../recommended-addons/<addon>-installer/INSTALL_*.md` |
 | Quarantine review workflow | `../audit-quarantine-skill/README.md` |
-| Edition-specific behavior (biotech vs general) | `../../<edition>-edition/PROFILE.md` |
+| Edition-specific behavior (general-edition) | `../../general-edition/PROFILE.md` |
 | Memory protocol behavior reference | `../../common-specs/MEMORY_PROTOCOL.md` |
 | Multi-machine sync (future) | `../../common-specs/SCHEMA_sync_log.md` |
 

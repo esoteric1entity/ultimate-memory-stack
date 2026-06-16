@@ -32,7 +32,7 @@
 - **B4 Override-file convention** — `.override.md` shadow-files (engine behind edition profiles)
 - **B5 Bi-temporal annotations** — `valid_at` / `invalid_at` in SCHEMA_A18. Biotech: enforced. General: available. Enables point-in-time queries ("what did we believe on date X?"). Markdown-now, Graphiti-backed-later.
 - **B6 Pattern-key recurrence** — biotech ≥3, general ≥5
-- **B7 Compliance preset hybrid ⭐** — 3 presets: `none` / `healthcare` / `enterprise` + `custom` override
+- **B7 Compliance preset hybrid ⭐** — general-edition presets: `none` / `enterprise` + `custom` override (GDPR/SOC2/PCI-DSS). The `healthcare` preset is biotech-edition-reserved; not selectable in general-edition.
 - **B8 Memory poisoning defenses** — provenance, validation-on-read, quarantine, optional signatures
 - **B9 Local semantic search via Ollama** — opt-in both editions; privacy-friendly; T1+
 - **B10 Embedding-cache as derived index** — required architecture (`memory/.index/`, gitignored, regenerable)
@@ -66,7 +66,7 @@
 - Self-trimming protocol (every 10 sessions, suggestions-only)
 - Decision promotion pattern (inline → decisions.md at >5)
 - Heartbeat checkpoint (~30 min)
-- Healthcare compliance profile (now folded into compliance preset B7 `healthcare`)
+- Healthcare compliance profile (folded into compliance preset B7 `healthcare` — biotech-edition-reserved; not selectable in general-edition)
 - Schema versioning
 
 ---
@@ -76,15 +76,15 @@
 ### Prerequisites
 - Claude Code installed (https://claude.ai/code)
 - Working directory selected (where the memory system will live)
-- Decide your **edition**: `biotech` or `general` (or pick `general` + healthcare preset if you want HIPAA without biotech specifics)
+- This package ships the **general-edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ### Steps
 1. **Copy the stack package** into your working directory:
    - `common-specs/` — universal files (this is the shared 95%)
-   - `general-edition/` — the edition shipped in this package (the HIPAA-grade biotech-edition is available for institutional adopters — see `CONTRIBUTING.md`)
+   - `general-edition/` — the edition shipped in this package. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 2. **Open Claude Code** in your working directory (or run `claude` from there)
 3. **Paste the activation prompt** below
-4. **Answer Claude's setup-wizard questions** (edition confirmation, user profile, project list, compliance preset if `general`)
+4. **Answer Claude's setup-wizard questions** (general-edition confirmation, user profile, project list, compliance preset)
 5. **Verify**: Claude runs the self-test suite and reports any failures
 6. **At end of every session**: tell Claude "update session state" or "wrap up"
 7. **At start of every session**: Claude auto-loads memory and resumes (no prompt needed)
@@ -98,19 +98,19 @@
 ```
 You are deploying the Ultimate Memory Stack v3.6.0 in this working directory.
 
-The complete spec lives in `common-specs/` plus your edition's profile in `<edition>/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
+The complete spec lives in `common-specs/` plus the general-edition profile in `general-edition/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
 
 ---
 
 ### Step 1 — Confirm Edition
 
-Ask me: "Which edition are you deploying — biotech or general?"
+This package ships the **general-edition**. Confirm with me: "Deploying the general-edition in this directory — confirm?"
 
-Wait for my answer. Then load `<edition>/PROFILE.md` to determine which common-spec sections are active, which overrides apply, and which compliance preset is in effect.
+Wait for my answer. Then load `general-edition/PROFILE.md` to determine which common-spec sections are active, which overrides apply, and which compliance preset is in effect.
 
-If `general`: also ask "Which compliance preset — none, healthcare, enterprise, or custom?" Save the answer to my user profile.
+Ask "Which compliance preset — none, enterprise, or custom?" Save the answer to my user profile.
 
-If `biotech`: the `healthcare` preset is mandatory and non-overridable.
+If `custom`: ask which regulations apply — GDPR, SOC2, PCI-DSS. HIPAA/PHI is not a general-edition option. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 
@@ -151,7 +151,7 @@ memory/
     quarantine_log.jsonl         ← If quarantine enabled (B2)
 ultimate-memory-stack/           ← The spec itself, read-mostly during operation
   common-specs/                  ← Universal schemas + protocol + architecture
-  <edition>/                     ← The active edition (biotech OR general)
+  general-edition/               ← The active edition shipped in this package
 ```
 
 ---
@@ -166,16 +166,16 @@ Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code a
 
 ### Step 4 — Apply Edition Profile + Overrides
 
-Read `<edition>/PROFILE.md`. It declares:
+Read `general-edition/PROFILE.md`. It declares:
 - Which common-spec features are active (e.g., audit log: required vs opt-in)
-- Compliance preset (e.g., `healthcare` for biotech, configurable for general)
+- Compliance preset (`none` / `enterprise` / `custom` for general; the `healthcare` preset is biotech-edition-reserved and not selectable in general-edition)
 - Override-file map — each line says "override file X applies override Y" (the B4 override-file convention)
-- Pattern-key recurrence threshold (biotech ≥3, general ≥5)
-- Cryptographic signature scheme (Ed25519 vs HMAC, activates at T3)
+- Pattern-key recurrence threshold (general ≥5)
+- Cryptographic signature scheme (HMAC for general, activates at T3)
 - Audit log retention policy
-- Quarantine UX pattern (`/audit-quarantine` workflow vs one-line toast)
+- Quarantine UX pattern (one-line toast)
 
-Apply each `.override.md` file listed in PROFILE.md. The override pattern: if `common-specs/X.md` and `<edition>/overrides/X.override.md` both exist, the override's sections REPLACE the common-spec's sections of the same name (other sections inherit).
+Apply each `.override.md` file listed in PROFILE.md. The override pattern: if `common-specs/X.md` and `general-edition/overrides/X.override.md` both exist, the override's sections REPLACE the common-spec's sections of the same name (other sections inherit).
 
 ---
 
@@ -202,7 +202,7 @@ If `memory/` is empty (first deployment):
 
 If `memory/` exists (upgrading from v2.0):
 1. Detect schema version of existing files
-2. Migrate per `<edition>/MIGRATION_v2_to_v3.md` (separate file) — adds YAML frontmatter to existing entries, restructures projects into per-project subdirs
+2. Migrate per `general-edition/MIGRATION_v2_to_v3.md` (separate file) — adds YAML frontmatter to existing entries, restructures projects into per-project subdirs
 3. Preserve all FINAL decisions, security entries, user profile, standing rules — these survive any migration
 4. Tell me the migration plan BEFORE executing. Wait for approval.
 
@@ -222,9 +222,10 @@ Ask me these questions in order. Save my answers to the indicated files:
    - List active projects (1 per line, brief description each)
    - For each: high-level goal + current status
 
-3. **Compliance** (only if edition = `general`; → `user/user_profile.md` + active compliance profile)
-   - Compliance preset: none / healthcare / enterprise / custom
-   - If `custom`: which regulations apply (GDPR, SOC2, PCI-DSS, HIPAA, other)?
+3. **Compliance** (→ `user/user_profile.md` + active compliance profile)
+   - Compliance preset: none / enterprise / custom
+   - If `custom`: which regulations apply (GDPR, SOC2, PCI-DSS)?
+   - HIPAA/PHI is not a general-edition option. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 4. **Pet Peeves** (→ `feedback/feedback.md` as initial entries — the canonical location)
    - Anything you should NEVER do

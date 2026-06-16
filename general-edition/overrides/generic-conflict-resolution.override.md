@@ -13,7 +13,7 @@
 
 This section REPLACES `common-specs/MEMORY_PROTOCOL.md` §3.
 
-When memory files contradict each other, resolve in this order. General-edition's key difference from biotech-edition: **compliance rank is PRESET-DEPENDENT** — `none` preset allows more user flexibility; `healthcare` preset matches biotech enforcement; `enterprise` is moderately strict.
+When memory files contradict each other, resolve in this order. General-edition's key difference from biotech-edition: **compliance rank is PRESET-DEPENDENT** — `none` preset allows more user flexibility; `enterprise` is moderately strict; `custom` is user-defined.
 
 ### Resolution order (highest authority wins)
 
@@ -21,7 +21,6 @@ The hierarchy structure is identical to common-spec, but the strictness of rank 
 
 1. **Compliance rules — preset-dependent**
    - `compliance: none` → Standing rules only (no secrets, no PII/PHI universal block) ranked here; user-instruction can override most other compliance behavior
-   - `compliance: healthcare` → Full HIPAA enforcement ranked here; user-instruction CANNOT override (matches biotech-edition strictness)
    - `compliance: enterprise` → GDPR + SOC2 baseline ranked here; user-instruction CANNOT override consent + audit requirements
    - `compliance: custom` → User-defined enforcement level; see `compliance.override.md`
 
@@ -31,7 +30,7 @@ The hierarchy structure is identical to common-spec, but the strictness of rank 
 3. **User's live instruction**
    - What user just told you this session
    - For `none` preset: can override most non-standing-rule behaviors
-   - For `healthcare`/`enterprise`: cannot override compliance rule 1
+   - For `enterprise` preset: cannot override compliance rule 1
 
 4. **`feedback.md`** (explicit corrections)
 5. **`decisions.md` — FINAL**
@@ -46,13 +45,12 @@ Same as common-spec — entries with `invalid_at` set deprioritize unless point-
 
 ### Preset-driven compliance behavior comparison
 
-| Aspect | `none` | `healthcare` | `enterprise` | `custom` |
-|--------|--------|--------------|--------------|----------|
-| Standing rules enforcement | Strict (always-on) | Strict | Strict | Strict |
-| Preset-specific detection enforcement | OFF (no detection) | Strict (PHI redaction) | Moderate (PII warning) | Configured |
-| User instruction override of detection | N/A | NO | NO (for consent + audit) | Configured |
-| BAA-coverage user reasoning honored | N/A | NO | N/A | Configured |
-| Friction level | LOW | HIGH (matches biotech) | MEDIUM | Configured |
+| Aspect | `none` | `enterprise` | `custom` |
+|--------|--------|--------------|----------|
+| Standing rules enforcement | Strict (always-on) | Strict | Strict |
+| Preset-specific detection enforcement | OFF (no detection) | Moderate (PII warning) | Configured |
+| User instruction override of detection | N/A | NO (for consent + audit) | Configured |
+| Friction level | LOW | MEDIUM | Configured |
 
 ### Practical examples by preset
 
@@ -64,13 +62,7 @@ Same as common-spec — entries with `invalid_at` set deprioritize unless point-
 **Example:** User adds an SSN to a note ("My test SSN is 123-45-6789")
 **Response:** REFUSE — even at `none`, the universal standing rule (no secrets / no PII) blocks SSN format. This is the universal floor; not preset-dependent.
 
-#### `healthcare` preset
-
-**Example:** User says "store this specimen ID — I have BAA coverage"
-**Response:** REFUSE. Compliance rule 1 (healthcare) blocks. Same logic as biotech-edition.
-
-**Example:** User edits feedback.md to add "Specimen IDs are not PHI for our team"
-**Response:** Refuse on read. Compliance rank 1 wins.
+> A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 #### `enterprise` preset
 
@@ -100,7 +92,7 @@ For `none` preset:
 
 | Aspect | Biotech-edition | General-edition |
 |--------|------------------|-----------------|
-| Compliance rank 1 strictness | ABSOLUTE (no exceptions) | PRESET-DEPENDENT (strict for healthcare/enterprise; lighter for none) |
+| Compliance rank 1 strictness | ABSOLUTE (no exceptions) | PRESET-DEPENDENT (strict for enterprise; lighter for none) |
 | User can change preset | NO (locked to healthcare) | YES (via setup.sh or PROFILE.md edit) |
 | BAA-coverage user reasoning | Never honored | Never honored (same rule, different reason — preset framework doesn't model BAA) |
 | Quarantine UX on detection | Blocking workflow | Non-blocking toast |

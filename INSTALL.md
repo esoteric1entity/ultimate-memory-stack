@@ -12,9 +12,9 @@ This is the **short install guide** for users who just want to get going. Four d
 
 | Door | For | Start here |
 |---|---|---|
-| **Marketplace** | Claude Code users | `/plugin marketplace add esoteric1entity/ultimate-memory-stack` … then `/plugin install` + `/install-ultimate-memory-stack` (see README Door 1) |
-| **Tell your agent** | any agent harness | clone, then: *"install this — read `INSTALL_AGENT.md`"* |
 | **Script** | CLI users | below ↓ |
+| **Tell your agent** | any agent harness | clone, then: *"install this — read `INSTALL_AGENT.md`"* |
+| **Marketplace** | Claude Code users | `/plugin marketplace add esoteric1entity/ultimate-memory-stack` … then `/plugin install` + `/install-ultimate-memory-stack` (see README Door 3). **Back up an existing `memory/` store first** — or use the Script / agent door, which preserve it automatically. |
 | **Manual** | no tooling | drag 2 folders + paste `common-specs/BOOTSTRAP_PROMPT.md` |
 
 ## TL;DR (script door)
@@ -33,14 +33,16 @@ cd /path/to/your/workspace
 
 That's the stack installed. The installer detects your harness (Claude Code / OpenClaw workspace / generic), confirms the target with you, refuses to install into its own package directory, and writes a `.ums-manifest.json` recording what it did. `verify.sh` runs the post-install validation suite.
 
-## Pick an edition
+## Edition
 
-| Edition | Use case | Distribution |
+This repo ships **general-edition** only — it is the default and there is no edition to pick. It covers solo dev, research, education, B2B SaaS, enterprise, and custom compliance, distributed here under Apache 2.0.
+
+| Edition | Use case | Availability |
 |---|---|---|
 | **General** (`general-edition/`) | Solo dev, research, education, B2B SaaS, enterprise, custom compliance | ✅ This repo (Apache 2.0) |
-| **Biotech** | HIPAA-regulated healthcare / lab R&D | Institutional package (not in this repo) |
+| ~~Biotech~~ | HIPAA-regulated healthcare / lab R&D | 🚧 Not available — see note below |
 
-If you don't know which you need, you want **general-edition** — it's the default and the only edition shipped here. The biotech-edition (HIPAA-grade) is also available for institutional adopters — see [`CONTRIBUTING.md`](./CONTRIBUTING.md) for licensing terms.
+A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ## Script — Bash (Linux / macOS / WSL / Git Bash)
 

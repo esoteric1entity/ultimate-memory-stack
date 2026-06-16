@@ -22,9 +22,9 @@ Target audience:
 
 The general edition is the common spec with **a profile applied** that:
 
-1. **Section 11 (Healthcare Compliance Profile) — AVAILABLE but COMMENTED OUT by default** (user can opt in by uncommenting + activating)
+1. **Section 11 (Healthcare Compliance Profile) — NOT active and NOT selectable in general-edition.** The PHI/HIPAA profile is reserved for the institutional biotech-edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 2. **PHI detection patterns** — REPLACED with generic PII only (SSN, credit card, email in non-profile files)
-3. **Conflict resolution hierarchy rank 1** — "Compliance rules (configurable: HIPAA / GDPR / SOC2 / PCI-DSS / none — user picks)"
+3. **Conflict resolution hierarchy rank 1** — "Compliance rules (configurable: GDPR / SOC2 / PCI-DSS / none — user picks; PHI/HIPAA is biotech-edition-reserved and not selectable in general-edition)"
 4. **Self-test T7** — runs only when user activates a compliance profile
 5. **Default examples** — generic (project state, technical decisions, preferences, references) instead of healthcare-flavored
 6. **Audit trail emphasis** — present but not central; just normal change tracking
@@ -53,7 +53,6 @@ general-edition/
 │   ├── compliance-presets.override.md   ← Available compliance presets + how to activate
 │   └── generic-examples.override.md     ← Software dev, research, writing examples
 ├── EXTENSIONS/                     ← Optional compliance profiles users can apply
-│   ├── healthcare-profile.md       ← (mirrors biotech-edition's profile)
 │   ├── gdpr-profile.md             ← (for European users)
 │   ├── soc2-profile.md             ← (for SaaS contexts)
 │   └── pci-dss-profile.md          ← (for fintech)
