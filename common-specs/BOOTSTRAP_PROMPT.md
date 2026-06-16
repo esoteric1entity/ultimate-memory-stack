@@ -1,7 +1,7 @@
 # Ultimate Memory Stack — Bootstrap Prompt
 
 > **File:** `common-specs/BOOTSTRAP_PROMPT.md`
-> **Status:** stable — ships with UMS v3.6.0, alongside the companion files (MEMORY_PROTOCOL.md + schemas)
+> **Status:** stable — ships with UMS v3.6.2, alongside the companion files (MEMORY_PROTOCOL.md + schemas)
 > **Authors:** see /AUTHORS.md
 >
 > Version history lives in [`CHANGELOG.md`](../CHANGELOG.md).
@@ -74,7 +74,7 @@
 ## Deployment Instructions
 
 ### Prerequisites
-- Claude Code installed (https://claude.ai/code)
+- A capable agent harness — Claude Code is the reference example; OpenClaw and any 9-root-file harness also work (see `INSTALL_AGENT.md`). The script and manual doors need no agent at all.
 - Working directory selected (where the memory system will live)
 - This package ships the **general-edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
@@ -82,12 +82,12 @@
 1. **Copy the stack package** into your working directory:
    - `common-specs/` — universal files (this is the shared 95%)
    - `general-edition/` — the edition shipped in this package. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
-2. **Open Claude Code** in your working directory (or run `claude` from there)
+2. **Open your agent harness** in your working directory (e.g. Claude Code, OpenClaw, or any 9-root-file agent)
 3. **Paste the activation prompt** below
-4. **Answer Claude's setup-wizard questions** (general-edition confirmation, user profile, project list, compliance preset)
-5. **Verify**: Claude runs the self-test suite and reports any failures
-6. **At end of every session**: tell Claude "update session state" or "wrap up"
-7. **At start of every session**: Claude auto-loads memory and resumes (no prompt needed)
+4. **Answer the setup-wizard questions** (general-edition confirmation, user profile, project list, compliance preset)
+5. **Verify**: your agent runs the self-test suite and reports any failures
+6. **At end of every session**: tell your agent "update session state" or "wrap up"
+7. **At start of every session**: your agent auto-loads memory and resumes (no prompt needed) — on Claude Code via `.claude/rules/memory_protocol.md`; other harnesses load it per their rules mechanism (see `INSTALL_AGENT.md`)
 
 > **First-time users:** Read `USER_CHEAT_SHEET_core.md` first. It walks through the universal best practices for working with persistent-memory AI systems (slash commands, /compact timing, anti-patterns). Then read `general-edition/USER_CHEAT_SHEET_general_addendum.md` for edition specifics.
 
@@ -96,7 +96,7 @@
 ## The Activation Prompt
 
 ```
-You are deploying the Ultimate Memory Stack v3.6.1 in this working directory.
+You are deploying the Ultimate Memory Stack v3.6.2 in this working directory.
 
 The complete spec lives in `common-specs/` plus the general-edition profile in `general-edition/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
 
@@ -160,7 +160,7 @@ ultimate-memory-stack/           ← The spec itself, read-mostly during operati
 
 Read `common-specs/MEMORY_PROTOCOL.md`. It contains the operational rules: when to load files (Tier 1/2/3), context budget, conflict resolution hierarchy, file size limits, standing rules, risk scoring, cascade failure detection, self-test suite. Do not duplicate that file's content here — load it and follow it.
 
-Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code auto-loads it each session.
+Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code auto-loads it each session. (OpenClaw and other harnesses register the protocol via their own rules/bootstrap mechanism — see `INSTALL_AGENT.md` and `core/openclaw-adapter/`.)
 
 ---
 
@@ -371,7 +371,7 @@ Tracked for future refinement, not resolved in this bootstrap:
 
 ## Status
 
-**Stable — ships with UMS v3.6.0.** The companion files carry the detail this bootstrap references:
+**Stable — ships with UMS v3.6.2.** The companion files carry the detail this bootstrap references:
 - ARCHITECTURE.md — Layer 0–6 details + tier markers
 - MEMORY_PROTOCOL.md — Tier 1/2/3 loading + conflict resolution + self-test
 - The runtime schemas — entry formats, audit log, quarantine, compliance profiles

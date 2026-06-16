@@ -1,8 +1,8 @@
 # Deployment — General-Edition
 
 > **File:** `general-edition/DEPLOYMENT.md`
-> **Version:** 1.0 — 2026-05-15
-> **Status:** Stable — ships with UMS v3.6.0
+> **Version:** 1.1 — 2026-06-16
+> **Status:** Stable — ships with UMS v3.6.2
 > **Audience:** Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts
 
 ---
@@ -22,9 +22,9 @@
 ## Prerequisites
 
 ### Minimum (T0)
-- Claude Code installed
+- A capable agent harness — Claude Code, OpenClaw, or any 9-root-file agent (the manual-paste path works on any of them; the script door needs no agent at all)
 - Writable filesystem directory (~30 MB for memory)
-- User account that can write to `.claude/rules/`
+- User account that can write to the workspace (and to `.claude/rules/` on Claude Code)
 
 ### Recommended (T2+)
 - Node.js 18+ for setup script + B11 hybrid retrieval + C6 graph

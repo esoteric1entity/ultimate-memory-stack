@@ -26,8 +26,8 @@ The **installer** scaffolds; the **activation wizard** populates. Right after in
 | Path | Purpose |
 |---|---|
 | `memory/` | Your data vault — nine empty directories: `sessions/ decisions/ feedback/ projects/ security/ references/ user/ archive/ quarantine/` |
-| `.claude/rules/memory_protocol.md` | The memory protocol, registered so Claude Code auto-loads it |
-| `.claude/skills/<name>/SKILL.md` | The addon installer Skills you selected (`/install-graphiti`, `/install-graphify`, `/install-llmlingua`, `/config-obsidian-vault`) |
+| `.claude/rules/memory_protocol.md` | The memory protocol, registered so Claude Code auto-loads it (OpenClaw and other harnesses register it per their convention — see `core/openclaw-adapter/`) |
+| `.claude/skills/<name>/SKILL.md` | The addon installer Skills you selected (`/install-graphiti`, `/install-graphify`, `/install-llmlingua`, `/config-obsidian-vault`) — Claude Code skill door; the script/agent/manual doors (incl. OpenClaw) scaffold the same addons without registering Claude skills |
 | `.ums-manifest.json` | Exactly what the installer did (door, harness, addons) |
 | `.deployment-info` | Completion certificate — present only if install finished |
 | `ultimate-memory-stack/` | The package itself (specs, templates, editions) — code, not your data |
@@ -113,13 +113,14 @@ quarantine triggers.
    state and resumes with context.
 2. **Read [`USER_GUIDE.md`](./USER_GUIDE.md)** for decision capture, feedback
    flow, and project memory banks in depth.
-3. **Install the addons you skipped** — each is one slash command away
-   (`/install-graphiti` for the knowledge graph, `/install-graphify` for the
-   code symbol graph, `/install-llmlingua` for prompt compression,
-   `/config-obsidian-vault` for the GUI vault view). The script and agent
-   doors register these automatically; if you installed via the marketplace,
-   copy the addon `SKILL.md` files first — see the addon section of
-   [`INSTALLATION_GUIDE.md`](./INSTALLATION_GUIDE.md).
+3. **Install the addons you skipped** — each addon self-installs when invoked:
+   on Claude Code as a slash command (`/install-graphiti` for the knowledge
+   graph, `/install-graphify` for the code symbol graph, `/install-llmlingua`
+   for prompt compression, `/config-obsidian-vault` for the GUI vault view);
+   via the script, agent, or manual doors (including OpenClaw) the same addons
+   scaffold directly. The script and agent doors register them automatically;
+   if you installed via the marketplace, copy the addon `SKILL.md` files first
+   — see the addon section of [`INSTALLATION_GUIDE.md`](./INSTALLATION_GUIDE.md).
 
 ## Common gotchas
 

@@ -8,9 +8,9 @@
 
 ## What This Skill Does
 
-Once registered with Claude Code, this skill lets you install the Ultimate Memory Stack v3.6.1 with a single slash command: `/install-ultimate-memory-stack`. See `SKILL.md` (in this same directory) for the full workflow specification.
+Once registered with Claude Code, this skill lets you install the Ultimate Memory Stack v3.6.2 with a single slash command: `/install-ultimate-memory-stack`. See `SKILL.md` (in this same directory) for the full workflow specification.
 
-This is one of 3 primary install methods (alongside Manual Drag-and-Drop and Bash setup.sh) — see `../../INSTALLATION_GUIDE.md` §6 for the user-facing description.
+This is one of several install methods (alongside the manual drag-and-drop, the script `setup.sh`, and the agent flow in `INSTALL_AGENT.md`) — see `../../INSTALLATION_GUIDE.md` §6 for the user-facing description.
 
 ---
 
@@ -60,7 +60,7 @@ After restart, in Claude Code:
 /install-ultimate-memory-stack
 ```
 
-**Expected:** The skill triggers and asks "You're about to install the Ultimate Memory Stack v3.6.1..." (Step 0 of the workflow).
+**Expected:** The skill triggers and asks "You're about to install the Ultimate Memory Stack v3.6.2..." (Step 0 of the workflow).
 
 If the slash command isn't recognized, see [Troubleshooting](#troubleshooting) below.
 
@@ -83,7 +83,7 @@ Claude Code recognizes the skill and runs the workflow from `SKILL.md`.
 You can also say things like:
 - "Install the Ultimate Memory Stack"
 - "Set up the memory stack here"
-- "Deploy the v3.6.1 memory stack in this directory"
+- "Deploy the v3.6.2 memory stack in this directory"
 
 Claude should map these to the skill automatically (based on the `description:` field in SKILL.md's frontmatter).
 
