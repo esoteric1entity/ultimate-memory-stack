@@ -120,7 +120,7 @@ quarantine triggers.
    via the script, agent, or manual doors (including OpenClaw) the same addons
    scaffold directly. The script and agent doors register them automatically;
    if you installed via the marketplace, copy the addon `SKILL.md` files first
-   — see the addon section of [`INSTALLATION_GUIDE.md`](./INSTALLATION_GUIDE.md).
+   — see the addon section of [`INSTALL.md`](./INSTALL.md#recommended-addons-and-core-skills).
 
 ## Common gotchas
 
@@ -138,8 +138,7 @@ quarantine triggers.
 ## Cross-references
 
 - [`USER_GUIDE.md`](./USER_GUIDE.md) — long-form usage
-- [`INSTALL.md`](./INSTALL.md) — install guide (four doors)
-- [`INSTALLATION_GUIDE.md`](./INSTALLATION_GUIDE.md) — full multi-method install
+- [`INSTALL.md`](./INSTALL.md) — install guide (four doors + full multi-method reference)
 - [`common-specs/MEMORY_PROTOCOL.md`](./common-specs/MEMORY_PROTOCOL.md) — the master protocol doc
 - [`common-specs/SCHEMA_A18_per_entry_metadata.md`](./common-specs/SCHEMA_A18_per_entry_metadata.md) — frontmatter spec
 - [`core/openclaw-adapter/QUICKSTART.md`](./core/openclaw-adapter/QUICKSTART.md) — the OpenClaw tour

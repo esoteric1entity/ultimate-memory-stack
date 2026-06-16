@@ -54,7 +54,7 @@ if ($Help) {
     Write-Host "Note: Delegates to setup.py for most operations."
     Write-Host "      Install Python 3.8+ for full functionality."
     Write-Host ""
-    Write-Host "See INSTALLATION_GUIDE.md for details."
+    Write-Host "See INSTALL.md for details."
     exit 0
 }
 

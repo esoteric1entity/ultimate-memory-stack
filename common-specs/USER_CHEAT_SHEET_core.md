@@ -3,15 +3,15 @@
 > **Version:** 1.1 — stable
 > **Audience:** Anyone deploying the Ultimate Memory Stack for the first time
 > **Approximate read time:** 8 minutes (skim) · 12 minutes (with the quickstart section)
-> **Companion files:** `general-edition/USER_CHEAT_SHEET_general_addendum.md` (general/public-context) | **`INSTALLATION_GUIDE.md`** §18 (addon install reference)
+> **Companion files:** `general-edition/USER_CHEAT_SHEET_general_addendum.md` (general/public-context) | **`INSTALL.md`** (addon install reference — see "Recommended addons and core skills")
 
 ---
 
 ## Quickstart
 
-**If you're deploying fresh:** Start with `INSTALLATION_GUIDE.md` — pick an install method in §1, then follow §18 for the addons.
+**If you're deploying fresh:** Start with `INSTALL.md` — pick an install method, then follow the "Recommended addons and core skills" section for the addons.
 
-**If you've already got v3.0 and want v3.5 components:** Read INSTALLATION_GUIDE.md §18.
+**If you've already got v3.0 and want v3.5 components:** Read `INSTALL.md` → "Recommended addons and core skills".
 
 **6 new v3.5 components:**
 

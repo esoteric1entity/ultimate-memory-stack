@@ -210,9 +210,8 @@ The threshold: would you want a future agent to know about this decision? If yes
 ## Cross-references
 
 - [`README.md`](./README.md) — package overview
-- [`INSTALL.md`](./INSTALL.md) — Memory branch install
+- [`INSTALL.md`](./INSTALL.md) — Memory branch install (four doors + full multi-method reference)
 - [`QUICKSTART.md`](./QUICKSTART.md) — 5-minute tour
-- [`INSTALLATION_GUIDE.md`](./INSTALLATION_GUIDE.md) — full multi-method install
 - [`common-specs/MEMORY_PROTOCOL.md`](./common-specs/MEMORY_PROTOCOL.md) — master protocol spec
 - [`common-specs/SCHEMA_A18_per_entry_metadata.md`](./common-specs/SCHEMA_A18_per_entry_metadata.md) — frontmatter spec
 - [`common-specs/SCHEMA_A3_per_project_memory_bank.md`](./common-specs/SCHEMA_A3_per_project_memory_bank.md) — per-project memory banks

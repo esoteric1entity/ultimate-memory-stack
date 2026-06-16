@@ -10,7 +10,7 @@
 
 Once registered with Claude Code, this skill lets you install the Ultimate Memory Stack v3.6.2 with a single slash command: `/install-ultimate-memory-stack`. See `SKILL.md` (in this same directory) for the full workflow specification.
 
-This is one of several install methods (alongside the manual drag-and-drop, the script `setup.sh`, and the agent flow in `INSTALL_AGENT.md`) — see `../../INSTALLATION_GUIDE.md` §6 for the user-facing description.
+This is one of several install methods (alongside the manual drag-and-drop, the script `setup.sh`, and the agent flow in `INSTALL_AGENT.md`) — see `../../INSTALL.md` (Claude Code Skill installer) for the user-facing description.
 
 ---
 
@@ -200,7 +200,7 @@ Restart Claude Code. The slash command will no longer be available.
 | Install Method | Use When |
 |----------------|----------|
 | **This skill (`/install-ultimate-memory-stack`)** | You have Skills enabled in Claude Code + want native slash-command UX |
-| **Manual drag-and-drop** (Method A in INSTALLATION_GUIDE.md §4) | You want minimum dependencies + are comfortable copying files |
+| **Manual drag-and-drop** (Method A in INSTALL.md — Manual walkthrough) | You want minimum dependencies + are comfortable copying files |
 | **Bash `setup-memory-stack.sh`** (Method B) | You're on Linux/Mac/WSL + prefer one-command CLI |
 | **PowerShell `setup-memory-stack.ps1`** | You're on Windows + have Python 3.8+ (PowerShell wrapper; core install delegates to Python) |
 | **Python setup.py** (Appendix §17.2) | You have Python + want cryptographic key generation built in |
@@ -212,13 +212,13 @@ This skill is the **easiest UX** when available but has a dependency on Skills b
 ## Status + Tracking
 
 - **Skill version:** 1.3 (authoritative version in `SKILL.md` frontmatter + changelog); v1.0 baseline validated end-to-end 2026-06-10 (T1–T9 pass)
-- **Cross-reference:** `SKILL.md` (the actual workflow); `../../INSTALLATION_GUIDE.md` §6 (user-facing description)
+- **Cross-reference:** `SKILL.md` (the actual workflow); `../../INSTALL.md` (Claude Code Skill installer — user-facing description)
 
 ---
 
 ## Cross-References
 
 - `SKILL.md` — the actual skill workflow (this directory)
-- `../../INSTALLATION_GUIDE.md` §6 — user-facing description in the installation guide
+- `../../INSTALL.md` (Claude Code Skill installer) — user-facing description in the install guide
 - `../../README.md` — deployable package overview
 - `../../common-specs/BOOTSTRAP_PROMPT.md` — the underlying activation prompt the skill executes

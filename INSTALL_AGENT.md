@@ -9,7 +9,7 @@
 
 ---
 
-You are an agent installing the **Ultimate Memory Stack v3.6.1** — a file-based
+You are an agent installing the **Ultimate Memory Stack v3.6.2** — a file-based
 persistent-memory scaffold (markdown specs + a `memory/` directory + optional skills)
 that your harness reads. Execute the steps below **in order**. Be honest in every
 report: never claim a step succeeded without checking its result.
@@ -95,7 +95,7 @@ by hand, write it yourself:
 ```json
 {
   "package": "ultimate-memory-stack",
-  "version": "3.6.1",
+  "version": "3.6.2",
   "edition": "general",
   "installed_at": "<ISO-8601 UTC>",
   "install_door": "agent",
@@ -116,7 +116,7 @@ end they can say "update session state"; `verify.sh` re-validates any time.
 
 ---
 
-*Cross-references: `INSTALL.md` (human quickstart) · `INSTALLATION_GUIDE.md` (full
-multi-method guide) · `skills/install-ultimate-memory-stack/SKILL.md` (the Claude Code
-native skill — the richest version of this flow) · `common-specs/BOOTSTRAP_PROMPT.md`
-(the activation-prompt alternative).*
+*Cross-references: `INSTALL.md` (human quickstart + full multi-method guide) ·
+`skills/install-ultimate-memory-stack/SKILL.md` (the Claude Code native skill — the
+richest version of this flow) · `common-specs/BOOTSTRAP_PROMPT.md` (the
+activation-prompt alternative).*

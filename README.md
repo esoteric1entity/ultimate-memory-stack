@@ -137,8 +137,7 @@ The activation wizard (paste `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMP
 
 ## Documentation
 
-- **[INSTALL.md](INSTALL.md)** — Quick install (the four doors: script / agent / marketplace / manual)
-- **[INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)** — Comprehensive multi-method install (long form)
+- **[INSTALL.md](INSTALL.md)** — Install guide: the four doors (script / agent / marketplace / manual) up top, plus the full multi-method reference below
 - **[QUICKSTART.md](QUICKSTART.md)** — 5-minute tour of what UMS does
 - **[USER_GUIDE.md](USER_GUIDE.md)** — Long-form usage guide
 - **[common-specs/ARCHITECTURE.md](common-specs/ARCHITECTURE.md)** — How UMS is structured (7 layers, tier markers)

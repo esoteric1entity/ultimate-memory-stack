@@ -446,7 +446,7 @@ What's next:
   - At session end, say "update session state" — Claude will record progress.
   - Re-validate any time: run the package's `verify.sh` from the package root, or ask Claude to re-run the T1–T9 self-test per MEMORY_PROTOCOL.md.
   - Read USER_CHEAT_SHEET_core.md (in common-specs/) for daily best practices.
-  - Need help? Read INSTALLATION_GUIDE.md or your edition's DEPLOYMENT.md.
+  - Need help? Read INSTALL.md or your edition's DEPLOYMENT.md.
 ```
 
 ---
@@ -457,8 +457,8 @@ If any step fails:
 1. Surface the specific error to the user
 2. Roll back partial changes if possible (especially file copies that may have partially succeeded)
 3. Provide remediation:
-   - "Try Method A manual install per INSTALLATION_GUIDE.md §4"
-   - "Try Method B Bash install per INSTALLATION_GUIDE.md §5"
+   - "Try Method A manual install per INSTALL.md (Manual walkthrough)"
+   - "Try Method B Bash install per INSTALL.md (Bash install in depth)"
    - "Check that SOURCE_PATH exists and contains common-specs/ + edition/"
 4. Log the failure event if an audit log exists
 
@@ -475,7 +475,7 @@ If any step fails:
 
 ## Cross-References
 
-- `INSTALLATION_GUIDE.md` §6 (this skill's section in the install guide)
+- `INSTALL.md` (Claude Code Skill installer — this skill's section in the install guide)
 - `BOOTSTRAP_PROMPT.md` §The Activation Prompt (the Manual / Bash equivalent workflow)
 - `common-specs/MODULARITY.md` (consumer agent topology rationale)
 - `common-specs/SCHEMA_compliance_profile.md` §5 (preset definitions)

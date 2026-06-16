@@ -328,7 +328,7 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     print(f"\nCompliance: {compliance_preset}")
     print(f"Extensions: {extensions if extensions else 'none'}")
     print(f"\nTo change later: python3 setup.py --change-preset=<new>")
-    print(f"See INSTALLATION_GUIDE.md for details.")
+    print(f"See INSTALL.md for details.")
 
 
 def change_preset(working_dir: Path, new_preset: str):

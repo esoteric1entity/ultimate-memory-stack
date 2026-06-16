@@ -81,7 +81,7 @@ while [[ $# -gt 0 ]]; do
             echo "Compliance presets: none | enterprise | custom   (PHI/healthcare = biotech-edition only)"
             echo "Extensions: gdpr | soc2 | pci-dss (comma-separated)"
             echo ""
-            echo "See INSTALLATION_GUIDE.md for details."
+            echo "See INSTALL.md for details."
             exit 0
             ;;
         *)
@@ -396,6 +396,6 @@ echo "Compliance: ${COMPLIANCE_PRESET}"
 echo "Extensions: ${EXTENSIONS:-none}"
 echo ""
 echo "To change preset later: ./setup.sh --change-preset=<new>"
-echo "See INSTALLATION_GUIDE.md for details."
+echo "See INSTALL.md for details."
 
 exit 0

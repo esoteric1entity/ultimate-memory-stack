@@ -30,7 +30,7 @@ Before submitting:
 - [ ] `recommended-addons/` (graphify / graphiti / llmlingua / obsidian-vault-config)
 - [ ] `skills/install-ultimate-memory-stack`
 - [ ] Top-level entry-points (`setup-memory-stack.{sh,ps1}` + `verify.sh`)
-- [ ] Documentation (README, CHANGELOG, USER_GUIDE, INSTALLATION_GUIDE, QUICKSTART)
+- [ ] Documentation (README, CHANGELOG, USER_GUIDE, INSTALL, QUICKSTART)
 - [ ] CI/CD (`.github/workflows/`)
 
 ## Test plan
