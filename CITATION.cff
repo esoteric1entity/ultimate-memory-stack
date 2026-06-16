@@ -7,7 +7,7 @@ type: software
 title: "Ultimate Memory Stack — the Memory branch of the Agent Architect Stack"
 authors:
   - name: "PDuk Brainworks (esoteric1entity)"
-version: 3.6.1
+version: 3.6.2
 date-released: 2026-06-16
 license: Apache-2.0
 repository-code: "https://github.com/esoteric1entity/ultimate-memory-stack"

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.6.2] — 2026-06-16
+
+### Changed
+- **Harness-agnostic messaging.** Claude Code is now consistently presented as **one of four install doors** (and the marketplace packaging target), not a stack prerequisite. The universal prerequisites, the activation prompt (`BOOTSTRAP_PROMPT.md`), `DEPLOYMENT.md`, `README.md`, and `QUICKSTART.md` no longer assume Claude Code; harness-specific install steps now show the OpenClaw (and generic) path alongside the Claude Code one. The genuine Claude Code requirement is isolated to the marketplace/skill door.
+- **Install docs consolidated.** `INSTALL.md` and `INSTALLATION_GUIDE.md` were merged into a single `INSTALL.md` (quick start + full reference); `INSTALLATION_GUIDE.md` is now a redirect stub pointing to it.
+
+### Fixed
+- **Installer no longer assumes Claude Code in its output.** The edition installers (`general-edition/setup.{sh,py,ps1}`) previously printed "Run: claude" next-steps to every user (and duplicated them on Windows). They now defer the summary to the top-level installer when launched by it, and print harness-neutral next-steps when run standalone.
+- **Install-skill location guard hardened** (skill **v1.4**) — the Step 0 `$HOME`/system-dir refusal now canonicalises the working-directory path before matching, so a symlinked path can't bypass it.
+- Minor: installer version banners/fallbacks aligned to the shipped `VERSION`; the doubled YAML frontmatter in the `user_profile` template example removed; the install skill auto-detects its own package directory before prompting for a source path; installing into a git repo appends a scoped `.gitignore` block for the vendored package tree.
+
+### Documentation
+- Install-doc cross-references repointed to the consolidated `INSTALL.md`; the install guide's universal prerequisites reframed so Claude Code is required only for the marketplace/skill door. Landing page refreshed (hero, tagline, Original Work & Influences, Project Status).
+
 ## [3.6.1] — 2026-06-16
 
 ### Fixed
@@ -25,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Version bumped 3.6.0 → 3.6.1** so existing marketplace installs receive the install-skill data-safety fix (existing-store backup + preserve, shipped in skill v1.1/1.2) via `/plugin update` — the fix was committed but undelivered while the package still advertised 3.6.0.
 
 ### Known issues
-- The always-loaded `memory_protocol.md` (~55k chars) exceeds Claude Code's 40k rules-file recommendation, so Claude Code shows a per-session performance notice at launch. A protocol core/extended split that brings the always-loaded core under the threshold is scheduled for **v3.6.2**. No functional impact — sessions work normally.
+- The always-loaded `memory_protocol.md` (~55k chars) exceeds Claude Code's 40k rules-file recommendation, so Claude Code shows a per-session performance notice at launch. A protocol core/extended split that brings the always-loaded core under the threshold is scheduled for **v3.6.3**. No functional impact — sessions work normally.
 
 ### Documentation
 - `INSPIRATIONS.md`: documented the project's architecture-origin provenance — the architecture is original to esoteric1entity (design begun early 2026; the Memory and Security branches are descendants of that original design) — and clarified contributor / inspiration credit across `AUTHORS.md` and `NOTICE`.
