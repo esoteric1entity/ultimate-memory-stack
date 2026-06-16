@@ -467,3 +467,28 @@ def test_log_audit_event_appends_compact_json(tmp_path):
     assert "." not in rec["ts"]
     # Compact JSON: no ", " separators.
     assert ", " not in lines[0]
+
+
+# ===========================================================================
+# setup_fresh — harness-aware next steps (Option C, UMS_PARENT)
+# ===========================================================================
+
+def test_fresh_nextsteps_suppressed_when_parented(tmp_path, capsys, monkeypatch):
+    # Launched by the top-level installer (UMS_PARENT=1): the edition script must
+    # NOT print its own "Next steps" block — the parent owns the harness-correct
+    # summary, so a duplicate (and the old "Run: claude" assumption) is suppressed.
+    monkeypatch.setenv("UMS_PARENT", "1")
+    mod.setup_fresh(tmp_path, "none", [], _args())
+    out = capsys.readouterr().out
+    assert "Run: claude" not in out
+    assert "Next steps" not in out
+
+
+def test_fresh_nextsteps_neutral_when_standalone(tmp_path, capsys, monkeypatch):
+    # Run standalone (no UMS_PARENT): the edition script DOES print next steps,
+    # but harness-neutral — never the old Claude-Code-only "Run: claude" line.
+    monkeypatch.delenv("UMS_PARENT", raising=False)
+    mod.setup_fresh(tmp_path, "none", [], _args())
+    out = capsys.readouterr().out
+    assert "Run: claude" not in out
+    assert "your agent" in out.lower()

@@ -1,5 +1,5 @@
 # Ultimate Memory Stack — General-Edition Setup (Windows PowerShell)
-# Version: 1.0 — 2026-05-15
+# Version: 1.1 — 2026-06-16
 # Tier: T2+ (PowerShell 5.1+; Python 3.8+ for full functionality)
 # Author: see /AUTHORS.md
 # License: Apache-2.0 (general-edition is the public-distribution candidate; biotech-edition is private)
@@ -30,7 +30,7 @@ $VersionFile = Join-Path $ScriptDir "..\VERSION"
 if (Test-Path $VersionFile) {
     $StackVersion = (Get-Content $VersionFile -Raw).Trim()
 } else {
-    $StackVersion = "3.6.0"
+    $StackVersion = "3.6.2"
 }
 $CommonSpecsDir = Join-Path $ScriptDir "..\common-specs"
 $WorkingDir = if ($env:WORKING_DIR) { $env:WORKING_DIR } else { Get-Location }
@@ -151,6 +151,12 @@ if ($ChangePreset) {
     $pythonArgs += $ChangePreset
 }
 
+# Option C: the Python delegate must NOT print its own "Next steps" — this PS
+# wrapper owns the single summary. Capture whether WE were parented (the
+# top-level installer set UMS_PARENT) before claiming parenthood over Python.
+$parented = ($env:UMS_PARENT -eq "1")
+$env:UMS_PARENT = "1"
+
 # Run
 & $pythonCmd $pythonArgs
 
@@ -160,15 +166,15 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-if (-not $Verify -and -not $Status -and -not $GenerateHmacSecret -and -not $ChangePreset) {
+if (-not $parented -and -not $Verify -and -not $Status -and -not $GenerateHmacSecret -and -not $ChangePreset) {
     Write-Host ""
     Write-Host "==========================================" -ForegroundColor Green
     Write-Host "Setup complete (via Python delegation)" -ForegroundColor Green
     Write-Host "==========================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "Next steps:"
-    Write-Host "  1. Open Claude Code in $WorkingDir"
-    Write-Host "  2. Paste activation prompt from:"
+    Write-Host "  1. Open your agent harness in $WorkingDir (e.g. Claude Code or OpenClaw)"
+    Write-Host "  2. Paste the activation prompt from:"
     Write-Host "     $WorkingDir\ultimate-memory-stack\common-specs\BOOTSTRAP_PROMPT.md"
     Write-Host "  3. Answer setup wizard"
     Write-Host ""

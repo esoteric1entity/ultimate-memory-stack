@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Ultimate Memory Stack — General-Edition Setup Script (Cross-Platform)
-Version: 1.0 — 2026-05-15
+Version: 1.1 — 2026-06-16
 Tier: T2+ (Python 3.8+); HMAC secrets at T3+ via cryptography package
 Author: see /AUTHORS.md
 License: Apache-2.0 (general-edition is the public-distribution candidate; biotech-edition is private)
@@ -37,7 +37,7 @@ COMMON_SPECS_DIR = SCRIPT_DIR.parent / "common-specs"
 try:
     STACK_VERSION = (SCRIPT_DIR.parent / "VERSION").read_text(encoding="utf-8").strip()
 except OSError:
-    STACK_VERSION = "3.6.0"  # fallback for a general-edition dir copied standalone
+    STACK_VERSION = "3.6.2"  # fallback for a general-edition dir copied standalone
 
 # Public general-edition presets. healthcare/PHI is intentionally EXCLUDED —
 # PHI/HIPAA handling ships ONLY in the institutional biotech-edition (not public).
@@ -121,7 +121,7 @@ def verify_environment(working_dir: Path, compliance_preset: str = "none"):
         print(f"✓ Setup scaffold present at {working_dir}")
         print()
         print(f"ℹ️  Activation wizard has not run yet.")
-        print(f"    Open Claude Code from {working_dir}, paste activation prompt from:")
+        print(f"    Open your agent harness from {working_dir} (e.g. Claude Code or OpenClaw), paste the activation prompt from:")
         print(f"    {working_dir}/ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md")
         print(f"    Then re-run --verify.")
         return
@@ -318,17 +318,23 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     print(f"✓ Deployment-info marker written to {deployment_info}")
 
     print(f"\n=== Setup Complete ===")
-    print(f"\nNext steps:")
-    print(f"  1. cd {working_dir}")
-    print(f"  2. Run: claude")
-    print(f"  3. Paste activation prompt from BOOTSTRAP_PROMPT.md")
-    print(f"  4. Answer setup wizard")
-    print(f"  5. Verify (after wizard completes):")
-    print(f"     WORKING_DIR={working_dir} python3 {SCRIPT_DIR}/setup.py --verify")
-    print(f"\nCompliance: {compliance_preset}")
-    print(f"Extensions: {extensions if extensions else 'none'}")
-    print(f"\nTo change later: python3 setup.py --change-preset=<new>")
-    print(f"See INSTALL.md for details.")
+
+    # Harness-aware next steps (Option C): when the top-level installer launches
+    # this script it sets UMS_PARENT=1 and prints its own harness-correct summary,
+    # so suppress the per-edition block to avoid a duplicate (and the old
+    # "Run: claude" Claude-Code assumption). Standalone runs print a neutral block.
+    if os.environ.get("UMS_PARENT") != "1":
+        print(f"\nNext steps:")
+        print(f"  1. cd {working_dir}")
+        print(f"  2. Open your agent harness in this directory (e.g. Claude Code or OpenClaw)")
+        print(f"  3. Paste the activation prompt from BOOTSTRAP_PROMPT.md")
+        print(f"  4. Answer the setup wizard")
+        print(f"  5. Verify (after wizard completes):")
+        print(f"     WORKING_DIR={working_dir} python3 {SCRIPT_DIR}/setup.py --verify")
+        print(f"\nCompliance: {compliance_preset}")
+        print(f"Extensions: {extensions if extensions else 'none'}")
+        print(f"\nTo change later: python3 setup.py --change-preset=<new>")
+        print(f"See INSTALL.md for details.")
 
 
 def change_preset(working_dir: Path, new_preset: str):

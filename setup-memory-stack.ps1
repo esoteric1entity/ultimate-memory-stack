@@ -1,5 +1,5 @@
 # ==============================================================================
-# Ultimate Memory Stack v3.6.0 - top-level installer (Windows / PowerShell)
+# Ultimate Memory Stack v3.6.2 - top-level installer (Windows / PowerShell)
 # Apache-2.0 (C) 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
@@ -41,7 +41,7 @@ $VersionFile = Join-Path $ScriptDir "VERSION"
 if (Test-Path $VersionFile) {
     $StackVersion = (Get-Content $VersionFile -Raw).Trim()
 } else {
-    $StackVersion = "3.6.0"
+    $StackVersion = "3.6.2"
 }
 
 if ($Help) {
@@ -115,6 +115,9 @@ if ((Test-Path $manifestPath) -or (Test-Path (Join-Path $Target "memory"))) {
 }
 
 $env:WORKING_DIR = $Target
+# Option C: signal the edition setup that the top-level installer owns the final
+# "Next steps" summary, so the edition layer (and its Python delegate) suppress theirs.
+$env:UMS_PARENT = "1"
 
 # ---------- harness detection (BEFORE we create anything) ----------
 $Harness = "generic"

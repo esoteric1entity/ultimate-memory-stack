@@ -1,6 +1,6 @@
 #!/bin/bash
 # Ultimate Memory Stack — General-Edition Setup Script (Linux/Mac/WSL)
-# Version: 1.0 — 2026-05-15
+# Version: 1.1 — 2026-06-16
 # Tier: T2+ (requires Bash; HMAC keys at T3+ via Python/Code Execution)
 # Author: see /AUTHORS.md
 # License: Apache-2.0 (general-edition is the public-distribution candidate; biotech-edition is private per PRIVACY_REVIEW.md)
@@ -18,7 +18,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -f "${SCRIPT_DIR}/../VERSION" ]; then
     STACK_VERSION="$(tr -d ' \r\n' < "${SCRIPT_DIR}/../VERSION")"
 else
-    STACK_VERSION="3.6.0"
+    STACK_VERSION="3.6.2"
 fi
 COMMON_SPECS_DIR="${SCRIPT_DIR}/../common-specs"
 WORKING_DIR="${WORKING_DIR:-$(pwd)}"
@@ -160,7 +160,7 @@ if [ "$VERIFY_ONLY" = true ]; then
         echo "✓ Setup scaffold present at ${WORKING_DIR}"
         echo ""
         echo "ℹ️  Activation wizard has not run yet."
-        echo "    Open Claude Code from ${WORKING_DIR}, paste the activation prompt from:"
+        echo "    Open your agent harness from ${WORKING_DIR} (e.g. Claude Code or OpenClaw), paste the activation prompt from:"
         echo "    ${WORKING_DIR}/ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md"
         echo "    Then re-run --verify."
         exit 0
@@ -383,19 +383,25 @@ echo "Active feature surface: 20 Tier A + 12 Tier B (edition-configured)"
 echo "Dormant Tier C (9 designed-in): see common-specs/TIER_C_ACTIVATION.md for per-tool activation steps"
 echo ""
 
-echo "Next steps:"
-echo "  1. cd ${WORKING_DIR}"
-echo "  2. Run: claude"
-echo "  3. Paste activation prompt from:"
-echo "     ${WORKING_DIR}/ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md"
-echo "  4. Answer setup wizard"
-echo "  5. Verify (after wizard completes):"
-echo "     WORKING_DIR=${WORKING_DIR} bash ${SCRIPT_DIR}/setup.sh --verify"
-echo ""
-echo "Compliance: ${COMPLIANCE_PRESET}"
-echo "Extensions: ${EXTENSIONS:-none}"
-echo ""
-echo "To change preset later: ./setup.sh --change-preset=<new>"
-echo "See INSTALL.md for details."
+# Harness-aware next steps (Option C): when the top-level installer launches this
+# script it exports UMS_PARENT=1 and prints its own harness-correct summary, so
+# suppress this per-edition block (and the old "Run: claude" assumption) when
+# parented. Standalone runs print a harness-neutral block.
+if [ "${UMS_PARENT:-}" != "1" ]; then
+    echo "Next steps:"
+    echo "  1. cd ${WORKING_DIR}"
+    echo "  2. Open your agent harness in this directory (e.g. Claude Code or OpenClaw)"
+    echo "  3. Paste the activation prompt from:"
+    echo "     ${WORKING_DIR}/ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md"
+    echo "  4. Answer setup wizard"
+    echo "  5. Verify (after wizard completes):"
+    echo "     WORKING_DIR=${WORKING_DIR} bash ${SCRIPT_DIR}/setup.sh --verify"
+    echo ""
+    echo "Compliance: ${COMPLIANCE_PRESET}"
+    echo "Extensions: ${EXTENSIONS:-none}"
+    echo ""
+    echo "To change preset later: ./setup.sh --change-preset=<new>"
+    echo "See INSTALL.md for details."
+fi
 
 exit 0

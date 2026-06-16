@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Ultimate Memory Stack v3.6.0 — top-level installer (Linux / macOS / WSL)
+# Ultimate Memory Stack v3.6.2 — top-level installer (Linux / macOS / WSL)
 # Apache-2.0 © 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
@@ -36,7 +36,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
     STACK_VERSION="$(tr -d ' \r\n' < "$SCRIPT_DIR/VERSION")"
 else
-    STACK_VERSION="3.6.0"
+    STACK_VERSION="3.6.2"
 fi
 
 # ---------- arg parsing ----------
@@ -144,6 +144,10 @@ if [ -f "$TARGET/.ums-manifest.json" ] || [ -d "$TARGET/memory" ]; then
 fi
 
 export WORKING_DIR="$TARGET"
+# Option C: tell the edition setup it's running under the top-level installer, so
+# it suppresses its own "Next steps" block — this script prints the single
+# harness-correct summary below.
+export UMS_PARENT=1
 
 # ---------- harness detection (BEFORE we create anything, so we detect the
 # user's pre-existing harness rather than our own artifacts) ----------
