@@ -3,7 +3,7 @@
 > **Persistent, modular memory for AI agents.** Works with Claude Code, OpenClaw, and any harness that supports the 9-root-file convention. Install in one command; opt-in to addons; verify after install.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status: v3.6.1](https://img.shields.io/badge/Status-v3.6.1-green.svg)](#)
+[![Status: v3.6.2](https://img.shields.io/badge/Status-v3.6.2-green.svg)](#)
 [![Skills: 7](https://img.shields.io/badge/Skills-7-orange.svg)](#)
 [![Tests](https://github.com/esoteric1entity/ultimate-memory-stack/actions/workflows/test.yml/badge.svg)](https://github.com/esoteric1entity/ultimate-memory-stack/actions/workflows/test.yml)
 
@@ -23,7 +23,7 @@ It's not a replacement for your agent harness. It's an **integration layer** tha
 | **`/install-graphify`** (addon `memory-graphify`) | Code symbol graph (functions, classes, imports) across 19+ languages | C — opt-in |
 | **`/install-llmlingua`** (addon `memory-llmlingua`) | Prompt compression at a quality-preserving threshold | C — opt-in |
 
-**Modular install** — `--addon memory-graphiti` to include selectively; `--minimal` for core-only. Addons register as Claude Code Skills under the slash-command names shown (each completes its own install when invoked).
+**Modular install** — `--addon memory-graphiti` to include selectively; `--minimal` for core-only. Each addon self-installs when invoked: on Claude Code they register as marketplace Skills under the slash-command names shown; via the script, agent, or manual doors — including OpenClaw (`core/openclaw-adapter/`) — the same addons scaffold without Claude Code.
 
 ---
 
@@ -104,7 +104,7 @@ your-workspace/
 │   └── quarantine/              ← lint-quarantined content
 │
 ├── .claude/
-│   ├── rules/memory_protocol.md     ← protocol, auto-loaded by Claude Code
+│   ├── rules/memory_protocol.md     ← protocol auto-load (Claude Code; OpenClaw/others register per convention)
 │   └── skills/<name>/SKILL.md       ← the addon installer Skills you selected
 │
 ├── .ums-manifest.json           ← what the installer did (door, harness, addons)
@@ -137,7 +137,7 @@ The activation wizard (paste `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMP
 
 ## Documentation
 
-- **[INSTALL.md](INSTALL.md)** — Quick install (the four doors: marketplace / agent / script / manual)
+- **[INSTALL.md](INSTALL.md)** — Quick install (the four doors: script / agent / marketplace / manual)
 - **[INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)** — Comprehensive multi-method install (long form)
 - **[QUICKSTART.md](QUICKSTART.md)** — 5-minute tour of what UMS does
 - **[USER_GUIDE.md](USER_GUIDE.md)** — Long-form usage guide
@@ -179,7 +179,7 @@ To set expectations:
 
 ## Project status
 
-**v3.6.1 (patch) — current.** A data-safety + install-UX patch over **v3.6.0, the first public release.** Predecessor versions (v3.0/v3.5) have run in production on the maintainer's own machines since 2026-05-19, across Claude Code and OpenClaw deployments on three platforms, with a cross-machine validation cycle before v3.6.0 was cut.
+**v3.6.2 (patch) — current.** A harness-messaging + docs-consolidation cleanup over **v3.6.1**. Predecessor versions (v3.0/v3.5) have run in production on the maintainer's own machines since 2026-05-19, across Claude Code and OpenClaw deployments on three platforms, with a cross-machine validation cycle before v3.6.0 was cut.
 
 - Build: production-ready
 - Verification: two complementary layers — `verify.sh` validates an *install* (scaffold, registration, manifest), and `tests/` holds a **177-test pytest unit suite** covering the logic modules (lint runner, heartbeat compactor, edition setup, quarantine review). Run the units with `python -m pytest tests/`
