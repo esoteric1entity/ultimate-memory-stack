@@ -47,11 +47,12 @@
 
 Copy `common-specs/` AND `general-edition/` into your working directory.
 
-### Step 2: Open Claude Code
+### Step 2: Open your agent harness
 
 ```bash
 cd <working-dir>
-claude
+# then open your agent here — Claude Code: run `claude`; OpenClaw: open your
+# workspace at this path; any 9-root-file agent: use its working-dir selector
 ```
 
 ### Step 3: Paste activation prompt
@@ -107,7 +108,7 @@ bash setup.sh --compliance=enterprise --extensions=soc2,gdpr
 1. Validates prerequisites (Node.js available, OS detection)
 2. Copies common-specs + general-edition into working dir
 3. Initializes `memory/` directory structure
-4. Copies `MEMORY_PROTOCOL.md` to `.claude/rules/`
+4. Registers the protocol for auto-load — `.claude/rules/memory_protocol.md` on Claude Code; per the harness's own rules/bootstrap convention on OpenClaw and others (the installer detects your harness)
 5. Setup wizard (or accepts CLI args for unattended install)
 6. Initializes audit log + quarantine ONLY IF user enables them (audit is OPT-IN for general)
 7. Generates HMAC secret if Code Execution available (T3+) — stored encrypted
@@ -195,22 +196,15 @@ Same as biotech-edition multi-machine pattern (independent deployments per machi
 
 ## Edition-Specific Verification (General)
 
-After install:
+After install, exercise the standing rules + preset detection by asking your agent
+(any harness) to remember test values — judge by its response, not via any CLI flag:
 
-```bash
-# Test 1: Universal standing rules fire
-echo "my SSN is 123-45-6789" | claude --add-to-memory
-# Expected: ⚠️ Standing rule — SSN format detected; refused regardless of preset
-
-# Test 2: Preset-specific detection (varies by preset)
-# For compliance: none:
-echo "specimen ABC-12345" | claude --add-to-memory
-# Expected: NO detection fires (none preset doesn't have PHI detection)
-
-# For compliance: enterprise:
-echo "customer jane@acme.com" | claude --add-to-memory
-# Expected: ⚠️ Enterprise PII detected — consent tracking required
-```
+- **Universal standing rule fires.** Tell your agent: *"Remember that my fake SSN is 123-45-6789 (testing only)."*
+  Expected: ⚠️ the SSN format is flagged and refused/quarantined regardless of preset.
+- **Preset `none` — no PHI detection.** Tell your agent: *"Remember the specimen id ABC-12345."*
+  Expected: no detection fires (the `none` preset ships no PHI patterns).
+- **Preset `enterprise` — PII detection.** Tell your agent: *"Remember customer jane@acme.com."*
+  Expected: ⚠️ enterprise PII flagged (consent-tracking required).
 
 ---
 
