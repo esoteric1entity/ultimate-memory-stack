@@ -181,7 +181,7 @@ To set expectations:
 **v3.6.2 (patch) — current.** A harness-messaging + docs-consolidation cleanup over **v3.6.1**. Predecessor versions (v3.0/v3.5) have run in production on the maintainer's own machines since 2026-05-19, across Claude Code and OpenClaw deployments on three platforms, with a cross-machine validation cycle before v3.6.0 was cut.
 
 - Build: production-ready
-- Verification: two complementary layers — `verify.sh` validates an *install* (scaffold, registration, manifest), and `tests/` holds a **177-test pytest unit suite** covering the logic modules (lint runner, heartbeat compactor, edition setup, quarantine review). Run the units with `python -m pytest tests/`
+- Verification: two complementary layers — `verify.sh` validates an *install* (scaffold, registration, manifest), and `tests/` holds a **190-test pytest suite** covering the logic modules (lint runner, heartbeat compactor, edition setup, quarantine review) plus the installer next-steps and the skill install-guard. Run them with `python -m pytest tests/`
 - License: Apache-2.0
 - Maintenance: actively maintained
 
