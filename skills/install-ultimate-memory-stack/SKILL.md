@@ -1,6 +1,6 @@
 ---
 name: install-ultimate-memory-stack
-version: "1.3"
+version: "1.4"
 description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
@@ -21,8 +21,11 @@ This skill is the Claude Code skill door — one of several install methods (the
 **First, refuse unsafe install locations.** Before anything else, check the current working directory:
 
 ```bash
-case "$PWD" in
-  "$HOME"|/|/etc|/usr|/var|/root|/tmp|/bin|/sbin)     echo "REFUSE" ;;
+# Canonicalize first (resolve symlinks via pwd -P) so a path that logically
+# isn't $HOME / a system dir but physically resolves into one is still refused.
+target="$(cd "$PWD" 2>/dev/null && pwd -P)"; home="$(cd "$HOME" 2>/dev/null && pwd -P)"
+case "$target" in
+  "$home"|/|/etc|/usr|/var|/root|/tmp|/bin|/sbin)     echo "REFUSE" ;;
   /etc/*|/usr/*|/var/*|/root/*|/tmp/*|/bin/*|/sbin/*) echo "REFUSE" ;;
   *)                                                  echo "OK" ;;
 esac
@@ -286,7 +289,7 @@ touch "<MEMORY_DIR>/security/audit_log.jsonl"
 touch "<MEMORY_DIR>/quarantine/quarantine_log.jsonl"
 ```
 
-Append initialization entry to audit_log.jsonl (if created):
+Append the initialization entry **only if the audit log was created above** (enterprise/custom presets; skip for preset `none`):
 ```json
 {"ts":"<ISO-8601-UTC>","actor":"install-skill","actor_session":0,"action":"initialize","entry_id":"<bootstrap>","entry_path":"memory/","entry_category":"system","entry_summary":"Ultimate Memory Stack v3.6.2 deployment initialized via Skill installer; edition=<EDITION>; preset=<COMPLIANCE_PRESET>; extensions=<EXTENSIONS>","outcome":"success"}
 ```
@@ -491,6 +494,7 @@ If any step fails:
 | 1.1 | 2026-06-15 | **Data-safety fix.** Added Step 0.5 existing-store gate: a re-install over an existing `memory/` now backs it up (`memory.backup.<ts>/`) and preserves it. Steps 7e/8/9 are now create-if-absent — the skill no longer overwrites `session_state.md`, `MEMORY_INDEX.md`, `user_profile.md`, project briefs, or `feedback.md` on an existing store (the prior behavior silently reset accumulated memory to empty templates). Corrected the false "reversible via backup" claim. Brings the skill door in line with `setup-memory-stack.sh` + `INSTALL_AGENT.md`, which already preserved user data. |
 | 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public biotech-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare/biotech with "institutional edition only"). Deleted the dead biotech branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). |
 | 1.3 | 2026-06-16 | **Data-safety hardening + Door-3 alignment (v3.6.1).** Added a Step 0 guard refusing installs into `$HOME` / system directories (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`). Made the Step 0.5 PRESERVE guard explicit in Step 8 (per-file `[ -e ]` existence check before any Write; never overwrite user data) + a Step 7f note to confirm before resetting a user-customized `PROFILE.md`. No behavior change for fresh installs. |
+| 1.4 | 2026-06-16 | **Step-0 guard hardening + harness-agnostic wording (v3.6.2).** Canonicalised the Step-0 unsafe-location guard with `pwd -P` so a path that resolves into `$HOME` / a system directory via a symlink is also refused (previously only the literal `$PWD` was matched). Clarified Step 7e (the initialization entry is appended only when the audit log was created — enterprise/custom; skipped for preset `none`). Reframed the skill as one door among several (script / agent / Claude Code skill / manual). No behavior change for fresh installs. |
 
 When this skill is updated, bump `version:` in the frontmatter + record changes here. Treat the skill itself like any other memory stack artifact — schema_version compatibility matters.
 
