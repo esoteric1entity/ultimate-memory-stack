@@ -1,8 +1,8 @@
-# Graphify Installer — v3.5 Ultimate Recommended Addon
+# Graphify Installer — Recommended Addon
 
-> **Status:** ✅ v3.5 Ultimate ready (Sentinel vetting PASS)
+> **Status:** stable — ships with UMS v3.6.2 (security-reviewed: PASS)
 > **Tier:** C (opt-in; not loaded by default per the C3 designation)
-> **Last updated:** 2026-05-28
+> **Last updated:** 2026-06-16
 > **Authority:** C3 (Tier C adjacent tool) · Sentinel vetting PASS
 
 ---

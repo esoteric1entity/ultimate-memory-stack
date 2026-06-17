@@ -318,10 +318,10 @@ If a user wants to retroactively scan existing v2.0 entries for poisoning (e.g.,
 ## 10. Open Questions
 
 1. **Queue size threshold for biotech blocking** — currently 5 entries unreviewed. Is that the right friction level? Lower forces more review (good for compliance); higher reduces interruption (better for daily flow). Defer to operational experience.
-2. **Cascade quarantine depth** — if entry X is quarantined and 100 entries reference X, do they ALL get quarantined? Probably no (too aggressive). Likely: flag for re-validation rather than full quarantine. 3a.6 design decision.
+2. **Cascade quarantine depth** — if entry X is quarantined and 100 entries reference X, do they ALL get quarantined? Probably no (too aggressive). Likely: flag for re-validation rather than full quarantine. A future design decision.
 3. **False-positive feedback loop** — when user RELEASES a quarantined entry as "false positive", should the validator that flagged it get the signal? E.g., adjust thresholds, learn the pattern. Probably yes but mechanism is unclear. Lean: log false-positive reason, surface to user at consolidation, manual tuning only at v3.0.
 4. **Discard vs delete distinction** — discard sets `status: discarded` but preserves file. Delete would actually remove. Is `delete` ever exposed? Probably NO in v3.0 — too risky. Discard is the user-facing primitive; actual file removal is admin/CLI only.
-5. **Quarantine of audit log entries themselves** — what if the audit log is tampered? Layer 6 signatures (C4) would catch it. But the entries are append-only JSONL, not memory entries with full frontmatter. Different schema, different quarantine path? Likely: log-tampering events route to a dedicated `memory/security/incidents/` directory rather than quarantine. 3a.6 design.
+5. **Quarantine of audit log entries themselves** — what if the audit log is tampered? Layer 6 signatures (C4) would catch it. But the entries are append-only JSONL, not memory entries with full frontmatter. Different schema, different quarantine path? Likely: log-tampering events route to a dedicated `memory/security/incidents/` directory rather than quarantine. Deferred to a later schema revision.
 
 ---
 
@@ -333,4 +333,4 @@ If a user wants to retroactively scan existing v2.0 entries for poisoning (e.g.,
 - **Compliance integration:** `SCHEMA_compliance_profile.md` §detection-patterns (compliance preset determines what triggers quarantine)
 - **Cryptographic integration:** C4 signatures (signature failure is a primary quarantine trigger at T3+)
 - **Edition profiles:** `<edition>/PROFILE.md` (selects biotech blocking vs general non-blocking UX)
-- **Source research:** Agent 7 findings (memory poisoning defenses), Agent 6a (validation-on-read pattern)
+- **Source research:** memory-poisoning defense research, validation-on-read pattern research

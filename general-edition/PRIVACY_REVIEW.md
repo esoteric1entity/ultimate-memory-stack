@@ -1,163 +1,49 @@
-# Privacy Review — General-Edition
+# Privacy & Data Handling — General Edition
 
 > **File:** `general-edition/PRIVACY_REVIEW.md`
-> **Version:** 1.0 — 2026-05-15
-> **Status:** active — public-distribution readiness checklist
-> **Audience:** the author (see `/AUTHORS.md`) + future external reviewers
+> **Status:** stable — ships with UMS v3.6.2
+> **Scope:** how the general edition stores and handles your data.
 
 ---
 
-## Purpose
+## Local-first by design
 
-General-edition is intended as the **public-distribution candidate** of the Ultimate Memory Stack. This file documents what's been reviewed for public release, what's pending, and the checklist for future external review.
+The Ultimate Memory Stack is a **file-based** layer. Everything it creates — your memory vault, decision log, feedback, per-project banks, and any audit/quarantine logs — is plain **Markdown + JSON written into your own workspace** (`memory/`). You can open it in any editor, `grep` it, version-control it, and back it up with `cp -r`. There is no proprietary database and no cloud component.
 
-**Default posture:** General-edition is **public-release-pending** — almost-ready, with specific items to confirm before going live.
+- **No telemetry.** The install scripts, the protocol, and `verify.sh` make **no network calls** and send nothing off your machine. They do not phone home.
+- **Your data stays yours.** Every install door refuses to install into the package's own directory and records exactly what it did in `.ums-manifest.json`. Nothing is uploaded.
+- **Inference is your harness's job.** The stack itself never calls an LLM. Your agent harness (Claude Code, OpenClaw, or another) performs inference using whatever model endpoint *you* have configured; the stack only reads and writes files.
 
----
+## What it stores
 
-## What's Public-Safe (Already Reviewed)
+| Data | Where | Notes |
+|---|---|---|
+| Memory entries, decisions, feedback, project banks | `memory/` (your workspace) | Plain Markdown with YAML frontmatter |
+| Audit log + quarantine log | `memory/security/`, `memory/quarantine/` | Created only when a compliance preset enables them |
+| Install record | `.ums-manifest.json` | What the installer did (door, harness, addons) |
 
-### Universal Memory Stack Content
-| Item | Public-safe? | Source / Verification |
-|------|--------------|------------------------|
-| Stack architecture (Layers 0-6) | ✅ YES | General design, not proprietary; Phase 2 research is public |
-| Schemas (A3, A18, audit_log, quarantine, compliance_profile) | ✅ YES | General data structures; YAML frontmatter convention is public PKM standard |
-| Memory Protocol v3.0 | ✅ YES | General operational rules; nothing institution-specific |
-| Compliance preset framework | ✅ YES | 3-preset hybrid is a design choice; framework is public |
-| Bootstrap prompt v3.0 | ✅ YES | Referencing model is public PKM convention |
-| Detection patterns (none, healthcare Layer 1, enterprise) | ✅ YES | Based on HIPAA Safe Harbor / GDPR / standard PII patterns |
+You decide what goes into memory. The installer never invents data; the activation wizard only writes what you tell it.
 
-### General-Edition-Specific Content
-| Item | Public-safe? | Source / Verification |
-|------|--------------|------------------------|
-| 4 preset definitions | ✅ YES | None of `none`/`healthcare`/`enterprise`/`custom` has institution-specific content |
-| 3 overrides (compliance-presets, generic-conflict-resolution, generic-examples) | ✅ YES | Generic patterns for software dev / research / writing / education |
-| 4 EXTENSIONS profiles | ✅ YES | All based on public standards (HIPAA, GDPR, SOC2, PCI-DSS) |
-| DEPLOYMENT.md | ✅ YES | General install instructions |
-| Setup scripts (setup.sh / setup.ps1 / setup.py) | ✅ YES | Open-source-ready code |
-| Worked examples in `generic-examples.override.md` | ✅ YES | Solo dev / research / writing / education examples are generic |
+## PII / PHI
 
----
+The general edition is **field-agnostic** and ships **no PHI/HIPAA handling** — a `healthcare` preset is **not selectable** here (the wizard refuses it). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see [`../CONTRIBUTING.md`](../CONTRIBUTING.md)). Optional, user-selected protection:
 
-## What Needs Specific Confirmation
+- **Compliance presets:** `none` (default — no detection), `enterprise` (broad PII detection + audit + quarantine), `custom`.
+- **Extensions:** `gdpr` / `soc2` / `pci-dss` add jurisdiction-specific detection when you enable them.
+- Detection runs **locally**; flagged entries route to quarantine for your review (a non-blocking toast in general-edition). A universal standing rule refuses obvious secrets regardless of preset.
 
-### Authorship + Attribution
-- ⏸️ Authorship model (sole author with acknowledgements per `/AUTHORS.md`) — confirm wording is accurate for public release
-- ⏸️ Author's institutional affiliation — confirm whether to mention in public release
-- ⏸️ Other contributors (research agents are AI-generated; the project owner is the orchestrator)
+## Add-ons and the network
 
-### License
-- ✅ License: **Apache-2.0** (locked)
-- General-edition is the public-distribution candidate; biotech-edition remains private
-- Comparison reference: Letta (Apache 2.0), Graphiti (Apache 2.0), Cline Memory Bank (MIT-like)
+The base stack is local-only. Opt-in addons may use the network — review each before enabling:
 
-### Phase 2 Research Sources
-- ⏸️ All 210 cited sources in the research source master list — verify all citations are accurate
-- ⏸️ Compliance with each source's license / terms (most are public papers / GitHub repos with permissive licenses)
-- ⏸️ Attribution credits in public README
+- **Graphiti** (knowledge graph): telemetry is forced **off** (`GRAPHITI_TELEMETRY_ENABLED=false`) before first import; the recommended backend (Kuzu) is local.
+- **Graphify** (code symbol graph) and **LLMLingua** (prompt compression): run locally after install.
+- **Obsidian vault config:** local files only; you install the Obsidian app yourself from obsidian.md.
 
-### No Institution-Specific Content
-- ✅ General-edition does NOT reference biotech-edition's institution-specific patterns
-- ✅ NGS workflow examples in `biotech-examples.override.md` are biotech-edition-only
-- ✅ Common-specs files don't mention the institution (verified via grep)
+## License
 
-### Universal Standing Rules
-- ✅ No secrets in template files
-- ✅ No customer / patient / employee data in worked examples
-- ✅ No internal-only tool references
+[Apache-2.0](../LICENSE). Attribution to **esoteric1entity** per [`../AUTHORS.md`](../AUTHORS.md).
 
 ---
 
-## Pre-Release Checklist
-
-Before general-edition can be made public (e.g., GitHub release):
-
-### Content cleanup
-- [ ] Verify NO accidental institutional references in common-specs/ (grep check)
-- [ ] Verify NO accidental PHI/PII in worked examples
-- [ ] Verify NO accidental references to private infrastructure (private drive paths, machine-specific hostnames, etc.)
-- [ ] Update README.md (general-edition root) for public audience
-- [ ] Add CHANGELOG.md
-
-### Authorship + Attribution
-- [ ] Confirm the maintainer's preferred attribution (name, role, affiliation mention)
-- [ ] Confirm the coworker's preferred attribution
-- [ ] Decide on institutional acknowledgment language
-- [ ] Add CONTRIBUTORS.md if multiple human contributors
-
-### License
-- [x] License decision: Apache-2.0 (locked)
-- [x] LICENSE file present
-- [ ] Add SPDX headers to source files (`setup.sh`, `setup.ps1`, `setup.py`)
-- [ ] Verify license compatibility with cited Phase 2 sources
-
-### Documentation
-- [ ] Public README.md (top-level overview, installation, quick start)
-- [ ] Public CONTRIBUTING.md if accepting contributions
-- [ ] Public CODE_OF_CONDUCT.md
-- [ ] Public SECURITY.md (vulnerability disclosure)
-- [ ] Verify all internal-reference DEC-### links resolve OR convert to public references
-
-### Quality
-- [ ] Setup scripts tested on Linux + Mac + Windows
-- [ ] Cheat sheets render correctly in both MD and PDF
-- [ ] All schemas valid YAML
-- [ ] All cross-references resolve
-
-### Infrastructure
-- [ ] GitHub repository created
-- [ ] CI/CD for validation (optional but recommended)
-- [ ] Issue templates
-- [ ] PR templates
-
----
-
-## Public-Release Status Tracking
-
-| Item | Status | Date | Owner |
-|------|--------|------|-------|
-| Content cleanup pass | ⏸️ Pending | — | project owner |
-| Authorship confirmation | ⏸️ Pending | — | project owner |
-| License decision | ✅ Apache-2.0 | locked | project owner |
-| Public README + docs | ⏸️ Pending | — | project owner |
-| Setup script testing (multi-OS) | ⏸️ Pending | — | project owner |
-| GitHub release | ⏸️ Pending | — | TBD post-clearance |
-
----
-
-## What's Out of Scope for General-Edition Public Release
-
-These items remain biotech-edition-private (per `biotech-edition/PRIVACY_REVIEW.md`):
-
-- Institution-specific Layer 2 detection patterns
-- Vendor-specific NGS assay workflow examples
-- Institution-specific customer-account-ID / report-ID / specimen-ID formats
-- Internal R&D process details
-
-Users wanting biotech-grade PHI/HIPAA behavior should note: the `healthcare` preset and extension are biotech-edition-reserved — not selectable in general-edition (the installer refuses them). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
-
----
-
-## Comparison to Existing Public Memory Stacks
-
-When general-edition goes public, it'll join a landscape that includes:
-
-| Stack | License | Public scope |
-|-------|---------|--------------|
-| Letta (Zep) | Apache 2.0 | Cloud product + open-source agent framework |
-| Graphiti | Apache 2.0 | Open-source temporal knowledge graph |
-| Cline Memory Bank | MIT-like (convention, not formal license) | Open-source IDE integration |
-| MemoryOS | Apache 2.0 | Research artifact |
-| Karpathy LLM Wiki | Public domain (gist) | Idea / pattern |
-| **Ultimate Memory Stack (general-edition)** | Apache-2.0 | ✅ Locked |
-
-General-edition's differentiator: documentation discipline, tier-gated design philosophy, and the modularity pattern.
-
----
-
-## Cross-References
-
-- `PROFILE.md` (general-edition defaults)
-- `DEPLOYMENT.md` (install instructions)
-- `MIGRATION_v2_to_v3.md` (upgrade procedure)
-- `../biotech-edition/PRIVACY_REVIEW.md` (companion — private-distribution focus)
+> Questions about data handling? Open an issue on the repository. See also [`../../common-specs/MEMORY_PROTOCOL.md`](../../common-specs/MEMORY_PROTOCOL.md) (§7 standing rules, incl. no-PII/PHI) and [`../../SECURITY.md`](../../SECURITY.md) (vulnerability disclosure).

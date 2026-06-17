@@ -230,7 +230,7 @@ consent_party_pointer: <reference to consent record, NOT the party themselves>
 2. **Pseudonymized data** — If data is pseudonymized (e.g., names replaced with stable hashes), should detection flag the hashes? Lean: NO — pseudonymized data is GDPR-compliant, but the link table is the sensitive artifact (kept outside memory stack).
 3. **Cross-pattern detection performance** — Windowed scan is O(n²) in entry length. At very large entries (10K+ chars), this may be slow. Optimization: at T2+, use streaming windowed analysis.
 4. **Consent revocation cascade** — If entry A references entry B via `related:`, and B is revoked/discarded, does A also get flagged? Likely YES for cascading consent integrity. Defer to operational tuning.
-5. **Multi-jurisdictional consent** — A single entry may serve users in EU (GDPR) + US (CCPA) + other regions. Should consent_basis support multiple values? Lean: YES, array-valued. Schema update needed in 3a.6.
+5. **Multi-jurisdictional consent** — A single entry may serve users in EU (GDPR) + US (CCPA) + other regions. Should consent_basis support multiple values? Lean: YES, array-valued. Schema update needed in a future revision.
 
 ## Cross-references
 

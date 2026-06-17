@@ -3,25 +3,25 @@
 > **Version:** 1.1 — stable
 > **Read this AFTER:** `common-specs/USER_CHEAT_SHEET_core.md`
 > **Audience:** Solo developers, software dev, research, writing, education, B2B SaaS, enterprise users
-> **Approximate read time:** 4 minutes (skim) · 7 minutes (with v3.5 section)
+> **Approximate read time:** 4 minutes (skim) · 7 minutes (with the general-edition section)
 
 ---
 
-## v3.5 General Quickstart (NEW 2026-05-29)
+## General-Edition Quickstart
 
-**General-edition v3.5 specifics:**
+**General-edition specifics:**
 
 | Aspect | General behavior | Cross-ref |
 |---|---|---|
 | **Compliance preset** | `none` (default), `enterprise`, or `custom` | `<edition>/PROFILE.md` |
 | **Audit log (§5.2)** | OPT-IN (default OFF) — set `audit_log: true` in PROFILE.md to enable | B1 |
-| **Quarantine UX (§5.3)** | Toast at session start: "X entries quarantined — review?"; full workflow Skill available | New v3.5 Skill at `core/audit-quarantine-skill/` |
+| **Quarantine UX (§5.3)** | Toast at session start: "X entries quarantined — review?"; full workflow Skill available | Skill at `core/audit-quarantine-skill/` |
 | **Pattern-key recurrence (§4.2)** | Threshold = 5 (less strict than biotech) | B6 |
 | **Cryptographic signatures (C4)** | HMAC available (T3+, opt-in) | C4 |
 | **Lint findings (§10.5)** | Surface as suggestions; non-blocking | §10.5 |
 | **Doc completeness check (Lint #10)** | MEDIUM severity (vs biotech CRITICAL) | §10.5 |
 
-**v3.5 components for general-edition (all 6 supported):**
+**General-edition components (all 6 supported):**
 
 | Component | When to install | Tier |
 |---|---|---|
@@ -208,8 +208,8 @@ General-edition does not ship PHI/HIPAA compliance; its presets are `none`, `ent
 ## Things You Don't Need to Worry About
 
 - **Sub-agent topology:** General-edition doesn't assume any specific sub-agents. Most users have none. Standard slots (`user`, `orchestrator`, `webfetch`, `external-tool-output`) cover everything.
-- **Mirror parity:** Only relevant if you're mirroring across drives (D: / C:) like the maintainer's setup. Most users have a single working directory.
-- **<your-institution> IP review:** That's biotech-edition's concern. General-edition is the public-distribution candidate; no <your-institution>-specific content.
+- **Mirror parity:** Only relevant if you mirror your memory dir to a second location. Most users have a single working directory.
+- **Institutional IP review:** That's the institutional edition's concern. General-edition is the public edition and carries no institution-specific content.
 - **Multi-machine sync:** Out of scope for v3.0. Each deployment is independent.
 
 ---

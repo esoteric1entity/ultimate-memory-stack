@@ -321,7 +321,6 @@ Per B7 — compliance review required. General-edition only for v3.5.
 
 ## §8 — Cross-References
 
-- `MAPPING.md` (foundation design — §4.1-§4.5 detailed here)
 - `SKILL.md` (Claude-executable workflow using this mapping)
 - `README.md` (addon-level README)
 - `INSTALL_OPENCLAW_ADAPTER.md` (manual fallback)

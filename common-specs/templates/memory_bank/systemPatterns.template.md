@@ -6,7 +6,7 @@
 
 ---
 
-```markdown
+````markdown
 # System Patterns — <Project Name>
 
 ---
@@ -83,7 +83,7 @@ project_slug: <slug>
 ---
 
 > **Reminder:** This file describes the ARCHITECTURE — what components exist and how they relate. Tech stack details (libraries, versions, env setup) belong in techContext.md. Current work-in-flight belongs in activeContext.md.
-```
+````
 
 ---
 

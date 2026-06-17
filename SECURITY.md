@@ -40,7 +40,7 @@ UMS is a **memory layer for AI agents** — its security surface is mostly
 UMS stores what your agent writes. It does **not** encrypt the vault at rest,
 authenticate readers, or sandbox the agent — file-system permissions and your
 harness's controls are the protection layer. For runtime guardrails, see the
-sibling Security branch, `agent-shield` (release imminent).
+sibling Security branch, `agent-shield` (in development).
 
 ## Disclosure
 

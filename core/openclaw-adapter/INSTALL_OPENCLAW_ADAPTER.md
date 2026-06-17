@@ -91,7 +91,7 @@ echo '{"ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","actor":"orchestrator","session":
 
 ### Step 6 — Write edition profile
 
-Create `<openclaw-root>/general-edition/PROFILE.md`:
+Create `<openclaw-root>/ultimate-memory-stack/general-edition/PROFILE.md`:
 
 ```markdown
 # General Edition Profile

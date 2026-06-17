@@ -276,7 +276,7 @@ Write-Host "  $step. Validate the install:  bash $ScriptDir\verify.sh $Target   
 if ($Harness -eq "openclaw") {
     Write-Host ""
     Write-Host "  OpenClaw workspace detected - for deep integration (9 root files), run the"
-    Write-Host "  OpenClaw adapter: see ultimate-memory-stack\core\openclaw-adapter\"
+    Write-Host "  OpenClaw adapter: see core\openclaw-adapter\QUICKSTART.md in the cloned package"
 } elseif ($Harness -eq "generic") {
     Write-Host ""
     Write-Host "  Using another harness? Point it at memory/ + the protocol from your AGENTS.md -"

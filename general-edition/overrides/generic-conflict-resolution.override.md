@@ -106,5 +106,5 @@ For `none` preset:
 - `./compliance-presets.override.md` (preset implementation details)
 - `../PROFILE.md` (user-selectable defaults)
 - `../../common-specs/SCHEMA_compliance_profile.md` §5 (preset definitions)
-- `../../biotech-edition/overrides/biotech-conflict-resolution.override.md` (compare strictness)
+- The institutional edition applies a stricter conflict-resolution posture (planned for a future release; not shipped publicly)
 - Design notes: B7 3-preset hybrid; modular consumer architecture

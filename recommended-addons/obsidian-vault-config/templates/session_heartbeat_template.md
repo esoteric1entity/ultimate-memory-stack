@@ -28,7 +28,7 @@ template_type: section-insert (NOT standalone document; paste this block into se
 ### Next up (post-this-task)
 - _Bullet list of immediate next pieces_
 
-### Files mirrored (D ↔ C) since last heartbeat
+### Files mirrored since last heartbeat (if mirroring to a second location)
 - _List of files changed and parity status; "n/n at byte parity" if all clean_
 
 ### Open threads (don't lose these)

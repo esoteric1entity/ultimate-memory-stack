@@ -76,7 +76,11 @@ future institutional edition can consume it.
 **Setup wizard UX for `enterprise`:**
 ```
 Q: Compliance preset selection
-Your choice [3]: 3
+> [1] none — solo dev / personal projects (recommended)
+  [2] enterprise — GDPR + SOC2 baseline
+  [3] custom — advanced (requires writing compliance.override.md)
+
+Your choice [1]: 2
 
 ✓ Compliance preset set to `enterprise`.
   • Broad PII detection (names, emails, addresses, business IDs)

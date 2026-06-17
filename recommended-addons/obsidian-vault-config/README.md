@@ -1,6 +1,6 @@
-# Obsidian Vault Config — v3.5 Ultimate Recommended Addon
+# Obsidian Vault Config — Recommended Addon
 
-> **Status:** ✅ v3.5 Ultimate ready (no Sentinel vetting required — config-only, no executable code)
+> **Status:** stable — ships with UMS v3.6.2 (config-only — no executable code, no vetting required)
 > **Tier:** B (recommended; not auto-installed but lightweight to set up)
 > **Last updated:** 2026-05-28
 > **Design basis:** ideal-first design + documentation discipline + addon tier framework + OpenClaw research + independent convergence on Obsidian patterns by a peer OpenClaw deployment

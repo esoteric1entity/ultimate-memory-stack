@@ -27,7 +27,7 @@
 - User account that can write to the workspace (and to `.claude/rules/` on Claude Code)
 
 ### Recommended (T2+)
-- Node.js 18+ for setup script + B11 hybrid retrieval + C6 graph
+- Node.js 18+ for setup script + B11 hybrid retrieval + B12 error-detector hook
 - Ollama (B9) OR Transformers.js (C9) for semantic search
 - More disk if audit log enabled (depends on preset + retention policy)
 
@@ -92,7 +92,7 @@ Standard memory protocol now active. Memory entries write to `memory/` per SCHEM
 bash <path-to-stack>/general-edition/setup.sh
 
 # Windows PowerShell
-.<path-to-stack>\general-edition\setup.ps1
+& "<path-to-stack>\general-edition\setup.ps1"
 
 # Python (cross-platform)
 python <path-to-stack>/general-edition/setup.py

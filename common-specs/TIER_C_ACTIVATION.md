@@ -433,7 +433,7 @@ For biotech-edition with PHI exposure concern: prefer Ollama-based ingestion for
   - https://github.com/getzep/graphiti (Graphiti)
   - https://github.com/safishamsi/graphify (Graphify canonical)
   - https://github.com/krshna-ai/graphify-codebase (Graphify fork)
-  - https://graphify.net/ (Graphify website)
+  - https://github.com/safishamsi/graphify (Graphify source)
 
 ---
 

@@ -1,9 +1,9 @@
-# OpenClaw General Edition Adapter — v3.5 Ultimate Core Deliverable
+# OpenClaw General Edition Adapter
 
-> **Status:** ✅ ready (design + Skill artifact complete; cross-machine deployment validated)
+> **Status:** stable — ships with UMS v3.6.2 (design + Skill artifact complete; cross-machine deployment validated)
 > **Tier:** A (CORE deliverable — required for OpenClaw deployment; not opt-in)
-> **Edition:** general-edition only (biotech deferred pending B7 compliance review)
-> **Last updated:** 2026-05-28
+> **Edition:** general-edition (the public edition; a HIPAA/PHI institutional edition is planned for a future release)
+> **Last updated:** 2026-06-16
 
 ---
 

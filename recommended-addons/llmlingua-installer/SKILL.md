@@ -1,6 +1,6 @@
 ---
 name: install-llmlingua
-description: Optional installer for LLMLingua prompt compression addon (Tier C C6, opt-in). Wraps the v3.5 Ultimate Memory Stack with token-level perplexity-based prompt compression (Microsoft Research, MIT licensed). Pins llmlingua==0.2.2 exactly (upstream stale ~2 years); runs pip-audit pre-install; installs to user-chosen conda or venv environment; verifies via smoke test. Use when the user asks to install, deploy, activate, or enable LLMLingua / prompt compression for their memory stack deployment.
+description: Optional installer for LLMLingua prompt compression addon (Tier C C6, opt-in). Wraps the Ultimate Memory Stack with token-level perplexity-based prompt compression (Microsoft Research, MIT licensed). Pins llmlingua==0.2.2 exactly (upstream stale ~2 years); runs pip-audit pre-install; installs to user-chosen conda or venv environment; verifies via smoke test. Use when the user asks to install, deploy, activate, or enable LLMLingua / prompt compression for their memory stack deployment.
 version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["security-first vetting", "ideal-first design", "documentation discipline", "Tier C designed-in", "PASS-verdict addon batch"]
@@ -16,7 +16,7 @@ migration_path: v3.6+ — evaluate SecurityLingua as successor
 
 When this Skill is invoked (typically via `/install-llmlingua` slash command or when the user asks Claude to install/deploy/activate LLMLingua), execute the workflow below **IN ORDER**. Treat each step as required unless the user explicitly opts to skip.
 
-This Skill is part of the v3.5 Ultimate release recommended addons batch. It is **opt-in** per its Tier C designation — never auto-installed; user must invoke deliberately.
+This Skill is one of the recommended addons. It is **opt-in** per its Tier C designation — never auto-installed; user must invoke deliberately.
 
 ---
 

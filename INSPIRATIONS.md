@@ -286,7 +286,7 @@ team's collective work:
 
 - **The agentic-AI architecture itself — original to esoteric1entity.** This is
   the root contribution: the Stack grew out of a sustained personal design effort
-  begun in **early 2026** (built on the founder's prior AI/ML study — the CalTech CTME AIML program, 2025). It started as
+  begun in **early 2026**, drawing on prior studies, practices, and influences (2025). It started as
   an original OpenClaw architecture developed across a series of design
   notebooks plus a multi-agent topology spec, then was **first deployed as the
   founder's own OpenClaw stack in March 2026** — the earliest and longest-running

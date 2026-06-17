@@ -1,6 +1,6 @@
-# Graphiti Installer — v3.5 Ultimate Recommended Addon
+# Graphiti Installer — Recommended Addon
 
-> **Status:** ✅ v3.5 Ultimate ready (Sentinel vetting: PASS)
+> **Status:** stable — ships with UMS v3.6.2 (security-reviewed: PASS)
 > **Tier:** C2 (biotech-first designed-in; general-edition opt-in)
 > **Last updated:** 2026-05-28
 

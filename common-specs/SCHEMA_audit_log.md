@@ -98,10 +98,10 @@ Per the B1 design decision: log size manageability + PHI safety.
 | `ts` | ISO 8601 timestamp (UTC, Zulu) | YES | When the action occurred. UTC for log timezone neutrality. |
 | `actor` | enum | YES | `orchestrator` / `warden` / `sentinel` / `vault` / `clerk` / `user` / `webfetch` / `external-tool-output` / `migration-script` / `system` |
 | `actor_session` | integer | YES | Session number from session_state.md |
-| `action` | enum | YES | `read` / `write` / `create` / `delete` / `quarantine` / `release` / `migrate` / `validate` |
+| `action` | enum | YES | `read` / `write` / `create` / `delete` / `quarantine` / `release` / `discard` / `migrate` / `validate` / `initialize` / `preset-change` / `lint-run` — non-exhaustive: install/addon scripts may emit additional lifecycle actions (e.g. `adapter-install`, `audit-quarantine-review`) |
 | `entry_id` | string | YES | The memory entry's ID (DEC-NNN, FB-NNN, VET-NNN, etc.) or `<file-only>` if file-level action |
 | `entry_path` | string | YES | Relative path from memory/ root |
-| `entry_category` | enum | YES | `sessions` / `decisions` / `feedback` / `projects` / `security` / `references` / `user` / `archive` / `quarantine` |
+| `entry_category` | enum | YES | `sessions` / `decisions` / `feedback` / `projects` / `security` / `references` / `user` / `archive` / `quarantine` / `system` (file- or root-level events) |
 | `content_sha256_before` | hex string | If `action ∈ {write, delete, quarantine}` | Hash of entry body BEFORE this action |
 | `content_sha256_after` | hex string | If `action ∈ {write, create, release, migrate}` | Hash of entry body AFTER this action |
 | `entry_summary` | string (max 200 chars) | YES | First 200 characters of entry body, redacted per compliance profile |

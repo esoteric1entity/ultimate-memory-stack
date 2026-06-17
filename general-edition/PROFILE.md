@@ -25,7 +25,7 @@ schema_version: "3.0"
 parent_spec: "../common-specs/"
 parent_spec_version: "3.0"
 target_audience: "Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts without strict regulatory requirements (or those wanting opt-in GDPR/SOC2/PCI-DSS). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md."
-license_posture: "Public-distribution candidate — pending PRIVACY_REVIEW.md approval"
+license_posture: "Public release — Apache-2.0"
 ```
 
 ## 2. Defaults + User-Selectable Choices (B7)
@@ -166,13 +166,13 @@ What activates at each deployment tier (same architecture as biotech; different 
 
 | Tier | Infrastructure | General-edition features activated |
 |------|----------------|------------------------------------|
-| **T0** | Claude Code default | All Tier A + most Tier B; audit log opt-in; quarantine non-blocking |
+| **T0** | Any 9-root-file agent (Claude Code, OpenClaw, etc.) | All Tier A + most Tier B; audit log opt-in; quarantine non-blocking |
 | **T1** | + Ollama | + B9 semantic search (opt-in) |
-| **T2** | + Node.js | + B11 hybrid retrieval (v2.2 opt-in); B12 error-detector hook; C6 graph backend; **C9 Transformers.js embeddings as Ollama alternative** |
-| **T3** | + Code Execution | + C4 cryptographic signatures (HMAC optional); LLMLingua compression; advanced compaction |
+| **T2** | + Node.js | + B11 hybrid retrieval (v2.2 opt-in); B12 error-detector hook; **C9 Transformers.js embeddings as Ollama alternative** |
+| **T3** | + Code Execution | + C4 cryptographic signatures (HMAC optional); C6 LLMLingua compression; C2 graph backend; advanced compaction |
 | **T4** | + Skills + Anthropic Dreaming | + C1 Auto-Dream; C10 Skill artifacts |
 
-**Tier confirmation at bootstrap:** Setup wizard asks Step 7 Question 5 — "Which features are available?" — auto-detect at T2+ if Node.js is available (`node --version` probe).
+**Tier confirmation at bootstrap:** the setup wizard's deployment-tier question — "Which features are available?" — auto-detects at T2+ if Node.js is available (`node --version` probe).
 
 ## 8. Brand-Protected Elements
 
@@ -229,9 +229,3 @@ When deploying general-edition, the setup wizard MUST collect:
 **Stable.** Active for general-edition deployment when paired with common-spec.
 
 All companion deliverables (overrides, EXTENSIONS, DEPLOYMENT, PRIVACY_REVIEW, MIGRATION, setup scripts) build on this foundation.
-
-Approval gates:
-- ✅ B7 compliance design (3-preset hybrid + custom) — already approved
-- ✅ Modular consumer architecture — already approved
-- ⏸️ Maintainer approval of this PROFILE.md — pending
-- ⏸️ PRIVACY_REVIEW.md completion (for public-release readiness)

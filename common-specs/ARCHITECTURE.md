@@ -540,10 +540,10 @@ Every feature carries a tier marker. Features auto-activate when tier unblocks �
 | Tier | Infrastructure | Features Activated |
 |------|----------------|--------------------|
 | **T0** | None (Claude Code default) | All Tier A (20) + most Tier B (~10) = ~30 features |
-| **T1** | + Ollama (local embeddings) | + Hybrid search (C2), pattern-key embeddings ≈ 32 features |
-| **T2** | + Node.js | + Hook automation (B12), file-watcher, graph (C6) ≈ 34 features |
+| **T1** | + Ollama (local embeddings) | + Hybrid search (B9), pattern-key embeddings ≈ 32 features |
+| **T2** | + Node.js | + Hook automation (B12), file-watcher, C9 Transformers.js embeddings ≈ 34 features |
 | **T3** | + Code Execution unblocked | + Crypto signatures (C4), Python analytics, sandboxed jobs ≈ 38 features |
-| **T4** | + Skills + Anthropic Dreaming beta | + Dreaming (C1), skill-packaged artifacts (C9) ≈ 42 features (full ideal state) |
+| **T4** | + Skills + Anthropic Dreaming beta | + Dreaming (C1), skill-packaged artifacts (C10) ≈ 42 features (full ideal state) |
 
 
 ### 11.4 Single-Source Storage (Layer 1 authority)

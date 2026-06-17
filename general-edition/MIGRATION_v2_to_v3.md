@@ -2,7 +2,7 @@
 
 > **File:** `general-edition/MIGRATION_v2_to_v3.md`
 > **Version:** 1.0 — 2026-05-15
-> **Status:** DRAFT — procedure spec; automation requires T2+ (Node.js)
+> **Status:** stable — procedure spec (automation requires T2+ / Node.js; a T0 manual path is included)
 > **Audience:** Existing v2.0 general-context deployments upgrading to v3.0
 
 ---
@@ -81,7 +81,13 @@ The migration script:
 
 #### Manual path (T0)
 
-Same as biotech-edition manual path (see `biotech-edition/MIGRATION_v2_to_v3.md` Phase B), but skip biotech-specific Ed25519 keypair setup.
+No script needed — migrate by hand:
+1. Back up `memory/` (Phase A, if you haven't already).
+2. Copy `common-specs/` + `general-edition/` into your workspace.
+3. Paste the activation prompt from `common-specs/BOOTSTRAP_PROMPT.md`. It detects the existing v2.0 `memory/`, proposes a migration plan — add SCHEMA_A18 frontmatter to legacy entries (the fields shown in the automated path above) and restructure projects into per-project memory-banks — and **waits for your approval before writing anything**.
+4. Approve the plan; the agent migrates non-destructively (your backup is untouched) and runs the self-test.
+
+(General-edition signs with HMAC, not Ed25519, so there is no keypair step.)
 
 ### Phase C: General-edition-specific setup
 
@@ -126,7 +132,20 @@ ls memory/quarantine/ 2>/dev/null
 
 ### Phase E: Rollback
 
-Same as biotech-edition rollback procedure (see biotech `MIGRATION_v2_to_v3.md` Phase E).
+Migration is non-destructive — Phase A backed up `memory/` before any change. To roll back:
+
+```bash
+# 1. Stop the agent / close the session, then move the migrated tree aside
+mv memory memory.failed.$(date +%Y%m%d-%H%M%S)
+
+# 2. Restore the v2.0 backup taken in Phase A
+mv memory.backup.v2.<timestamp> memory
+
+# 3. (Optional) remove the v3 scaffold if you don't want it
+rm -f .claude/rules/memory_protocol.md
+```
+
+Your v2.0 state is fully recovered — the backup was never modified.
 
 ---
 
@@ -151,7 +170,7 @@ Same as biotech-edition rollback procedure (see biotech `MIGRATION_v2_to_v3.md` 
 | Cryptographic signature | Ed25519 strongly recommended | HMAC default (or none if T0/T1/T2) |
 | Quarantine workflow | Blocking when >5 | Non-blocking |
 | HIPAA validation re-scan | Always | Not applicable — PHI detection is biotech-edition-reserved (not selectable in general-edition) |
-| Required IP/Legal review | <your-institution>-context per `PRIVACY_REVIEW.md` | Just public-release readiness per `PRIVACY_REVIEW.md` |
+| Required IP/Legal review | Institutional review (the planned institutional edition) | Public-release readiness per `PRIVACY_REVIEW.md` |
 
 > This comparison describes the biotech-edition's locked configuration for reference; this public package ships the general-edition only. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
@@ -185,7 +204,7 @@ Dormant features: <list with unlock requirements>
 
 Next steps:
   1. Review quarantine queue (if non-empty)
-  2. Verify mirror parity (D ↔ C if applicable)
+  2. Verify mirror parity (if you mirror to a second location)
   3. Begin first v3.0 session
 ```
 
@@ -200,4 +219,4 @@ Next steps:
 - `EXTENSIONS/` (optional extensions)
 - `setup.sh` / `setup.ps1` / `setup.py`
 - `../common-specs/MEMORY_PROTOCOL.md` §13 (general migration procedure)
-- `../biotech-edition/MIGRATION_v2_to_v3.md` (companion for biotech context)
+- The institutional edition's migration guide (planned for a future release; not shipped publicly)

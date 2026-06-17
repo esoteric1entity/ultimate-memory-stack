@@ -20,7 +20,7 @@ It's not a replacement for your agent harness. It's an **integration layer** tha
 | **Core stack** (`common-specs/` + `general-edition/` + install engine) | The memory vault scaffold, protocol auto-registration, schemas, templates, wizard, and `verify.sh` | A — core |
 | **`/config-obsidian-vault`** (addon `memory-vault`) | Obsidian-based personal-knowledge-management interface; the human-readable layer | B — primary |
 | **`/install-graphiti`** (addon `memory-graphiti`) | Bi-temporal knowledge graph over entities + relationships + temporal facts | C — opt-in |
-| **`/install-graphify`** (addon `memory-graphify`) | Code symbol graph (functions, classes, imports) across 19+ languages | C — opt-in |
+| **`/install-graphify`** (addon `memory-graphify`) | Code symbol graph (functions, classes, imports) across 31 languages | C — opt-in |
 | **`/install-llmlingua`** (addon `memory-llmlingua`) | Prompt compression at a quality-preserving threshold | C — opt-in |
 
 **Modular install** — `--addon memory-graphiti` to include selectively; `--minimal` for core-only. Each addon self-installs under the slash-command names shown: the script and agent doors scaffold them as project-local Claude Code Skills (in `.claude/skills/`); via the manual door — including OpenClaw (`core/openclaw-adapter/`) — the same addons scaffold without Claude Code.
@@ -155,7 +155,7 @@ UMS is the **Memory branch** of the broader Agent Architect Stack. Sibling branc
 | Branch | Repo | Purpose |
 |---|---|---|
 | **Memory** (this) | [ultimate-memory-stack](https://github.com/esoteric1entity/ultimate-memory-stack) | Persistent memory + knowledge graphs |
-| **Security** | agent-shield *(release imminent)* | 8-layer defensive overlay for agents |
+| **Security** | agent-shield *(in development)* | 8-layer defensive overlay for agents |
 | *(more planned)* | — | — |
 
 UMS and agent-shield are **independent** — no runtime dependencies. They cooperate via shared conventions; install either or both.

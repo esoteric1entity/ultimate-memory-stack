@@ -39,7 +39,7 @@ last_heartbeat: <!-- populated at each heartbeat write -->
 ### Next up (post-this-task)
 -
 
-### Files mirrored (D ↔ C) since last heartbeat
+### Files mirrored since last heartbeat (if mirroring to a second location)
 -
 
 ### Open threads (don't lose these)

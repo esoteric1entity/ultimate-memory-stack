@@ -17,7 +17,7 @@ foundation_design: MAPPING.md
 
 When this Skill is invoked (typically via `/install-openclaw-adapter` or when the user asks Claude to deploy the memory stack onto an OpenClaw harness), execute the workflow below **IN ORDER**.
 
-**This is the LARGEST single piece of v3.5 Ultimate.** It validates the modular consumer architecture by porting the memory stack to a non-Claude-Code harness for the first time. Foundation design at `MAPPING.md`.
+**The OpenClaw adapter validates the modular consumer architecture** by porting the memory stack to a non-Claude-Code harness for the first time. Foundation design at `MAPPING.md`.
 
 ---
 
@@ -119,7 +119,7 @@ for f in MEMORY AGENTS SOUL TOOLS IDENTITY USER HEARTBEAT BOOTSTRAP DREAMS; do
 done
 ```
 
-Per §4.1 of `MAPPING.md`, the 9 files map to v3.0/v3.5 concepts:
+Per §1 of `MAPPING.md`, the 9 files map to v3.0/v3.5 concepts:
 
 | OpenClaw file | v3.0/v3.5 equivalent | Bootstrap budget |
 |---|---|---|
@@ -180,7 +180,7 @@ Compliance preset:
   (b) enterprise — GDPR/SOC2 baseline; provenance + audit + consent tracking
 ```
 
-Write `<openclaw-root>/general-edition/PROFILE.md` with chosen preset. Per MEMORY_PROTOCOL §6.
+Write `<openclaw-root>/ultimate-memory-stack/general-edition/PROFILE.md` with chosen preset. Per MEMORY_PROTOCOL §6.
 
 If user later wants `healthcare` preset, that requires biotech-edition adapter (separate work).
 
@@ -201,7 +201,7 @@ Lint runs surface-only by design. NEVER auto-mutates.
 
 ## Step 9 — Configure Heartbeat Compactor (Optional Cron)
 
-Per `MAPPING.md` §4.3 — heartbeat-driven Lint compaction:
+Per `MAPPING.md` §6 — heartbeat-driven Lint compaction:
 
 ```bash
 cp <path-to-this-skill>/scripts/heartbeat_compactor.py <openclaw-root>/.openclaw/heartbeat_compactor.py

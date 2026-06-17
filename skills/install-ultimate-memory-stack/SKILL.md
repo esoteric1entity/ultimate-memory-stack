@@ -78,7 +78,7 @@ If `<WORKING_DIR>/memory/` **or** `<WORKING_DIR>/.ums-manifest.json` exists, thi
 
 If neither is found, this is a fresh install — proceed normally.
 
-> This mirrors what the shell installer (`setup-memory-stack.sh`) and the agent flow (`INSTALL_AGENT.md` Step 1.2) already do; the skill door must match them.
+> This mirrors what the shell installer (`setup-memory-stack.sh`) and the agent flow (`INSTALL_AGENT.md` Step 1, existing-install detection) already do; the skill door must match them.
 
 ---
 
@@ -434,7 +434,7 @@ Consumer agents: <CONSUMER_AGENTS or "none">
 Effective tier: T<X>
 
 What was created:
-  ✓ <WORKING_DIR>/ (spec package)
+  ✓ <WORKING_DIR>/ultimate-memory-stack/ (spec package)
   ✓ <WORKING_DIR>/.claude/rules/memory_protocol.md (auto-loaded)
   ✓ <WORKING_DIR>/memory/ (9 subdirs initialized)
   ✓ <WORKING_DIR>/memory/sessions/session_state.md (Session 1)

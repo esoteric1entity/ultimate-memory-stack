@@ -421,7 +421,7 @@ This ignores the regenerable vendored package + the install markers. Your `memor
 
 > **Claude Code only.** This is the one install method that requires Claude Code specifically — the manual, script, and agent doors work on any harness (or none). Use it when you have Skills enabled in Claude Code and want the native slash-command experience.
 
-**Status:** ✅ **AVAILABLE** — the install skill ships in `skills/install-ultimate-memory-stack/` (see `skills/install-ultimate-memory-stack/INSTALL_SKILL.md` for how to register the skill itself; v1.0 STABLE, validated end-to-end).
+**Status:** ✅ **AVAILABLE** — the install skill ships in `skills/install-ultimate-memory-stack/` (see `skills/install-ultimate-memory-stack/INSTALL_SKILL.md` for how to register the skill itself; v1.4, STABLE — v1.0 baseline validated end-to-end).
 
 ### What the install looks like
 
@@ -798,7 +798,7 @@ After the base stack install (Methods A/B/C/D/E above), the package includes **6
 | 1 | `/config-obsidian-vault` | n/a (config-only) | Install Obsidian app from https://obsidian.md/ first |
 | 2 | `/install-llmlingua` | Security-reviewed | Exact pin `llmlingua==0.2.2`; planned migration → SecurityLingua in a future release |
 | 3 | `/install-graphiti` | Security-reviewed | Set `GRAPHITI_TELEMETRY_ENABLED=false` BEFORE first import; CVE-2026-32247 patched at 0.28.2 (installer floor-pins ≥0.29.1); Kuzu backend recommended |
-| 4 | `/install-graphify` | Security-reviewed | Pin `graphifyy==0.8.21` (DOUBLE-y); single-y `graphify` is a blocked typosquat — the Python *module* is single-y by upstream design, but the distribution + CLI are double-y; website https://graphify.net/ |
+| 4 | `/install-graphify` | Security-reviewed | Pin `graphifyy==0.8.21` (DOUBLE-y); single-y `graphify` is a blocked typosquat — the Python *module* is single-y by upstream design, but the distribution + CLI are double-y; home page: github.com/safishamsi/graphify |
 | 5 | `/audit-quarantine` | n/a (built-in) | Edition-aware: one-line toast (general default); the fuller quarantine review workflow belongs to the planned institutional edition |
 | 6 | `/install-openclaw-adapter` | n/a (built-in) | Requires OpenClaw harness installed at target; adapter generates 9 root files |
 

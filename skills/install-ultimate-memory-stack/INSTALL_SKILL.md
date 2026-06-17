@@ -10,7 +10,7 @@
 
 Once registered with Claude Code, this skill lets you install the Ultimate Memory Stack v3.6.2 with a single slash command: `/install-ultimate-memory-stack`. See `SKILL.md` (in this same directory) for the full workflow specification.
 
-This is one of several install methods (alongside the manual drag-and-drop, the script `setup.sh`, and the agent flow in `INSTALL_AGENT.md`) — see `../../INSTALL.md` (Claude Code Skill installer) for the user-facing description.
+This is one of several install methods (alongside the manual drag-and-drop, the script `setup-memory-stack.sh`, and the agent flow in `INSTALL_AGENT.md`) — see `../../INSTALL.md` (Claude Code Skill installer) for the user-facing description.
 
 ---
 
@@ -47,7 +47,7 @@ cp -r /path/to/skills/install-ultimate-memory-stack ~/.claude/skills/
 **PowerShell (Windows):**
 ```powershell
 mkdir -Force ~/.claude/skills
-Copy-Item -Recurse "<path-to>\ultimate-memory-stack\skill\install-ultimate-memory-stack" "~\.claude\skills\"
+Copy-Item -Recurse "<path-to>\ultimate-memory-stack\skills\install-ultimate-memory-stack" "~\.claude\skills\"
 ```
 
 Restart Claude Code after copying.
@@ -203,7 +203,7 @@ Restart Claude Code. The slash command will no longer be available.
 | **Manual drag-and-drop** (Method A in INSTALL.md — Manual walkthrough) | You want minimum dependencies + are comfortable copying files |
 | **Bash `setup-memory-stack.sh`** (Method B) | You're on Linux/Mac/WSL + prefer one-command CLI |
 | **PowerShell `setup-memory-stack.ps1`** | You're on Windows + have Python 3.8+ (PowerShell wrapper; core install delegates to Python) |
-| **Python setup.py** (Appendix §17.2) | You have Python + want cryptographic key generation built in |
+| **Python setup.py** (Method E in INSTALL.md) | You have Python + want cryptographic key generation built in |
 
 This skill is the **easiest UX** when available but has a dependency on Skills being enabled in your Claude Code instance.
 

@@ -81,7 +81,7 @@ By nesting under `projects/<project-name>/memory-bank/`, the structure preserves
 | Memory Bank 6-file is the dominant 2026 pattern across IDE tools | project research findings, multiple adoptions cited | Cross-tool convergence (Cline, Roo Code, Cursor variants, MCP server variants) |
 | 6-file fits ~5-10k tokens | project research measurement | Practitioner experience |
 | Dependency hierarchy matters as much as file count | `[Cline-MemoryBankDocs]` | First-party docs |
-| Markdown-first is the right backend (not vector DB) | Agents 1, 5b, 6b convergence | 3 independent agents |
+| Markdown-first is the right backend (not vector DB) | Independent research-pass convergence | multiple independent reviews |
 | Per-project scoping prevents token bloat | project research + tiered context budget research | Architectural inference + Chroma context-rot research |
 
 **Caveats:**

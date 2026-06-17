@@ -70,7 +70,7 @@ Architectural choices that the agent makes with rationale. Numbered sequentially
 4. **Scope CAN** — what this decision enables
 5. **Scope CANNOT** — what this decision does NOT do
 
-See `common-specs/MEMORY_PROTOCOL.md` §6 for the full spec and examples.
+See `common-specs/MEMORY_PROTOCOL.md` §16 (Documentation Discipline) for the full spec and examples.
 
 ### LEARN-### (Learnings)
 
@@ -154,7 +154,7 @@ The Memory branch doesn't ship its own security hooks — it relies on the **Sec
 - YELLOW tier: prompts the user (e.g., modifying decision log files)
 - GREEN tier: silent pass
 
-Install the Security branch for production-shape deployments — it ships as its own package, `agent-shield` (release imminent); either package works alone, and they compose when both are installed.
+Install the Security branch for production-shape deployments — it ships as its own package, `agent-shield` (in development); either package works alone, and they compose when both are installed.
 
 ## 7. Obsidian GUI (optional)
 
@@ -215,4 +215,4 @@ The threshold: would you want a future agent to know about this decision? If yes
 - [`common-specs/MEMORY_PROTOCOL.md`](./common-specs/MEMORY_PROTOCOL.md) — master protocol spec
 - [`common-specs/SCHEMA_A18_per_entry_metadata.md`](./common-specs/SCHEMA_A18_per_entry_metadata.md) — frontmatter spec
 - [`common-specs/SCHEMA_A3_per_project_memory_bank.md`](./common-specs/SCHEMA_A3_per_project_memory_bank.md) — per-project memory banks
-- `agent-shield` — the sibling Security package (release imminent)
+- `agent-shield` — the sibling Security package (in development)

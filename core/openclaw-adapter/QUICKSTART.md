@@ -91,7 +91,7 @@ The setup will:
 
 - Generate the **9 root auto-load files** at `<openclaw-root>/`: `MEMORY.md`, `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, `BOOTSTRAP.md`, `DREAMS.md`
 - Create the `<openclaw-root>/memory/` subtree (decisions / feedback / projects / sessions / security / references)
-- Write the **edition profile** to `<openclaw-root>/memory/PROFILE.md`
+- Write the **edition profile** to `<openclaw-root>/ultimate-memory-stack/general-edition/PROFILE.md`
 - Install supporting Python scripts at `<openclaw-root>/.openclaw/` (heartbeat compactor, lint runner, self-test)
 
 When prompted, choose:
@@ -179,13 +179,15 @@ After Step 5:
 ├── BOOTSTRAP.md
 ├── DREAMS.md
 ├── memory/             ← Memory stack content (Step 2 output)
-│   ├── PROFILE.md      ← Active edition + compliance preset
 │   ├── decisions/      ← decisions.md grows as you accumulate DEC entries
 │   ├── feedback/       ← feedback.md captures user corrections
 │   ├── projects/       ← per-project memory_bank/ subdirectories
 │   ├── sessions/       ← session_state.md heartbeat
 │   ├── security/       ← audit_log.jsonl + vetting_log.md + quarantine/
 │   └── references/     ← references.md pointer file
+├── ultimate-memory-stack/
+│   └── general-edition/
+│       └── PROFILE.md  ← Active edition + compliance preset
 └── .openclaw/          ← Adapter scripts + edition config
     ├── heartbeat_compactor.py
     ├── lint/
@@ -219,7 +221,7 @@ For deeper issues, consult `INSTALL_OPENCLAW_ADAPTER.md` (full install guide) an
 |---|---|
 | Full install guide with all options | `INSTALL_OPENCLAW_ADAPTER.md` |
 | Architecture reference (what each root file does) | `MAPPING.md` |
-| Adding recommended Tier C addons (LLMLingua / Graphiti / Graphify / Obsidian) | `../../recommended-addons/<addon>-installer/INSTALL_*.md` |
+| Adding recommended Tier C addons (LLMLingua / Graphiti / Graphify / Obsidian) | `../../recommended-addons/{graphiti,graphify,llmlingua}-installer/INSTALL_*.md` + `obsidian-vault-config/INSTALL_OBSIDIAN_VAULT.md` |
 | Quarantine review workflow | `../audit-quarantine-skill/README.md` |
 | Edition-specific behavior (general-edition) | `../../general-edition/PROFILE.md` |
 | Memory protocol behavior reference | `../../common-specs/MEMORY_PROTOCOL.md` |

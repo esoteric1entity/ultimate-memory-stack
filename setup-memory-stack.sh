@@ -68,7 +68,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$SHOW_HELP" = true ]; then
-    sed -n '4,35p' "$0"
+    sed -n '4,30p' "$0"
     exit 0
 fi
 

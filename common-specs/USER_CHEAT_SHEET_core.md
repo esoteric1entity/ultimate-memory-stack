@@ -88,7 +88,7 @@ Before invoking `/compact`, take 1 minute to:
    - File(s) being modified + line numbers
    - Specific blocker (if any)
    - "Resume by re-reading [file]:[line] and continuing [step]" instruction
-2. **Verify mirror parity** (D ↔ C if you use mirroring) — `setup.sh --verify` or equivalent
+2. **Verify mirror parity** (if you mirror your memory dir to a second location) — `setup.sh --verify` or equivalent
 3. **Stage any pending DEC entries** — promote inline decisions to `decisions.md` if they're settled
 4. **Note any pending agent spawns or tool calls** that should resume after compaction
 

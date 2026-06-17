@@ -1,9 +1,9 @@
 # Audit Quarantine Skill — Core Deliverable
 
-> **Status:** ✅ v3.5 Ultimate ready (Skill artifact planned for v3.1, shipped in v3.5)
+> **Status:** stable — ships with UMS v3.6.2
 > **Tier:** A (CORE deliverable — required for memory hygiene completeness; not opt-in)
-> **Edition:** any (biotech + general both supported; different UX defaults per edition, B2)
-> **Last updated:** 2026-05-28
+> **Edition:** any (general public edition + the planned institutional edition; different UX defaults per edition, B2)
+> **Last updated:** 2026-06-16
 
 ---
 

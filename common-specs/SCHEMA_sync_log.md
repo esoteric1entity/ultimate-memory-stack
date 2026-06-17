@@ -5,7 +5,7 @@
 > **Status:** READY — schema locked for v3.5; sync implementation deferred to Phase 4+
 > **Authority:** project design principles — plan-first schema lock, ideal-first design, documentation discipline, v3.5 design-level scope-carve
 > **Author:** esoteric1entity
-> **Companion docs:** `MULTI_MACHINE_SYNC_DESIGN_NOTES.md` (Phase 4+ implementation design)
+> **Companion docs:** a Phase 4+ multi-machine-sync implementation design note (not yet published)
 
 ---
 
@@ -181,7 +181,7 @@ Before any `push`, the source machine reads the target's current `content_sha256
 | Component | Status in v3.5 |
 |---|---|
 | **This schema document** | ✅ READY (v1.0) |
-| `memory/security/sync_log.jsonl` file creation by adapter | ✅ Initialized empty by `setup-openclaw.sh` Step 6 (analog pattern) |
+| `memory/security/sync_log.jsonl` file creation by adapter | 🟡 Not yet auto-created (Phase 4+) |
 | Multi-machine sync IMPLEMENTATION | 🟡 Phase 4+ candidate |
 | Conflict resolution UI/Skill | 🟡 Phase 4+ |
 | Cross-machine network protocol | 🟡 Phase 4+ |
@@ -224,7 +224,7 @@ Before any `push`, the source machine reads the target's current `content_sha256
 - Cross-harness convergence (schema interoperates with OpenClaw conventions)
 - v3.5 release trajectory (sync_log shipped as schema-only partial)
 - SCHEMA_A18 v1.3 + v1.4 (per-entry frontmatter — sync events reference entry IDs)
-- `MULTI_MACHINE_SYNC_DESIGN_NOTES.md` (Phase 4+ implementation design)
+- A Phase 4+ multi-machine-sync implementation design note (not yet published)
 - MEMORY_PROTOCOL §3 B5 (bi-temporal precedence)
 - MEMORY_PROTOCOL §5.1 (CAS concurrency)
 - MEMORY_PROTOCOL §5.2 (audit_log format — pattern this schema mirrors)
