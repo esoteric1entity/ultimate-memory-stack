@@ -122,7 +122,7 @@ Per the project's documentation discipline (defined in the Memory branch specs),
 
 1. **Purpose** — what this thing is for
 2. **Rationale** — why we chose this approach
-3. **Sound reasoning** — what the tradeoffs were
+3. **Sound reasoning** — the evidence/research/sources backing the choice
 4. **Scope CAN** — what this thing does
 5. **Scope CANNOT** — what this thing does NOT do
 

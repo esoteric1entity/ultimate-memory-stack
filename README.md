@@ -23,7 +23,7 @@ It's not a replacement for your agent harness. It's an **integration layer** tha
 | **`/install-graphify`** (addon `memory-graphify`) | Code symbol graph (functions, classes, imports) across 19+ languages | C — opt-in |
 | **`/install-llmlingua`** (addon `memory-llmlingua`) | Prompt compression at a quality-preserving threshold | C — opt-in |
 
-**Modular install** — `--addon memory-graphiti` to include selectively; `--minimal` for core-only. Each addon self-installs when invoked: on Claude Code they register as marketplace Skills under the slash-command names shown; via the script, agent, or manual doors — including OpenClaw (`core/openclaw-adapter/`) — the same addons scaffold without Claude Code.
+**Modular install** — `--addon memory-graphiti` to include selectively; `--minimal` for core-only. Each addon self-installs under the slash-command names shown: the script and agent doors scaffold them as project-local Claude Code Skills (in `.claude/skills/`); via the manual door — including OpenClaw (`core/openclaw-adapter/`) — the same addons scaffold without Claude Code.
 
 ---
 

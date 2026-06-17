@@ -1,73 +1,59 @@
 # Ultimate Memory Stack — General Edition
 
-> The generic, public-safe edition of the Ultimate Memory Stack.
-> Compliance features available but opt-in. Intended for any field, any user, any project.
+> The public, general-purpose edition of the Ultimate Memory Stack — the edition this repository ships.
+> Field-agnostic by default; compliance features are opt-in.
 >
-> **Status:** STUB — design pending (begins after the research phase completes)
-> **Parent:** `../README.md` (Ultimate Memory Stack overview)
+> **Status:** stable — ships with UMS v3.6.2
+> **Parent:** [`../README.md`](../README.md) (Ultimate Memory Stack overview)
 
 ---
 
-## What This Edition Is
+## What this edition is
 
-The general edition takes the common Ultimate Memory Stack spec and **applies a generic profile**: nothing healthcare-specific is active by default, all compliance features are toggleable, and examples are field-agnostic.
+The general edition takes the common Ultimate Memory Stack spec and **applies a generic profile**: nothing domain-specific is active by default, all compliance features are toggleable, and examples are field-agnostic. It is the edition delivered by every install door (script / agent / marketplace / manual).
 
-Target audience:
-- Solo developers using Claude Code on personal projects
+**Target audience:**
+- Solo developers using any capable agent harness — Claude Code, OpenClaw, or any 9-root-file agent
 - Researchers in any field (software dev, writing, science, education, law, finance, etc.)
-- Open-source community wanting persistent Claude Code memory
-- Anyone whose first encounter with this work is via the maintainer's public GitHub release
+- Open-source users wanting persistent agent memory
+- Anyone whose first encounter with this work is via the public GitHub release
 
-## How It Differs From the Biotech Edition
+## Compliance posture
 
-The general edition is the common spec with **a profile applied** that:
+The general edition ships three selectable compliance presets — **`none` / `enterprise` / `custom`** — plus optional `gdpr` / `soc2` / `pci-dss` extensions (see `overrides/compliance-presets.override.md`). Concretely, the general profile:
 
-1. **Section 11 (Healthcare Compliance Profile) — NOT active and NOT selectable in general-edition.** The PHI/HIPAA profile is reserved for the institutional biotech-edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
-2. **PHI detection patterns** — REPLACED with generic PII only (SSN, credit card, email in non-profile files)
-3. **Conflict resolution hierarchy rank 1** — "Compliance rules (configurable: GDPR / SOC2 / PCI-DSS / none — user picks; PHI/HIPAA is biotech-edition-reserved and not selectable in general-edition)"
-4. **Self-test T7** — runs only when user activates a compliance profile
-5. **Default examples** — generic (project state, technical decisions, preferences, references) instead of healthcare-flavored
-6. **Audit trail emphasis** — present but not central; just normal change tracking
+1. Has **no PHI/HIPAA profile active or selectable** — the setup wizard refuses a `healthcare` preset with an "institutional edition only" message. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see [`../CONTRIBUTING.md`](../CONTRIBUTING.md)).
+2. Uses **generic PII detection** (SSN, credit card, email) rather than PHI patterns.
+3. Treats compliance rules as **configurable** (`gdpr` / `soc2` / `pci-dss` / `none` — user picks).
+4. Runs the self-test PII check (T7) **only when** a compliance profile is active.
+5. Ships **field-agnostic examples** (project state, technical decisions, preferences, references).
 
-## How It Differs From the Maintainer's Original Personal Memory Stack
-
-That's the original PERSONAL operational stack with healthcare defaults baked in. General edition is the public variant with the healthcare specifics genericized.
-
-| Aspect | Original personal memory stack | general-edition |
-|--------|------------------------------|------------------|
-| Audience | <your-name> (healthcare R&D) | The whole world |
-| Compliance default | Healthcare/HIPAA always-on | Compliance opt-in, no defaults |
-| Examples | Healthcare-flavored | Field-agnostic |
-| Author/affiliation | (see `/AUTHORS.md`) | Author names only — no affiliation by default |
-| Distribution | Personal use | Public GitHub |
-
-## Contents (planned)
+## Contents
 
 ```
 general-edition/
 ├── README.md                       ← You are here
 ├── PROFILE.md                      ← Declares which common-spec sections are active + generic defaults
-├── DEPLOYMENT.md                   ← How to install on any Claude Code project
+├── DEPLOYMENT.md                   ← Install + deployment guide (any harness)
+├── setup.sh / setup.py / setup.ps1 ← Edition installers (invoked by the top-level setup-memory-stack.*)
+├── MIGRATION_v2_to_v3.md           ← v2.0 → v3.x upgrade procedure
+├── USER_CHEAT_SHEET_general_addendum.md  ← General-edition best-practices addendum
 ├── overrides/                      ← Edition-specific overrides on top of common-specs/
 │   ├── generic-conflict-resolution.override.md
-│   ├── compliance-presets.override.md   ← Available compliance presets + how to activate
+│   ├── compliance-presets.override.md   ← Selectable presets + how to activate
 │   └── generic-examples.override.md     ← Software dev, research, writing examples
-├── EXTENSIONS/                     ← Optional compliance profiles users can apply
-│   ├── gdpr-profile.md             ← (for European users)
-│   ├── soc2-profile.md             ← (for SaaS contexts)
-│   └── pci-dss-profile.md          ← (for fintech)
+├── EXTENSIONS/                     ← Optional compliance profiles
+│   ├── gdpr-profile.md             ← EU jurisdiction + consent tracking
+│   ├── soc2-profile.md             ← SOC2 Trust Services Criteria
+│   ├── pci-dss-profile.md          ← Payment-card data context
+│   └── healthcare-profile.md       ← reserved for the future institutional edition (not selectable here)
 └── PRIVACY_REVIEW.md               ← Public-release readiness check
 ```
 
-## License Status
+## License
 
-Intended to be public open-source. Likely candidates:
-- **MIT** — most permissive, broad adoption
-- **Apache-2.0** — adds patent grant + mandatory attribution
-- **CC-BY-SA-4.0** — share-alike for derivative works
-
-Decision deferred to Phase 4 (deployable iteration phase). Attribution to author (esoteric1entity, sole author) preserved regardless of license choice.
+[Apache-2.0](../LICENSE) — locked. Attribution to **esoteric1entity** (sole author) preserved per [`../AUTHORS.md`](../AUTHORS.md).
 
 ---
 
-> **Status:** STUB | **Design begins:** after the research phase completes
+> Version history lives in [`../CHANGELOG.md`](../CHANGELOG.md).

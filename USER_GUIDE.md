@@ -66,7 +66,7 @@ Architectural choices that the agent makes with rationale. Numbered sequentially
 
 1. **Purpose** — what this decision is for
 2. **Rationale** — why this approach over alternatives
-3. **Sound reasoning** — what tradeoffs were accepted
+3. **Sound reasoning** — the evidence/research/sources chain backing this
 4. **Scope CAN** — what this decision enables
 5. **Scope CANNOT** — what this decision does NOT do
 

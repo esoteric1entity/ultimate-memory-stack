@@ -797,8 +797,8 @@ After the base stack install (Methods A/B/C/D/E above), the package includes **6
 |---|---|---|---|
 | 1 | `/config-obsidian-vault` | n/a (config-only) | Install Obsidian app from https://obsidian.md/ first |
 | 2 | `/install-llmlingua` | Security-reviewed | Exact pin `llmlingua==0.2.2`; planned migration → SecurityLingua in a future release |
-| 3 | `/install-graphiti` | Security-reviewed | Set `GRAPHITI_TELEMETRY_ENABLED=false` BEFORE first import; CVE-2026-32247 patched ≥0.29.1; Kuzu backend recommended |
-| 4 | `/install-graphify` | Security-reviewed | Pin `graphifyy==0.8.21` (DOUBLE-y); CLI command is `graphify` (single-y) by design; website https://graphify.net/ |
+| 3 | `/install-graphiti` | Security-reviewed | Set `GRAPHITI_TELEMETRY_ENABLED=false` BEFORE first import; CVE-2026-32247 patched at 0.28.2 (installer floor-pins ≥0.29.1); Kuzu backend recommended |
+| 4 | `/install-graphify` | Security-reviewed | Pin `graphifyy==0.8.21` (DOUBLE-y); single-y `graphify` is a blocked typosquat — the Python *module* is single-y by upstream design, but the distribution + CLI are double-y; website https://graphify.net/ |
 | 5 | `/audit-quarantine` | n/a (built-in) | Edition-aware: one-line toast (general default); the fuller quarantine review workflow belongs to the planned institutional edition |
 | 6 | `/install-openclaw-adapter` | n/a (built-in) | Requires OpenClaw harness installed at target; adapter generates 9 root files |
 

@@ -61,16 +61,15 @@ From `common-specs/BOOTSTRAP_PROMPT.md` "The Activation Prompt" section.
 
 ### Step 4: Answer setup wizard
 
-7 questions:
-1. **Edition confirmation** (auto: `general`)
-2. **Identity** (name, role, org, domain)
-3. **Active projects** (with goals + status)
-4. **Compliance preset selection** ⭐ — pick from 3 options (none / enterprise / custom)
-5. **Compliance extensions** (optional) — none / gdpr / soc2 / pci-dss / multiple
-6. **Consumer agent topology** (register sub-agent names if any, or "none")
-7. **Deployment tier** (auto-detect when possible)
+6 questions (edition is auto-confirmed as `general` before the wizard — not a wizard question):
+1. **Identity** (name, role, org, domain)
+2. **Active projects** (with goals + status)
+3. **Compliance** ⭐ — preset (none / enterprise / custom) + optional extensions (gdpr / soc2 / pci-dss)
+4. **Pet peeves** (never-do / always-do — saved to `feedback/feedback.md`)
+5. **Consumer agent topology** (register sub-agent names if any, or "none")
+6. **Deployment tier** (auto-detect when possible)
 
-**Most users pick `compliance: none`** at Q4 unless they have explicit regulatory needs.
+**Most users pick `compliance: none`** at Q3 unless they have explicit regulatory needs.
 
 ### Step 5: Verify
 
