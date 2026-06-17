@@ -104,7 +104,7 @@ Recommended workflow:
 1. Activate `enterprise` + `soc2` from start of audit window
 2. Tag all relevant entries with `audit_evidence_category` (CC for security; A for availability; etc.)
 3. Maintain change_approver discipline (even for solo deployments)
-4. Generate evidence reports via setup script: `setup.sh --soc2-evidence --date-range=YYYY-MM-DD..YYYY-MM-DD`
+4. Generate evidence reports by querying the structured audit log: filter `memory/security/audit_log.jsonl` to the audit window with `jq` (the audit log structure supports auditor-ready exports — see `SCHEMA_audit_log.md`)
 5. Provide structured audit log dump to external auditor
 
 ## Cross-References

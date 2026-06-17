@@ -201,7 +201,7 @@ Lint runs surface-only by design. NEVER auto-mutates.
 
 ## Step 9 — Configure Heartbeat Compactor (Optional Cron)
 
-Per `MAPPING.md` §6 — heartbeat-driven Lint compaction:
+Per `MAPPING.md` §4 (memory-directory mapping — heartbeat archive):
 
 ```bash
 cp <path-to-this-skill>/scripts/heartbeat_compactor.py <openclaw-root>/.openclaw/heartbeat_compactor.py

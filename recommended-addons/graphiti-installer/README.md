@@ -2,7 +2,7 @@
 
 > **Status:** stable — ships with UMS v3.6.2 (security-reviewed: PASS)
 > **Tier:** C2 (biotech-first designed-in; general-edition opt-in)
-> **Last updated:** 2026-05-28
+> **Last updated:** 2026-06-16
 
 ---
 

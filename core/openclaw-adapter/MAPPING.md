@@ -3,7 +3,7 @@
 > **Doc:** `core/openclaw-adapter/MAPPING.md`
 > **Purpose:** Codify the exact mapping between Ultimate Memory Stack v3.6.0/v3.5 conventions and OpenClaw harness conventions. This is the reference doc for `SKILL.md` Step 4 + `setup-openclaw.sh/py`.
 > **Foundation:** the OpenClaw general-edition design notes (internal R&D) + the cross-harness convergence contract
-> **Last updated:** 2026-05-28
+> **Last updated:** 2026-06-16
 
 ---
 

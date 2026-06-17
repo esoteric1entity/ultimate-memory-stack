@@ -2,7 +2,7 @@
 
 > **Status:** stable — ships with UMS v3.6.2 (security-reviewed: PASS)
 > **Tier:** C (opt-in, not loaded by default — C6 designation)
-> **Last updated:** 2026-05-28
+> **Last updated:** 2026-06-16
 > **Authority:** Tier C6 designation + Sentinel vetting verdict (PASS with conditions, all enforced by this installer)
 
 ---

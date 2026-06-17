@@ -2,7 +2,7 @@
 
 > **File Version:** 1.0 (APPROVED initial — open to revision during Tier B/C/D review)
 > **Created:** 2026-05-13
-> **Last Updated:** 2026-05-13
+> **Last Updated:** 2026-06-16
 
 > **Source research:** memory-bank + PKM patterns from the project research base (210-source review)
 > **Status:** stable — ships with UMS v3.6.0

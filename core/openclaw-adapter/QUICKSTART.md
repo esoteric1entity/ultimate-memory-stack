@@ -5,7 +5,7 @@ file: QUICKSTART
 project: ultimate-memory-stack
 component: openclaw-adapter
 created_at: 2026-05-29
-last_updated: 2026-05-29
+last_updated: 2026-06-16
 schema_version: "3.0"
 schema: A18
 scope: file

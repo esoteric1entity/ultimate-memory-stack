@@ -182,7 +182,7 @@ ls -la memory/
 cat memory/security/audit_log.jsonl
 
 # Check profile
-cat general-edition/PROFILE.md
+cat ultimate-memory-stack/general-edition/PROFILE.md
 
 # Re-run self-test
 python <path-to-adapter>/scripts/self_test.py .

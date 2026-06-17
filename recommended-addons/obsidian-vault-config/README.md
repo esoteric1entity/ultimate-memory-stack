@@ -2,7 +2,7 @@
 
 > **Status:** stable — ships with UMS v3.6.2 (config-only — no executable code, no vetting required)
 > **Tier:** B (recommended; not auto-installed but lightweight to set up)
-> **Last updated:** 2026-05-28
+> **Last updated:** 2026-06-16
 > **Design basis:** ideal-first design + documentation discipline + addon tier framework + OpenClaw research + independent convergence on Obsidian patterns by a peer OpenClaw deployment
 > **Upstream:** https://obsidian.md/ (desktop app, user-installed)
 

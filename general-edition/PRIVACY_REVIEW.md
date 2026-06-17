@@ -46,4 +46,4 @@ The base stack is local-only. Opt-in addons may use the network — review each 
 
 ---
 
-> Questions about data handling? Open an issue on the repository. See also [`../../common-specs/MEMORY_PROTOCOL.md`](../../common-specs/MEMORY_PROTOCOL.md) (§7 standing rules, incl. no-PII/PHI) and [`../../SECURITY.md`](../../SECURITY.md) (vulnerability disclosure).
+> Questions about data handling? Open an issue on the repository. See also [`../common-specs/MEMORY_PROTOCOL.md`](../common-specs/MEMORY_PROTOCOL.md) (§7 standing rules, incl. no-PII/PHI) and [`../SECURITY.md`](../SECURITY.md) (vulnerability disclosure).

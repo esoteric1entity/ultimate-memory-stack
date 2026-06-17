@@ -154,7 +154,7 @@ Your v2.0 state is fully recovered — the backup was never modified.
 | Risk | Mitigation |
 |------|------------|
 | User picks `compliance: none` but data should be `enterprise` | Re-run setup.sh --change-preset=enterprise; re-validation pass quarantines newly flagged entries |
-| User accidentally enables extensions that don't fit context | Disable via PROFILE.md edit; setup.sh --change-extensions= |
+| User accidentally enables extensions that don't fit context | Disable by editing the `extensions:` field in `general-edition/PROFILE.md`, then re-run `setup.sh --verify` |
 | Pattern-key promotion threshold differs from v2.0 default | v3.0 default for general is ≥5; user can adjust in PROFILE.md if needed |
 | Audit log audit gap (off in v2.0 → on in v3.0) | Document the gap explicitly; no auto-backfill possible |
 | HMAC secret derivation differs across machines | If multi-machine, decide whether to share HMAC secret OR have per-machine secrets |
