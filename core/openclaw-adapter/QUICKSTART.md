@@ -193,7 +193,7 @@ After Step 5:
     └── ...
 ```
 
-Stage 2 PASS criteria (from `DEPLOYMENT_GUIDE_v3.5.md §11.2`):
+Stage 2 PASS criteria:
 
 - ✅ OpenClaw boots cleanly with the 9 root files
 - ✅ Adapter Python scripts execute end-to-end without error
