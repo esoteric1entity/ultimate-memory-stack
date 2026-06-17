@@ -171,6 +171,40 @@ def detect_tier() -> dict:
     return tier_info
 
 
+GITIGNORE_MARKER = "# >>> ultimate-memory-stack >>>"
+GITIGNORE_BLOCK = (
+    f"{GITIGNORE_MARKER}\n"
+    "# Installer artifacts + the vendored package (regenerable). The user's\n"
+    "# memory vault (the data) is intentionally left tracked — not ignored here.\n"
+    "ultimate-memory-stack/\n"
+    ".deployment-info\n"
+    ".ums-manifest.json\n"
+    "# <<< ultimate-memory-stack <<<\n"
+)
+
+
+def ensure_gitignore(working_dir: Path) -> bool:
+    """If working_dir is a git repo, append the UMS ignore block to .gitignore.
+
+    Ignores the regenerable package scaffold + install markers — NEVER memory/
+    (the user's data). Idempotent: skips if the block marker is already present.
+    Returns True only if it wrote the block.
+    """
+    if not (working_dir / ".git").exists():
+        return False
+    gitignore = working_dir / ".gitignore"
+    existing = gitignore.read_text(encoding="utf-8") if gitignore.exists() else ""
+    if GITIGNORE_MARKER in existing:
+        return False
+    parts = []
+    if existing:
+        parts.append(existing if existing.endswith("\n") else existing + "\n")
+        parts.append("\n")  # separate the user's lines from our block
+    parts.append(GITIGNORE_BLOCK)
+    gitignore.write_text("".join(parts), encoding="utf-8")
+    return True
+
+
 def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, args):
     """Fresh install of general-edition."""
     print(f"\n=== Fresh Install: General-Edition v{STACK_VERSION} ===")
@@ -247,6 +281,11 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     os.chmod(claude_rules_dir / "memory_protocol.md", 0o644)  # normalize permissions
 
     print("✓ Files copied")
+
+    # Keep the vendored package + install markers out of the user's git history
+    # (only when the target is a git repo); memory/ is their data and stays tracked.
+    if ensure_gitignore(working_dir):
+        print("✓ .gitignore updated (package scaffold + install markers ignored; memory/ left tracked)")
 
     # NOTE (#11 half-config fix, 2026-06-11): the .deployment-info marker is
     # written at the END of setup_fresh — it is a completion certificate, not

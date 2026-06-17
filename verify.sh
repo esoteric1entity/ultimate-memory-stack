@@ -1,12 +1,14 @@
 #!/bin/bash
 # ==============================================================================
-# Ultimate Memory Stack v3.6.0 — post-install verification
+# Ultimate Memory Stack v3.6.2 — post-install verification
 # Apache-2.0 © 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
-# Validates a UMS install against the install-checkable subset (T1–T7) of the
-# self-test suite per common-specs/MEMORY_PROTOCOL.md §1.3; T8/T9 are
-# entry-dependent and run agent-side.
+# Validates a UMS *install* — scaffold, registration, profile, logs — using its
+# own [T1]–[T7] structural checks. These are a DIFFERENT namespace from the
+# protocol's T1–T9 entry-level self-test (common-specs/MEMORY_PROTOCOL.md §1.3),
+# which the agent runs each session over your memory entries; the shared "T#"
+# prefix does NOT map 1:1. Run verify.sh after install.
 #
 # Usage:
 #   ./verify.sh                 # verify install in current directory
@@ -27,7 +29,7 @@ fi
 # Version: read from the VERSION file (#14 re-audit follow-on — was hardcoded,
 # would lie after a bump). Prefer the installed scaffold's copy, then the
 # package next to this script; fall back only if neither is present.
-STACK_VERSION="3.6.0"
+STACK_VERSION="3.6.2"
 for _vf in "$WORKING_DIR/ultimate-memory-stack/VERSION" "$SCRIPT_DIR/VERSION"; do
     if [ -f "$_vf" ]; then STACK_VERSION="$(tr -d ' \r\n' < "$_vf")"; break; fi
 done

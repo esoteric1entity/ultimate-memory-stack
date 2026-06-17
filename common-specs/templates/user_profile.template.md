@@ -12,8 +12,6 @@
 > **Schema Version:** 3.0
 
 ---
-
----
 id: USER-PROFILE
 created_at: <YYYY-MM-DD>
 last_updated: <YYYY-MM-DD>

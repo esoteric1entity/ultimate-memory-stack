@@ -403,6 +403,20 @@ Expected: ends with `✅ All checks passed — Ultimate Memory Stack v3.6.2 inst
 
 **Total time: ~30 sec for script + ~2-3 min for wizard.**
 
+### Version control (`.gitignore`)
+
+When you install into a directory that is already a git repo, the script and Python installers append a fenced block to your `.gitignore`:
+
+```gitignore
+# >>> ultimate-memory-stack >>>
+ultimate-memory-stack/
+.deployment-info
+.ums-manifest.json
+# <<< ultimate-memory-stack <<<
+```
+
+This ignores the regenerable vendored package + the install markers. Your `memory/` vault is **deliberately left tracked** — it's your data; commit it if you want history. The block is idempotent (re-installs never duplicate it) and is added only when a `.git/` directory is present.
+
 ## Claude Code Skill installer
 
 > **Claude Code only.** This is the one install method that requires Claude Code specifically — the manual, script, and agent doors work on any harness (or none). Use it when you have Skills enabled in Claude Code and want the native slash-command experience.
@@ -483,6 +497,8 @@ For other deployments without explicit mirroring, just keep ONE canonical source
 ## Post-install verification in depth
 
 After ANY install method, verify these:
+
+> **Two test namespaces, same `T#` prefix — don't conflate them.** `verify.sh` runs its own **[T1]–[T7] structural install-checks** (scaffold, registration, profile, logs). The protocol's **T1–T9 self-test** (`common-specs/MEMORY_PROTOCOL.md` §1.3) is a different, entry-level suite the agent runs each session over your memory entries. The shared prefix does not map 1:1.
 
 ### Verification A: Self-Test (T1–T9)
 

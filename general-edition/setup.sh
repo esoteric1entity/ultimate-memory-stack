@@ -321,6 +321,25 @@ esac
 
 echo "✓ Memory directory structure initialized"
 
+# Keep the vendored package + install markers out of the user's git history
+# (only when the target is a git repo); memory/ is their data and stays tracked.
+if [ -d "${WORKING_DIR}/.git" ]; then
+    GITIGNORE="${WORKING_DIR}/.gitignore"
+    if ! grep -qF "# >>> ultimate-memory-stack >>>" "$GITIGNORE" 2>/dev/null; then
+        [ -s "$GITIGNORE" ] && printf '\n' >> "$GITIGNORE"
+        cat >> "$GITIGNORE" <<'GITIGNORE_EOF'
+# >>> ultimate-memory-stack >>>
+# Installer artifacts + the vendored package (regenerable). The user's
+# memory vault (the data) is intentionally left tracked — not ignored here.
+ultimate-memory-stack/
+.deployment-info
+.ums-manifest.json
+# <<< ultimate-memory-stack <<<
+GITIGNORE_EOF
+        echo "✓ .gitignore updated (package scaffold + install markers ignored; memory/ left tracked)"
+    fi
+fi
+
 # Update PROFILE.md with selected compliance preset
 if [ "$COMPLIANCE_PRESET" != "none" ]; then
     PROFILE_PATH="${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"

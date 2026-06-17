@@ -492,3 +492,49 @@ def test_fresh_nextsteps_neutral_when_standalone(tmp_path, capsys, monkeypatch):
     out = capsys.readouterr().out
     assert "Run: claude" not in out
     assert "your agent" in out.lower()
+
+
+# ===========================================================================
+# ensure_gitignore — append UMS ignore block in a git repo (idempotent)
+# ===========================================================================
+
+def test_gitignore_skipped_when_not_git_repo(tmp_path):
+    # No .git/ -> do nothing, create nothing.
+    assert mod.ensure_gitignore(tmp_path) is False
+    assert not (tmp_path / ".gitignore").exists()
+
+
+def test_gitignore_appended_when_git_repo(tmp_path):
+    (tmp_path / ".git").mkdir()
+    assert mod.ensure_gitignore(tmp_path) is True
+    gi = (tmp_path / ".gitignore").read_text(encoding="utf-8")
+    assert "ultimate-memory-stack/" in gi
+    assert ".deployment-info" in gi
+    assert ".ums-manifest.json" in gi
+
+
+def test_gitignore_does_not_ignore_memory(tmp_path):
+    # memory/ is the user's DATA — it must never be gitignored.
+    (tmp_path / ".git").mkdir()
+    mod.ensure_gitignore(tmp_path)
+    gi = (tmp_path / ".gitignore").read_text(encoding="utf-8")
+    assert "memory/" not in gi
+
+
+def test_gitignore_idempotent(tmp_path):
+    (tmp_path / ".git").mkdir()
+    assert mod.ensure_gitignore(tmp_path) is True
+    first = (tmp_path / ".gitignore").read_text(encoding="utf-8")
+    # Second run is a no-op (marker already present) — no duplicate block.
+    assert mod.ensure_gitignore(tmp_path) is False
+    assert (tmp_path / ".gitignore").read_text(encoding="utf-8") == first
+
+
+def test_gitignore_preserves_existing_lines(tmp_path):
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".gitignore").write_text("node_modules/\n*.log\n", encoding="utf-8")
+    mod.ensure_gitignore(tmp_path)
+    gi = (tmp_path / ".gitignore").read_text(encoding="utf-8")
+    assert "node_modules/" in gi
+    assert "*.log" in gi
+    assert "ultimate-memory-stack/" in gi

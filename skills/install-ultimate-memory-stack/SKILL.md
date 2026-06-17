@@ -84,7 +84,7 @@ If neither is found, this is a fresh install — proceed normally.
 
 ## Step 1 — Locate Source Package
 
-Ask the user for the location of the Ultimate Memory Stack source package:
+**First, try to auto-detect the source.** This `SKILL.md` ships inside the package, so the package root is two levels up from it (the directory containing `common-specs/` and `general-edition/`). If both `common-specs/` and `general-edition/` exist there, use that path as `SOURCE_PATH` **without prompting**. Only if auto-detection fails, ask the user:
 
 ```
 Where is the Ultimate Memory Stack source package located?
