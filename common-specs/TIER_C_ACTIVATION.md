@@ -1,4 +1,4 @@
-# Tier C Activation Guide — Ultimate Memory Stack v3.6.1
+# Tier C Activation Guide — Ultimate Memory Stack v3.6.2
 
 > **File:** `common-specs/TIER_C_ACTIVATION.md`
 > **Version:** 1.0 — 2026-05-19
