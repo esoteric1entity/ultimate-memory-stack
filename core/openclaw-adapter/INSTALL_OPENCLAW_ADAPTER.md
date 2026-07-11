@@ -129,8 +129,8 @@ Paste:
 
 ```cron
 # Ultimate Memory Stack — heartbeat compactor
-*/30 8-22 * * * cd <openclaw-root> && python .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
-0 0,6 0-7,23 * * cd <openclaw-root> && python .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
+*/30 8-22 * * * cd <openclaw-root> && python3 .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
+0 0,6 * * * cd <openclaw-root> && python3 .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
 ```
 
 ### Step 9 — Run T1-T9 self-test

@@ -66,7 +66,7 @@ Per MEMORY_PROTOCOL §7 standing rules:
 - **NEVER** SSN, credit card, financial account numbers
 - **NEVER** PII/PHI (patient data, MRN, specimen IDs, genomic identifiers)
 
-If you find any of the above in this file or any other memory file, treat it as a SCHEMA_quarantine event per MEMORY_PROTOCOL §5.3.
+If you find any of the above in this file or any other memory file, treat it as a SCHEMA_quarantine event per MEMORY_PROTOCOL_EXTENDED §E3.3.
 
 ---
 

@@ -52,7 +52,7 @@ Levels 5–8: an active `supersedes` chain wins; point-in-time queries return th
 
 ## 4. During-Session
 
-**Validation-on-read (B8):** every loaded entry — frontmatter parses, `schema_version` ≤ protocol's, refuse+flag `quarantined` status, flag (don't refuse) expired-but-active, verify signature if active, treat fresh `webfetch` entries as PRELIMINARY. Fail → biotech: quarantine+audit (§5); general: warn, need approval.
+**Validation-on-read (B8):** every loaded entry — frontmatter parses, `schema_version` ≤ protocol's, refuse+flag `quarantined` status, flag (don't refuse) expired-but-active, verify signature if active; `webfetch` entries with `last_validated < created_at + 1 day` are PRELIMINARY — orchestrator confirms before promotion. Fail → biotech: quarantine+audit (§5); general: warn, need approval.
 
 **Pattern-key promotion (B6):** `recurrence_count` ≥3 (biotech, auto-promote to `.claude/rules/`) / ≥5 (general, suggest to user) → DEC entry with source chain.
 
@@ -78,7 +78,7 @@ Levels 5–8: an active `supersedes` chain wins; point-in-time queries return th
 
 Override files (`<edition>/overrides/X.override.md`) replace same-named sections of `common-specs/X.md`; rest inherits. Precedence detail: EXTENDED §E4.1.
 
-Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `healthcare` (biotech-only, non-overridable) / `enterprise` (GDPR+SOC2) / `custom` (via `overrides/compliance-presets.override.md`). Logged to session_state.md every session. Activation table: EXTENDED §E4.2.
+Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `healthcare` (biotech-only, non-overridable) / `enterprise` (GDPR+SOC2) / `custom` (via user-authored `overrides/compliance.override.md`). Logged to session_state.md every session. Activation table: EXTENDED §E4.2.
 
 ---
 
@@ -142,7 +142,7 @@ Promote session_state.md's inline "Active Decisions" to `decisions.md` (DEC-### 
 
 ## 13. Schema Migration
 
-Older `schema_version` than protocol's → never silent-upgrade: ask the user, migrate additively (preserve content, sane defaults for new fields), log as a DEC entry, back up old file to `memory/archive/migrations/<file>.v<old-version>.md` first.
+Older `schema_version` than protocol's → never silent-upgrade: ask the user, migrate additively (preserve content; legacy defaults: EXTENDED §E11), log as a DEC entry, back up old file to `memory/archive/migrations/<file>.v<old-version>.md` first.
 
 ---
 

@@ -47,13 +47,16 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def _run_setup(working_dir, parented):
+def _run_setup(working_dir, parented, compliance="none", extensions=None):
     env = {k: v for k, v in os.environ.items() if k != "UMS_PARENT"}
     env["WORKING_DIR"] = str(working_dir)
     if parented:
         env["UMS_PARENT"] = "1"
+    args = [BASH, str(SETUP_SH), f"--compliance={compliance}", "--skip-wizard"]
+    if extensions:
+        args.append(f"--extensions={extensions}")
     return subprocess.run(
-        [BASH, str(SETUP_SH), "--compliance=none", "--skip-wizard"],
+        args,
         capture_output=True,
         text=True,
         encoding="utf-8",  # setup.sh emits UTF-8 glyphs; don't decode as the Windows cp1252 locale
@@ -78,3 +81,55 @@ def test_setup_sh_nextsteps_neutral_when_standalone(tmp_path):
     # Standalone prints next steps, harness-neutral — never the old Claude assumption.
     assert "Run: claude" not in r.stdout
     assert "your agent" in r.stdout.lower()
+
+
+def test_setup_sh_compliance_custom_refused_on_stock_tree(tmp_path):
+    # The complexity-floor gate must hold against the REAL shipped tree:
+    # overrides/compliance.override.md is user-authored and does NOT ship,
+    # so bare --compliance=custom is refused (documented footgun guard).
+    # Guards against pointing the gate at the always-shipped
+    # compliance-presets.override.md spec file, which would silently
+    # disable the gate.
+    r = _run_setup(tmp_path, parented=False, compliance="custom")
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "compliance.override.md" in r.stdout
+    assert not (tmp_path / ".deployment-info").exists()
+
+
+def test_setup_sh_extensions_written_to_profile(tmp_path):
+    # Regression: the Bash door echoed "Activating extensions" but never wrote
+    # them to PROFILE.md — parity gap vs setup.py's update_profile_extensions().
+    r = _run_setup(tmp_path, parented=False, compliance="enterprise", extensions="gdpr,soc2")
+    assert r.returncode == 0, r.stdout + r.stderr
+    profile = tmp_path / "ultimate-memory-stack" / "general-edition" / "PROFILE.md"
+    lines = profile.read_text(encoding="utf-8").splitlines()
+    assert "extensions:" in lines
+    idx = lines.index("extensions:")
+    assert lines[idx + 1] == "  - gdpr"
+    assert lines[idx + 2] == "  - soc2"
+    # Only the frontmatter compliance line gets the block — the unrelated
+    # "compliance: none # DEFAULT..." prose example later in the doc must
+    # NOT also get an extensions block appended after it.
+    assert lines.count("extensions:") == 1
+
+
+def test_setup_sh_no_extensions_leaves_profile_untouched(tmp_path):
+    r = _run_setup(tmp_path, parented=False, compliance="none")
+    assert r.returncode == 0, r.stdout + r.stderr
+    profile = tmp_path / "ultimate-memory-stack" / "general-edition" / "PROFILE.md"
+    assert "extensions:" not in profile.read_text(encoding="utf-8").splitlines()[:10]
+
+
+def test_setup_sh_clears_stale_deployment_info_before_failing_install(tmp_path):
+    # Regression: setup.py clears a stale .deployment-info completion
+    # certificate up-front (a crashed re-install must not leave a marker
+    # claiming a configured install); setup.sh didn't mirror this. Force a
+    # controlled failure AFTER the clear point via the pre-existing
+    # "common-specs already exists" nesting guard, and confirm the stale
+    # marker was removed despite the script then exiting with an error.
+    (tmp_path / ".deployment-info").write_text("stale: true\n", encoding="utf-8")
+    (tmp_path / "ultimate-memory-stack" / "common-specs").mkdir(parents=True)
+    r = _run_setup(tmp_path, parented=False)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "already exists" in r.stdout
+    assert not (tmp_path / ".deployment-info").exists()

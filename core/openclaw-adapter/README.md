@@ -97,7 +97,7 @@ Port the Ultimate Memory Stack v3.6.0 to the OpenClaw harness, enabling NAS-clas
 - Set up memory/ subdirectory tree mirroring v3.0/v3.5
 - Initialize empty audit_log.jsonl + quarantine_log.jsonl
 - Configure edition profile (general-edition; compliance: none / enterprise)
-- Install MEMORY_PROTOCOL §10.5 Option C Lint extensions
+- Install MEMORY_PROTOCOL_EXTENDED §E7 Option C Lint extensions
 - Install heartbeat_compactor.py + present cron entry to user
 - Run T1-T9 self-test post-install
 - Hand off to addon installer Skills (`/install-llmlingua` etc.)
@@ -123,6 +123,6 @@ Port the Ultimate Memory Stack v3.6.0 to the OpenClaw harness, enabling NAS-clas
 - MEMORY_PROTOCOL §1.2 (tier loading)
 - MEMORY_PROTOCOL §2 (Context Budget — adapter scales to 60K profile)
 - MEMORY_PROTOCOL §4.4 (heartbeat protocol — HEARTBEAT.md mapping)
-- MEMORY_PROTOCOL §10.5 (Lint operation — Option C extensions ship by default)
+- MEMORY_PROTOCOL_EXTENDED §E7 (Lint operation — Option C extensions ship by default)
 - MEMORY_PROTOCOL §17 (healthcare compliance — NOT activated for general-edition adapter)
 - SCHEMA_A18 v1.3 + v1.4 (file-level + PageRank fields)

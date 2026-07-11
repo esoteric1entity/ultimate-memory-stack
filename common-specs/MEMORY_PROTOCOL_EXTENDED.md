@@ -18,6 +18,7 @@
 - [E8. File Size Cap Enforcement Model](#e8-file-size-cap-enforcement-model) — error format, override mechanism, legacy handling
 - [E9. Decision Promotion — Rationale & Signal Sourcing](#e9-decision-promotion--rationale--signal-sourcing)
 - [E10. Status + Open Questions (historical)](#e10-status--open-questions-historical)
+- [E11. Schema Migration Detail](#e11-schema-migration-detail) — v2.0 → v3.0 legacy defaults, behind core §13
 
 ---
 
@@ -186,6 +187,8 @@ When a new entry supersedes an older one:
 
 **This is the Graphiti pattern**: contradictions don't delete history; they mark validity boundaries. Enables point-in-time queries (core §3 bi-temporal precedence).
 
+**Canonical point-in-time query predicate:** an entry is the answer for `query_time` iff `valid_at ≤ query_time AND (invalid_at IS NULL OR invalid_at > query_time)`. Boundary rule: an entry whose `invalid_at` equals `query_time` is already excluded.
+
 **Cross-machine extension (per `SCHEMA_sync_log.md`):** Supersession events that cross machine boundaries are captured in `memory/security/sync_log.jsonl` with `parent_event_id` linking the original `supersedes` event to its sync-related propagation. See `SCHEMA_sync_log.md` §6.4 for full cross-machine bi-temporal semantics. (Implementation is a future deliverable; the schema ships now.)
 
 ---
@@ -215,7 +218,7 @@ Active compliance preset (from PROFILE.md) selects detection patterns + redactio
 | `none` | No regulatory detection. Standard hygiene only (secrets, credentials). Lowest friction. |
 | `healthcare` | Full PHI detection (MRN, specimen IDs, accession numbers, genomic identifiers). Redact-on-sight. Audit log default ON. Biotech: non-overridable. |
 | `enterprise` | GDPR + SOC2 baseline — provenance + audit + consent tracking. Hard delete with recovery window. |
-| `custom` | Compliance is fully configured via `<edition>/overrides/compliance-presets.override.md` — fine-grained for power users. |
+| `custom` | Compliance is fully configured via `<edition>/overrides/compliance.override.md` (user-authored) — fine-grained for power users. |
 
 Active preset is **always logged** to session_state.md at session start.
 
@@ -593,3 +596,11 @@ Both editions accept Triggers A/B/C/D identically. The only edition difference i
 4. **Pattern-key promotion target** — auto-promote where? `.claude/rules/auto_rules.md`? Or DEC entries? Lean toward DEC entries with `source_agent: auto-promoted-from-pattern` and full provenance.
 5. **Compaction trigger threshold** — protocol says "near context limit"; should it be deterministic (e.g., ~85%)? Community-derived guidance suggests ~95%.
 6. **Edition mixing** — the `healthcare` preset is **NOT supported in general-edition**: the installer refuses it (general-edition presets are `none` / `enterprise` / `custom` only; `healthcare` is biotech-edition-reserved). General-edition deployments with regulatory needs use the `enterprise` or `custom` preset. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+
+---
+
+## E11. Schema Migration Detail
+
+*(Full detail behind core §13's additive-migration rule.)*
+
+**v2.0 → v3.0 specific:** Adds YAML frontmatter to entries lacking it; treats them as legacy with `confidence: FINAL`, `status: active`, `created_at: <file-mtime>`, `schema_version: "2.0"`. The migration procedure lives in the edition's `MIGRATION_v2_to_v3.md`.

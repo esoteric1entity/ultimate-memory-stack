@@ -186,7 +186,7 @@ If user later wants `healthcare` preset, that requires biotech-edition adapter (
 
 ---
 
-## Step 8 — Install MEMORY_PROTOCOL §10.5 Lint Checks (Option C)
+## Step 8 — Install MEMORY_PROTOCOL_EXTENDED §E7 Lint Checks (Option C)
 
 Per Option C, 5 new self-improvement Lint checks ship by default in v3.5. The adapter installs the Lint runner at `<openclaw-root>/.openclaw/lint/`:
 
@@ -217,8 +217,8 @@ If yes, present the cron entry:
 
 ```cron
 # Heartbeat compactor — runs every 30 min during active hours (08-22), every 6h overnight
-*/30 8-22 * * * cd <openclaw-root> && python .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
-0 0,6 0-7,23 * * cd <openclaw-root> && python .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
+*/30 8-22 * * * cd <openclaw-root> && python3 .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
+0 0,6 * * * cd <openclaw-root> && python3 .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
 ```
 
 **This Skill does NOT mutate crontab automatically** (security boundary). Present the cron entry to the user; they run `crontab -e` and paste it manually.
@@ -301,7 +301,7 @@ Next steps for you:
   1. Open OpenClaw on this machine — it should auto-load the 9 root files
   2. Verify the bootstrap doesn't exceed 60K (check OpenClaw startup log)
   3. Try a heartbeat: edit HEARTBEAT.md mid-session; verify it persists
-  4. Try the heartbeat compactor manually: python .openclaw/heartbeat_compactor.py
+  4. Try the heartbeat compactor manually: python3 .openclaw/heartbeat_compactor.py
   5. If cron wired up, watch .openclaw/lint/compactor.log for ~30 min
 
 Cross-machine validation:
@@ -328,7 +328,7 @@ For Sentinel-vetted addon installs:
 | 3 | Source templates | validate before write |
 | 4 | Generate 9 root files | modular consumer architecture validation |
 | 5 | Generate memory/ tree | MEMORY_PROTOCOL §1.2 |
-| 6 | Empty audit + quarantine | MEMORY_PROTOCOL §5.2 + §5.3 |
+| 6 | Empty audit + quarantine | MEMORY_PROTOCOL_EXTENDED §E3.2 + §E3.3 |
 | 7 | Edition profile | MEMORY_PROTOCOL §6 + B7 compliance preset |
 | 8 | Option C Lint install | Option C extension |
 | 9 | Heartbeat compactor cron | cross-harness convergence |

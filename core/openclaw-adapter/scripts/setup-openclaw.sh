@@ -312,7 +312,7 @@ if $WIRE_CRON; then
 
 # Ultimate Memory Stack — heartbeat compactor (active hours 08-22 + idle checkpoints)
 */30 8-22 * * * cd "$OPENCLAW_ROOT" && $PYTHON_CMD .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
-0 0,6 0-7,23 * * cd "$OPENCLAW_ROOT" && $PYTHON_CMD .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
+0 0,6 * * * cd "$OPENCLAW_ROOT" && $PYTHON_CMD .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
 
 EOF
     echo "============================================================"

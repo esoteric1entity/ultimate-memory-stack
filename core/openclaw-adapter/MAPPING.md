@@ -233,7 +233,7 @@ schema_version: "3.0"
 edition: general
 adapter_version: "1.0"
 last_compacted: <YYYY-MM-DD>  # populated by heartbeat_compactor.py
-content_sha256: <hex>          # populated at write time for CAS concurrency (MEMORY_PROTOCOL §5.1)
+content_sha256: <hex>          # populated at write time for CAS concurrency (MEMORY_PROTOCOL_EXTENDED §E3.1)
 ---
 ```
 

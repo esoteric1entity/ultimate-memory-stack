@@ -129,11 +129,6 @@ coverage.xml
 !vetting_log.md
 !audit_log.jsonl
 
-# --- Agent-shield specific (Python guards) ---
-agent_shield/__pycache__/
-tests/__pycache__/
-.pytest_cache/
-
 # --- Large generated files ---
 *.db
 *.sqlite

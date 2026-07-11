@@ -129,12 +129,15 @@ if [ -n "$EXTENSIONS" ]; then
     done
 fi
 
-# Custom preset complexity floor
+# Custom preset complexity floor — overrides/compliance.override.md is USER-AUTHORED
+# and does not ship with the package (SCHEMA_compliance_profile §4.4); this gate is
+# the documented footgun guard, NOT a check for the shipped compliance-presets file.
 if [ "$COMPLIANCE_PRESET" = "custom" ]; then
     if [ ! -f "${SCRIPT_DIR}/overrides/compliance.override.md" ]; then
         echo "✗ ERROR: 'custom' preset requires overrides/compliance.override.md"
-        echo "  The custom preset needs explicit configuration with ≥1 override."
-        echo "  Pick a base preset (none/enterprise) and add overrides."
+        echo "  The custom preset needs explicit configuration with ≥1 override — write that file first"
+        echo "  (see overrides/compliance-presets.override.md §5.4 for the pattern),"
+        echo "  or pick a base preset (none/enterprise) and add overrides."
         exit 1
     fi
 fi
@@ -251,6 +254,13 @@ echo "=========================================="
 # Detect Claude Code
 command -v claude &> /dev/null || echo "⚠️  Claude Code CLI not in PATH"
 
+# Clear any prior completion certificate up-front: a crashed re-install must not
+# leave a stale .deployment-info claiming a configured install. It is rewritten
+# at the very end on success only (parity with setup.py's stale_marker handling).
+if [ -f "${WORKING_DIR}/.deployment-info" ]; then
+    rm -f "${WORKING_DIR}/.deployment-info"
+fi
+
 # ============================================================
 # MIGRATION MODE
 # ============================================================
@@ -344,8 +354,8 @@ GITIGNORE_EOF
 fi
 
 # Update PROFILE.md with selected compliance preset
+PROFILE_PATH="${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"
 if [ "$COMPLIANCE_PRESET" != "none" ]; then
-    PROFILE_PATH="${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"
     if [[ "$OSTYPE" == "darwin"* ]]; then
         sed -i '' "s/^compliance: none$/compliance: ${COMPLIANCE_PRESET}/" "$PROFILE_PATH"
     else
@@ -353,11 +363,27 @@ if [ "$COMPLIANCE_PRESET" != "none" ]; then
     fi
 fi
 
-# Activate extensions
+# Activate extensions — write the `extensions:` block into PROFILE.md right after
+# the `compliance:` line, mirroring setup.py's update_profile_extensions() semantics
+# (sed insert instead of a Python re.sub, same insertion point, same list-item shape).
 if [ -n "$EXTENSIONS" ]; then
     echo "→ Activating extensions: ${EXTENSIONS}"
-    # Extensions are activated by being listed in PROFILE.md `extensions:` field
-    # Per MEMORY_PROTOCOL_EXTENDED.md §E4.2 application
+    # Anchored + restricted to a bare "compliance: <word>" line (no trailing
+    # comment) so this matches ONLY the frontmatter field, never the unrelated
+    # "compliance: none # DEFAULT..." prose example later in the doc body.
+    EXT_SED_SCRIPT="/^compliance: [a-zA-Z0-9_-]*\$/a\\
+extensions:"
+    IFS=',' read -ra EXT_ARRAY_WRITE <<< "$EXTENSIONS"
+    for ext in "${EXT_ARRAY_WRITE[@]}"; do
+        EXT_SED_SCRIPT="${EXT_SED_SCRIPT}\\
+  - ${ext}"
+    done
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "$EXT_SED_SCRIPT" "$PROFILE_PATH"
+    else
+        sed -i "$EXT_SED_SCRIPT" "$PROFILE_PATH"
+    fi
+    echo "✓ PROFILE.md: extensions block written"
 fi
 
 # ============================================================

@@ -232,8 +232,8 @@ def step_9_install_heartbeat_compactor(openclaw_root: Path, script_dir: Path, wi
         print("=" * 60)
         print(f"""
 # Ultimate Memory Stack — heartbeat compactor (active hours 08-22 + idle checkpoints)
-*/30 8-22 * * * cd "{openclaw_root}" && python .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
-0 0,6 0-7,23 * * cd "{openclaw_root}" && python .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
+*/30 8-22 * * * cd "{openclaw_root}" && python3 .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
+0 0,6 * * * cd "{openclaw_root}" && python3 .openclaw/heartbeat_compactor.py >> .openclaw/lint/compactor.log 2>&1
 """)
         print("=" * 60)
         print("Per SKILL.md Step 9: this script does NOT mutate crontab (security boundary).")

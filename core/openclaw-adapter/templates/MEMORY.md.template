@@ -8,7 +8,7 @@ schema_version: "3.0"
 edition: general
 adapter_version: "1.0"
 last_compacted: <!-- populated by heartbeat_compactor.py -->
-content_sha256: <!-- populated at write time per MEMORY_PROTOCOL §5.1 CAS -->
+content_sha256: <!-- populated at write time per MEMORY_PROTOCOL_EXTENDED §E3.1 CAS -->
 ---
 
 # Memory Index — Ultimate Memory Stack General Edition

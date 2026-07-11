@@ -11,8 +11,9 @@ Covers the PURE / decision logic of the General-Edition setup script:
   - verify_environment scaffold-present-but-MEMORY_INDEX-missing branch
   - change_preset refusal / invalid-preset / missing-PROFILE branches
 
-The full file-copy install (copytree) is treated as integration-covered; only
-its guard/refusal branches are exercised here.
+The full file-copy install (copytree) is exercised end-to-end by the
+setup_fresh real-tree/custom-preset tests below (against tmp_path working
+dirs); the remaining setup_fresh tests cover its guard/refusal branches.
 
 Module is stdlib-only and lives outside an importable package, so it is loaded
 by absolute path via importlib (NOT plain-imported).
@@ -356,7 +357,8 @@ def test_setup_fresh_invalid_preset_exits_1(tmp_path, capsys):
 
 
 def test_setup_fresh_custom_without_override_exits_1(tmp_path, capsys, monkeypatch):
-    # 'custom' is a valid preset but requires overrides/compliance.override.md.
+    # 'custom' is a valid preset but requires the USER-AUTHORED
+    # overrides/compliance.override.md (SCHEMA_compliance_profile §4.4).
     # Point SCRIPT_DIR at an empty tmp dir so the override file is absent.
     monkeypatch.setattr(mod, "SCRIPT_DIR", tmp_path)
     with pytest.raises(SystemExit) as exc:
@@ -364,6 +366,57 @@ def test_setup_fresh_custom_without_override_exits_1(tmp_path, capsys, monkeypat
     assert exc.value.code == 1
     out = capsys.readouterr().out
     assert "custom" in out and "override" in out.lower()
+
+
+def test_setup_fresh_custom_on_stock_tree_is_refused(tmp_path, capsys):
+    # The complexity-floor gate must hold against the REAL shipped tree:
+    # compliance.override.md is user-authored and does NOT ship, so `custom`
+    # with zero user configuration is refused (the documented footgun guard).
+    # Guards against re-introducing the misdiagnosed "fix" that pointed the
+    # gate at the always-shipped compliance-presets.override.md spec file,
+    # which would make bare `--compliance=custom` silently pass.
+    with pytest.raises(SystemExit) as exc:
+        mod.setup_fresh(tmp_path, "custom", [], _args())
+    assert exc.value.code == 1
+    out = capsys.readouterr().out
+    assert "compliance.override.md" in out
+    assert not (tmp_path / ".deployment-info").exists()
+
+
+def test_setup_fresh_custom_with_user_override_passes_gate(tmp_path, capsys, monkeypatch):
+    # With the user-authored file present, the gate opens and the install
+    # completes. Fake edition dir = overrides/compliance.override.md + a
+    # minimal PROFILE.md (needed by the compliance-update step downstream).
+    fake_edition = tmp_path / "fake-edition"
+    (fake_edition / "overrides").mkdir(parents=True)
+    (fake_edition / "overrides" / "compliance.override.md").write_text(
+        "---\ncompliance: custom\nbase_preset: enterprise\n---\n", encoding="utf-8"
+    )
+    (fake_edition / "PROFILE.md").write_text(SAMPLE_PROFILE, encoding="utf-8")
+    monkeypatch.setattr(mod, "SCRIPT_DIR", fake_edition)
+    working = tmp_path / "work"
+    working.mkdir()
+    mod.setup_fresh(working, "custom", [], _args())
+    out = capsys.readouterr().out
+    assert "ERROR" not in out
+    assert (working / ".deployment-info").exists()
+    assert "compliance_preset: custom" in (working / ".deployment-info").read_text()
+
+
+def test_setup_fresh_deployment_info_extensions_none_when_empty(tmp_path):
+    mod.setup_fresh(tmp_path, "none", [], _args())
+    text = (tmp_path / ".deployment-info").read_text(encoding="utf-8")
+    assert "extensions: none\n" in text
+
+
+def test_setup_fresh_deployment_info_extensions_comma_string_format(tmp_path):
+    # Regression: this used to emit Python list-repr ("['gdpr', 'soc2']"),
+    # diverging from setup.sh's shell-parseable comma-string format
+    # ("gdpr,soc2"). Both installers must now write the identical shape.
+    mod.setup_fresh(tmp_path, "enterprise", ["gdpr", "soc2"], _args())
+    text = (tmp_path / ".deployment-info").read_text(encoding="utf-8")
+    assert "extensions: gdpr,soc2\n" in text
+    assert "[" not in text and "]" not in text
 
 
 def test_setup_fresh_invalid_extension_exits_1(tmp_path, capsys):

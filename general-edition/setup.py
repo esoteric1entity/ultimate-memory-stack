@@ -224,12 +224,15 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
         print(f"  Valid: {VALID_PRESETS}")
         sys.exit(1)
 
-    # Custom preset complexity floor
+    # Custom preset complexity floor — overrides/compliance.override.md is USER-AUTHORED
+    # and does not ship with the package (SCHEMA_compliance_profile §4.4); this gate is
+    # the documented footgun guard, NOT a check for the shipped compliance-presets file.
     if compliance_preset == "custom":
         override_path = SCRIPT_DIR / "overrides" / "compliance.override.md"
         if not override_path.exists():
             print(f"✗ ERROR: 'custom' preset requires {override_path}")
-            print(f"  The 'custom' preset needs explicit configuration with ≥1 override.")
+            print(f"  The 'custom' preset needs explicit configuration with ≥1 override — write that file first")
+            print(f"  (see overrides/compliance-presets.override.md §5.4 for the pattern).")
             sys.exit(1)
 
     # Validate extensions
@@ -352,7 +355,7 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
         f"deployment_path: {working_dir}\n"
         f"edition: {EDITION}\n"
         f"compliance_preset: {compliance_preset}\n"
-        f"extensions: {extensions if extensions else '[]'}\n"
+        f"extensions: {','.join(extensions) if extensions else 'none'}\n"
         f"installed_at: {datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')}\n"
         f'stack_version: "{STACK_VERSION}"\n',
         encoding="utf-8",

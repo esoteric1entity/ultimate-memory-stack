@@ -110,7 +110,7 @@ Append DEC-### entry to `<working-dir>/memory/decisions/decisions.md` per the do
 
 ---
 
-## Optional: Wire Wiki-Links to Memory Protocol §4.3
+## Optional: Wire Wiki-Links to the Memory Protocol Wiki-Link Convention (EXTENDED §E2)
 
 Obsidian's `[[ID]]` syntax matches MEMORY_PROTOCOL_EXTENDED.md §E2 wiki-link sync convention. To enable two-way sync:
 
