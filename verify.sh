@@ -59,6 +59,31 @@ check_dir() {
 echo "[T1] Root files:"
 check_file ".claude/rules/memory_protocol.md"
 
+# Protocol CORE size guard — must stay under Claude Code's ~40,000-byte
+# auto-load recommendation (the whole point of the CORE/EXTENDED split).
+if [ -f "$WORKING_DIR/.claude/rules/memory_protocol.md" ]; then
+    PROTOCOL_SIZE=$(wc -c < "$WORKING_DIR/.claude/rules/memory_protocol.md" 2>/dev/null || echo 0)
+    if [ "$PROTOCOL_SIZE" -lt 40000 ]; then
+        echo "  ✓ .claude/rules/memory_protocol.md is ${PROTOCOL_SIZE} bytes (< 40,000-byte auto-load recommendation)"
+    else
+        echo "  ✗ .claude/rules/memory_protocol.md is ${PROTOCOL_SIZE} bytes — exceeds the 40,000-byte auto-load recommendation"
+        EXIT_CODE=1
+    fi
+fi
+
+# Regression guard: the on-demand EXTENDED reference must NEVER land under
+# .claude/rules/ — that would auto-load it every session and recreate the
+# eager-load bug the CORE/EXTENDED split exists to fix.
+if [ -d "$WORKING_DIR/.claude/rules" ]; then
+    EXTENDED_IN_RULES=$(find "$WORKING_DIR/.claude/rules" -maxdepth 1 -iname "*EXTENDED*" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "${EXTENDED_IN_RULES:-0}" -eq 0 ]; then
+        echo "  ✓ no EXTENDED protocol file under .claude/rules/ (correct — stays on-demand only)"
+    else
+        echo "  ✗ EXTENDED protocol file found under .claude/rules/ — recreates the eager-load bug; it belongs in memory/"
+        EXIT_CODE=1
+    fi
+fi
+
 echo
 echo "[T2] Memory directory structure:"
 check_dir "memory"
@@ -71,6 +96,7 @@ check_dir "memory/security"
 check_dir "memory/references"
 check_dir "memory/archive"
 check_dir "memory/quarantine"
+check_file "memory/MEMORY_PROTOCOL_EXTENDED.md"
 
 echo
 echo "[T3] Edition profile:"
@@ -119,7 +145,7 @@ for candidate in \
 done
 if [ -d "$COMMON_SPECS" ]; then
     echo "  ✓ common-specs/ at $COMMON_SPECS"
-    for f in MEMORY_PROTOCOL.md ARCHITECTURE.md SCHEMA_A18_per_entry_metadata.md; do
+    for f in MEMORY_PROTOCOL.md MEMORY_PROTOCOL_EXTENDED.md ARCHITECTURE.md SCHEMA_A18_per_entry_metadata.md; do
         if [ -f "$COMMON_SPECS/$f" ]; then
             echo "  ✓ common-specs/$f"
         else

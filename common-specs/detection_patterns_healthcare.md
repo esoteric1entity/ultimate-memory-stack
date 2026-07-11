@@ -205,7 +205,7 @@ When PHI is detected with CRITICAL severity:
 
 ## Integration points
 
-- **MEMORY_PROTOCOL.md §4.1** — Validation-on-read fires PHI detection
+- **MEMORY_PROTOCOL.md §4** — Validation-on-read fires PHI detection
 - **MEMORY_PROTOCOL.md §17** — Healthcare compliance profile (this preset is its detection set)
 - **SCHEMA_audit_log.md §4** — Detection events log as audit entries
 - **SCHEMA_quarantine.md §6** — `phi-detected` reason code

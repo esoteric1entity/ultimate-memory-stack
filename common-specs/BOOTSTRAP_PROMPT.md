@@ -1,7 +1,7 @@
 # Ultimate Memory Stack — Bootstrap Prompt
 
 > **File:** `common-specs/BOOTSTRAP_PROMPT.md`
-> **Status:** stable — ships with UMS v3.6.2, alongside the companion files (MEMORY_PROTOCOL.md + schemas)
+> **Status:** stable — ships with UMS v3.6.2, alongside the companion files (MEMORY_PROTOCOL.md + MEMORY_PROTOCOL_EXTENDED.md + schemas)
 > **Authors:** see /AUTHORS.md
 >
 > Version history lives in [`CHANGELOG.md`](../CHANGELOG.md).
@@ -123,6 +123,7 @@ Confirm or create the following structure (this is the common spec; edition prof
   rules/
     memory_protocol.md           ← Auto-loaded each session (copy from common-specs/MEMORY_PROTOCOL.md)
 memory/
+  MEMORY_PROTOCOL_EXTENDED.md    ← On-demand reference (never auto-loaded — see .claude/rules/ above)
   MEMORY_INDEX.md                ← Master registry (per common-specs/MEMORY_PROTOCOL.md §Index)
   sessions/
     session_state.md             ← Lifeline file (per SCHEMA_A18 entry format)
@@ -160,7 +161,7 @@ ultimate-memory-stack/           ← The spec itself, read-mostly during operati
 
 Read `common-specs/MEMORY_PROTOCOL.md`. It contains the operational rules: when to load files (Tier 1/2/3), context budget, conflict resolution hierarchy, file size limits, standing rules, risk scoring, cascade failure detection, self-test suite. Do not duplicate that file's content here — load it and follow it.
 
-Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code auto-loads it each session. (OpenClaw and other harnesses register the protocol via their own rules/bootstrap mechanism — see `INSTALL_AGENT.md` and `core/openclaw-adapter/`.)
+Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code auto-loads it each session. Also copy `MEMORY_PROTOCOL_EXTENDED.md` to `memory/MEMORY_PROTOCOL_EXTENDED.md` — on-demand reference detail, **never** `.claude/rules/` (that would auto-load it every session and recreate the eager-load cost the CORE/EXTENDED split fixes). (OpenClaw and other harnesses register the protocol via their own rules/bootstrap mechanism — see `INSTALL_AGENT.md` and `core/openclaw-adapter/`.)
 
 ---
 
@@ -373,7 +374,8 @@ Tracked for future refinement, not resolved in this bootstrap:
 
 **Stable — ships with UMS v3.6.2.** The companion files carry the detail this bootstrap references:
 - ARCHITECTURE.md — Layer 0–6 details + tier markers
-- MEMORY_PROTOCOL.md — Tier 1/2/3 loading + conflict resolution + self-test
+- MEMORY_PROTOCOL.md — Tier 1/2/3 loading + conflict resolution + self-test (CORE, auto-loaded)
+- MEMORY_PROTOCOL_EXTENDED.md — full rationale, tables, and mechanics behind the CORE rules (on-demand, never auto-loaded)
 - The runtime schemas — entry formats, audit log, quarantine, compliance profiles
 - templates/ — instantiation examples
 

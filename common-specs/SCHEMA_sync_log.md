@@ -26,7 +26,7 @@ Define the JSONL format for `memory/security/sync_log.jsonl` — the append-only
 
 Memory entries written on one machine must propagate to others without conflicting writes corrupting state. The sync log provides:
 1. **Provenance** — which machine originated each change
-2. **Conflict detection** — content_sha256 hashing per MEMORY_PROTOCOL §5.1 CAS pattern
+2. **Conflict detection** — content_sha256 hashing per MEMORY_PROTOCOL_EXTENDED.md §E3.1 CAS pattern
 3. **Audit trail** — append-only JSONL matching `audit_log.jsonl` pattern
 4. **Resumability** — sync state survives across sessions / machine restarts
 5. **Bi-temporal compatibility** — supports MEMORY_PROTOCOL §3 B5 supersession semantics
@@ -37,7 +37,7 @@ Memory entries written on one machine must propagate to others without conflicti
 
 1. **Per our ideal-first principle:** JSONL append-only matches `audit_log.jsonl` + `quarantine_log.jsonl` + `lint_runs.jsonl` — same operational pattern across all security logs
 2. **Per the mirror-discipline pattern:** schema designed to detect drift between machines via content_sha256 hashing
-3. **Per MEMORY_PROTOCOL §5.1 CAS:** `content_sha256_before` + `content_sha256_after` fields enable concurrent-write detection (sync conflict detection is a generalization of single-machine CAS)
+3. **Per MEMORY_PROTOCOL_EXTENDED.md §E3.1 CAS:** `content_sha256_before` + `content_sha256_after` fields enable concurrent-write detection (sync conflict detection is a generalization of single-machine CAS)
 4. **Per MEMORY_PROTOCOL §3 B5 bi-temporal:** schema supports `valid_at` semantics so superseded entries carry sync history without losing temporal validity
 5. **Per the modular consumer architecture:** schema is harness-agnostic — works for Claude Code ↔ OpenClaw sync just as well as Claude Code ↔ Claude Code sync
 6. **Per the cross-harness convergence pattern:** schema interoperates with OpenClaw deployments' existing sync conventions (if and when implemented)
@@ -226,7 +226,7 @@ Before any `push`, the source machine reads the target's current `content_sha256
 - SCHEMA_A18 v1.3 + v1.4 (per-entry frontmatter — sync events reference entry IDs)
 - A Phase 4+ multi-machine-sync implementation design note (not yet published)
 - MEMORY_PROTOCOL §3 B5 (bi-temporal precedence)
-- MEMORY_PROTOCOL §5.1 (CAS concurrency)
-- MEMORY_PROTOCOL §5.2 (audit_log format — pattern this schema mirrors)
+- MEMORY_PROTOCOL_EXTENDED.md §E3.1 (CAS concurrency)
+- MEMORY_PROTOCOL_EXTENDED.md §E3.2 (audit_log format — pattern this schema mirrors)
 - MEMORY_PROTOCOL §11 (file size limits + rotation policy)
 - `audit_log.jsonl` canonical format (canonical — compact JSON, second-precision)

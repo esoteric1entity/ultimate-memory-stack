@@ -25,10 +25,10 @@
 | OpenClaw adapter | `/install-openclaw-adapter` | Deploying to OpenClaw harness |
 
 **v3.5 retrofits to MEMORY_PROTOCOL.md are AUTOMATIC** — included in base stack v3.5:
-- Context Rot mitigation (§2.5 — Tier 1 pinned start AND end)
-- Option C self-improvement Lint checks (§10.5 — 5 new checks)
-- Hard-cap enforcement (§11.5 — file size limits now enforced)
-- PageRank promotion (§12.3 — 4-trigger logic)
+- Context Rot mitigation (EXTENDED §E1 — Tier 1 pinned start AND end)
+- Option C self-improvement Lint checks (EXTENDED §E7 — 5 new checks)
+- Hard-cap enforcement (§11 / EXTENDED §E8 — file size limits now enforced)
+- PageRank promotion (§12 / EXTENDED §E9 — 4-trigger logic)
 
 ---
 

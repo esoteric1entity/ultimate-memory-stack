@@ -354,7 +354,7 @@ def compute_content_sha256(file_text: str) -> str:
 
 **Backwards compat:** Prior implementations that did NOT lstrip will have legacy hashes. New writes should use the canonical form; existing hashes are NOT re-computed (would invalidate audit trails). Future validation: compute both forms and accept either during migration window.
 
-**Cross-reference:** MEMORY_PROTOCOL §5.1 (CAS-Style Concurrency) uses this same normalization for write-time hash comparison.
+**Cross-reference:** MEMORY_PROTOCOL_EXTENDED.md §E3.1 (CAS-Style Concurrency) uses this same normalization for write-time hash comparison.
 
 ### Bi-temporal fields (B5 — biotech enforced, general available)
 
@@ -547,7 +547,7 @@ tags: [daily-log, session-record]
 **No migration required.** All existing v3.0 entries are implicitly `scope: entry`. Adding the `scope:` field to existing entries is OPTIONAL and additive.
 
 **Runtime behavior:**
-- Validation-on-read (MEMORY_PROTOCOL §4.1) accepts both old (no `scope`) and new (explicit `scope`) frontmatter
+- Validation-on-read (MEMORY_PROTOCOL §4) accepts both old (no `scope`) and new (explicit `scope`) frontmatter
 - Older parsers ignore unknown fields per YAML spec
 - Schema version stays at `"3.0"` (this is the protocol version, not the document version)
 

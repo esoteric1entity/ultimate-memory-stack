@@ -224,11 +224,17 @@ if ($Minimal) {
 # ---------- harness registration ----------
 $RegNote = "none"
 $protocolSrc = Join-Path $Target "ultimate-memory-stack\common-specs\MEMORY_PROTOCOL.md"
+$protocolExtendedSrc = Join-Path $Target "ultimate-memory-stack\common-specs\MEMORY_PROTOCOL_EXTENDED.md"
 if (Test-Path $protocolSrc) {
     $rulesDir = Join-Path $Target ".claude\rules"
     New-Item -ItemType Directory -Force -Path $rulesDir | Out-Null
     Copy-Item -Path $protocolSrc -Destination (Join-Path $rulesDir "memory_protocol.md") -Force
     $RegNote = ".claude/rules/memory_protocol.md"
+}
+if (Test-Path $protocolExtendedSrc) {
+    $memoryDir = Join-Path $Target "memory"
+    New-Item -ItemType Directory -Force -Path $memoryDir | Out-Null
+    Copy-Item -Path $protocolExtendedSrc -Destination (Join-Path $memoryDir "MEMORY_PROTOCOL_EXTENDED.md") -Force
 }
 
 # ---------- install manifest ----------

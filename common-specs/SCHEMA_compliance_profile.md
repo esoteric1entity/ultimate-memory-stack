@@ -2,7 +2,7 @@
 
 > **File:** `common-specs/SCHEMA_compliance_profile.md`
 > **Version:** 1.0 — stable
-> **Status:** stable — cross-validated against MEMORY_PROTOCOL.md §6.2 + §17
+> **Status:** stable — cross-validated against MEMORY_PROTOCOL_EXTENDED.md §E4.2 + MEMORY_PROTOCOL.md §17
 > **Authors:** see /AUTHORS.md
 
 
@@ -425,7 +425,7 @@ Migration is logged to audit log per `SCHEMA_audit_log.md` §4 (action: `migrate
 ## 12. Cross-References
 
 - **Design basis:** the B7 3-preset hybrid (load-bearing decision)
-- **Protocol integration:** `MEMORY_PROTOCOL.md` §6.2 (compliance preset application), §17 (Healthcare Compliance Profile activation when `compliance: healthcare`)
+- **Protocol integration:** `MEMORY_PROTOCOL_EXTENDED.md` §E4.2 (compliance preset application), `MEMORY_PROTOCOL.md` §17 (Healthcare Compliance Profile activation when `compliance: healthcare`)
 - **Audit log integration:** `SCHEMA_audit_log.md` (preset changes logged; PHI/PII detection events logged)
 - **Quarantine integration:** `SCHEMA_quarantine.md` (preset-specific reason codes; PHI/PII detection triggers quarantine in healthcare/enterprise presets)
 - **Detection patterns:** `common-specs/detection_patterns_none.md`, `_healthcare.md`, `_enterprise.md`

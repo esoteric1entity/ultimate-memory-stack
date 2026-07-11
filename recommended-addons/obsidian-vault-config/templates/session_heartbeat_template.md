@@ -5,7 +5,7 @@ last_updated: {{date}}
 source_agent: orchestrator
 schema_version: "3.0"
 schema: A18
-purpose: "Heartbeat section to paste INTO memory/sessions/session_state.md every ~30 min per MEMORY_PROTOCOL §4.4"
+purpose: "Heartbeat section to paste INTO memory/sessions/session_state.md every ~30 min per MEMORY_PROTOCOL §4"
 template_type: section-insert (NOT standalone document; paste this block into session_state.md)
 ---
 
@@ -37,7 +37,7 @@ template_type: section-insert (NOT standalone document; paste this block into se
 ---
 
 > **Template author note (DELETE before saving):**
-> Per MEMORY_PROTOCOL §4.4 heartbeat protocol: update `session_state.md` every ~30 min of active work (or before any `/compact` invocation). Prevents context loss if session ends unexpectedly (laptop lid close, browser crash, mid-task compaction).
+> Per MEMORY_PROTOCOL §4 heartbeat protocol: update `session_state.md` every ~30 min of active work (or before any `/compact` invocation). Prevents context loss if session ends unexpectedly (laptop lid close, browser crash, mid-task compaction).
 >
 > **Compaction safety per §15:**
 > After compaction, the next session reads this heartbeat first. Be SPECIFIC — vague heartbeats are useless after context loss. Say exactly what file, function, line, issue.

@@ -1,6 +1,6 @@
 ---
 name: audit-quarantine
-description: Interactive review workflow for quarantined memory entries. Lists entries quarantined per MEMORY_PROTOCOL §5.3 validation-on-read failures, presents each for review (approve/reject/defer), batch-processes user decisions, and logs all actions to audit_log.jsonl. Use when the user asks to review quarantine, audit memory hygiene, or process quarantined entries.
+description: Interactive review workflow for quarantined memory entries. Lists entries quarantined per MEMORY_PROTOCOL_EXTENDED.md §E3.3 validation-on-read failures, presents each for review (approve/reject/defer), batch-processes user decisions, and logs all actions to audit_log.jsonl. Use when the user asks to review quarantine, audit memory hygiene, or process quarantined entries.
 version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["ideal-first design", "documentation discipline", "quarantine UX (biotech workflow vs general toast)", "Tier C designed-in framework", "Option C extension"]
@@ -10,14 +10,14 @@ license: Apache-2.0
 edition_behavior:
   biotech: full review workflow with batch ops; entries cannot be released without explicit user approval (per B2 quarantine UX)
   general: same review workflow OR toast-only notification at session start (user preference)
-references_protocol: MEMORY_PROTOCOL §5.3 (Quarantine Routing) — implements the review side of §5.3 workflow
+references_protocol: MEMORY_PROTOCOL_EXTENDED.md §E3.3 (Quarantine Routing) — implements the review side of EXTENDED §E3.3 workflow
 ---
 
 # Audit Quarantine — Skill Workflow
 
 When this Skill is invoked (typically via `/audit-quarantine` slash command or when the user asks to review quarantined entries), execute the workflow below **IN ORDER**.
 
-This Skill implements the **review side** of MEMORY_PROTOCOL §5.3 Quarantine Routing — §5.3 captures HOW entries enter quarantine; this Skill is HOW they exit.
+This Skill implements the **review side** of MEMORY_PROTOCOL_EXTENDED.md §E3.3 Quarantine Routing — EXTENDED §E3.3 captures HOW entries enter quarantine; this Skill is HOW they exit.
 
 ---
 
@@ -32,11 +32,11 @@ This will:
   - Log all actions to memory/security/audit_log.jsonl
   - Update memory/quarantine/quarantine_log.jsonl with resolution outcomes
 
-Quarantine entries arrive here per MEMORY_PROTOCOL §5.3:
-  - Validation-on-read failures (per §4.1)
+Quarantine entries arrive here per MEMORY_PROTOCOL_EXTENDED.md §E3.3:
+  - Validation-on-read failures (per §4)
   - Signature verification failures (Tier C C4)
   - PHI detection in non-biotech entries (per §17)
-  - Lint HIGH/CRITICAL findings (per §10.5 Option C checks)
+  - Lint HIGH/CRITICAL findings (per EXTENDED §E7 Option C checks)
 
 Continue? [Y/n]:
 ```
@@ -127,7 +127,7 @@ mv <working-dir>/memory/quarantine/<category>/<entry-id>.md <working-dir>/memory
 # Write updated entry back
 ```
 
-Per MEMORY_PROTOCOL §5.4 bi-temporal supersession — APPROVED entries get:
+Per MEMORY_PROTOCOL_EXTENDED.md §E3.4 bi-temporal supersession — APPROVED entries get:
 - `status: active` (was `quarantined`)
 - `last_updated: <today>` (preserves history)
 - `quarantine_reason:` field stays as audit trail
@@ -244,10 +244,10 @@ If yes, draft a DEC-### entry with full documentation discipline (all 5 elements
 | Step | Action | Decision authority |
 |---|---|---|
 | 0 | Intent confirmation | documentation discipline |
-| 1 | Load quarantined entries | MEMORY_PROTOCOL §5.3 |
+| 1 | Load quarantined entries | MEMORY_PROTOCOL_EXTENDED.md §E3.3 |
 | 2 | Read quarantine log | auditability principle |
 | 3 | Interactive review | B2 (workflow UX) |
-| 4 | Apply approvals | MEMORY_PROTOCOL §5.4 (bi-temporal supersession) |
+| 4 | Apply approvals | MEMORY_PROTOCOL_EXTENDED.md §E3.4 (bi-temporal supersession) |
 | 5 | Apply rejections | preserve provenance even on delete |
 | 6 | Update quarantine_log | canonical JSONL format |
 | 7 | Update audit_log | auditability principle + B1 |
@@ -258,7 +258,7 @@ If yes, draft a DEC-### entry with full documentation discipline (all 5 elements
 
 ## What This Skill CANNOT Do
 
-- **Cannot quarantine new entries** — that's MEMORY_PROTOCOL §5.3 (write-side); this Skill is review-side only
+- **Cannot quarantine new entries** — that's MEMORY_PROTOCOL_EXTENDED.md §E3.3 (write-side); this Skill is review-side only
 - **Cannot validate entry safety after approval** — user judgment is required; Sentinel re-vetting is a separate manual step if user wants additional verification
 - **Cannot auto-resolve conflicts** — every approval/rejection is an explicit user decision per the surface-only philosophy shared with Lint
 - **Cannot rotate audit_log.jsonl** — that's per MEMORY_PROTOCOL §11 file size limits; this Skill only APPENDS

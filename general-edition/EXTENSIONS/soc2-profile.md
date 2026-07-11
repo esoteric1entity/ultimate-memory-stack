@@ -111,6 +111,6 @@ Recommended workflow:
 
 - `../../common-specs/SCHEMA_audit_log.md` (audit log structure)
 - `../../common-specs/SCHEMA_compliance_profile.md` §5.3 (enterprise preset)
-- `../../common-specs/MEMORY_PROTOCOL.md` §5.2 (audit log writes)
+- `../../common-specs/MEMORY_PROTOCOL_EXTENDED.md` §E3.2 (audit log writes)
 - B1 audit log design
 - AICPA SOC2 Trust Services Criteria (TSC)

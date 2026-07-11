@@ -14,12 +14,12 @@
 | Aspect | General behavior | Cross-ref |
 |---|---|---|
 | **Compliance preset** | `none` (default), `enterprise`, or `custom` | `<edition>/PROFILE.md` |
-| **Audit log (§5.2)** | OPT-IN (default OFF) — set `audit_log: true` in PROFILE.md to enable | B1 |
-| **Quarantine UX (§5.3)** | Toast at session start: "X entries quarantined — review?"; full workflow Skill available | Skill at `core/audit-quarantine-skill/` |
-| **Pattern-key recurrence (§4.2)** | Threshold = 5 (less strict than biotech) | B6 |
+| **Audit log (EXTENDED §E3.2)** | OPT-IN (default OFF) — set `audit_log: true` in PROFILE.md to enable | B1 |
+| **Quarantine UX (EXTENDED §E3.3)** | Toast at session start: "X entries quarantined — review?"; full workflow Skill available | Skill at `core/audit-quarantine-skill/` |
+| **Pattern-key recurrence (§4)** | Threshold = 5 (less strict than biotech) | B6 |
 | **Cryptographic signatures (C4)** | HMAC available (T3+, opt-in) | C4 |
-| **Lint findings (§10.5)** | Surface as suggestions; non-blocking | §10.5 |
-| **Doc completeness check (Lint #10)** | MEDIUM severity (vs biotech CRITICAL) | §10.5 |
+| **Lint findings (EXTENDED §E7)** | Surface as suggestions; non-blocking | EXTENDED §E7 |
+| **Doc completeness check (Lint #10)** | MEDIUM severity (vs biotech CRITICAL) | EXTENDED §E7 |
 
 **General-edition components (all 6 supported):**
 

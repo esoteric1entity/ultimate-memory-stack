@@ -2,7 +2,7 @@
 
 > **File:** `common-specs/SCHEMA_audit_log.md`
 > **Version:** 1.0 — stable
-> **Status:** stable — cross-validated against MEMORY_PROTOCOL.md §5.2
+> **Status:** stable — cross-validated against MEMORY_PROTOCOL_EXTENDED.md §E3.2
 > **Authors:** see /AUTHORS.md
 
 
@@ -267,7 +267,7 @@ This sets the "audit trail begins here" anchor for forensic investigations.
 ## 10. Cross-References
 
 - **Design basis:** B1 audit log (per-edition policy: required for healthcare-locked editions, opt-in for general)
-- **Protocol integration:** `MEMORY_PROTOCOL.md` §5.2 (when to write to audit log) + §4.1 (validation-on-read triggers audit entries)
+- **Protocol integration:** `MEMORY_PROTOCOL_EXTENDED.md` §E3.2 (when to write to audit log) + `MEMORY_PROTOCOL.md` §4 (validation-on-read triggers audit entries)
 - **Quarantine integration:** `SCHEMA_quarantine.md` (quarantine events log to audit log)
 - **Compliance integration:** `SCHEMA_compliance_profile.md` §audit-defaults (preset-specific audit policy)
 - **Cryptographic integration:** C4 (Layer 6 signatures sign audit entries when active at T3)

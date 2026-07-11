@@ -2,7 +2,7 @@
 
 > **Purpose:** Scaffolding for `memory/feedback/feedback.md`. Holds explicit user corrections that should permanently change behavior. Recurring patterns auto-promote to standing rules per B6.
 > **Schema:** v3.0 (per SCHEMA_A18)
-> **Companion:** MEMORY_PROTOCOL.md §4.2 (pattern-key promotion), SCHEMA_A18 §Feedback-specific-additional-fields
+> **Companion:** MEMORY_PROTOCOL.md §4 (pattern-key promotion), SCHEMA_A18 §Feedback-specific-additional-fields
 
 ---
 
@@ -77,7 +77,7 @@ tags: [formatting, ux, promoted-to-standing-rule]
 **Behavior to change:** Default to `| col | col |\n|-----|-----|` for ALL tables.
 **Reasoning:** Renders in markdown viewers; ASCII tables don't.
 **Apply to:** All output, all contexts.
-**Promotion:** This pattern hit threshold (recurrence_count=3 for biotech, ≥5 general). Auto-promoted to standing rule in `.claude/rules/auto_rules.md` per MEMORY_PROTOCOL.md §4.2.
+**Promotion:** This pattern hit threshold (recurrence_count=3 for biotech, ≥5 general). Auto-promoted to standing rule in `.claude/rules/auto_rules.md` per MEMORY_PROTOCOL.md §4.
 ```
 
 When promoted, a corresponding DEC entry captures the source feedback chain (provenance):
@@ -103,6 +103,6 @@ tags: [standing-rule, auto-promoted, formatting]
 
 ## Cross-references
 
-- `MEMORY_PROTOCOL.md` §4.2 (pattern-key promotion), §11 (size limits)
+- `MEMORY_PROTOCOL.md` §4 (pattern-key promotion), §11 (size limits)
 - `SCHEMA_A18` §Feedback-specific-additional-fields
 - `DEC-012` (example: the decision this feedback relates to)

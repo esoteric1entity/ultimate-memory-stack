@@ -86,7 +86,10 @@ layout as the script door — `verify.sh` passes on the result. (`memory/` is
 3. **Claude Code:** copy
    `ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md` to
    `<YOUR_WORKSPACE>/.claude/rules/memory_protocol.md` so the protocol
-   auto-loads. *(OpenClaw: use the adapter — `core/openclaw-adapter/QUICKSTART.md`.
+   auto-loads. Also copy `ultimate-memory-stack/common-specs/MEMORY_PROTOCOL_EXTENDED.md`
+   to `<YOUR_WORKSPACE>/memory/MEMORY_PROTOCOL_EXTENDED.md` — an on-demand
+   reference, **not** `.claude/rules/` (that would auto-load it every session).
+   *(OpenClaw: use the adapter — `core/openclaw-adapter/QUICKSTART.md`.
    Other harnesses: reference the protocol from your `AGENTS.md`.)*
 4. **Optional addons (Claude Code):** for each addon you want, copy its
    `SKILL.md` to `.claude/skills/<name>/SKILL.md`, where `<name>` is the

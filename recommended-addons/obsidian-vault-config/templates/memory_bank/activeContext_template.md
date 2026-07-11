@@ -76,5 +76,5 @@ _Items in this file older than 5 sessions; consider rotating to `progress.md`._
 ---
 
 > **Template author note (DELETE before saving):**
-> Per SCHEMA_A3 #3: this is the MOST DYNAMIC of the 6 memory_bank files. Update at heartbeat cadence (~30 min during active sessions per MEMORY_PROTOCOL §4.4).
+> Per SCHEMA_A3 #3: this is the MOST DYNAMIC of the 6 memory_bank files. Update at heartbeat cadence (~30 min during active sessions per MEMORY_PROTOCOL §4).
 > Size discipline: per MEMORY_PROTOCOL §11, target ≤200 lines. Rotate older entries to `progress.md` frequently.

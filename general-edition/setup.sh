@@ -303,6 +303,9 @@ chmod 644 "${WORKING_DIR}/.claude/rules/memory_protocol.md"  # normalize permiss
 # Initialize memory/ directories
 mkdir -p "${WORKING_DIR}/memory/"{sessions,decisions,feedback,projects,security,references,user,archive,quarantine}
 
+# Extended protocol reference — on-demand only, vault root, NEVER .claude/rules/ (would recreate eager-load cost)
+cp "${COMMON_SPECS_DIR}/MEMORY_PROTOCOL_EXTENDED.md" "${WORKING_DIR}/memory/MEMORY_PROTOCOL_EXTENDED.md"
+
 # Initialize audit log based on preset
 case "$COMPLIANCE_PRESET" in
     none)
@@ -354,7 +357,7 @@ fi
 if [ -n "$EXTENSIONS" ]; then
     echo "→ Activating extensions: ${EXTENSIONS}"
     # Extensions are activated by being listed in PROFILE.md `extensions:` field
-    # Per MEMORY_PROTOCOL.md §6.2 application
+    # Per MEMORY_PROTOCOL_EXTENDED.md §E4.2 application
 fi
 
 # ============================================================

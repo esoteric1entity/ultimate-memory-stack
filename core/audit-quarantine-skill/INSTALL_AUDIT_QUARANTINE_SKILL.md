@@ -2,7 +2,7 @@
 
 > **Companion to:** `SKILL.md` (Claude-executable workflow) — same logic, runnable by hand
 > **Use this when:** Claude Code Skills unavailable, scripting from CI, or you want full manual control
-> **Authority:** MEMORY_PROTOCOL §5.3 (Quarantine Routing)
+> **Authority:** MEMORY_PROTOCOL_EXTENDED.md §E3.3 (Quarantine Routing)
 > **Companion script:** `scripts/review_quarantined.py`
 
 ---
@@ -156,7 +156,7 @@ python review_quarantined.py <working-dir> --action DEFER --reason "Pending Sent
 
 ### "I approved an entry but want to revoke it"
 
-Approval is reversible per MEMORY_PROTOCOL §5.4 bi-temporal supersession:
+Approval is reversible per MEMORY_PROTOCOL_EXTENDED.md §E3.4 bi-temporal supersession:
 
 1. Re-quarantine the entry (write `status: quarantined` to frontmatter; move file back)
 2. Log the action in audit_log.jsonl with action: `re-quarantine`
@@ -193,6 +193,6 @@ wc -l <working-dir>/memory/security/audit_log.jsonl
 - `SKILL.md` — Claude-executable workflow source
 - `README.md` — addon-level overview + documentation discipline
 - `scripts/review_quarantined.py` — standalone Python entry point
-- MEMORY_PROTOCOL §5.3 (Quarantine Routing — write-side)
-- MEMORY_PROTOCOL §5.4 (bi-temporal supersession on resolution)
+- MEMORY_PROTOCOL_EXTENDED.md §E3.3 (Quarantine Routing — write-side)
+- MEMORY_PROTOCOL_EXTENDED.md §E3.4 (bi-temporal supersession on resolution)
 - `audit_log.jsonl` canonical format

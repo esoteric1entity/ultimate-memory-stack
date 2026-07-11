@@ -1,6 +1,6 @@
 ---
 name: install-ultimate-memory-stack
-version: "1.4"
+version: "1.5"
 description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
@@ -264,6 +264,8 @@ cp "<STACK_DIR>/common-specs/MEMORY_PROTOCOL.md" "<CLAUDE_RULES_DIR>/memory_prot
 
 Report: "✓ memory_protocol.md installed to .claude/rules/ (auto-loads each session)"
 
+**Upgrade-path check:** if the target project's `CLAUDE.md` contains an old at-sign import line pointing at the protocol file, warn the user to remove it — the `.claude/rules/` copy above already auto-loads it, so the old import double-loads the same content. Do NOT auto-edit the user's CLAUDE.md; warn only.
+
 ### 7d. Initialize memory/ directory structure
 
 ```bash
@@ -279,6 +281,14 @@ mkdir -p "<MEMORY_DIR>/quarantine"
 ```
 
 Report: "✓ memory/ directory structure initialized (9 subdirs)"
+
+Then install the on-demand extended protocol reference to the vault root — **never** to `.claude/rules/` (that would auto-load it every session and recreate the eager-load cost the CORE/EXTENDED split exists to fix):
+
+```bash
+cp "<STACK_DIR>/common-specs/MEMORY_PROTOCOL_EXTENDED.md" "<MEMORY_DIR>/MEMORY_PROTOCOL_EXTENDED.md"
+```
+
+Report: "✓ MEMORY_PROTOCOL_EXTENDED.md installed to memory/ (on-demand reference, not auto-loaded)"
 
 ### 7e. Initialize audit log + quarantine log (preset-dependent)
 
@@ -495,6 +505,7 @@ If any step fails:
 | 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public biotech-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare/biotech with "institutional edition only"). Deleted the dead biotech branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). |
 | 1.3 | 2026-06-16 | **Data-safety hardening + Door-3 alignment (v3.6.1).** Added a Step 0 guard refusing installs into `$HOME` / system directories (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`). Made the Step 0.5 PRESERVE guard explicit in Step 8 (per-file `[ -e ]` existence check before any Write; never overwrite user data) + a Step 7f note to confirm before resetting a user-customized `PROFILE.md`. No behavior change for fresh installs. |
 | 1.4 | 2026-06-16 | **Step-0 guard hardening + harness-agnostic wording (v3.6.2).** Canonicalised the Step-0 unsafe-location guard with `pwd -P` so a path that resolves into `$HOME` / a system directory via a symlink is also refused (previously only the literal `$PWD` was matched). Clarified Step 7e (the initialization entry is appended only when the audit log was created — enterprise/custom; skipped for preset `none`). Reframed the skill as one door among several (script / agent / Claude Code skill / manual). No behavior change for fresh installs. |
+| 1.5 | 2026-07-10 | **Protocol CORE/EXTENDED split (v4.0.0 eager-load fix).** Step 7c now also warns (never auto-edits) if the target's CLAUDE.md still has an old at-sign import of the protocol file — that content already auto-loads via `.claude/rules/`, so the old import double-loads it. Step 7d now additionally installs `MEMORY_PROTOCOL_EXTENDED.md` to the vault root (`memory/`, never `.claude/rules/`) as an on-demand reference. |
 
 When this skill is updated, bump `version:` in the frontmatter + record changes here. Treat the skill itself like any other memory stack artifact — schema_version compatibility matters.
 

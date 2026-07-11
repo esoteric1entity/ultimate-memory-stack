@@ -112,7 +112,7 @@ Append DEC-### entry to `<working-dir>/memory/decisions/decisions.md` per the do
 
 ## Optional: Wire Wiki-Links to Memory Protocol §4.3
 
-Obsidian's `[[ID]]` syntax matches MEMORY_PROTOCOL §4.3 wiki-link sync convention. To enable two-way sync:
+Obsidian's `[[ID]]` syntax matches MEMORY_PROTOCOL_EXTENDED.md §E2 wiki-link sync convention. To enable two-way sync:
 
 1. **Manual sync (T0-T1):** When you reference `[[DEC-046]]` in body, also add to YAML frontmatter `related: [DEC-046]`
 2. **Auto-sync (T2+):** When Node.js indexer is available, it parses `[[ID]]` from body and populates `related:` automatically

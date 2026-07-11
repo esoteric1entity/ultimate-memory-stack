@@ -103,7 +103,7 @@ extensions:
 
 - `../../common-specs/detection_patterns_enterprise.md` (base PII patterns)
 - `../../common-specs/SCHEMA_compliance_profile.md` §5.3 (enterprise preset)
-- `../../common-specs/MEMORY_PROTOCOL.md` §5.4 (bi-temporal supersession — used for consent revocation history)
+- `../../common-specs/MEMORY_PROTOCOL_EXTENDED.md` §E3.4 (bi-temporal supersession — used for consent revocation history)
 - B7 compliance preset design (3-preset hybrid)
 - GDPR Article 30 (audit/records of processing)
 - GDPR Article 17 (right to erasure)

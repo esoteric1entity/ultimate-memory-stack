@@ -6,7 +6,7 @@ review_quarantined.py — Standalone Audit Quarantine Review CLI
 Python equivalent of the `/audit-quarantine` Skill. Implements the 9-step workflow
 defined in SKILL.md for use outside of Claude Code Skills environment.
 
-Authority: MEMORY_PROTOCOL §5.3
+Authority: MEMORY_PROTOCOL_EXTENDED.md §E3.3
 Companion: SKILL.md (Claude-executable equivalent)
 
 Usage:

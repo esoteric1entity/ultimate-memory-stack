@@ -2,7 +2,7 @@
 
 > **Purpose:** Initial scaffolding for `memory/sessions/session_state.md`. Copy this file to `memory/sessions/session_state.md` at first deployment; populate Session 1 fields; subsequent sessions append below.
 > **Schema:** v3.0 (per SCHEMA_A18)
-> **Companion:** MEMORY_PROTOCOL.md §1.2 (Tier 1 always-load), §4.4 (heartbeat), §14 (session end protocol)
+> **Companion:** MEMORY_PROTOCOL.md §1.2 (Tier 1 always-load), §4 (heartbeat), §14 (session end protocol)
 
 ---
 
@@ -48,7 +48,7 @@ schema_version: "3.0"
 [Anything we can't proceed on and why]
 
 ### Heartbeat — Current Work (last updated <HH:MM>)
-[Per MEMORY_PROTOCOL.md §4.4: ~30-minute checkpoint. Updates here prevent context loss if session ends unexpectedly]
+[Per MEMORY_PROTOCOL.md §4: ~30-minute checkpoint. Updates here prevent context loss if session ends unexpectedly]
 - Task: <what>
 - File: <path:line>
 - Status: <progress>
@@ -71,6 +71,6 @@ schema_version: "3.0"
 
 ## Cross-references
 
-- `MEMORY_PROTOCOL.md` §1 (session start), §4.4 (heartbeat), §11 (size limits), §14 (session end)
+- `MEMORY_PROTOCOL.md` §1 (session start), §4 (heartbeat), §11 (size limits), §14 (session end)
 - `SCHEMA_A18` (entry metadata structure)
 - `MEMORY_INDEX.md` (this file is registered)

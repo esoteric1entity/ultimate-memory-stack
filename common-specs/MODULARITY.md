@@ -44,7 +44,7 @@ See `ARCHITECTURE.md`.
 - `SCHEMA_compliance_profile.md` — 3-preset hybrid + custom (B7)
 
 ### Operational protocols
-- `MEMORY_PROTOCOL.md` — 19 sections defining session start, context budget, conflict resolution, validation-on-read, write operations, edition profile application, standing rules, risk scoring, self-test, self-trimming, decision promotion, schema migration, session end, compaction-safe handoff, documentation discipline, healthcare compliance profile
+- `MEMORY_PROTOCOL.md` (CORE, 18 sections) + `MEMORY_PROTOCOL_EXTENDED.md` (10 on-demand sections, E1–E10) — together define session start, context budget, conflict resolution, validation-on-read, write operations, edition profile application, standing rules, risk scoring, self-test, self-trimming, decision promotion, schema migration, session end, compaction-safe handoff, documentation discipline, healthcare compliance profile
 - `BOOTSTRAP_PROMPT.md` — deployment activation prompt
 
 ### Design system

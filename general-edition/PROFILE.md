@@ -1,3 +1,19 @@
+---
+edition: general
+compliance: none
+audit_log: opt-in
+quarantine_ux: toast
+crypto_signatures_scheme: "hmac-sha256"
+pattern_key_threshold: 5
+override_file_map:
+  - spec_file: "MEMORY_PROTOCOL.md §3 (Conflict Resolution)"
+    override_file: "overrides/generic-conflict-resolution.override.md"
+  - spec_file: "SCHEMA_compliance_profile.md §5 (Preset Definitions)"
+    override_file: "overrides/compliance-presets.override.md"
+  - spec_file: "BOOTSTRAP_PROMPT.md Step 7 (Setup Wizard)"
+    override_file: "overrides/generic-examples.override.md"
+---
+
 # General-Edition Profile
 
 > **File:** `general-edition/PROFILE.md`

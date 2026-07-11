@@ -299,6 +299,9 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
                    "references", "user", "archive", "quarantine"]:
         (memory_dir / subdir).mkdir(parents=True, exist_ok=True)
 
+    # Extended protocol reference — on-demand only, vault root, NEVER .claude/rules/ (would recreate eager-load cost)
+    shutil.copy(COMMON_SPECS_DIR / "MEMORY_PROTOCOL_EXTENDED.md", memory_dir / "MEMORY_PROTOCOL_EXTENDED.md")
+
     # Initialize audit log based on preset
     if compliance_preset == "none":
         print("ℹ️  Audit log: OPT-IN (compliance: none — default OFF)")

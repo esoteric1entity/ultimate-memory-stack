@@ -124,7 +124,7 @@ Why separate? So the agent doesn't confuse cross-project context. When you start
 - Open items for next session
 - Carried-forward decisions + their status
 
-To mitigate long-context attention rot, the protocol pins the heartbeat at BOTH the start and end of the bootstrap injection (see MEMORY_PROTOCOL.md §2.5).
+To mitigate long-context attention rot, the protocol pins the heartbeat at BOTH the start and end of the bootstrap injection (see memory/MEMORY_PROTOCOL_EXTENDED.md §E1).
 
 *(On the OpenClaw adapter the same concepts surface as root files — `HEARTBEAT.md` with a compactor, per-day `memory/daily/` logs, and a `BOOTSTRAP.md` entry point. See `core/openclaw-adapter/QUICKSTART.md`.)*
 

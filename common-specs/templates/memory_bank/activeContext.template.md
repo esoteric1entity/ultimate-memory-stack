@@ -82,7 +82,7 @@ project_slug: <slug>
 
 - **Update most often:** Of all 6 memory-bank files, this one gets the most edits. Plan for it.
 - **Rotate to progress.md:** When a sub-task completes, move it to progress.md. Don't let activeContext bloat with completed work.
-- **Heartbeat lives here:** Per MEMORY_PROTOCOL.md §4.4, ~30-minute checkpoints update this file's heartbeat section
+- **Heartbeat lives here:** Per MEMORY_PROTOCOL.md §4, ~30-minute checkpoints update this file's heartbeat section
 - **Useful at session start:** When resuming work on a project, activeContext is one of the first reads (Tier 2)
 - **Size cap:** 200 lines per MEMORY_PROTOCOL.md §11. If growing past, rotate completed items to progress.md.
 
@@ -90,4 +90,4 @@ project_slug: <slug>
 
 - `SCHEMA_A3_per_project_memory_bank.md`
 - `progress.md` (rotation target — completed work moves there)
-- `MEMORY_PROTOCOL.md` §4.4 (heartbeat), §1.2 Tier 2 load, §12 (decision promotion)
+- `MEMORY_PROTOCOL.md` §4 (heartbeat), §1.2 Tier 2 load, §12 (decision promotion)

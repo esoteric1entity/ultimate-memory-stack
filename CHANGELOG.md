@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Protocol core/extended split — eager-load cost cut from ~22.3K to ~9.8K tokens on a fresh install.** `common-specs/MEMORY_PROTOCOL.md` (the file that auto-loads into `.claude/rules/` every session) shrank from 54,892 bytes (~13.7K tokens) to 11,909 bytes (~3.0K tokens); everything else moved to the new on-demand `common-specs/MEMORY_PROTOCOL_EXTENDED.md`, installed at the vault root (`memory/MEMORY_PROTOCOL_EXTENDED.md`) — never auto-loaded, referenced by explicit section pointers (`EXTENDED §E#`) from the core file. Fulfills the core/extended split promised in the `[3.6.1]` Known Issues note above.
+- **CLAUDE.md `@`-import double-load eliminated.** `INSTALL_AGENT.md` and the install skill no longer offer adding `@ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md` to a project's `CLAUDE.md` — the `.claude/rules/` copy already auto-loads every session, so the import doubled the cost for anyone who accepted it (up to ~36K tokens). Upgrading users with the old import line are warned to remove it (never auto-edited).
+- **`PROFILE.md` now has a machine-readable frontmatter block** carrying the scalars the protocol's Edition Detection step needs (`edition`, `compliance`, `audit_log`, `quarantine_ux`, `crypto_signatures_scheme`, `pattern_key_threshold`, `override_file_map`) in the first ~40 lines, so the protocol can read a bounded slice instead of the full file every session.
+
 ## [3.6.2] — 2026-06-16
 
 ### Changed

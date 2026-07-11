@@ -66,7 +66,7 @@ user-owned file:
 
 | Harness | Registration |
 |---|---|
-| **Claude Code** | Ensure `<target>/.claude/rules/memory_protocol.md` exists (copy of `common-specs/MEMORY_PROTOCOL.md` — the script already did this). Offer to add `@ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md` as an import note in `CLAUDE.md`. |
+| **Claude Code** | Ensure `<target>/.claude/rules/memory_protocol.md` exists (copy of `common-specs/MEMORY_PROTOCOL.md` — the script already did this) and `<target>/memory/MEMORY_PROTOCOL_EXTENDED.md` exists (on-demand reference; never auto-loaded). No `CLAUDE.md` edit needed — `.claude/rules/*.md` already auto-loads every session. If `<target>/CLAUDE.md` still has an old at-sign import of the protocol file from a previous install, warn the user it's now redundant (double-loads content already loaded via `.claude/rules/`) and offer to remove it — do not edit CLAUDE.md without confirmation. |
 | **OpenClaw** | The workspace itself is the memory home. For deep integration (9 root files), run the adapter in `core/openclaw-adapter/`. At minimum, offer to add a pointer in `TOOLS.md`/`AGENTS.md`: where `memory/` lives and that `MEMORY_PROTOCOL.md` governs it. |
 | **Generic / Hermes / other** | Offer to add a short section to the harness's instruction file (`AGENTS.md` or equivalent): load `memory/MEMORY_INDEX.md` + `memory/sessions/session_state.md` at session start; follow `ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md` for all memory operations. |
 

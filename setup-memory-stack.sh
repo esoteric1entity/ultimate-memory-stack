@@ -249,10 +249,15 @@ fi
 # ---------- harness registration ----------
 REG_NOTE="none"
 PROTOCOL_SRC="$TARGET/ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md"
+PROTOCOL_EXTENDED_SRC="$TARGET/ultimate-memory-stack/common-specs/MEMORY_PROTOCOL_EXTENDED.md"
 if [ -f "$PROTOCOL_SRC" ]; then
     mkdir -p "$TARGET/.claude/rules"
     cp "$PROTOCOL_SRC" "$TARGET/.claude/rules/memory_protocol.md"
     REG_NOTE=".claude/rules/memory_protocol.md"
+fi
+if [ -f "$PROTOCOL_EXTENDED_SRC" ]; then
+    mkdir -p "$TARGET/memory"
+    cp "$PROTOCOL_EXTENDED_SRC" "$TARGET/memory/MEMORY_PROTOCOL_EXTENDED.md"
 fi
 
 # ---------- install manifest ----------

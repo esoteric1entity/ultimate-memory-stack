@@ -374,7 +374,7 @@ To dismiss: "ignore for now" (will resurface next lint run unless resolved)
 ### From v3.0 without Lint → v3.0 with Lint
 
 Lint is a NEW v3.0 feature (added 2026-05-15). Existing v3.0 deployments add Lint by:
-1. Pull updated MEMORY_PROTOCOL.md to `.claude/rules/memory_protocol.md`
+1. Pull updated MEMORY_PROTOCOL.md to `.claude/rules/memory_protocol.md` (and MEMORY_PROTOCOL_EXTENDED.md to `memory/MEMORY_PROTOCOL_EXTENDED.md`, never `.claude/rules/`)
 2. Update PROFILE.md with `lint:` config block
 3. Create empty `memory/security/lint_runs.jsonl`
 4. First lint run baselines current state
@@ -397,7 +397,7 @@ Same as standard v2.0 → v3.0 migration. Lint becomes active after edition PROF
 
 ## 11. Cross-References
 
-- `MEMORY_PROTOCOL.md` §10.5 (Lint Operation section)
+- `MEMORY_PROTOCOL_EXTENDED.md` §E7 (Lint Operation full spec)
 - `MEMORY_PROTOCOL.md` §10 (Self-Trimming — complementary)
 - `SCHEMA_audit_log.md` (every lint run produces audit log entry)
 - `SCHEMA_quarantine.md` (HIGH-severity contradictions may route to biotech quarantine)

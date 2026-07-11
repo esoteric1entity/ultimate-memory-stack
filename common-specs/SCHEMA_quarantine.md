@@ -2,7 +2,7 @@
 
 > **File:** `common-specs/SCHEMA_quarantine.md`
 > **Version:** 1.0 — stable
-> **Status:** stable — cross-validated against MEMORY_PROTOCOL.md §4.1 + §5.3
+> **Status:** stable — cross-validated against MEMORY_PROTOCOL.md §4 + EXTENDED §E3.3
 > **Authors:** see /AUTHORS.md
 
 
@@ -151,11 +151,11 @@ This way, the quarantine_log.jsonl is itself append-only and forensically clean.
 
 ## 5. Workflow — Quarantine Lifecycle
 
-### Step 1: Validation Failure Detected (per MEMORY_PROTOCOL.md §4.1)
+### Step 1: Validation Failure Detected (per MEMORY_PROTOCOL.md §4)
 
 A validator (frontmatter / signature / PHI / consistency) returns FAILURE for an entry on read.
 
-### Step 2: Quarantine Routing (per MEMORY_PROTOCOL.md §5.3)
+### Step 2: Quarantine Routing (per MEMORY_PROTOCOL_EXTENDED.md §E3.3)
 
 The orchestrator:
 1. Reads the failed entry's body (one last time, in a sandboxed scope — DO NOT load into general context)
@@ -328,7 +328,7 @@ If a user wants to retroactively scan existing v2.0 entries for poisoning (e.g.,
 ## 11. Cross-References
 
 - **Design basis:** quarantine included in both editions (B2); memory-poisoning defenses (B8)
-- **Protocol integration:** `MEMORY_PROTOCOL.md` §4.1 (validation-on-read triggers), §5.3 (quarantine routing)
+- **Protocol integration:** `MEMORY_PROTOCOL.md` §4 (validation-on-read triggers), EXTENDED §E3.3 (quarantine routing)
 - **Audit log integration:** `SCHEMA_audit_log.md` (every quarantine event produces an audit log entry; action codes `quarantine` / `release` / `discard`)
 - **Compliance integration:** `SCHEMA_compliance_profile.md` §detection-patterns (compliance preset determines what triggers quarantine)
 - **Cryptographic integration:** C4 signatures (signature failure is a primary quarantine trigger at T3+)

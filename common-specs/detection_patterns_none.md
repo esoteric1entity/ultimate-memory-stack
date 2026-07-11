@@ -171,8 +171,8 @@ AKIA[0-9A-Z]{16}
 
 ## Integration points
 
-- **MEMORY_PROTOCOL.md §4.1** — Validation-on-read fires these patterns when entries are loaded
-- **MEMORY_PROTOCOL.md §5.2** — Audit log captures detection events
+- **MEMORY_PROTOCOL.md §4** — Validation-on-read fires these patterns when entries are loaded
+- **MEMORY_PROTOCOL_EXTENDED.md §E3.2** — Audit log captures detection events
 - **SCHEMA_quarantine.md §6** — `pii-detected` reason code routes flagged entries to quarantine (general edition only fires for CRITICAL severity at `none` preset)
 - **SCHEMA_compliance_profile.md §5.1** — This file defines the `none` preset's detection scope
 
@@ -188,7 +188,7 @@ AKIA[0-9A-Z]{16}
 ## Cross-references
 
 - `SCHEMA_compliance_profile.md` §4.3 (preset → pattern file mapping), §5.1 (`none` preset behavior)
-- `MEMORY_PROTOCOL.md` §7 (standing rules — universal across presets), §4.1 (validation-on-read)
+- `MEMORY_PROTOCOL.md` §7 (standing rules — universal across presets), §4 (validation-on-read)
 - `SCHEMA_audit_log.md` (detection events log here)
 - `SCHEMA_quarantine.md` (CRITICAL-severity detections may quarantine the entry)
 

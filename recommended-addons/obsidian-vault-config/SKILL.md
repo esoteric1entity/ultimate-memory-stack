@@ -95,7 +95,7 @@ Templates included (all SCHEMA_A18 frontmatter pre-populated):
 | `DEC_template.md` | Decision entry (DEC-XYZ) with full documentation discipline | Templater hotkey → new decision |
 | `VET_template.md` | Vetting log entry (VET-XYZ) | Templater hotkey → new vetting record |
 | `FB_template.md` | Feedback entry (FB-XYZ) | Templater hotkey → capture user correction |
-| `session_heartbeat_template.md` | Heartbeat section for session_state.md per §4.4 | Insert mid-session before /compact |
+| `session_heartbeat_template.md` | Heartbeat section for session_state.md per §4 | Insert mid-session before /compact |
 | `memory_bank/projectbrief_template.md` | SCHEMA_A3 #1 — project goal scope | New project initialization |
 | `memory_bank/productContext_template.md` | SCHEMA_A3 #2 — why this project exists | New project initialization |
 | `memory_bank/activeContext_template.md` | SCHEMA_A3 #3 — current state | New project initialization |

@@ -704,7 +704,7 @@ This is why some tools appear simultaneously in **Tier C (included)** and **Tier
 
 ## 15. Status + Open Questions
 
-**This architecture is stable.** The companion specs (`MEMORY_PROTOCOL.md`, `SCHEMA_*.md`) and templates all ship alongside it. Remaining open questions are tracked here for future versions:
+**This architecture is stable.** The companion specs (`MEMORY_PROTOCOL.md`, `MEMORY_PROTOCOL_EXTENDED.md`, `SCHEMA_*.md`) and templates all ship alongside it. Remaining open questions are tracked here for future versions:
 
 1. **Layer 4 caching scope** — should explicit Anthropic prompt-cache integration be designed-in (vs leaving to user discipline)? Likely yes.
 2. ~~**Layer 5 graph backend choice** — Memgraph vs Neo4j vs lightweight in-memory~~ **CLOSED: Graphiti + Kuzu embedded** (zero infra overhead, actively-developed open-source, bi-temporal model is biotech-edition load-bearing). See §9.

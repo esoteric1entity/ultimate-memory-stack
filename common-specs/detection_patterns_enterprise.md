@@ -212,8 +212,8 @@ consent_party_pointer: <reference to consent record, NOT the party themselves>
 
 ## Integration points
 
-- **MEMORY_PROTOCOL.md §4.1** — Validation-on-read fires PII detection
-- **MEMORY_PROTOCOL.md §5.4** — Bi-temporal handling tracks consent revocation timestamps
+- **MEMORY_PROTOCOL.md §4** — Validation-on-read fires PII detection
+- **MEMORY_PROTOCOL_EXTENDED.md §E3.4** — Bi-temporal handling tracks consent revocation timestamps
 - **SCHEMA_audit_log.md §4** — Detection + consent events log as audit entries
 - **SCHEMA_quarantine.md §6** — `pii-detected` and consent-violation reason codes
 - **SCHEMA_compliance_profile.md §5.3** — `enterprise` preset behaviors

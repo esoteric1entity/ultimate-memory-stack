@@ -9,11 +9,11 @@
 
 ## What This Skill Does
 
-The Audit Quarantine Skill is the **review side** of MEMORY_PROTOCOL §5.3 Quarantine Routing. While §5.3 captures HOW entries enter quarantine (validation-on-read failures, signature failures, PHI detection, Lint HIGH/CRITICAL findings), this Skill is HOW they exit.
+The Audit Quarantine Skill is the **review side** of MEMORY_PROTOCOL_EXTENDED.md §E3.3 Quarantine Routing. While EXTENDED §E3.3 captures HOW entries enter quarantine (validation-on-read failures, signature failures, PHI detection, Lint HIGH/CRITICAL findings), this Skill is HOW they exit.
 
 **Origin story:**
 - An earlier release cycle identified the gap: "/audit-quarantine Skill not yet packaged"
-- The behavioral protocol was captured in MEMORY_PROTOCOL §5.3, with a Skill artifact planned for v3.1
+- The behavioral protocol was captured in MEMORY_PROTOCOL_EXTENDED.md §E3.3, with a Skill artifact planned for v3.1
 - This Skill closes that gap
 - Shipped here as the v3.5 closeout deliverable
 
@@ -74,13 +74,13 @@ core/audit-quarantine-skill/
 
 ### Purpose
 
-Provide the **review side** of MEMORY_PROTOCOL §5.3 Quarantine Routing. When entries are quarantined (write-time), they need a deterministic path back to active status (or to permanent deletion). This Skill is that path.
+Provide the **review side** of MEMORY_PROTOCOL_EXTENDED.md §E3.3 Quarantine Routing. When entries are quarantined (write-time), they need a deterministic path back to active status (or to permanent deletion). This Skill is that path.
 
 ### Rationale
 
 - The Skill artifact was planned in an earlier cycle and deliberately deferred to keep that release clean; it ships now.
 - **Per the B2 quarantine UX design:** biotech-edition needs full workflow per HIPAA forensic completeness; general-edition needs lighter toast UX. One Skill, two presets.
-- **Per MEMORY_PROTOCOL §5.3:** "Biotech edition UX: Surface quarantine via `/audit-quarantine` slash command — review workflow with batch approve/reject. Entries cannot be released without explicit user approval." — this is the concrete implementation.
+- **Per MEMORY_PROTOCOL_EXTENDED.md §E3.3:** "Biotech edition UX: Surface quarantine via `/audit-quarantine` slash command — review workflow with batch approve/reject. Entries cannot be released without explicit user approval." — this is the concrete implementation.
 - **Per the ideal-first design principle:** decision matrix is clean (3 actions × 2 editions = 6 cells documented); no hidden behaviors.
 - **Per the surface-only Lint extension (Option C):** Step 9 surfaces patterns for promotion to standing rules.
 
@@ -108,7 +108,7 @@ Provide the **review side** of MEMORY_PROTOCOL §5.3 Quarantine Routing. When en
 
 ### Scope — CANNOT
 
-- Quarantine new entries (write-side; that's MEMORY_PROTOCOL §5.3)
+- Quarantine new entries (write-side; that's MEMORY_PROTOCOL_EXTENDED.md §E3.3)
 - Validate post-approval safety (user judgment + optional re-vet, not in scope)
 - Auto-resolve conflicts (every decision is explicit by design)
 - Rotate audit_log.jsonl (MEMORY_PROTOCOL §11 handles)
@@ -147,8 +147,8 @@ See `INSTALL_AUDIT_QUARANTINE_SKILL.md` for manual usage.
 - Tier C designed-in framework
 - Karpathy Lint surface-only principle
 - v3.5 release trajectory
-- MEMORY_PROTOCOL §5.3 (Quarantine Routing — write-side; this Skill is read-side)
-- MEMORY_PROTOCOL §5.4 (bi-temporal supersession on resolution)
+- MEMORY_PROTOCOL_EXTENDED.md §E3.3 (Quarantine Routing — write-side; this Skill is read-side)
+- MEMORY_PROTOCOL_EXTENDED.md §E3.4 (bi-temporal supersession on resolution)
 - MEMORY_PROTOCOL §11 (audit_log rotation policy)
 - MEMORY_PROTOCOL §17 (healthcare compliance — PHI re-scan on biotech approval)
 - SCHEMA_A18 (entry frontmatter)

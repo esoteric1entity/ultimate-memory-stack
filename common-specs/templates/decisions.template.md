@@ -52,7 +52,7 @@ content_sha256: <hex>              # for CAS concurrency per B3
 
 **Revisit trigger** (if TENTATIVE/EXPLORATORY): [What would cause us to reconsider]
 
-This decision builds on [[DEC-NNN]] (when wiki-link syntax is used inline — auto-synced with `related` at T2+ per MEMORY_PROTOCOL.md §4.3).
+This decision builds on [[DEC-NNN]] (when wiki-link syntax is used inline — auto-synced with `related` at T2+ per MEMORY_PROTOCOL_EXTENDED.md §E2).
 
 ---
 
@@ -65,7 +65,7 @@ This decision builds on [[DEC-NNN]] (when wiki-link syntax is used inline — au
 
 ## Worked example — Supersession
 
-When a new decision supersedes an older one, two entries update simultaneously (per MEMORY_PROTOCOL.md §5.4):
+When a new decision supersedes an older one, two entries update simultaneously (per MEMORY_PROTOCOL_EXTENDED.md §E3.4):
 
 ```markdown
 ## DEC-001 (UPDATED by supersession event)

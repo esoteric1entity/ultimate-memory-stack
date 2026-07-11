@@ -25,7 +25,7 @@ _The principle behind the correction — what general rule is being instilled?_
 ### Application going forward
 _How will this change Claude's behavior in future sessions?_
 
-### Pattern-key promotion path (per MEMORY_PROTOCOL §4.2)
+### Pattern-key promotion path (per MEMORY_PROTOCOL §4)
 
 - **Biotech edition:** auto-promote to standing rule when `recurrence_count >= 3`
 - **General edition:** suggest promotion when `recurrence_count >= 5`
@@ -41,7 +41,7 @@ feedback, [topic], [user-preference | correction | standing-rule-candidate]
 ---
 
 > **Template author note (DELETE before saving):**
-> Per MEMORY_PROTOCOL §4.2 pattern-key promotion: assign a STABLE dotted identifier as `pattern_key`. When the same pattern_key is observed again (next session, different context), increment `recurrence_count` and update `last_seen`. At promotion threshold, this entry promotes to a standing rule in `.claude/rules/`.
+> Per MEMORY_PROTOCOL §4 pattern-key promotion: assign a STABLE dotted identifier as `pattern_key`. When the same pattern_key is observed again (next session, different context), increment `recurrence_count` and update `last_seen`. At promotion threshold, this entry promotes to a standing rule in `.claude/rules/`.
 >
 > Examples of pattern_keys:
 > - `tooling.always-prefer-conda-envs`

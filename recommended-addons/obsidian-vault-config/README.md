@@ -13,7 +13,7 @@
 Configures an [Obsidian](https://obsidian.md/) vault to work with the Ultimate Memory Stack. Drops SCHEMA_A18-compliant templates, recommends community plugins, and optionally registers the vault as the canonical memory-stack view.
 
 **Why install it on the Ultimate Memory Stack:**
-- Bi-directional wiki-links: `[[DEC-046]]` resolves in Obsidian's graph AND matches MEMORY_PROTOCOL §4.3
+- Bi-directional wiki-links: `[[DEC-046]]` resolves in Obsidian's graph AND matches MEMORY_PROTOCOL_EXTENDED.md §E2
 - Frontmatter is canonical SCHEMA_A18 — Dataview can query memory entries directly
 - Graph view visualizes decision lineage + supersession chains
 - Live preview makes editing dense memory files less painful than raw markdown
@@ -83,7 +83,7 @@ Bring v3.0/v3.5 deployments into Obsidian-canonical alignment by providing a one
 
 - OpenClaw research identified Obsidian as a recommended addon for the memory stack
 - A peer OpenClaw deployment's independent convergence on Obsidian-style frontmatter + wiki-links is a validation signal
-- MEMORY_PROTOCOL §4.3 already mandates wiki-link sync (`[[ID]]`); Obsidian is the canonical viewer for this convention
+- MEMORY_PROTOCOL_EXTENDED.md §E2 already mandates wiki-link sync (`[[ID]]`); Obsidian is the canonical viewer for this convention
 - Templates pre-populated with SCHEMA_A18 frontmatter prevent the "blank cursor → free-form entry" antipattern that produces orphan entries
 - Dataview queries are powerful enough to replicate basic MEMORY_INDEX.md views, reducing index-staleness pressure
 - This is one of the v3.5 recommended addons (alongside the 3 PASS-vetted Python installers)
@@ -112,7 +112,7 @@ Bring v3.0/v3.5 deployments into Obsidian-canonical alignment by providing a one
 - Modify existing memory entries (templates only — for NEW entries)
 - Enforce template usage at write-time (no Obsidian "must use template" mode)
 - Validate wiki-link resolution without opening Obsidian
-- Replace MEMORY_PROTOCOL §4.3 wiki-link sync requirements (Obsidian augments, doesn't replace)
+- Replace MEMORY_PROTOCOL_EXTENDED.md §E2 wiki-link sync requirements (Obsidian augments, doesn't replace)
 - Sync vault state across machines (that's Multi-Machine Sync work — Phase 4+ candidate)
 
 ---
@@ -152,7 +152,7 @@ cp obsidian_config/hotkeys.json "<VAULT_PATH>/.obsidian/hotkeys.json"
 - OpenClaw research — Obsidian PKM patterns
 - Independent convergence: peer OpenClaw deployments use Obsidian-style wiki-links + frontmatter
 - v3.5 release trajectory (recommended addons batch)
-- MEMORY_PROTOCOL §4.3 (wiki-link sync — Obsidian is canonical viewer)
+- MEMORY_PROTOCOL_EXTENDED.md §E2 (wiki-link sync — Obsidian is canonical viewer)
 - SCHEMA_A18 (per-entry frontmatter — templates carry this)
 - SCHEMA_A3 (6-file memory bank — `memory_bank/` templates carry this)
 - Upstream: https://obsidian.md/ — Obsidian desktop app
