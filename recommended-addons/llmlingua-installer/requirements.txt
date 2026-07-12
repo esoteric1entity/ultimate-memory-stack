@@ -1,6 +1,6 @@
 # LLMLingua Installer — Pinned Dependency Manifest
-# Generated for v3.5 Ultimate release per VET-011 PASS verdict (2026-05-27 PM)
-# Authority: DEC-001 (Sentinel vetting required), DEC-029 C6 (Tier C opt-in), DEC-048 (3 PASS addons proceed)
+# Generated for v3.5 Ultimate release; vetted and PASSED per project security review.
+# Authority: the project's security-first tool-installation policy.
 #
 # Rationale for each pin:
 #   - llmlingua==0.2.2  → upstream STALE (last release 2024-04-09); exact pin prevents drift; v3.6+ migration to SecurityLingua planned
@@ -8,7 +8,7 @@
 #   - torch              → bounded range; floor matches transformers ABI; ceiling avoids 2.3+ CUDA changes that may not be compatible with v0.2.2 era ecosystem
 #   - sentencepiece     → required transitively; explicit pin documents the dependency
 #
-# Per VET-011 condition #5: run `pip-audit -r requirements.txt` BEFORE install. Re-run every 30-90 days post-install.
+# Required: run `pip-audit -r requirements.txt` BEFORE install. Recommended: re-run every 30-90 days post-install.
 
 llmlingua==0.2.2
 transformers>=4.30.0,<4.40.0

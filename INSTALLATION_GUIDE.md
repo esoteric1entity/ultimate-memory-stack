@@ -11,9 +11,9 @@
 | §1 Quick Reference — pick your method | [Pick your install method](./INSTALL.md#pick-your-install-method) |
 | §2 Prerequisites | [Prerequisites](./INSTALL.md#prerequisites) |
 | §3 Pre-install decisions | [Pre-install decisions](./INSTALL.md#pre-install-decisions) |
-| §4 Method A — Manual | [Manual walkthrough](./INSTALL.md#manual-walkthrough) |
-| §5 Method B — Bash | [Bash install in depth](./INSTALL.md#bash-install-in-depth) |
-| §6 Method C — Claude Code Skill | [Claude Code Skill installer](./INSTALL.md#claude-code-skill-installer) |
+| §4 Door 4 — Manual | [Manual walkthrough](./INSTALL.md#manual-walkthrough) |
+| §5 Door 1a — Bash | [Bash install in depth](./INSTALL.md#bash-install-in-depth) |
+| §6 Door 3 — Claude Code Skill | [Claude Code Skill installer](./INSTALL.md#claude-code-skill-installer) |
 | §7 Multi-machine deployment | [Multi-machine deployment](./INSTALL.md#multi-machine-deployment) |
 | §8 Post-install verification | [Post-install verification in depth](./INSTALL.md#post-install-verification-in-depth) |
 | §9 Migration v2 → v3 | [Migration v2.0 to v3.x](./INSTALL.md#migration-v20-to-v3x) |

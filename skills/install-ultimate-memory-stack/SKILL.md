@@ -1,7 +1,7 @@
 ---
 name: install-ultimate-memory-stack
-version: "1.6"
-description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
+version: "1.7"
+description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
 edition: any
@@ -44,7 +44,7 @@ Then greet the user briefly and confirm intent:
     <current working directory>
 
 This will:
-  - Copy common-specs/ + your chosen edition into your working directory
+  - Copy common-specs/ + your chosen edition into ultimate-memory-stack/ in your working directory
   - Create .claude/rules/memory_protocol.md (auto-loads each Claude Code session)
   - Initialize the memory/ directory structure (9 subdirs)
   - Set up audit log + quarantine (per edition + preset)
@@ -109,7 +109,7 @@ Validate the response:
 1. Read the directory listing at the provided path
 2. Confirm `common-specs/` exists at that path
 3. Confirm `general-edition/` exists (the edition shipped publicly)
-4. If validation fails, explain what's missing and ask again (up to 3 retries before suggesting Method A manual install)
+4. If validation fails, explain what's missing and ask again (up to 3 retries before suggesting the Door 4 manual install per INSTALL.md)
 
 Save this as `SOURCE_PATH` for use in subsequent steps.
 
@@ -471,8 +471,8 @@ If any step fails:
 1. Surface the specific error to the user
 2. Roll back partial changes if possible (especially file copies that may have partially succeeded)
 3. Provide remediation:
-   - "Try Method A manual install per INSTALL.md (Manual walkthrough)"
-   - "Try Method B Bash install per INSTALL.md (Bash install in depth)"
+   - "Try the Door 4 manual install per INSTALL.md (Manual walkthrough)"
+   - "Try the Door 1a Bash install per INSTALL.md (Bash install in depth)"
    - "Check that SOURCE_PATH exists and contains common-specs/ + edition/"
 4. Log the failure event if an audit log exists
 
@@ -508,6 +508,7 @@ If any step fails:
 | 1.4 | 2026-06-16 | **Step-0 guard hardening + harness-agnostic wording (v3.6.2).** Canonicalised the Step-0 unsafe-location guard with `pwd -P` so a path that resolves into `$HOME` / a system directory via a symlink is also refused (previously only the literal `$PWD` was matched). Clarified Step 7e (the initialization entry is appended only when the audit log was created — enterprise/custom; skipped for preset `none`). Reframed the skill as one door among several (script / agent / Claude Code skill / manual). No behavior change for fresh installs. |
 | 1.5 | 2026-07-10 | **Protocol CORE/EXTENDED split (v4.0.0 eager-load fix).** Step 7c now also warns (never auto-edits) if the target's CLAUDE.md still has an old at-sign import of the protocol file — that content already auto-loads via `.claude/rules/`, so the old import double-loads it. Step 7d now additionally installs `MEMORY_PROTOCOL_EXTENDED.md` to the vault root (`memory/`, never `.claude/rules/`) as an on-demand reference. |
 | 1.6 | 2026-07-11 | **Upgrade-path fix.** Step 7b now removes the pre-existing regenerable package directories (`common-specs/`, `<EDITION>-edition/`) before copying. Previously, on a re-install over an existing scaffold, the recursive copy nested the new package inside the old directory, so Step 7c silently re-installed the STALE pre-split protocol and Step 7d could not find the extended protocol file — the eager-load fix never took effect on upgrades via this door. User data (`memory/`) is untouched. No behavior change for fresh installs. |
+| 1.7 | 2026-07-11 | **Doc-coherence pass (v4.0.0).** Step 0's "what this will do" summary and the frontmatter description now say the copy lands in `ultimate-memory-stack/` (was ambiguous about the nested layout — matches Step 7b's actual behavior, which was already correct). Retired "Method A/B" install-guide labels in Step 2 validation + Error Handling replaced with the door taxonomy (Door 4 manual / Door 1a Bash) to match the restructured INSTALL.md. No behavior change. |
 
 When this skill is updated, bump `version:` in the frontmatter + record changes here. Treat the skill itself like any other memory stack artifact — schema_version compatibility matters.
 

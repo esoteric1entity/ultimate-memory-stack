@@ -1,6 +1,6 @@
 # How to Install the `install-ultimate-memory-stack` Skill
 
-> **Skill version:** 1.4 — see `SKILL.md` frontmatter + changelog for the authoritative version  ·  **This guide revised:** 2026-06-16
+> **Skill version:** 1.7 — see `SKILL.md` frontmatter + changelog for the authoritative version  ·  **This guide revised:** 2026-07-11
 > **Audience:** Users who want to register the Ultimate Memory Stack Skill installer in Claude Code
 > **Status:** STABLE — v1.0 validated end-to-end 2026-06-10 (fresh install, general-edition; T1–T9 all pass); v1.1–v1.4 added existing-store data-safety (backup + preserve), `$HOME`/system-dir install guards (canonicalised in v1.4), and harness-agnostic wording — see SKILL.md changelog.
 
@@ -200,10 +200,10 @@ Restart Claude Code. The slash command will no longer be available.
 | Install Method | Use When |
 |----------------|----------|
 | **This skill (`/install-ultimate-memory-stack`)** | You have Skills enabled in Claude Code + want native slash-command UX |
-| **Manual drag-and-drop** (Method A in INSTALL.md — Manual walkthrough) | You want minimum dependencies + are comfortable copying files |
-| **Bash `setup-memory-stack.sh`** (Method B) | You're on Linux/Mac/WSL + prefer one-command CLI |
-| **PowerShell `setup-memory-stack.ps1`** | You're on Windows + have Python 3.8+ (PowerShell wrapper; core install delegates to Python) |
-| **Python setup.py** (Method E in INSTALL.md) | You have Python + want cryptographic key generation built in |
+| **Manual drag-and-drop** (Door 4 in INSTALL.md — Manual walkthrough) | You want minimum dependencies + are comfortable copying files |
+| **Bash `setup-memory-stack.sh`** (Door 1a) | You're on Linux/Mac/WSL + prefer one-command CLI |
+| **PowerShell `setup-memory-stack.ps1`** (Door 1b) | You're on Windows + have Python 3.8+ (PowerShell wrapper; core install delegates to Python) |
+| **Python setup.py** (Door 1c in INSTALL.md — Secondary and advanced options) | You have Python + want cryptographic key generation built in |
 
 This skill is the **easiest UX** when available but has a dependency on Skills being enabled in your Claude Code instance.
 

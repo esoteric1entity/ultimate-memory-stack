@@ -17,7 +17,7 @@ report: never claim a step succeeded without checking its result.
 ## Step 0 — Consent
 
 Tell the user, in 3–4 lines, what this install will do:
-copy `common-specs/` + `general-edition/` into a target directory, initialize a
+copy `common-specs/` + `general-edition/` into `<target>/ultimate-memory-stack/`, initialize a
 `memory/` structure, register the memory protocol with the harness, run a setup
 wizard, and verify. **Wait for explicit confirmation before touching anything.**
 
@@ -118,5 +118,5 @@ end they can say "update session state"; `verify.sh` re-validates any time.
 
 *Cross-references: `INSTALL.md` (human quickstart + full multi-method guide) ·
 `skills/install-ultimate-memory-stack/SKILL.md` (the Claude Code native skill — the
-richest version of this flow) · `common-specs/BOOTSTRAP_PROMPT.md` (the
+richest version of this flow) · [`common-specs/BOOTSTRAP_PROMPT.md`](common-specs/BOOTSTRAP_PROMPT.md) (the
 activation-prompt alternative).*

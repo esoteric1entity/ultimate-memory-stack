@@ -20,7 +20,7 @@ gives credit where credit is due, in three categories:
    release, v3.6.0 (often with hybrid-inclusion of upstream repo work
    toward the end of development).
 
-**Following the project's standing principle** (DEC-030, "borrow ideas, not
+**Following the project's standing principle** ("borrow ideas, not
 numbers"): architectural patterns and design choices are transferable;
 specific performance claims and benchmarks are situational and not borrowed.
 
@@ -56,11 +56,11 @@ specific performance claims and benchmarks are situational and not borrowed.
   thought at the time, not just what it thinks now" problem that simple
   RAG can't handle.
 - **What we did NOT borrow:** Graphiti's specific graph-backend defaults,
-  telemetry behavior (we disable PostHog by default per VET-010), and
+  telemetry behavior (we disable PostHog by default), and
   LLM-prompt templates. The Memory branch's
   `recommended-addons/graphiti-installer/` is a separate install from the
   UMS core.
-- **Documented in:** VET-010 (vetting log).
+- **Documented in:** our internal vetting log (security review, PASS).
 
 ### [Graphify](https://github.com/safishamsi/graphify) — codebase symbol graph
 
@@ -76,7 +76,7 @@ specific performance claims and benchmarks are situational and not borrowed.
   (we maintain our own lighter `codebase_indexer.py`). The 4-layer typosquat
   defense is reused because it is a clear security improvement with no
   innovation cost on our part.
-- **Documented in:** VET-009 (vetting log).
+- **Documented in:** our internal vetting log (security review, PASS).
 
 ### [Cline Memory Bank](https://github.com/cline/cline) — 6-file memory-bank convention
 
@@ -154,18 +154,18 @@ These are not "code reuse" but "idea reuse." Each is a design pattern we
 discovered independently and then validated against the published
 literature.
 
-- **Convergence is signal** (DEC-046) — when multiple independent
+- **Convergence is signal** — when multiple independent
   implementations arrive at the same architectural pattern, that's the
   strongest validation. Codify the convergence.
   - *Originating thought:* the "design patterns" tradition (Gang of Four,
     1994) and the "many eyes make all bugs shallow" principle applied to
     design rather than code.
-- **Surface-only lint** (DEC-032) — memory hygiene scanners surface
+- **Surface-only lint** — memory hygiene scanners surface
   problems for human review, they never auto-mutate content.
   - *Originating thought:* Andrej Karpathy's "Hygiene-pass" tweet and
     the broader "LLM-as-auditor" pattern; also inspired by the
     `pre-commit` and `eslint --fix` debate (auto-fix vs. surface).
-- **5-element documentation discipline** (DEC-023) — every decision
+- **5-element documentation discipline** — every decision
   carries Purpose, Rationale, Sound reasoning, Scope CAN, Scope CANNOT.
   - *Originating thought:* the AWS Well-Architected Framework's "design
     principles" and the "architecture decision record" (ADR) tradition
@@ -302,10 +302,10 @@ team's collective work:
   - the **sandbox / least-privilege** model and **skill-vetting** → agent-shield Layers 1–4;
   - **immutable provenance logging** → agent-shield Layer 7 (audit);
   - the **modular, install-what-you-need** branch philosophy → the umbrella topology below.
-- The **modular umbrella topology** (DEC-031, DEC-062): the idea that
+- The **modular umbrella topology**: the idea that
   Memory, Security, PM, and Orchestration are *peer sibling branches*
   with no hard runtime dependencies.
-- The **5-element documentation discipline** (DEC-023): every decision
+- The **5-element documentation discipline**: every decision
   carries Purpose, Rationale, Sound reasoning, Scope CAN, Scope
   CANNOT.
 - The **agent topology spec**: the Warden / Sentinel / Vault / Clerk
@@ -315,14 +315,14 @@ team's collective work:
   "current state" rolls in a 3-deep window while "full history" stays
   in dated daily logs.
 - The **pick-and-choose install model** with **role hierarchy for
-  contributors** (DEC-058 quorum principle).
-- The **Karpathy Lint surface-only** principle (DEC-032): memory
+  contributors** (quorum principle).
+- The **Karpathy Lint surface-only** principle: memory
   hygiene scanners surface problems; they never auto-mutate.
-- The **convergence-is-signal** principle (DEC-046): when two
+- The **convergence-is-signal** principle: when two
   independent implementations arrive at the same pattern, codify the
   convergence.
-- The **borrowing ideas, not numbers** principle (DEC-030).
-- The **4-pass v3.6.0 pre-push scrub procedure** (LEARN-027): author scrub,
+- The **borrowing ideas, not numbers** principle.
+- The **4-pass v3.6.0 pre-push scrub procedure**: author scrub,
   content scrub, path scrub, mirror-line normalization.
 - The **per-branch `release/<name>/` layout**: the idea that the first
   public release (v3.6.0) should consist of install-ready package

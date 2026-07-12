@@ -15,7 +15,9 @@ This is the **short install guide** for users who just want to get going. Four d
 | **Script** | CLI users | below ↓ |
 | **Tell your agent** | any agent harness | clone, then: *"install this — read `INSTALL_AGENT.md`"* |
 | **Marketplace** | Claude Code users | Run **inside Claude Code** (these are slash commands, not shell): `/plugin marketplace add …` → `/plugin install …` → exit Claude Code (`/exit` or Ctrl-D), `cd` to your project in your shell, relaunch, `/install-ultimate-memory-stack` (see README Door 3). Prereq: Claude Code installed + authenticated. **Re-installing, or have an existing `memory/` store? Back it up first** — or use the Script / agent door, which preserve it automatically. |
-| **Manual** | no tooling | drag 2 folders + paste `common-specs/BOOTSTRAP_PROMPT.md` |
+| **Manual** | no tooling | copy the package as `ultimate-memory-stack/`, then paste the activation prompt |
+
+**New to UMS? Use Door 1 (script) — the TL;DR below.**
 
 ## TL;DR (script door)
 
@@ -52,12 +54,13 @@ Run from your workspace (or pass `--target`):
 setup-memory-stack.sh                                   # full install (all addons)
 setup-memory-stack.sh --minimal                         # core only (no addons)
 setup-memory-stack.sh --addon memory-vault --addon memory-graphiti
+                                                         # valid --addon values: memory-vault, memory-graphiti, memory-graphify, memory-llmlingua
 setup-memory-stack.sh --no-templater                    # skip Obsidian Templater auto-enable
 setup-memory-stack.sh --target ~/my-workspace           # explicit install target
 setup-memory-stack.sh --yes --skip-wizard --compliance=none   # fully non-interactive
 ```
 
-The default install is interactive — it confirms the install target (auto-detecting an OpenClaw workspace if you have one), then asks for your name, role/organization, and preferences.
+The default install is interactive — it confirms the install target (auto-detecting an OpenClaw workspace if you have one) and prints a Next-steps pointer. Your name, role/organization, and preferences are collected afterward, when your agent runs the activation prompt (the setup wizard — see [Step 4](#step-4--paste-the-activation-prompt--answer-the-setup-wizard) below).
 
 Time: ~30 seconds + interactive prompts.
 
@@ -135,6 +138,7 @@ Validates the installed structure, schemas, profile, and edition configuration. 
 - [`USER_GUIDE.md`](./USER_GUIDE.md) — long-form usage
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — contributing + institutional adoption
 - [`general-edition/`](./general-edition/) — general-edition PROFILE + overrides + setup
+- [`general-edition/DEPLOYMENT.md`](./general-edition/DEPLOYMENT.md) — edition deploy guidance (prerequisites, scenarios, tier detection)
 - [`skills/install-ultimate-memory-stack/SKILL.md`](./skills/install-ultimate-memory-stack/SKILL.md) — Skill-based install
 - The **[Full Guide](#full-guide)** below — the comprehensive multi-method reference (formerly `INSTALLATION_GUIDE.md`)
 
@@ -148,26 +152,28 @@ Validates the installed structure, schemas, profile, and edition configuration. 
 
 ## Pick your install method
 
-> These methods are the install "doors" of the Agent Architect Stack convention. Two doors live mostly outside this section: **marketplace install** (Claude Code: `/plugin marketplace add esoteric1entity/ultimate-memory-stack`, then `/install-ultimate-memory-stack` — the [Claude Code Skill installer](#claude-code-skill-installer) covers the skill it runs) and **agent-executed install** — point any capable agent at [`INSTALL_AGENT.md`](./INSTALL_AGENT.md) and say "install this."
+> These are sub-methods of the four install "doors" of the Agent Architect Stack convention. **Door 2 (agent-executed install)** lives mostly outside this section — point any capable agent at [`INSTALL_AGENT.md`](./INSTALL_AGENT.md) and say "install this." **New to UMS? Use Door 1a (Bash script).**
 
 ### Three primary methods (recommended for most users)
 
 | Method | Works on | Prerequisites | Harness | User actions | Time |
 |--------|----------|---------------|---------|--------------|------|
-| **A. Manual Drag-and-Drop** | Windows / Mac / Linux | None | Any agent (to activate) | 4 actions | ~5 min total |
-| **B. Bash `setup-memory-stack.sh`** | Mac / Linux / WSL | Bash 4.0+ (standard) | None to scaffold; any agent to activate | 1 command | ~30 sec + wizard |
-| **C. Claude Code Skill** | Anywhere with Skills enabled | Skills capability enabled | **Claude Code only** | 1 slash command | ~5 sec + wizard |
+| **Door 4 — Manual Drag-and-Drop** | Windows / Mac / Linux | None | Any agent (to activate) | 4 actions | ~5 min total |
+| **Door 1a — Bash `setup-memory-stack.sh`** | Mac / Linux / WSL | Bash 4.0+ (standard) | None to scaffold; any agent to activate | 1 command | ~30 sec + wizard |
+| **Door 3 — Claude Code Skill** | Anywhere with Skills enabled | Skills capability enabled | **Claude Code only** | 1 slash command | ~5 sec + wizard |
 
-These three cover ~95% of user contexts. The **Harness** column is the key difference: the manual and script doors run on any 9-root-file agent (or none, for the script's file-copy step) — only the Skill door requires Claude Code specifically.
+These three cover ~95% of user contexts. The **Harness** column is the key difference: the manual and script doors run on any 9-root-file agent (or none, for the script's file-copy step) — only the Skill door requires Claude Code specifically. Door 3 also covers the **marketplace install** (Claude Code: `/plugin marketplace add esoteric1entity/ultimate-memory-stack`, then `/install-ultimate-memory-stack` — the [Claude Code Skill installer](#claude-code-skill-installer) covers the skill it runs).
 
 ### Secondary methods (kept available, see [Secondary and advanced options](#secondary-and-advanced-options))
 
+Both of these are Door 1 (script) variants:
+
 | Method | Works on | Prerequisites | Why secondary |
 |--------|----------|---------------|---------------|
-| **D. PowerShell `setup-memory-stack.ps1`** | Windows | Python 3.8+ (the core install delegates to setup.py) | Requires Python — not a fully "native Windows" option yet. Slated for native-PowerShell rewrite. |
-| **E. Python `setup.py`** | Anywhere with Python 3.8+ | Python 3.8+ + optional `cryptography` for T3 | Power-user option with crypto key generation built in. Most users don't need this. |
+| **Door 1b — PowerShell `setup-memory-stack.ps1`** | Windows | Python 3.8+ (the core install delegates to setup.py) | Requires Python — not a fully "native Windows" option yet. Slated for native-PowerShell rewrite. |
+| **Door 1c — Python `setup.py`** | Anywhere with Python 3.8+ | Python 3.8+ + optional `cryptography` for T3 | Power-user option with crypto key generation built in. Most users don't need this. |
 
-If you don't already have Python installed, use Method A or B instead.
+If you don't already have Python installed, use Door 4 or Door 1a instead.
 
 ### Tier detection (optional pre-check)
 
@@ -198,10 +204,10 @@ Don't have these? No problem — the system runs fine at T0; higher-tier feature
   - Extracted from a release archive
 
 ### Method-specific prerequisites (only if you pick that method)
-- **Method A (Manual):** any agent harness to paste the activation prompt into — no shell tooling
-- **Method B (Bash):** Bash 4.0+ — standard on Linux/Mac/WSL
-- **Method C (Skill):** **Claude Code** with the Skills capability enabled (this is the one method that depends on Claude Code specifically)
-- **Methods D/E (secondary):** See [Secondary and advanced options](#secondary-and-advanced-options)
+- **Door 4 (Manual):** any agent harness to paste the activation prompt into — no shell tooling
+- **Door 1a (Bash):** Bash 4.0+ — standard on Linux/Mac/WSL
+- **Door 3 (Skill):** **Claude Code** with the Skills capability enabled (this is the one method that depends on Claude Code specifically)
+- **Door 1b/1c (secondary script variants):** See [Secondary and advanced options](#secondary-and-advanced-options)
 
 ## Pre-install decisions
 
@@ -211,7 +217,7 @@ Before ANY install method, decide:
 
 This package ships the **general-edition** — suited to software dev, research, writing, education, B2B SaaS, and enterprise contexts, with compliance preset flexibility (see Decision 2). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
-**Copy `common-specs/` + `general-edition/` into your working directory.**
+(Every install method places `common-specs/` and `general-edition/` under `ultimate-memory-stack/` in your working directory — see your chosen method above for exact steps.)
 
 ### Decision 2: Compliance preset
 
@@ -247,7 +253,7 @@ You don't need to know this upfront — setup will detect. For reference:
 
 ## Manual walkthrough
 
-**Method A — Manual Drag-and-Drop.** Recommended when you don't have automation tooling installed (no Bash on Windows, no Python, no Skills), you prefer visual file management (Finder / Explorer / Files), you want to understand what's being deployed, or you're on Windows without WSL.
+**Door 4 — Manual Drag-and-Drop.** Recommended when you don't have automation tooling installed (no Bash on Windows, no Python, no Skills), you prefer visual file management (Finder / Explorer / Files), you want to understand what's being deployed, or you're on Windows without WSL.
 
 **This method requires only:** a file manager (Finder on Mac / File Explorer on Windows / Files on Linux) and an agent harness to paste the activation prompt into. NO shell commands needed.
 
@@ -265,21 +271,25 @@ This is where your memory stack will live. Examples:
 
 Create this folder if it doesn't exist (right-click in your file manager → New Folder).
 
-### Step 2 — Copy 2 folders into the working directory via drag-and-drop
+### Step 2 — Copy the package into the working directory via drag-and-drop
 
 In your file manager:
 
-1. **Open the source package location** (e.g., your local copy of the `ultimate-memory-stack/` package)
-2. **Select `common-specs/`** — drag into your working directory
-3. **Select `general-edition/`** — drag into your working directory
+1. **Create a folder named `ultimate-memory-stack`** inside your working directory.
+2. **Open the source package location** (e.g., your local copy of the cloned `ultimate-memory-stack` package)
+3. **Select `common-specs/`** — drag into the new `ultimate-memory-stack/` folder
+4. **Select `general-edition/`** — drag into the new `ultimate-memory-stack/` folder
 
 After this step, your working directory contains:
 
 ```
 my-memory-deployment/
-├── common-specs/         (the universal foundation)
-└── general-edition/      (the edition profile + overrides + setup)
+└── ultimate-memory-stack/
+    ├── common-specs/         (the universal foundation)
+    └── general-edition/      (the edition profile + overrides + setup)
 ```
+
+(`memory/` is **your data vault** — it's created separately in Step 4, below. Keeping it out of `ultimate-memory-stack/` keeps your data and the package's own files from mixing.)
 
 **Mac tip:** Use Finder; hold Option to copy (instead of move). Or use Cmd+C / Cmd+V.
 **Windows tip:** Use File Explorer; Ctrl+Drag to copy. Or right-click → Copy → paste in working dir.
@@ -293,13 +303,13 @@ Open your agent harness with the working directory as its active context — e.g
 
 ### Step 4 — Paste the activation prompt + answer the setup wizard
 
-Open `common-specs/BOOTSTRAP_PROMPT.md`, copy the block under **## The Activation Prompt**, and paste it into your agent. That single paste tells the agent to do all the scaffolding — register the memory protocol (on Claude Code by copying it to `.claude/rules/memory_protocol.md`; on OpenClaw/other harnesses per their rules convention), initialize the `memory/` directory structure, set up audit log + quarantine per preset, and run the setup wizard.
+Open `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md`, copy the block under **## The Activation Prompt**, and paste it into your agent. That single paste tells the agent to do all the scaffolding — register the memory protocol (on Claude Code by copying it to `.claude/rules/memory_protocol.md`; on OpenClaw/other harnesses per their rules convention), initialize the `memory/` directory structure, set up audit log + quarantine per preset, and run the setup wizard.
 
-> **Paste from the file, not from here.** `common-specs/BOOTSTRAP_PROMPT.md` (the section labeled "## The Activation Prompt") is the single source of truth — paste from that file so you always get the current version. (Earlier guide revisions inlined the full prompt here; it was removed to prevent drift.)
+> **Paste from the file, not from here.** `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md` (the section labeled "## The Activation Prompt") is the single source of truth — paste from that file so you always get the current version. (Earlier guide revisions inlined the full prompt here; it was removed to prevent drift.)
 
 **What your agent does next** (handles automatically — just confirm any permission prompts as they appear):
-- Reads `MEMORY_PROTOCOL.md` from the `common-specs/` folder
-- Registers the protocol for auto-load (`.claude/rules/memory_protocol.md` on Claude Code; per-harness convention otherwise)
+- Reads `MEMORY_PROTOCOL.md` from the `ultimate-memory-stack/common-specs/` folder
+- Registers the protocol for auto-load (`.claude/rules/memory_protocol.md` on Claude Code; per-harness convention otherwise) and copies `MEMORY_PROTOCOL_EXTENDED.md` to `memory/MEMORY_PROTOCOL_EXTENDED.md` — an on-demand reference, never `.claude/rules/`
 - Creates the `memory/` directory structure (9 subdirectories)
 - Initializes `audit_log.jsonl` + `quarantine_log.jsonl` per preset
 - Asks you the 6 setup-wizard questions
@@ -318,7 +328,7 @@ See [Troubleshooting](#troubleshooting). The most common issue is "my agent does
 
 ## Bash install in depth
 
-**Method B — `setup-memory-stack.sh`.** Use when you're on Mac, Linux, or WSL and want one-command install.
+**Door 1a — `setup-memory-stack.sh`.** Use when you're on Mac, Linux, or WSL and want one-command install.
 
 ### Prerequisites for this method
 - Bash 4.0+ (standard on Mac and Linux; WSL on Windows works too)
@@ -343,6 +353,7 @@ cd /path/to/your-working-directory
 /path/to/ultimate-memory-stack/setup-memory-stack.sh                  # full install (all addons)
 /path/to/ultimate-memory-stack/setup-memory-stack.sh --minimal       # core only (no addons)
 /path/to/ultimate-memory-stack/setup-memory-stack.sh --addon memory-vault --addon memory-graphiti
+                                                      # valid --addon values: memory-vault, memory-graphiti, memory-graphify, memory-llmlingua
 /path/to/ultimate-memory-stack/setup-memory-stack.sh --no-templater  # skip Obsidian Templater auto-enable
 /path/to/ultimate-memory-stack/setup-memory-stack.sh --compliance=enterprise --extensions=soc2,gdpr
 /path/to/ultimate-memory-stack/setup-memory-stack.sh --migrate-from=v2.0
@@ -394,7 +405,7 @@ Next steps:
 
 **Step 3: Open your agent + paste activation prompt + answer wizard**
 
-Same as Method A Step 4.
+Same as Door 4 Step 4.
 
 **Step 4: Verify:**
 
@@ -424,7 +435,7 @@ This ignores the regenerable vendored package + the install markers. Your `memor
 
 > **Claude Code only.** This is the one install method that requires Claude Code specifically — the manual, script, and agent doors work on any harness (or none). Use it when you have Skills enabled in Claude Code and want the native slash-command experience.
 
-**Status:** ✅ **AVAILABLE** — the install skill ships in `skills/install-ultimate-memory-stack/` (see `skills/install-ultimate-memory-stack/INSTALL_SKILL.md` for how to register the skill itself; v1.4, STABLE — v1.0 baseline validated end-to-end).
+**Status:** ✅ **AVAILABLE** — the install skill ships in `skills/install-ultimate-memory-stack/` (see `skills/install-ultimate-memory-stack/INSTALL_SKILL.md` for how to register the skill itself; STABLE — current version and history in `SKILL.md`'s changelog).
 
 ### What the install looks like
 
@@ -555,10 +566,10 @@ If you have an existing v2.0 memory stack:
 **Run migration** (pick a method):
 
 ```bash
-# Method B (Bash)
+# Door 1a (Bash)
 ./setup.sh --migrate-from=v2.0 --backup-location=memory.backup.v2.$(date +%Y%m%d-%H%M%S)
 
-# Method A (Manual) — copy in the current package files alongside v2.0, then paste a migration prompt
+# Door 4 (Manual) — copy the package in as ultimate-memory-stack/ alongside your v2.0 memory/, then paste the activation prompt
 # (Activation prompt at BOOTSTRAP_PROMPT.md handles migration if v2.0 is detected)
 ```
 
@@ -589,13 +600,13 @@ If you have an existing v2.0 memory stack:
 2. Verify your agent is running from the working directory (not a parent)
 3. If the activation prompt was used: manually paste it again — your agent should re-create the file
 
-### Symptom: Setup script (Method B) fails with "common-specs not found"
+### Symptom: Setup script (Door 1a) fails with "common-specs not found"
 
 **Cause:** You ran the setup script from the wrong directory.
 
 **Fix:** Run from inside the edition's directory (`cd general-edition && ./setup.sh`). The script expects `../common-specs/` to exist.
 
-### Symptom: Method B fails on Mac with "permission denied"
+### Symptom: Door 1a fails on Mac with "permission denied"
 
 **Cause:** Execute bit not set on the script.
 
@@ -652,16 +663,16 @@ Edition is a structural choice — not a simple preset change. When a future edi
 (General-edition only.) **To change preset on an existing general-edition deployment:**
 
 ```bash
-# Method B (Bash)
+# Door 1a (Bash)
 ./setup.sh --change-preset=enterprise
 
-# Method A (Manual) — edit general-edition/PROFILE.md directly
+# Door 4 (Manual) — edit general-edition/PROFILE.md directly
 # Change the line "compliance: <old>" to "compliance: <new>"
 # Save the file. Next agent session re-validates entries against new patterns.
 ```
 
 **What happens:**
-1. PROFILE.md backed up automatically (Method B)
+1. PROFILE.md backed up automatically (Door 1a)
 2. PROFILE.md updated with new preset
 3. Audit log captures the change
 4. Existing entries re-validated against new patterns at next session
@@ -675,13 +686,13 @@ Edition is a structural choice — not a simple preset change. When a future edi
 
 To completely remove the memory stack from a working directory:
 
-**Method A (Drag-and-drop, all OSes):**
+**Door 4 (Drag-and-drop, all OSes):**
 1. **Backup first** if you want to preserve memory: drag `memory/` to a backup location named `memory-stack-backup-<date>/`
 2. Delete `memory/` directory
-3. Delete the copied `common-specs/` and `general-edition/` directories (or the copied `ultimate-memory-stack/` folder, if your install created one)
+3. Delete the `ultimate-memory-stack/` folder (or, for older installs that copied them to the workspace root, the `common-specs/` and `general-edition/` directories)
 4. Remove the protocol registration: on Claude Code delete `.claude/rules/memory_protocol.md` (the rest of `.claude/` may have other rules — only delete `memory_protocol.md`); on OpenClaw/other harnesses, remove the protocol reference from your harness's rules/bootstrap instead
 
-**Method B (Bash):**
+**Door 1a (Bash):**
 ```bash
 # Backup first
 cp -r memory/ ~/memory-stack-backup-$(date +%Y%m%d-%H%M%S)/
@@ -702,14 +713,14 @@ rm -rf common-specs/ general-edition/ ultimate-memory-stack/   # whichever of th
 - **Migration questions:** Read your edition's `MIGRATION_v2_to_v3.md`
 - **Privacy/IP questions:** Read your edition's `PRIVACY_REVIEW.md`
 - **Modularity questions:** Read `common-specs/MODULARITY.md`
-- **The activation prompt:** `common-specs/BOOTSTRAP_PROMPT.md`
+- **The activation prompt:** [`common-specs/BOOTSTRAP_PROMPT.md`](common-specs/BOOTSTRAP_PROMPT.md)
 - **Operational rules:** `common-specs/MEMORY_PROTOCOL.md`
 
 ## Secondary and advanced options
 
 These methods exist but are NOT the recommended path for most users.
 
-### Method D — PowerShell `setup-memory-stack.ps1` (Windows)
+### Door 1b — PowerShell `setup-memory-stack.ps1` (Windows)
 
 **Status:** The core install DELEGATES to Python — requires Python 3.8+ in PATH. This means a fresh Windows user without Python can't use it as a true "Windows-native" option.
 
@@ -734,7 +745,7 @@ cd "<path to your working directory>"
 
 **Future plan:** Rewrite the PowerShell path as native PowerShell (no Python dependency) — promote to a primary install method for Windows users without Python.
 
-### Method E — Python `setup.py` (Cross-platform advanced)
+### Door 1c — Python `setup.py` (Cross-platform advanced)
 
 **When to use:**
 - You're a developer with Python 3.8+ already installed
@@ -775,7 +786,7 @@ python3 setup.py --generate-hmac-secret
 
 **Action required after generation:** store the secret in your password manager. (Ed25519 offline-key entry signing is part of the planned institutional edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.)
 
-**Total time for Methods D / E: ~30 sec setup + ~2-3 min wizard.**
+**Total time for Doors 1b / 1c: ~30 sec setup + ~2-3 min wizard.**
 
 ## Recommended addons and core skills
 
@@ -783,7 +794,7 @@ python3 setup.py --generate-hmac-secret
 
 ### What the addons add beyond the base stack
 
-After the base stack install (Methods A/B/C/D/E above), the package includes **6 additional components**:
+After the base stack install (any door above), the package includes **6 additional components**:
 
 | # | Component | Path | Tier | Time |
 |---|---|---|---|---|

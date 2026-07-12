@@ -1,7 +1,7 @@
 # Migration v2.0 → v3.0 — General-Edition
 
 > **File:** `general-edition/MIGRATION_v2_to_v3.md`
-> **Version:** 1.0 — 2026-05-15
+> **Version:** 1.1 — 2026-07-11
 > **Status:** stable — procedure spec (automation requires T2+ / Node.js; a T0 manual path is included)
 > **Audience:** Existing v2.0 general-context deployments upgrading to v3.0
 
@@ -83,9 +83,11 @@ The migration script:
 
 No script needed — migrate by hand:
 1. Back up `memory/` (Phase A, if you haven't already).
-2. Copy `common-specs/` + `general-edition/` into your workspace.
-3. Paste the activation prompt from `common-specs/BOOTSTRAP_PROMPT.md`. It detects the existing v2.0 `memory/`, proposes a migration plan — add SCHEMA_A18 frontmatter to legacy entries (the fields shown in the automated path above) and restructure projects into per-project memory-banks — and **waits for your approval before writing anything**.
+2. Copy the package into your workspace as `ultimate-memory-stack/` (containing `common-specs/` + `general-edition/`).
+3. Paste the activation prompt from `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md`. It detects the existing v2.0 `memory/`, proposes a migration plan — add SCHEMA_A18 frontmatter to legacy entries (the fields shown in the automated path above) and restructure projects into per-project memory-banks — and **waits for your approval before writing anything**.
 4. Approve the plan; the agent migrates non-destructively (your backup is untouched) and runs the self-test.
+
+> **Older package layouts:** installs made under pre-v4.0 guides may have `common-specs/` and `general-edition/` copied directly at the workspace root instead of vendored as `ultimate-memory-stack/`. Both layouts keep working — use whichever location exists; to match current docs, move the two folders under a new `ultimate-memory-stack/` folder (a pure move — your `memory/` data is not involved).
 
 (General-edition signs with HMAC, not Ed25519, so there is no keypair step.)
 

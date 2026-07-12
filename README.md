@@ -29,6 +29,8 @@ It's not a replacement for your agent harness. It's an **integration layer** tha
 
 ## Install — pick your door
 
+**New to UMS? Use Door 1 (script).**
+
 **🚪 Door 1 — Script**
 
 ```bash
@@ -68,7 +70,7 @@ Then tell your agent — Claude Code, OpenClaw, or any capable harness — *"ins
 
 **🚪 Door 4 — Manual**
 
-Drag `common-specs/` + `general-edition/` into your workspace and paste the activation prompt from `common-specs/BOOTSTRAP_PROMPT.md`. No tooling needed at all. New to the stack? Read [`QUICKSTART.md`](./QUICKSTART.md) first for a 5-minute tour. (Full step-by-step: the **Manual** section in [`INSTALL.md`](./INSTALL.md).)
+Copy the package into your workspace as `ultimate-memory-stack/` (containing `common-specs/` + `general-edition/`) and paste the activation prompt from `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md`. No tooling needed at all. New to the stack? Read [`QUICKSTART.md`](./QUICKSTART.md) first for a 5-minute tour. (Full step-by-step: the **Manual** section in [`INSTALL.md`](./INSTALL.md).)
 
 > **Your data stays yours:** every door refuses to install into the package's own directory and records exactly what it did in `.ums-manifest.json`.
 
@@ -79,7 +81,7 @@ Drag `common-specs/` + `general-edition/` into your workspace and paste the acti
 | Harness | Status | Notes |
 |---|---|---|
 | **Claude Code** | ✅ Supported | Installs as a plugin marketplace entry |
-| **OpenClaw** | ✅ Supported | Via the OpenClaw adapter (`core/openclaw-adapter/` — generates the OpenClaw root files + memory tree; see its QUICKSTART) |
+| **OpenClaw** | ✅ Supported | Via the OpenClaw adapter (`core/openclaw-adapter/` — generates the OpenClaw root files + memory tree); OpenClaw-only users should start at [`core/openclaw-adapter/QUICKSTART.md`](core/openclaw-adapter/QUICKSTART.md) instead of the doors above |
 | **Other** | 🟡 Compatible | If your harness uses the 9-root-file convention (AGENTS.md / SOUL.md / TOOLS.md / IDENTITY.md / USER.md / HEARTBEAT.md / BOOTSTRAP.md / MEMORY.md / DREAMS.md), UMS will work |
 
 UMS does **NOT replace** your harness. It complements it. Each Skill is opt-in.
@@ -123,7 +125,7 @@ The activation wizard (paste `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMP
 # Core only (no addons)
 ./setup-memory-stack.sh --minimal
 
-# Specific addons
+# Specific addons — valid --addon values: memory-vault, memory-graphiti, memory-graphify, memory-llmlingua
 ./setup-memory-stack.sh --addon memory-vault --addon memory-graphiti
 
 # All addons (default)
@@ -142,7 +144,9 @@ The activation wizard (paste `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMP
 - **[USER_GUIDE.md](USER_GUIDE.md)** — Long-form usage guide
 - **[common-specs/ARCHITECTURE.md](common-specs/ARCHITECTURE.md)** — How UMS is structured (7 layers, tier markers)
 - **[common-specs/MEMORY_PROTOCOL.md](common-specs/MEMORY_PROTOCOL.md)** — Operational rules + configuration reference
+- **[common-specs/BOOTSTRAP_PROMPT.md](common-specs/BOOTSTRAP_PROMPT.md)** — The activation prompt every install method pastes into your agent
 - **[common-specs/USER_CHEAT_SHEET_core.md](common-specs/USER_CHEAT_SHEET_core.md)** — User best practices
+- **[general-edition/DEPLOYMENT.md](general-edition/DEPLOYMENT.md)** — Edition deploy guidance (prerequisites, scenarios, tier detection)
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — How to contribute
 - **[CHANGELOG.md](CHANGELOG.md)** — Version history
 

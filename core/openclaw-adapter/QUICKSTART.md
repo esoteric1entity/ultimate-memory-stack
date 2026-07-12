@@ -5,7 +5,7 @@ file: QUICKSTART
 project: ultimate-memory-stack
 component: openclaw-adapter
 created_at: 2026-05-29
-last_updated: 2026-06-16
+last_updated: 2026-07-11
 schema_version: "3.0"
 schema: A18
 scope: file
@@ -237,5 +237,4 @@ See the repository root for license terms and contribution guidelines.
 
 - Schema version: **3.0** (per memory protocol)
 - Stack version: **v3.6.2**
-- OpenClaw adapter version: ships with v3.5 release
 - This quick-start covers the **no-Claude-required path**; if Claude Code is present on the target machine, the slash-command Skills (`/install-openclaw-adapter`, `/audit-quarantine`, etc.) provide an alternative entry that wraps the same Python scripts shown here.

@@ -3,13 +3,13 @@
 > **Status:** stable — ships with UMS v3.6.2 (design + Skill artifact complete; cross-machine deployment validated)
 > **Tier:** A (CORE deliverable — required for OpenClaw deployment; not opt-in)
 > **Edition:** general-edition (the public edition; a HIPAA/PHI institutional edition is planned for a future release)
-> **Last updated:** 2026-06-16
+> **Last updated:** 2026-07-11
 
 ---
 
 ## What This Adapter Does
 
-The OpenClaw General Edition Adapter ports the Ultimate Memory Stack v3.6.0 onto the **OpenClaw harness** — the first non-Claude-Code consumer of the memory stack. It generates the 9 root auto-load files OpenClaw expects, maps tier semantics across the two harnesses, and inherits all 4 PASS-vetted addons from this v3.5 release.
+The OpenClaw General Edition Adapter ports the Ultimate Memory Stack onto the **OpenClaw harness** — the first non-Claude-Code consumer of the memory stack. It generates the 9 root auto-load files OpenClaw expects, maps tier semantics across the two harnesses, and inherits all 4 PASS-vetted addons.
 
 **Why this matters:**
 - Validates the modular consumer architecture in practice
@@ -70,7 +70,7 @@ core/openclaw-adapter/
 
 ### Purpose
 
-Port the Ultimate Memory Stack v3.6.0 to the OpenClaw harness, enabling NAS-class OpenClaw deployments and validating the modular consumer architecture. Establishes the cross-harness pattern that future harness ports will inherit.
+Port the Ultimate Memory Stack to the OpenClaw harness, enabling NAS-class OpenClaw deployments and validating the modular consumer architecture. Establishes the cross-harness pattern that future harness ports will inherit.
 
 ### Rationale
 

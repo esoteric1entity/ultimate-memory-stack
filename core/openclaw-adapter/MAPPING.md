@@ -1,9 +1,10 @@
 # v3.0/v3.5 ↔ OpenClaw Convention Mapping
 
+> **Note:** "v3.0/v3.5" throughout this mapping are architecture-lineage names, not the current package version — the current version is tracked in `/VERSION`.
 > **Doc:** `core/openclaw-adapter/MAPPING.md`
-> **Purpose:** Codify the exact mapping between Ultimate Memory Stack v3.6.0/v3.5 conventions and OpenClaw harness conventions. This is the reference doc for `SKILL.md` Step 4 + `setup-openclaw.sh/py`.
+> **Purpose:** Codify the exact mapping between Ultimate Memory Stack v3.0/v3.5 conventions and OpenClaw harness conventions. This is the reference doc for `SKILL.md` Step 4 + `setup-openclaw.sh/py`.
 > **Foundation:** the OpenClaw general-edition design notes (internal R&D) + the cross-harness convergence contract
-> **Last updated:** 2026-06-16
+> **Last updated:** 2026-07-11
 
 ---
 
@@ -74,15 +75,15 @@ adapter_version: "1.0"
 - Concise principles, not detailed reasoning (reasoning lives in DEC entries)
 
 **Adapter behavior:**
-- Initial SOUL.md ships with 6-10 candidate principles distilled from v3.0/v3.5 FINAL DECs:
-  - **DEC-001:** Security-first tool installation
-  - **DEC-020:** Mirror discipline (canonical copy ↔ mirror copy kept in parity)
-  - **DEC-021:** Ideal-first design (cleanest topology before compromise)
-  - **DEC-023:** Documentation discipline (purpose/rationale/scope CAN/CANNOT mandatory)
-  - **DEC-030:** Borrow ideas, not numbers
-  - **DEC-032:** Karpathy Lint surface-only
-  - **DEC-031:** Modular consumer architecture
-  - **DEC-046:** Convergence is signal (independent agreement on patterns is the strongest validation)
+- Initial SOUL.md ships with 6-10 candidate principles distilled from the project's own FINAL decisions:
+  - **Security-first tool installation**
+  - **Mirror discipline** (canonical copy ↔ mirror copy kept in parity)
+  - **Ideal-first design** (cleanest topology before compromise)
+  - **Documentation discipline** (purpose/rationale/scope CAN/CANNOT mandatory)
+  - **Borrow ideas, not numbers**
+  - **Karpathy Lint surface-only**
+  - **Modular consumer architecture**
+  - **Convergence is signal** (independent agreement on patterns is the strongest validation)
 
 **Content type:** principles, NOT rules-as-code. SOUL.md says "WHAT we believe"; AGENTS.md says "HOW we act on it."
 
@@ -104,9 +105,9 @@ adapter_version: "1.0"
   ```markdown
   | Addon | Status | Installer Skill | Vetting |
   |---|---|---|---|
-  | LLMLingua | [installed | not installed] | /install-llmlingua | VET-011 PASS |
-  | Graphiti | [installed | not installed] | /install-graphiti | VET-010 PASS |
-  | Graphify | [installed | not installed] | /install-graphify | VET-009 PASS |
+  | LLMLingua | [installed | not installed] | /install-llmlingua | PASS |
+  | Graphiti | [installed | not installed] | /install-graphiti | PASS |
+  | Graphify | [installed | not installed] | /install-graphify | PASS |
   | Obsidian | [installed | not installed] | /config-obsidian-vault | n/a (config-only) |
   ```
 - Status updated by each addon's installer Skill on completion (Step 6 of LLMLingua, etc.)

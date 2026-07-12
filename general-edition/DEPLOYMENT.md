@@ -1,7 +1,7 @@
 # Deployment — General-Edition
 
 > **File:** `general-edition/DEPLOYMENT.md`
-> **Version:** 1.1 — 2026-06-16
+> **Version:** 1.2 — 2026-07-11
 > **Status:** Stable — ships with UMS v3.6.2
 > **Audience:** Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts
 
@@ -45,7 +45,7 @@
 
 ### Step 1: Copy the directory
 
-Copy `common-specs/` AND `general-edition/` into your working directory.
+Copy the package into your working directory as `ultimate-memory-stack/`, containing `common-specs/` AND `general-edition/`.
 
 ### Step 2: Open your agent harness
 
@@ -57,7 +57,7 @@ cd <working-dir>
 
 ### Step 3: Paste activation prompt
 
-From `common-specs/BOOTSTRAP_PROMPT.md` "The Activation Prompt" section.
+From `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md` "The Activation Prompt" section.
 
 ### Step 4: Answer setup wizard
 
@@ -105,7 +105,7 @@ bash setup.sh --compliance=enterprise --extensions=soc2,gdpr
 ### What the setup script does
 
 1. Validates prerequisites (Node.js available, OS detection)
-2. Copies common-specs + general-edition into working dir
+2. Copies common-specs + general-edition into `ultimate-memory-stack/` in the working dir
 3. Initializes `memory/` directory structure
 4. Registers the protocol for auto-load — `.claude/rules/memory_protocol.md` on Claude Code; per the harness's own rules/bootstrap convention on OpenClaw and others (the installer detects your harness)
 5. Setup wizard (or accepts CLI args for unattended install)

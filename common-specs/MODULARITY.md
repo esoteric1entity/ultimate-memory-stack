@@ -1,7 +1,7 @@
 # Modularity — Architecture Plug-In Pattern
 
 > **File:** `common-specs/MODULARITY.md`
-> **Version:** 1.0 — 2026-05-15
+> **Version:** 1.1 — 2026-07-11
 > **Status:** APPROVED
 > **Authors:** see `/AUTHORS.md`
 > **Design decision:** Memory stack as branded module; consumer architecture pluggable
@@ -139,7 +139,7 @@ Setup wizard accepts initial 4 (`warden`, `sentinel`, `vault`, `clerk`) but user
 
 Per the design directive:
 
-- **Other harnesses (OpenClaw, custom non-Claude agents):** Deferred to future iteration. v3.0 is Claude-only.
+- **Other harnesses (custom non-Claude agents beyond OpenClaw):** Deferred to future iteration. (Historical note, 2026-07-11: this section originally scoped v3.0 as Claude-only; the OpenClaw adapter has since shipped in-tree at `core/openclaw-adapter/` — see its own README/QUICKSTART.)
 - **Cross-architecture migration tools:** If a deployment changes its sub-agent topology mid-flight (e.g., adds new agents), the memory stack DOES NOT auto-migrate prior entries. Old entries retain their original `source_agent` values; new entries use new slots. This is intentional — historical attribution preserves provenance.
 - **Memory stack INTERNAL features being user-changeable:** No. The 7-layer architecture, schemas, protocols are FIXED for a given v3.0 deployment. Only the `source_agent` registration is pluggable.
 

@@ -32,7 +32,7 @@ The **installer** scaffolds; the **activation wizard** populates. Right after in
 | `.deployment-info` | Completion certificate — present only if install finished |
 | `ultimate-memory-stack/` | The package itself (specs, templates, editions) — code, not your data |
 
-Then you paste the activation prompt from `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md` into your agent, answer the wizard, and it creates the two living files everything orbits:
+Then you paste the activation prompt from [`ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md`](./common-specs/BOOTSTRAP_PROMPT.md) into your agent, answer the wizard, and it creates the two living files everything orbits:
 
 - **`memory/MEMORY_INDEX.md`** — master index; what your agent reads first to "wake up"
 - **`memory/sessions/session_state.md`** — where you left off (the lifeline)
@@ -42,7 +42,7 @@ Then you paste the activation prompt from `ultimate-memory-stack/common-specs/BO
 ### Minute 1 — Run the wizard (if you haven't)
 
 Open your agent in the workspace and paste the activation prompt from
-`ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md`. It asks a few
+[`ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md`](./common-specs/BOOTSTRAP_PROMPT.md). It asks a few
 questions (name, role, preferences) and seeds the vault.
 
 ### Minute 2 — Look at the index and the lifeline

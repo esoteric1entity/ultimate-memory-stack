@@ -79,7 +79,7 @@
 - This package ships the **general-edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ### Steps
-1. **Copy the stack package** into your working directory:
+1. **Copy the stack package** into your working directory as `ultimate-memory-stack/`, containing:
    - `common-specs/` — universal files (this is the shared 95%)
    - `general-edition/` — the edition shipped in this package. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 2. **Open your agent harness** in your working directory (e.g. Claude Code, OpenClaw, or any 9-root-file agent)
@@ -98,7 +98,7 @@
 ```
 You are deploying the Ultimate Memory Stack v3.6.2 in this working directory.
 
-The complete spec lives in `common-specs/` plus the general-edition profile in `general-edition/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
+The complete spec lives in `ultimate-memory-stack/common-specs/` plus the general-edition profile in `ultimate-memory-stack/general-edition/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
 
 ---
 
@@ -106,7 +106,7 @@ The complete spec lives in `common-specs/` plus the general-edition profile in `
 
 This package ships the **general-edition**. Confirm with me: "Deploying the general-edition in this directory — confirm?"
 
-Wait for my answer. Then load `general-edition/PROFILE.md` to determine which common-spec sections are active, which overrides apply, and which compliance preset is in effect.
+Wait for my answer. Then load `ultimate-memory-stack/general-edition/PROFILE.md` to determine which common-spec sections are active, which overrides apply, and which compliance preset is in effect.
 
 Ask "Which compliance preset — none, enterprise, or custom?" Save the answer to my user profile.
 
@@ -121,10 +121,10 @@ Confirm or create the following structure (this is the common spec; edition prof
 ```
 .claude/
   rules/
-    memory_protocol.md           ← Auto-loaded each session (copy from common-specs/MEMORY_PROTOCOL.md)
+    memory_protocol.md           ← Auto-loaded each session (copy from ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md)
 memory/
   MEMORY_PROTOCOL_EXTENDED.md    ← On-demand reference (never auto-loaded — see .claude/rules/ above)
-  MEMORY_INDEX.md                ← Master registry (per common-specs/MEMORY_PROTOCOL.md §Index)
+  MEMORY_INDEX.md                ← Master registry (per ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md §Index)
   sessions/
     session_state.md             ← Lifeline file (per SCHEMA_A18 entry format)
   user/
@@ -159,7 +159,7 @@ ultimate-memory-stack/           ← The spec itself, read-mostly during operati
 
 ### Step 3 — Apply the Memory Protocol
 
-Read `common-specs/MEMORY_PROTOCOL.md`. It contains the operational rules: when to load files (Tier 1/2/3), context budget, conflict resolution hierarchy, file size limits, standing rules, risk scoring, cascade failure detection, self-test suite. Do not duplicate that file's content here — load it and follow it.
+Read `ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md`. It contains the operational rules: when to load files (Tier 1/2/3), context budget, conflict resolution hierarchy, file size limits, standing rules, risk scoring, cascade failure detection, self-test suite. Do not duplicate that file's content here — load it and follow it.
 
 Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code auto-loads it each session. Also copy `MEMORY_PROTOCOL_EXTENDED.md` to `memory/MEMORY_PROTOCOL_EXTENDED.md` — on-demand reference detail, **never** `.claude/rules/` (that would auto-load it every session and recreate the eager-load cost the CORE/EXTENDED split fixes). (OpenClaw and other harnesses register the protocol via their own rules/bootstrap mechanism — see `INSTALL_AGENT.md` and `core/openclaw-adapter/`.)
 
@@ -167,7 +167,7 @@ Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code a
 
 ### Step 4 — Apply Edition Profile + Overrides
 
-Read `general-edition/PROFILE.md`. It declares:
+Read `ultimate-memory-stack/general-edition/PROFILE.md`. It declares:
 - Which common-spec features are active (e.g., audit log: required vs opt-in)
 - Compliance preset (`none` / `enterprise` / `custom` for general; the `healthcare` preset is biotech-edition-reserved and not selectable in general-edition)
 - Override-file map — each line says "override file X applies override Y" (the B4 override-file convention)
@@ -176,13 +176,13 @@ Read `general-edition/PROFILE.md`. It declares:
 - Audit log retention policy
 - Quarantine UX pattern (one-line toast)
 
-Apply each `.override.md` file listed in PROFILE.md. The override pattern: if `common-specs/X.md` and `general-edition/overrides/X.override.md` both exist, the override's sections REPLACE the common-spec's sections of the same name (other sections inherit).
+Apply each `.override.md` file listed in PROFILE.md. The override pattern: if `ultimate-memory-stack/common-specs/X.md` and `ultimate-memory-stack/general-edition/overrides/X.override.md` both exist, the override's sections REPLACE the common-spec's sections of the same name (other sections inherit).
 
 ---
 
 ### Step 5 — Apply Schemas
 
-Read all schema files in `common-specs/`:
+Read all schema files in `ultimate-memory-stack/common-specs/`:
 - `SCHEMA_A3_per_project_memory_bank.md` — per-project memory bank structure
 - `SCHEMA_A18_per_entry_metadata.md` — YAML frontmatter for every memory entry
 - `SCHEMA_audit_log.md` — JSONL audit log format (B1)
@@ -203,7 +203,7 @@ If `memory/` is empty (first deployment):
 
 If `memory/` exists (upgrading from v2.0):
 1. Detect schema version of existing files
-2. Migrate per `general-edition/MIGRATION_v2_to_v3.md` (separate file) — adds YAML frontmatter to existing entries, restructures projects into per-project subdirs
+2. Migrate per `ultimate-memory-stack/general-edition/MIGRATION_v2_to_v3.md` (separate file) — adds YAML frontmatter to existing entries, restructures projects into per-project subdirs
 3. Preserve all FINAL decisions, security entries, user profile, standing rules — these survive any migration
 4. Tell me the migration plan BEFORE executing. Wait for approval.
 
@@ -349,7 +349,7 @@ See `ARCHITECTURE.md` for the template + worked examples.
 2. **Add YAML frontmatter** to existing entries (A18 schema) — automation-script available at T2+ (Node.js)
 3. **Restructure projects** — move per-project content into `memory/projects/<slug>/memory-bank/` (A3 schema)
 4. **Add new directories**: `audit_log.jsonl` (if enabling B1), `quarantine/` (if enabling B2)
-5. **Update protocol**: copy `common-specs/MEMORY_PROTOCOL.md` v3.0 over `.claude/rules/memory_protocol.md`
+5. **Update protocol**: copy `ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md` v3.0 over `.claude/rules/memory_protocol.md`
 6. **Re-run self-test**: verify migration succeeded
 
 **Backward compatibility:** v2.0 memory files without YAML frontmatter are treated as legacy entries with implicit `confidence: FINAL`, `status: active`, `created_at: <file-mtime>`. They continue to work; new entries get the full frontmatter.

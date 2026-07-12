@@ -95,7 +95,7 @@ feat(memory): add Graphiti backfill for Episodic nodes
 Adds backfill utility for ingesting existing decisions/learnings
 into the Graphiti graph when upgrading from v0.x to v1.0.
 
-Ref: LEARN-005 (deferred episodes)
+Ref: LEARN-0NN (short description of the referenced learning)
 ```
 
 ```

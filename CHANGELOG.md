@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Install-skill upgrade path fixed** (skill **v1.6**) — on a re-install over an existing scaffold, the skill door's file copy nested the new package copy inside the old directory instead of refreshing it, so upgrades via that door silently kept the stale protocol files. User data is untouched; fresh installs unaffected.
 - Installer hygiene: both edition installers now clear a stale `.deployment-info` completion certificate before a fresh install (parity between `setup.sh` and `setup.py`), the `.deployment-info` `extensions` field now uses the same shell-parseable comma-string format in both installers, the custom-preset refusal message now points at the pattern to follow, and a dead agent-shield-specific block was removed from the repo-root `.gitignore`.
 
+### Documentation
+- Tightened public docs to release-granularity detail (internal record-ID citations trimmed from `INSPIRATIONS.md`, `MAPPING.md`, this file, and the addon `requirements.txt` headers; substance preserved everywhere).
+- Install-guide corrections: unified door taxonomy, fixed manual-install layout contradiction, corrected the wizard-step description, documented the addon flag values, component version-labels reconciled (install skill → v1.7).
+
 ## [3.6.2] — 2026-06-16
 
 ### Changed
@@ -38,13 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **macOS: installer failed at addon registration** — `setup-memory-stack.sh` used a bash-4 associative array (`declare -A`), but macOS ships bash 3.2; replaced with a portable case-statement lookup. Caught by the cross-OS install CI on launch day (the macOS leg had never run on real Apple hardware before).
 - **Install skill could overwrite an existing `memory/` store** — the `/install-ultimate-memory-stack` skill (≤ v1.1) created `session_state.md` / `MEMORY_INDEX.md` / `user_profile.md` / project briefs / `feedback.md` without checking whether they already existed, so re-running it over an existing project-local memory store reset accumulated memory to empty templates. Skill **v1.2** adds an existing-store safety gate (detect → timestamped `memory.backup.<ts>/` → preserve mode; user-data files are now create-if-absent), matching the shell and agent install doors, which already preserved data. (Claude Code's native memory and `CLAUDE.md` are unaffected — UMS writes only to the project-local `memory/`.)
 - **Windows installer accepted a compliance preset it then rejected** — `general-edition/setup.ps1` listed `healthcare` as a valid preset/extension while `setup.sh`/`setup.py` refuse it, so passing `-Compliance healthcare` produced a confusing downstream failure. The PS1 now rejects it up-front with the institutional-edition message, matching the other installers.
-- **Install skill now refuses unsafe install locations** — the `/install-ultimate-memory-stack` skill (v1.3) guards against scaffolding into `$HOME` or a system directory (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`), which would otherwise scatter `memory/`, `.claude/`, and `ultimate-memory-stack/` across the user's home/root. It now stops and asks the user to `cd` into a dedicated project directory first. (PUBREL-UX-007.)
-- **Install-skill data-preservation guard made explicit** — Step 8 of the install skill (v1.3) now spells out the per-file existence check (`[ -e <target> ]` → preserve, do not write, ask first) so the Step 0.5 existing-store protection is mechanical rather than advisory prose; Step 7f now confirms before resetting a user-customized `PROFILE.md` on a re-install. (PUBREL-UX-021 residual.)
+- **Install skill now refuses unsafe install locations** — the `/install-ultimate-memory-stack` skill (v1.3) guards against scaffolding into `$HOME` or a system directory (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`), which would otherwise scatter `memory/`, `.claude/`, and `ultimate-memory-stack/` across the user's home/root. It now stops and asks the user to `cd` into a dedicated project directory first.
+- **Install-skill data-preservation guard made explicit** — Step 8 of the install skill (v1.3) now spells out the per-file existence check (`[ -e <target> ]` → preserve, do not write, ask first) so the Step 0.5 existing-store protection is mechanical rather than advisory prose; Step 7f now confirms before resetting a user-customized `PROFILE.md` on a re-install.
 
 ### Changed
 - **Install doors reordered to lead with the safe paths** — the landing page, `README.md`, and `INSTALL.md` now present the **script** and **agent** doors first (both detect and preserve an existing `memory/` store); the Claude Code **marketplace** door follows, with a "back up an existing store first" note. The backup guidance is scoped to the marketplace door — the only one with overwrite potential.
 - **Gated the public biotech/healthcare offer** — the public package ships **general-edition only** (compliance presets `none`/`enterprise`/`custom`; extensions `gdpr`/`soc2`/`pci-dss`). Docs, prompts, the install skill, and `setup.ps1` no longer offer the `healthcare` preset/extension or a selectable biotech edition (the installers already refused them — this aligns the docs to that gate). A HIPAA/PHI-focused institutional edition is **planned for a future release (not yet available)**; all references are now forward-looking rather than present-availability claims.
-- **Marketplace (Door 3) install docs hardened** — added a "these are Claude Code slash commands, not shell commands" callout, a Prerequisites line (Claude Code installed + authenticated), and the explicit exit → `cd` → relaunch steps, and promoted the back-up-an-existing-store note from a parenthetical to a prominent warning (README, INSTALL.md, landing page). Addresses the marketplace-door UX gaps surfaced by the post-launch install test (PUBREL-UX-001/002/003).
+- **Marketplace (Door 3) install docs hardened** — added a "these are Claude Code slash commands, not shell commands" callout, a Prerequisites line (Claude Code installed + authenticated), and the explicit exit → `cd` → relaunch steps, and promoted the back-up-an-existing-store note from a parenthetical to a prominent warning (README, INSTALL.md, landing page). Addresses UX gaps surfaced by the post-launch install test.
 - **Version bumped 3.6.0 → 3.6.1** so existing marketplace installs receive the install-skill data-safety fix (existing-store backup + preserve, shipped in skill v1.1/1.2) via `/plugin update` — the fix was committed but undelivered while the package still advertised 3.6.0.
 
 ### Known issues
@@ -109,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `INSTALL.md` rewritten for the standalone repo: entry-point scripts first, per-method requirements stated (Windows route requires Python 3.8+), umbrella-era cross-references removed
 - `install-ultimate-memory-stack` Skill promoted v1.0 DRAFT → **v1.0 STABLE** after first end-to-end execution (T1–T9 self-test 9/9 PASS); Step 2 now offers only editions actually present in the source package
 - `INSTALLATION_GUIDE.md` comprehensively revised (guide rev 3.0): documents the top-level entry scripts + `verify.sh` throughout; install-skill section made present-tense (it ships); biotech-edition consistently framed as the institutional package; expected-output blocks replaced with verified live-run output; §17/§18 section order restored; internal references and sanitization artifacts removed
-- License decision locked: **Apache-2.0** (was: deferred per the long-standing DEC-017 placeholder)
+- License decision locked: **Apache-2.0** (was: a long-standing deferred placeholder)
 - All internal `branches/memory/package/` paths in install + spec docs rewritten to be self-contained for the per-package repo layout
 - Top-level README replaced with the v3.6.0 debut release version (former v3.0 R&D README archived in the umbrella's R&D tree)
 - Author attribution consolidated under the `esoteric1entity` handle across NOTICE / AUTHORS (privacy-preserving copyright pattern)
@@ -132,11 +136,11 @@ This was the last R&D-internal release before the v3.6.0 cut. Highlights:
 - Claudeless QUICKSTART guide for general-edition deployments
 
 ### Fixed
-- Bug #12 — v3.2.1 tier-marker regression in `MEMORY.md`
-- Bug #13 — v3.2.2 `HEARTBEAT.md` injection-limit overflow
-- Bug #14 — B2 field-type validation failure in biotech edition
-- Bug #15 — typo (`decission` → `decision`)
-- Bug #16 — `setup-openclaw.sh` python vs python3 detection mismatch
+- v3.2.1 tier-marker regression in `MEMORY.md`
+- v3.2.2 `HEARTBEAT.md` injection-limit overflow
+- B2 field-type validation failure in biotech edition
+- Typo (`decission` → `decision`)
+- `setup-openclaw.sh` python vs python3 detection mismatch
 
 ### Deprecated
 - DGM-H (Darwinian Generative Meta-HyperAgents) deferred from Tier B core to v4.0 candidate
