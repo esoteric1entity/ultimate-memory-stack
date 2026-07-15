@@ -122,6 +122,45 @@ def create_user_overrides(working_dir: Path, compliance_preset: str, extensions:
     return True
 
 
+# Categories that tier per SPEC-hotcold-v4 §S2 — MEMORY_PROTOCOL.md §11.6.
+# category -> (Title-case label, hot file relpath under memory/, archive file name)
+TIERED_CATEGORIES = {
+    "sessions": ("Sessions", "sessions/session_state.md", "sessions-archive.md"),
+    "decisions": ("Decisions", "decisions/decisions.md", "decisions-archive.md"),
+    "feedback": ("Feedback", "feedback/feedback.md", "feedback-archive.md"),
+}
+
+
+def create_archive_indexes(working_dir: Path) -> None:
+    """Create empty memory/archive/<category>/ARCHIVE_INDEX.md for each tiered
+    category on fresh install (SPEC-hotcold-v4 §S4: fresh installs get these by
+    default, not lazily on first rotation). Idempotent per category — never
+    overwrites an existing ARCHIVE_INDEX.md (rotation may have populated it)."""
+    template_path = COMMON_SPECS_DIR / "templates" / "ARCHIVE_INDEX.template.md"
+    template_body = _extract_template_body(template_path)
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    for category, (label, hot_file, archive_file) in TIERED_CATEGORIES.items():
+        archive_dir = working_dir / "memory" / "archive" / category
+        index_path = archive_dir / "ARCHIVE_INDEX.md"
+        if index_path.exists():
+            continue
+        body = (
+            template_body
+            .replace("<Category>", label)
+            .replace("<YYYY-MM-DD>", today)
+            .replace("<HotFile>", hot_file)
+            .replace("<ArchiveFile>", archive_file)
+        )
+        # A genuinely fresh, empty index has no example entry — strip the
+        # illustrative placeholder line so it doesn't read as real content.
+        body = re.sub(r"\n- <ENTRY-ID>.*\n", "\n", body)
+        if not body.endswith("\n"):
+            body += "\n"
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        index_path.write_text(body, encoding="utf-8")
+
+
 def upsert_override_key(overrides_path: Path, key: str, value_line: str):
     """Set `key` in USER_OVERRIDES.md to value_line's content, touching nothing else.
     Order: replace a live `key: ...` line; else uncomment+replace the template's
@@ -415,6 +454,10 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     # PROFILE.md's frontmatter carries only the shipped default and is never
     # edited by the installer (it stays regenerable — see PROFILE.md §2.1).
     create_user_overrides(working_dir, compliance_preset, extensions)
+
+    # v4.0.0 hot/cold tiering (SPEC-hotcold-v4 §S4): pre-scaffold empty
+    # ARCHIVE_INDEX.md files for the 3 tiered categories.
+    create_archive_indexes(working_dir)
 
     # Tier detection
     tier = detect_tier()

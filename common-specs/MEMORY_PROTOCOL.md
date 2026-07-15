@@ -130,7 +130,7 @@ Before high-impact tasks (deletes, config changes, restructures, bulk ops): scor
 | `references/references.md` | 100 ln | Split by domain |
 | `MEMORY_INDEX.md` | 150 ln | Pointers only |
 
-**11.6 Tiered Archive Index (reserved):** categories that rotate under a cap above (sessions, decisions, feedback) get a companion `memory/archive/<category>/ARCHIVE_INDEX.md` — one line per archived entry, so rotation stays discoverable. Full mechanics ship with the hot/cold tiering backport (`SPEC-hotcold-v4.md`); reserved here so pre-existing cross-refs don't go stale.
+**11.6 Tiered Archive Index:** `sessions`/`decisions`/`feedback` rotate on cap into `memory/archive/<category>/ARCHIVE_INDEX.md` — one line/entry, read on demand, nothing deleted. De-dup: current state lives in the category file only; the index is a pointer. Procedure + rehydration: EXTENDED §Tiering.
 
 ---
 

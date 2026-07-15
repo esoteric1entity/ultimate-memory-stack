@@ -373,6 +373,387 @@ def check_naming_inconsistencies(root: Path, harness: str) -> list[LintFinding]:
     return []
 
 
+# ---------------------------------------------------------------------------
+# Tiering checks (v4.0.0 hot/cold backport) — SCHEMA_lint.md §13.
+# All fire at severity "low". Claude-Code-taxonomy-specific (product memory/
+# layout) — no-op on OpenClaw harness (same implicit-gating pattern the
+# existing checks above already use: paths that don't exist there).
+# ---------------------------------------------------------------------------
+
+TIERED_CATEGORIES = ("sessions", "decisions", "feedback")
+
+# MEMORY_INDEX.md Category Summary table row labels for each tiered category
+# (MEMORY_INDEX.template.md's "| Category | File | Entries | Archived | ... |").
+CATEGORY_LABELS: dict[str, str] = {
+    "sessions": "Sessions",
+    "decisions": "Decisions",
+    "feedback": "Feedback",
+}
+
+# §11 File Size Limits caps (MEMORY_PROTOCOL.md §11 table) — hardcoded per
+# SCHEMA_lint.md §13 implementation note 1 (parsing the markdown table is more
+# fragile than this documented drift risk). A future §11 cap change must also
+# update this dict. Path is relative to memory/. Value = (line_cap, remedy_text).
+SECTION11_CAPS: dict[str, tuple[int, str]] = {
+    "sessions/session_state.md": (1500, "archive old summaries (EXTENDED §Tiering)"),
+    "decisions/decisions.md": (1500, "archive FINALs >20 sessions old (EXTENDED §Tiering)"),
+    "feedback/feedback.md": (300, "consolidate into standing rules, then rotate superseded originals (EXTENDED §Tiering)"),
+    "projects/project_context.md": (400, "split to per-slug memory-banks"),
+    "user/user_profile.md": (100, "consolidate"),
+    "security/vetting_log.md": (400, "archive entries >1yr"),
+    "references/references.md": (100, "split by domain"),
+    "MEMORY_INDEX.md": (150, "keep pointers only"),
+}
+
+
+def _load_eager_set_budget(root: Path) -> int:
+    """Defensive, limited read of PROFILE.md then USER_OVERRIDES.md frontmatter
+    for eager_set_budget_bytes. Defaults to 80000 on absence or any parse
+    failure — the runner had zero PROFILE/overrides-reading infrastructure
+    before this check (SCHEMA_lint.md §13 implementation note 3)."""
+    default = 80000
+    value = default
+    # Anchored to end-of-line (optionally a trailing comment) so a value that
+    # ISN'T a bare integer — "1_000" (Python-literal habit), "80 000" — fails
+    # to match and falls back to the default instead of silently truncating
+    # to its leading digits (F1, REVIEW-STEP6-TIERING-2026-07-15.md).
+    pattern = re.compile(r"^eager_set_budget_bytes:\s*(\d+)\s*(?:#.*)?$", re.MULTILINE)
+
+    for profile_path in sorted(root.glob("ultimate-memory-stack/*-edition/PROFILE.md")):
+        try:
+            head = profile_path.read_text(encoding="utf-8")[:2000]
+            match = pattern.search(head)
+            if match:
+                value = int(match.group(1))
+        except (OSError, UnicodeDecodeError, ValueError):
+            pass
+
+    overrides_path = root / "memory" / "user" / "USER_OVERRIDES.md"
+    if overrides_path.exists():
+        try:
+            content = overrides_path.read_text(encoding="utf-8")
+            match = pattern.search(content)
+            if match:
+                value = int(match.group(1))
+        except (OSError, UnicodeDecodeError, ValueError):
+            pass
+
+    return value
+
+
+def collect_archive_entry_ids(archive_file: Path) -> set[str]:
+    """Extract entry IDs from a memory/archive/<category>/<category>-archive.md
+    file. Dedicated walker — collect_all_entries() deliberately SKIPS any path
+    containing "archive"/"archived" (correct for the 6 original checks, unusable
+    here per SCHEMA_lint.md §13 implementation note 2). Does not change that
+    walker's semantics."""
+    if not archive_file.exists():
+        return set()
+    try:
+        content = archive_file.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return set()
+    return extract_entry_ids(content)
+
+
+def extract_archive_index_ids(index_file: Path) -> set[str]:
+    """Extract entry IDs listed as one-liners in an ARCHIVE_INDEX.md
+    (`- <ID> (<date>): ...` lines)."""
+    if not index_file.exists():
+        return set()
+    try:
+        content = index_file.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return set()
+    ids = set()
+    for match in re.finditer(r"^-\s+((?:DEC|FB|SESSION)-[\w-]+)\s*\(", content, re.MULTILINE):
+        ids.add(match.group(1))
+    return ids
+
+
+def check_eager_set_over_budget(root: Path, harness: str) -> list[LintFinding]:
+    """Tiering check: summed live always-load bytes vs eager_set_budget_bytes
+    (default 80,000) — an ongoing live-vault advisory, distinct from the
+    fresh-install release gate (EXTENDED §E12.5)."""
+    findings: list[LintFinding] = []
+    memory_dir = root / "memory"
+    if not memory_dir.is_dir():
+        return findings
+
+    always_load = [
+        root / ".claude" / "rules" / "memory_protocol.md",
+        memory_dir / "sessions" / "session_state.md",
+        memory_dir / "user" / "user_profile.md",
+        memory_dir / "MEMORY_INDEX.md",
+    ]
+    total = 0
+    found_any = False
+    for p in always_load:
+        if p.exists():
+            try:
+                total += p.stat().st_size
+                found_any = True
+            except OSError:
+                pass
+    if not found_any:
+        return findings
+
+    budget = _load_eager_set_budget(root)
+    if total > budget:
+        findings.append(
+            LintFinding(
+                check_id="eager_set_over_budget",
+                severity="low",
+                message=(
+                    f"Live always-loaded set is {total:,} bytes, over the {budget:,}-byte "
+                    "eager_set_budget_bytes advisory — consider rotating sessions/decisions/feedback "
+                    "(EXTENDED §Tiering)"
+                ),
+            )
+        )
+    return findings
+
+
+def check_file_nearing_cap(root: Path, harness: str) -> list[LintFinding]:
+    """Tiering check: a §11-capped file exceeds ~80% of its line cap."""
+    findings: list[LintFinding] = []
+    memory_dir = root / "memory"
+    if not memory_dir.is_dir():
+        return findings
+
+    for rel_path, (cap, remedy) in SECTION11_CAPS.items():
+        p = memory_dir / rel_path
+        if not p.exists():
+            continue
+        try:
+            line_count = sum(1 for _ in p.open(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError):
+            continue
+        if line_count >= cap * 0.8:
+            findings.append(
+                LintFinding(
+                    check_id="file_nearing_cap",
+                    severity="low",
+                    message=f"{rel_path} is {line_count}/{cap} lines (§11 cap) — remedy: {remedy}",
+                    file_path=str(p.relative_to(root)),
+                )
+            )
+    return findings
+
+
+def check_archive_unindexed(root: Path, harness: str) -> list[LintFinding]:
+    """Tiering check: an archive file has entry sections not listed in its
+    category's ARCHIVE_INDEX.md."""
+    findings: list[LintFinding] = []
+    for category in TIERED_CATEGORIES:
+        archive_dir = root / "memory" / "archive" / category
+        archive_file = archive_dir / f"{category}-archive.md"
+        archived_ids = collect_archive_entry_ids(archive_file)
+        if not archived_ids:
+            continue
+        indexed_ids = extract_archive_index_ids(archive_dir / "ARCHIVE_INDEX.md")
+        for missing_id in sorted(archived_ids - indexed_ids):
+            findings.append(
+                LintFinding(
+                    check_id="archive_unindexed",
+                    severity="low",
+                    message=f"{missing_id} exists in {category}-archive.md but is not listed in ARCHIVE_INDEX.md",
+                    file_path=str(archive_file.relative_to(root)),
+                )
+            )
+    return findings
+
+
+def _parse_memory_index_archived_column(content: str, category_label: str) -> int | None:
+    """Extract the Archived-column integer for a category's row in
+    MEMORY_INDEX.md's Category Summary table (`| Category | File | Entries |
+    Archived | Last Updated | Last Accessed |`). Returns None if the row is
+    absent, not yet tiered ("—"), or the cell isn't a plain integer."""
+    for line in content.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if len(cells) < 4:
+            continue
+        if cells[0].lower() == category_label.lower() and cells[3].isdigit():
+            return int(cells[3])
+    return None
+
+
+def check_archive_count_drift(root: Path, harness: str) -> list[LintFinding]:
+    """Tiering check: a hot-side "Older entries: ... (N entries)" pointer, or
+    MEMORY_INDEX.md's Archived column, doesn't match the actual
+    ARCHIVE_INDEX.md entry count (SCHEMA_lint.md §13 — both sources, checked
+    independently; either can drift on its own)."""
+    findings: list[LintFinding] = []
+    category_files = {
+        "sessions": root / "memory" / "sessions" / "session_state.md",
+        "decisions": root / "memory" / "decisions" / "decisions.md",
+        "feedback": root / "memory" / "feedback" / "feedback.md",
+    }
+    memory_index_file = root / "memory" / "MEMORY_INDEX.md"
+    memory_index_content: str | None = None
+    if memory_index_file.exists():
+        try:
+            memory_index_content = memory_index_file.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            memory_index_content = None
+
+    for category, hot_file in category_files.items():
+        index_file = root / "memory" / "archive" / category / "ARCHIVE_INDEX.md"
+        if not index_file.exists():
+            continue
+        actual_count = len(extract_archive_index_ids(index_file))
+
+        if hot_file.exists():
+            try:
+                hot_content = hot_file.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                hot_content = None
+            if hot_content is not None:
+                # Case-insensitive; scan a window after the phrase for the
+                # FIRST "(N entries)"-shaped parenthetical, tolerating an
+                # intervening parenthetical (e.g. "(archived)") or a line
+                # wrap before the count (F3 — the old inline regex was
+                # defeated by any of these wording drifts).
+                phrase = re.search(r"older\s+entries", hot_content, re.IGNORECASE)
+                if phrase:
+                    tail = hot_content[phrase.end():phrase.end() + 300]
+                    count_match = re.search(r"\(\s*(\d+)\s*entr(?:y|ies)\s*\)", tail, re.IGNORECASE)
+                    if count_match:
+                        pointer_count = int(count_match.group(1))
+                        if pointer_count != actual_count:
+                            findings.append(
+                                LintFinding(
+                                    check_id="archive_count_drift",
+                                    severity="low",
+                                    message=(
+                                        f"{category}: hot-side pointer says {pointer_count} archived entries "
+                                        f"but ARCHIVE_INDEX.md has {actual_count}"
+                                    ),
+                                    file_path=str(hot_file.relative_to(root)),
+                                )
+                            )
+
+        if memory_index_content is not None:
+            archived_value = _parse_memory_index_archived_column(
+                memory_index_content, CATEGORY_LABELS[category]
+            )
+            if archived_value is not None and archived_value != actual_count:
+                findings.append(
+                    LintFinding(
+                        check_id="archive_count_drift",
+                        severity="low",
+                        message=(
+                            f"{category}: MEMORY_INDEX.md Archived column says {archived_value} "
+                            f"but ARCHIVE_INDEX.md has {actual_count}"
+                        ),
+                        file_path=str(memory_index_file.relative_to(root)),
+                    )
+                )
+    return findings
+
+
+def check_archive_index_missing(root: Path, harness: str) -> list[LintFinding]:
+    """Tiering check: memory/archive/<category>/ is non-empty (spec §S6
+    wording) but has no ARCHIVE_INDEX.md. Fires on ANY file other than
+    ARCHIVE_INDEX.md itself, not just the conventional <category>-archive.md
+    (F4 — a differently-named or extra file in the dir used to go undetected)."""
+    findings: list[LintFinding] = []
+    for category in TIERED_CATEGORIES:
+        archive_dir = root / "memory" / "archive" / category
+        if not archive_dir.is_dir():
+            continue
+        index_file = archive_dir / "ARCHIVE_INDEX.md"
+        if index_file.exists():
+            continue
+        other_files = sorted(
+            p.name for p in archive_dir.iterdir() if p.is_file() and p.name != "ARCHIVE_INDEX.md"
+        )
+        if other_files:
+            findings.append(
+                LintFinding(
+                    check_id="archive_index_missing",
+                    severity="low",
+                    message=(
+                        f"memory/archive/{category}/ contains {', '.join(other_files)} "
+                        "but no ARCHIVE_INDEX.md"
+                    ),
+                    file_path=str(archive_dir.relative_to(root)),
+                )
+            )
+    return findings
+
+
+def _iter_memory_index_recent_entry_lines(content: str) -> list[tuple[int, str]]:
+    """Yield (1-based line number, line text) for bullet lines inside
+    MEMORY_INDEX.md's "## Recent Entries" section, up to the next "## "
+    heading or end of file — the per-entry one-liner analog of an
+    ARCHIVE_INDEX.md row (EXTENDED §E12.4: same R5 cap discipline)."""
+    result: list[tuple[int, str]] = []
+    in_section = False
+    for i, line in enumerate(content.splitlines(), start=1):
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            in_section = stripped[3:].strip().lower().startswith("recent entries")
+            continue
+        if in_section and stripped.startswith("- "):
+            result.append((i, line))
+    return result
+
+
+def check_entry_over_cap(root: Path, harness: str, cap_bytes: int = 300) -> list[LintFinding]:
+    """Tiering check: an ARCHIVE_INDEX.md one-liner, or a MEMORY_INDEX.md
+    Recent Entries row description, exceeds its R5 cap (~300B) (F2 — the
+    MEMORY_INDEX side was previously unchecked despite SCHEMA_lint.md §13 and
+    the FROZEN spec's §S6 requiring it)."""
+    findings: list[LintFinding] = []
+    for category in TIERED_CATEGORIES:
+        index_file = root / "memory" / "archive" / category / "ARCHIVE_INDEX.md"
+        if not index_file.exists():
+            continue
+        try:
+            content = index_file.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for line_num, line in enumerate(content.splitlines(), start=1):
+            if not line.startswith("- "):
+                continue
+            size = len(line.encode("utf-8"))
+            if size > cap_bytes:
+                findings.append(
+                    LintFinding(
+                        check_id="entry_over_cap",
+                        severity="low",
+                        message=f"ARCHIVE_INDEX entry is {size}B, over the {cap_bytes}B R5 cap",
+                        file_path=str(index_file.relative_to(root)),
+                        line=line_num,
+                    )
+                )
+
+    memory_index_file = root / "memory" / "MEMORY_INDEX.md"
+    if memory_index_file.exists():
+        try:
+            mi_content = memory_index_file.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            mi_content = None
+        if mi_content is not None:
+            for line_num, line in _iter_memory_index_recent_entry_lines(mi_content):
+                size = len(line.encode("utf-8"))
+                if size > cap_bytes:
+                    findings.append(
+                        LintFinding(
+                            check_id="entry_over_cap",
+                            severity="low",
+                            message=f"MEMORY_INDEX.md row description is {size}B, over the {cap_bytes}B R5 cap",
+                            file_path=str(memory_index_file.relative_to(root)),
+                            line=line_num,
+                        )
+                    )
+    return findings
+
+
 def emit_stdout(findings: list[LintFinding], harness: str, seed_file: Path | None) -> None:
     print(f"[lint_runner] Harness detected: {harness}", file=sys.stderr)
     if seed_file:
@@ -439,6 +820,13 @@ def main() -> int:
     findings.extend(check_stale_tentative(root, harness))
     findings.extend(check_promotion_candidates(root, harness))
     findings.extend(check_naming_inconsistencies(root, harness))
+    # Tiering checks (v4.0.0 hot/cold backport) — SCHEMA_lint.md §13.
+    findings.extend(check_eager_set_over_budget(root, harness))
+    findings.extend(check_file_nearing_cap(root, harness))
+    findings.extend(check_archive_unindexed(root, harness))
+    findings.extend(check_archive_count_drift(root, harness))
+    findings.extend(check_archive_index_missing(root, harness))
+    findings.extend(check_entry_over_cap(root, harness))
 
     # Filter by severity
     if args.severity != "all":

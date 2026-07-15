@@ -19,6 +19,7 @@
 - [E9. Decision Promotion — Rationale & Signal Sourcing](#e9-decision-promotion--rationale--signal-sourcing)
 - [E10. Status + Open Questions (historical)](#e10-status--open-questions-historical)
 - [E11. Schema Migration Detail](#e11-schema-migration-detail) — v2.0 → v3.0 legacy defaults, behind core §13
+- [E12. Tiering — Hot/Cold Archive Rotation](#e12-tiering--hotcold-archive-rotation) — full rotation/rehydration procedure behind core §11.6
 
 ---
 
@@ -617,3 +618,48 @@ Both editions accept Triggers A/B/C/D identically. The only edition difference i
 *(Full detail behind core §13's additive-migration rule.)*
 
 **v2.0 → v3.0 specific:** Adds YAML frontmatter to entries lacking it; treats them as legacy with `confidence: FINAL`, `status: active`, `created_at: <file-mtime>`, `schema_version: "2.0"`. The migration procedure lives in the edition's `MIGRATION_v2_to_v3.md`.
+
+---
+
+## E12. Tiering — Hot/Cold Archive Rotation
+
+*(Full detail behind core §11.6's tiered-archive-index pointer. Backports the maintainer's field-proven hot/cold index architecture — measured over ~87 days of production use, the always-loaded index went 26.5KB → ~12KB across two tiering iterations with zero information loss, every rotated entry remaining reachable via on-demand archive indexes — the same architecture adapted to UMS's per-category layout, not a code transplant.)*
+
+### E12.1 What rotates, and why
+
+Only `sessions/session_state.md`, `decisions/decisions.md`, and `feedback/feedback.md` tier — core §11's existing caps ARE the rotation triggers (no competing budget system). `references/`, `user/`, `security/`, `projects/` do NOT tier: their own §11 remedies (domain-split, consolidate, etc.) stand untouched. `quarantine/` is excluded entirely.
+
+### E12.2 Rotation procedure (normative — the feedback/ worked example, generalized)
+
+When a category file exceeds its §11 line cap:
+1. Identify the entry section(s) to move — oldest-first for `sessions/`/`decisions/`, and per §11's own remedy order for `feedback/` (consolidate into a standing rule FIRST; only the superseded originals rotate, never edited away).
+2. CUT the entry's full `## <ID>: ...` section (frontmatter + body, verbatim) from the hot file.
+3. APPEND it verbatim to `memory/archive/<category>/<category>-archive.md` (append-only; create on first rotation if absent).
+4. APPEND a one-liner to `memory/archive/<category>/ARCHIVE_INDEX.md`: `- <ID> (<date>): <summary, ≤300B> → <category>-archive.md#<anchor>`.
+5. Update the hot file's header pointer line ("Older entries: ... (N entries)") and `MEMORY_INDEX.md`'s category row Archived count — both must match the ARCHIVE_INDEX's actual entry count (lint's `archive-count-drift` catches a mismatch).
+
+**Loss-proof by construction:** nothing is ever deleted. A rotation is CUT-then-APPEND, not delete — every rotated entry stays fully readable in the archive file, findable by ID via its ARCHIVE_INDEX one-liner, without opening the archive file itself.
+
+**Worked example** (`feedback/feedback.md` at 250/300 lines): consolidation merges FB-003/FB-009/FB-014 into one standing rule (§11's existing remedy); the three now-superseded originals rotate — their full `## FB-NNN:` sections move to `memory/archive/feedback/feedback-archive.md`; three one-liners append to `memory/archive/feedback/ARCHIVE_INDEX.md`; the header pointer and MEMORY_INDEX row update. Zero loss: every FB-NNN stays findable by ID.
+
+### E12.3 Rehydration (R7)
+
+When a paused topic reactivates, or an archived entry is explicitly requested: read the relevant `ARCHIVE_INDEX.md` entries, copy the still-relevant ones back into the hot category file (verbatim, sourced from the `-archive.md` file), then update both files' entry counts (hot header pointer + `MEMORY_INDEX.md` Archived column). The archived original stays in the archive file — rehydration COPIES, it does not move-back-and-delete.
+
+### E12.4 Caps (R5, product-adapted)
+
+- ARCHIVE_INDEX one-liner: ≤300 bytes (`- <ID> (<date>): <summary> → <anchor>`).
+- `MEMORY_INDEX.md` category-row description: same discipline as any other MEMORY_INDEX row — pointers only, no content.
+- Advisory (lint `entry-over-cap`, severity low) — not a hard write-time block like §11's own caps.
+
+### E12.5 Eager-set budget (advisory, live-vault)
+
+`eager_set_budget_bytes` (default **80,000**; ships in `<edition>/PROFILE.md` frontmatter, user-tunable via `memory/user/USER_OVERRIDES.md` — §E4.3) — the summed bytes of the LIVE always-loaded set: `.claude/rules/memory_protocol.md` + `sessions/session_state.md` + `user/user_profile.md` (core §1.2) + `MEMORY_INDEX.md` (core §1.3). This is a DIFFERENT quantity from the fresh-install release gate (a template snapshot, ~10K-token target) — this measurement is ongoing and grows with use, meaningful only after the eager-load split ships (pre-split, the rules copy alone approaches the budget). The 80,000B default ≈ 2× the post-split fresh-install footprint — past that point, rotation is worth doing. Lint check `eager-set-over-budget` fires at severity low when the live sum exceeds the configured value; advisory only, never blocking.
+
+### E12.6 Sharding (R9 — deferred, not implemented)
+
+A single `ARCHIVE_INDEX.md` is expected to stay small for a long time (one-liners only). If a cold index ever exceeds ~15KB / ~40 entries, split it by a further dimension (date range, sub-topic) — a documented future rule, not code shipped in v4.0.0.
+
+### E12.7 Lint checks
+
+Full check list + severities: `SCHEMA_lint.md` §13. Ownership split: `verify.sh` owns EXISTENCE-only checks post-fresh-install (ARCHIVE_INDEX files present at the standard locations); lint owns all behavioral/aging checks (over-budget, nearing-cap, unindexed, count-drift, index-missing, entry-over-cap) — no duplicated logic between them.

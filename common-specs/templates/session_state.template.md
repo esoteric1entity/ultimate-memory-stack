@@ -13,6 +13,7 @@
 > **Current Session:** 1
 > **Date:** <YYYY-MM-DD>
 > **Updated:** <last-update-summary>
+> **Older entries:** `memory/archive/sessions/ARCHIVE_INDEX.md` (0 entries)
 
 ---
 
@@ -56,7 +57,7 @@ schema_version: "3.0"
 
 ---
 
-(Append future sessions below. Older sessions archive to `memory/archive/` once file exceeds 150-line limit per MEMORY_PROTOCOL.md §11.)
+(Append future sessions below. Older sessions rotate to `memory/archive/sessions/` — full section moved, one-liner indexed in ARCHIVE_INDEX.md — once file exceeds 1500-line limit per MEMORY_PROTOCOL.md §11; procedure: EXTENDED §Tiering.)
 ```
 
 ---
@@ -67,10 +68,11 @@ schema_version: "3.0"
 - **Be specific:** "Fixed the bug in auth.py" is useless next session. "Fixed race condition in auth.py:47 where token refresh wasn't awaited — changed to `await refresh_token()` and added 3-second backoff retry" is useful.
 - **Heartbeat early, heartbeat often:** Don't wait until session end. ~30-min intervals during active work; ~10-min if approaching context limit (pre-compact).
 - **Confidence levels on Active Decisions:** Mark each as FINAL / TENTATIVE / EXPLORATORY per SCHEMA_A18.
-- **Size cap:** 150 lines per MEMORY_PROTOCOL.md §11. Archive older sessions to `memory/archive/`.
+- **Size cap:** 1500 lines per MEMORY_PROTOCOL.md §11. Older sessions rotate to `memory/archive/sessions/` (see the header pointer + EXTENDED §Tiering) — findable by ID via ARCHIVE_INDEX.md, never lost.
 
 ## Cross-references
 
-- `MEMORY_PROTOCOL.md` §1 (session start), §4 (heartbeat), §11 (size limits), §14 (session end)
+- `MEMORY_PROTOCOL.md` §1 (session start), §4 (heartbeat), §11 (size limits), §11.6 (tiered archive), §14 (session end)
 - `SCHEMA_A18` (entry metadata structure)
 - `MEMORY_INDEX.md` (this file is registered)
+- `common-specs/templates/ARCHIVE_INDEX.template.md` (the cold-side companion this header points to)

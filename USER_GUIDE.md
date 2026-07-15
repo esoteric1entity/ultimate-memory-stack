@@ -16,13 +16,14 @@ This is the long-form usage guide for the Memory branch (UMS — general-edition
 2. [The 5 entry types](#2-the-5-entry-types)
 3. [Per-project memory banks](#3-per-project-memory-banks)
 4. [Session state + heartbeat](#4-session-state--heartbeat)
-5. [The lint + quarantine pipeline](#5-the-lint--quarantine-pipeline)
-6. [The security hooks](#6-the-security-hooks)
-7. [Obsidian GUI (optional)](#7-obsidian-gui-optional)
-8. [Graphiti knowledge graph (optional)](#8-graphiti-knowledge-graph-optional)
-9. [Customizing your configuration](#9-customizing-your-configuration)
-10. [Troubleshooting](#10-troubleshooting)
-11. [When to escalate to a DEC](#11-when-to-escalate-to-a-dec)
+5. [Rotation — how your memory stays lean as it grows](#5-rotation--how-your-memory-stays-lean-as-it-grows)
+6. [The lint + quarantine pipeline](#6-the-lint--quarantine-pipeline)
+7. [The security hooks](#7-the-security-hooks)
+8. [Obsidian GUI (optional)](#8-obsidian-gui-optional)
+9. [Graphiti knowledge graph (optional)](#9-graphiti-knowledge-graph-optional)
+10. [Customizing your configuration](#10-customizing-your-configuration)
+11. [Troubleshooting](#11-troubleshooting)
+12. [When to escalate to a DEC](#12-when-to-escalate-to-a-dec)
 
 ## 1. How UMS thinks about memory
 
@@ -118,7 +119,7 @@ Why separate? So the agent doesn't confuse cross-project context. When you start
 
 ## 4. Session state + heartbeat
 
-**`memory/sessions/session_state.md`** holds the current state in a rolling heartbeat window (oldest slices archive to `memory/archive/`). It captures:
+**`memory/sessions/session_state.md`** holds the current state in a rolling heartbeat window (oldest entries rotate to `memory/archive/sessions/` — see §5). It captures:
 
 - Current task + sub-step + files in flight + blocker
 - Last 1-2 prior heartbeats
@@ -129,7 +130,23 @@ To mitigate long-context attention rot, the protocol pins the heartbeat at BOTH 
 
 *(On the OpenClaw adapter the same concepts surface as root files — `HEARTBEAT.md` with a compactor, per-day `memory/daily/` logs, and a `BOOTSTRAP.md` entry point. See `core/openclaw-adapter/QUICKSTART.md`.)*
 
-## 5. The lint + quarantine pipeline
+## 5. Rotation — how your memory stays lean as it grows
+
+Three files can grow large over months of use: `sessions/session_state.md`, `decisions/decisions.md`, `feedback/feedback.md`. Each has a line cap (`MEMORY_PROTOCOL.md` §11). When a file hits its cap, the oldest entries **rotate** instead of piling up:
+
+- The full entry (frontmatter + body) moves, verbatim, to `memory/archive/<category>/<category>-archive.md`.
+- A one-line pointer — ID, date, short summary — is added to `memory/archive/<category>/ARCHIVE_INDEX.md`.
+- **Nothing is ever deleted.** Every rotated entry stays fully readable in the archive file and findable by ID via its one-liner, without you needing to open the archive file to know it's there.
+
+This is why the memory stack stays fast to load even after months of daily use — the file Claude reads at session start (`session_state.md`) stays small; everything older is one on-demand read away. Fresh installs get empty `ARCHIVE_INDEX.md` files at all three locations from day one, ready for whenever rotation eventually happens.
+
+**Bringing something back:** if an archived entry becomes relevant again — a paused project reactivates, or you just want to reference something old — ask Claude to look it up. It reads the category's `ARCHIVE_INDEX.md`, finds the entry, and can copy it back into the hot file ("rehydration") if it's genuinely active again; the archived copy stays put either way.
+
+**You don't have to do anything for this to work.** Rotation happens as part of normal operation once a file nears its cap. Lint (§6) will nudge you if something drifts — an archive file with an entry not yet indexed, a count mismatch, or a missing index — but these are all informational (severity LOW), never blocking.
+
+Full mechanics: `memory/MEMORY_PROTOCOL_EXTENDED.md` §Tiering.
+
+## 6. The lint + quarantine pipeline
 
 UMS has a lint pipeline that you run manually (or wire into a hook of your choice) — it runs from the cloned package, not the installed scaffold (the scaffold doesn't include `core/`):
 
@@ -147,7 +164,7 @@ It checks:
 
 The lint is **non-mutating** by default. It surfaces problems for human review; the user decides what to act on. (Per the design principle: "Karpathy Lint surface-only".)
 
-## 6. The security hooks
+## 7. The security hooks
 
 The Memory branch doesn't ship its own security hooks — it relies on the **Security branch (agent-shield)** for that. If you have the Security branch installed, the hooks automatically check every file write the agent makes:
 
@@ -157,7 +174,7 @@ The Memory branch doesn't ship its own security hooks — it relies on the **Sec
 
 Install the Security branch for production-shape deployments — it ships as its own package, `agent-shield` (in development); either package works alone, and they compose when both are installed.
 
-## 7. Obsidian GUI (optional)
+## 8. Obsidian GUI (optional)
 
 The Memory vault is a directory of markdown files — Obsidian reads it as a vault. To use the GUI:
 
@@ -171,7 +188,7 @@ The Memory vault is a directory of markdown files — Obsidian reads it as a vau
 
 Recommended add-on: `recommended-addons/obsidian-vault-config/` provides pre-configured community plugins + hotkeys for the UMS vault.
 
-## 8. Graphiti knowledge graph (optional)
+## 9. Graphiti knowledge graph (optional)
 
 For a real knowledge graph (entities + relationships, time-aware), install Graphiti:
 
@@ -183,7 +200,7 @@ cd recommended-addons/graphiti-installer
 
 Graphiti ingests the decisions + learnings as Episodic nodes, extracts entities, and lets you query "what does the agent know about X" via natural language.
 
-## 9. Customizing your configuration
+## 10. Customizing your configuration
 
 Your compliance preset, extensions, and any other setting `PROFILE.md` defines live in `memory/user/USER_OVERRIDES.md` — created once at install time, never touched by the installer again. `PROFILE.md` itself is regenerable: an install or upgrade may refresh it freely, so don't hand-edit it — your edit would not survive the next upgrade.
 
@@ -191,7 +208,7 @@ To change a setting, edit `memory/user/USER_OVERRIDES.md` directly (uncomment th
 
 No USER_OVERRIDES.md yet? Normal for Door 4 (manual) installs, or a deployment installed before v4.0.0 — PROFILE.md's defaults apply directly until you create one (copy `common-specs/templates/USER_OVERRIDES.template.md`, or just run the installer once).
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -200,9 +217,10 @@ No USER_OVERRIDES.md yet? Normal for Door 4 (manual) installs, or a deployment i
 | Heartbeat stale (more than 2 sessions old; OpenClaw-adapter installs) | Heartbeat compactor isn't running | Manually update HEARTBEAT.md; check compactor cron |
 | `git log` shows duplicate entries | Two agents wrote the same DEC simultaneously | Merge, dedupe, add cross-ref |
 | `quarantine/` keeps growing | Lint is detecting content that needs review | Review and either move back to memory/ or delete |
-| I edited PROFILE.md and my change disappeared | PROFILE.md is regenerable (v4.0.0+) — edits don't persist across install/upgrade | Put the value in `memory/user/USER_OVERRIDES.md` instead (§9 above) |
+| I edited PROFILE.md and my change disappeared | PROFILE.md is regenerable (v4.0.0+) — edits don't persist across install/upgrade | Put the value in `memory/user/USER_OVERRIDES.md` instead (§10 above) |
+| An archived entry seems "gone" | It rotated to `memory/archive/<category>/` — normal, not data loss | Ask Claude to look it up via `ARCHIVE_INDEX.md` (§5) |
 
-## 11. When to escalate to a DEC
+## 12. When to escalate to a DEC
 
 **Use a DEC when:**
 - The choice affects the project architecture (adds/renames a component, changes a protocol)

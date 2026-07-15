@@ -12,6 +12,7 @@
 > **Schema Version:** 3.0
 > **Entries:** 0 (initial)
 > **Last Updated:** <YYYY-MM-DD>
+> **Older entries:** `memory/archive/feedback/ARCHIVE_INDEX.md` (0 entries)
 
 ---
 
@@ -99,10 +100,11 @@ tags: [standing-rule, auto-promoted, formatting]
 - **pattern_key naming:** Use stable dotted notation. Hierarchical. Examples: `output.formatting.tables`, `tool.use.parallel`, `git.commit.never-amend`. Consistent keys enable counting.
 - **first_seen / last_seen:** Temporal range — useful for "how stable is this pattern?"
 - **Promotion creates standing rule:** Once auto-promoted, the rule lives in `.claude/rules/auto_rules.md` AND a DEC entry with full provenance
-- **Size cap:** 100 lines per MEMORY_PROTOCOL.md §11. Consolidate repeated feedback into standing rules at the size limit.
+- **Size cap:** 300 lines per MEMORY_PROTOCOL.md §11. Consolidate repeated feedback into standing rules at the size limit FIRST — only the superseded/historical originals then rotate to `memory/archive/feedback/` (full section moved, one-liner indexed; durable feedback is archived whole, never edited away). Procedure: EXTENDED §Tiering.
 
 ## Cross-references
 
-- `MEMORY_PROTOCOL.md` §4 (pattern-key promotion), §11 (size limits)
+- `MEMORY_PROTOCOL.md` §4 (pattern-key promotion), §11 (size limits), §11.6 (tiered archive)
 - `SCHEMA_A18` §Feedback-specific-additional-fields
 - `DEC-012` (example: the decision this feedback relates to)
+- `common-specs/templates/ARCHIVE_INDEX.template.md` (the cold-side companion this header points to)

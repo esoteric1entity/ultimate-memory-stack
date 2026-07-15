@@ -138,6 +138,8 @@ Lint is your memory's periodic check-up. It runs automatically (weekly biotech /
 
 Lint **never auto-fixes**. You always decide what to do. To dismiss a finding: tell Claude "ignore for now" (will resurface next lint run unless resolved).
 
+**New in v4.0.0 — Tiering checks** (all ℹ️ LOW): as `sessions/`, `decisions/`, and `feedback/` grow and rotate old content into `memory/archive/<category>/` (see "Rotation" in the Glossary), lint watches for drift — an archive entry not listed in its `ARCHIVE_INDEX.md`, a hot-side entry count out of sync, a missing index file, an oversized index one-liner, a file nearing its §11 cap, or the live always-loaded set exceeding `eager_set_budget_bytes`. Full check list: `SCHEMA_lint.md` §13.
+
 ---
 
 ## 12 Anti-Patterns to Avoid
@@ -235,6 +237,7 @@ If you open your `memory/` directory in Obsidian, wiki-links become clickable + 
 - **Override file:** Per-edition customization that REPLACES sections of common-spec files (`*.override.md`).
 - **Pattern-key:** Stable dotted identifier (e.g., `output.formatting.tables`) for recurring patterns. Auto-promotes at threshold.
 - **Quarantine:** Isolation zone for suspicious entries. Reviewed by user; can release or discard.
+- **Rotation (tiering, v4.0.0):** When `sessions/`, `decisions/`, or `feedback/` hits its §11 line cap, the oldest entries move — full content to `memory/archive/<category>/<category>-archive.md`, a one-line pointer to that category's `ARCHIVE_INDEX.md`. Nothing is deleted; every rotated entry stays findable by ID. Bringing a rotated entry back is "rehydration."
 - **Source_agent:** Attribution field — who wrote this entry? `user`, `orchestrator`, or consumer-defined sub-agent names (registered at the setup wizard).
 - **Tier (T0-T4):** Deployment tier based on available infrastructure. T0 = base; T4 = ideal state (all features active).
 - **YAML frontmatter:** Machine-readable metadata header on every memory entry. Critical to keep valid.

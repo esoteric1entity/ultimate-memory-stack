@@ -160,6 +160,20 @@ _sed_escape_replacement() {
     printf '%s' "$1" | sed -e 's/[\&/]/\\&/g'
 }
 
+# Extract the fenced ```markdown ... ``` block from a doc-wrapped template file
+# into dest_path. Fails loudly (exit 1, cleans up the partial file) if the
+# closing fence is missing — a future template edit could otherwise ship
+# trailing prose into every install's file silently. Shared by
+# create_user_overrides and create_archive_indexes.
+_extract_fenced_markdown_body() {
+    local template_path="$1" dest_path="$2"
+    if ! awk '/^```markdown$/{flag=1; next} /^```$/{if(flag){closed=1; exit}} flag{print} END{exit !closed}' "$template_path" > "$dest_path"; then
+        echo "✗ ERROR: ${template_path} has no closing \`\`\` fence — cannot extract body" >&2
+        rm -f "$dest_path"
+        exit 1
+    fi
+}
+
 create_user_overrides() {
     local overrides_path="${WORKING_DIR}/memory/user/USER_OVERRIDES.md"
     if [ -f "$overrides_path" ]; then
@@ -168,14 +182,7 @@ create_user_overrides() {
     local template_path="${COMMON_SPECS_DIR}/templates/USER_OVERRIDES.template.md"
     mkdir -p "${WORKING_DIR}/memory/user"
 
-    # Extract the fenced ```markdown ... ``` block from the doc-wrapped template.
-    # Fail loudly if the closing fence is missing (a future template edit could
-    # otherwise ship trailing prose into every install's config silently).
-    if ! awk '/^```markdown$/{flag=1; next} /^```$/{if(flag){closed=1; exit}} flag{print} END{exit !closed}' "$template_path" > "$overrides_path"; then
-        echo "✗ ERROR: ${template_path} has no closing \`\`\` fence — cannot extract USER_OVERRIDES body" >&2
-        rm -f "$overrides_path"
-        exit 1
-    fi
+    _extract_fenced_markdown_body "$template_path" "$overrides_path"
 
     local today
     today=$(date -u +"%Y-%m-%d")
@@ -215,6 +222,41 @@ extensions:"
             sed -i -e "/^# extensions:/d" -e "/^#   - <ext>\$/d" "$overrides_path"
         fi
     fi
+}
+
+# Pre-scaffold empty memory/archive/<category>/ARCHIVE_INDEX.md for each
+# tiered category on fresh install (SPEC-hotcold-v4 §S4: fresh installs get
+# these by default, not lazily on first rotation). Idempotent per category —
+# never overwrites an existing ARCHIVE_INDEX.md (rotation may have populated it).
+create_archive_indexes() {
+    local template_path="${COMMON_SPECS_DIR}/templates/ARCHIVE_INDEX.template.md"
+    local today category label hot_file archive_file archive_dir index_path
+    today=$(date -u +"%Y-%m-%d")
+
+    for category in sessions decisions feedback; do
+        case "$category" in
+            sessions)  label="Sessions";  hot_file="sessions/session_state.md" ;;
+            decisions) label="Decisions"; hot_file="decisions/decisions.md" ;;
+            feedback)  label="Feedback";  hot_file="feedback/feedback.md" ;;
+        esac
+        archive_file="${category}-archive.md"
+        archive_dir="${WORKING_DIR}/memory/archive/${category}"
+        index_path="${archive_dir}/ARCHIVE_INDEX.md"
+        if [ -f "$index_path" ]; then
+            continue
+        fi
+        mkdir -p "$archive_dir"
+        _extract_fenced_markdown_body "$template_path" "$index_path"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' -e "s/<Category>/${label}/" -e "s/<YYYY-MM-DD>/${today}/g" \
+                -e "s#<HotFile>#${hot_file}#" -e "s#<ArchiveFile>#${archive_file}#g" "$index_path"
+            sed -i '' "/^- <ENTRY-ID>/d" "$index_path"
+        else
+            sed -i -e "s/<Category>/${label}/" -e "s/<YYYY-MM-DD>/${today}/g" \
+                -e "s#<HotFile>#${hot_file}#" -e "s#<ArchiveFile>#${archive_file}#g" "$index_path"
+            sed -i "/^- <ENTRY-ID>/d" "$index_path"
+        fi
+    done
 }
 
 # Set `key` in USER_OVERRIDES.md to `line` ("key: value"), touching nothing
@@ -497,6 +539,11 @@ fi
 # edited by the installer (it stays regenerable — see PROFILE.md §2.1).
 create_user_overrides
 echo "✓ memory/user/USER_OVERRIDES.md ready"
+
+# v4.0.0 hot/cold tiering (SPEC-hotcold-v4 §S4): pre-scaffold empty
+# ARCHIVE_INDEX.md files for the 3 tiered categories.
+create_archive_indexes
+echo "✓ memory/archive/{sessions,decisions,feedback}/ARCHIVE_INDEX.md ready"
 
 # ============================================================
 # T3+ FEATURE SETUP

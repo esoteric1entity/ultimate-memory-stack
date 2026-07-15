@@ -102,7 +102,7 @@ your-workspace/
 │   ├── security/                ← vetting log + audit log (preset-dependent)
 │   ├── references/              ← pointers to external sources
 │   ├── user/                    ← identity + user profile
-│   ├── archive/                 ← compacted/retired entries
+│   ├── archive/                 ← rotated-out entries, indexed and findable — nothing is ever deleted
 │   └── quarantine/              ← lint-quarantined content
 │
 ├── .claude/
@@ -116,6 +116,8 @@ your-workspace/
 ```
 
 The activation wizard (paste `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md` into your agent) then seeds `memory/MEMORY_INDEX.md` and `memory/sessions/session_state.md` — the installer never invents data on your behalf.
+
+**Your memory doesn't slow down as it grows.** Sessions, decisions, and feedback each have a size cap; the oldest entries rotate to `memory/archive/<category>/` on a full cut — never deleted, always findable by ID via a per-category index, loaded only on demand. Measured on the maintainer's own production instance over ~87 days: the always-loaded index went 26.5KB → ~12KB across two tiering iterations, with zero information loss. UMS backports that same architecture, adapted to its own category layout.
 
 ---
 

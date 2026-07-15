@@ -12,6 +12,7 @@
 > **Schema Version:** 3.0
 > **Entries:** 0 (initial)
 > **Last Updated:** <YYYY-MM-DD>
+> **Older entries:** `memory/archive/decisions/ARCHIVE_INDEX.md` (0 entries)
 
 ---
 
@@ -105,10 +106,11 @@ Point-in-time queries (per SCHEMA_A18 §4 bi-temporal section) on this pair retu
 - **DEC-IDs are sequential:** DEC-001, DEC-002, ... never reuse numbers even after supersession
 - **Confidence levels matter:** FINAL = settled, don't re-ask; TENTATIVE = subject to revision; EXPLORATORY = testing
 - **Tags enable search:** common tags include `security`, `policy`, `architecture`, `compliance`, `user-approved`, `tier-A/B/C/D`
-- **Size cap:** 200 lines per MEMORY_PROTOCOL.md §11. FINAL decisions older than 20 sessions archive to `memory/archive/`.
+- **Size cap:** 1500 lines per MEMORY_PROTOCOL.md §11. FINAL decisions older than 20 sessions rotate to `memory/archive/decisions/` (full section moved, one-liner indexed) — findable by ID via ARCHIVE_INDEX.md, never lost. Procedure: EXTENDED §Tiering.
 
 ## Cross-references
 
-- `MEMORY_PROTOCOL.md` §12 (promotion), §11 (size limits), §3 (conflict resolution hierarchy)
+- `MEMORY_PROTOCOL.md` §12 (promotion), §11 (size limits), §11.6 (tiered archive), §3 (conflict resolution hierarchy)
 - `SCHEMA_A18` (frontmatter, especially Decision-specific fields)
 - `SCHEMA_A18` §Bi-temporal-fields (B5 — `valid_at`/`invalid_at` for supersession)
+- `common-specs/templates/ARCHIVE_INDEX.template.md` (the cold-side companion this header points to)

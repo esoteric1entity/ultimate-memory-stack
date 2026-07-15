@@ -214,13 +214,21 @@ Layer 1's directory structure + YAML frontmatter + wiki-link convention are 100%
 
 **Research evidence:** *"By 2026, when developers extend the agent-memory pattern toward an always-on second brain they almost universally settle on Obsidian as the storage layer."* We don't fight that gravity; we use it.
 
+### Hot/cold tiering (v4.0.0)
+
+Three categories — `sessions/`, `decisions/`, `feedback/` — rotate their oldest content into a companion `memory/archive/<category>/ARCHIVE_INDEX.md` once the hot file hits its `MEMORY_PROTOCOL.md` §11 line cap: the full entry section moves to `<category>-archive.md` (append-only, nothing deleted), and a one-liner pointer lands in the ARCHIVE_INDEX so the rotated entry stays findable by ID without loading the archive file itself. The always-loaded surface (session state, user profile, the master index) stays small as a vault ages; everything rotated out stays one on-demand read away.
+
+This backports a field-proven pattern from the maintainer's own production Claude Code deployment: measured over ~87 days, the always-loaded index went 26.5KB → ~12KB across two tiering iterations with zero information loss — the same architecture adapted to UMS's per-category layout, not a code transplant. Full mechanics, rotation procedure, and rehydration: `MEMORY_PROTOCOL_EXTENDED.md` §Tiering (E12).
+
 ### Deployment tier
 **T0.** Files only. Works on any filesystem. Obsidian-compat is purely passive — no Obsidian install required.
 
 ### Cross-references
 - `SCHEMA_A3_per_project_memory_bank.md`
 - `SCHEMA_A18_per_entry_metadata.md`
-- `MEMORY_PROTOCOL.md` §FileSizeLimits + §StandardCategories
+- `MEMORY_PROTOCOL.md` §FileSizeLimits + §StandardCategories + §11.6 (tiered archive)
+- `MEMORY_PROTOCOL_EXTENDED.md` §Tiering (E12) — full rotation/rehydration procedure
+- `common-specs/templates/ARCHIVE_INDEX.template.md`
 
 ---
 

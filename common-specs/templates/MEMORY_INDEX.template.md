@@ -20,16 +20,18 @@
 
 ### Active (populated — backtick refs trigger T5 existence check)
 
-| Category | File | Entries | Last Updated | Last Accessed |
-|----------|------|---------|--------------|---------------|
-| User Profile | `user/user_profile.md` | 1 | <YYYY-MM-DD> | <session-N> |
-| Sessions | `sessions/session_state.md` | <N> | <YYYY-MM-DD> | <session-N> |
-| Feedback | `feedback/feedback.md` | <N> | <YYYY-MM-DD> | <session-N> |
-| Projects | `projects/project_context.md` | <N> | <YYYY-MM-DD> | <session-N> |
+| Category | File | Entries | Archived | Last Updated | Last Accessed |
+|----------|------|---------|----------|--------------|---------------|
+| User Profile | `user/user_profile.md` | 1 | — | <YYYY-MM-DD> | <session-N> |
+| Sessions | `sessions/session_state.md` | <N> | 0 | <YYYY-MM-DD> | <session-N> |
+| Feedback | `feedback/feedback.md` | <N> | 0 | <YYYY-MM-DD> | <session-N> |
+| Projects | `projects/project_context.md` | <N> | — | <YYYY-MM-DD> | <session-N> |
+
+> **Archived column:** rotated-out entry count for tiered categories (`sessions/`, `decisions/`, `feedback/` — per MEMORY_PROTOCOL.md §11.6), sourced from `memory/archive/<category>/ARCHIVE_INDEX.md`. Non-tiered categories (User Profile, Projects) show `—`.
 
 ### Future categories (created on first use — plain text, NOT linked, so T5 self-test ignores)
 
-- Decisions — decisions/decisions.md (created on first DEC-NNN entry)
+- Decisions — decisions/decisions.md (created on first DEC-NNN entry; tiered — same Archived-column shape as Sessions/Feedback once active)
 - Security vetting — security/vetting_log.md (created on first vetting event)
 - References — references/references.md (created on first cross-ref entry)
 - Audit log — security/audit_log.jsonl (biotech: pre-created; general: opt-in)
@@ -94,7 +96,8 @@
 
 ## Usage notes
 
-- **Size-strict:** 80 lines per MEMORY_PROTOCOL.md §11. This file is JUST POINTERS — don't bloat with content.
+- **Size-strict:** 150 lines per MEMORY_PROTOCOL.md §11. This file is JUST POINTERS — don't bloat with content.
+- **Archived column ≠ this file's own rotation:** MEMORY_INDEX.md itself is never tiered — it's "Pointers only" per §11 and just tracks each category's archived count for at-a-glance visibility.
 - **Last Accessed enables self-trimming:** Update this column on every Tier 1/2/3 load of the corresponding file
 - **Update on consolidation:** When entries get promoted/archived/discarded, refresh counts and dates
 - **Critical files quick-access:** Keep that table current — it's the operator's at-a-glance map of where things live
@@ -102,6 +105,7 @@
 
 ## Cross-references
 
-- `MEMORY_PROTOCOL.md` §10 (self-trimming uses Last Accessed), §11 (80-line size cap)
+- `MEMORY_PROTOCOL.md` §10 (self-trimming uses Last Accessed), §11 (150-line size cap), §11.6 (tiered archive)
 - `SCHEMA_A18` (entry ID conventions, status values, confidence levels)
 - `SCHEMA_A3` (per-project memory bank — index lists projects, content lives in memory-bank)
+- `common-specs/templates/ARCHIVE_INDEX.template.md` (per-category cold index this file's Archived column reflects)

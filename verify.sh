@@ -98,6 +98,12 @@ check_dir "memory/archive"
 check_dir "memory/quarantine"
 check_file "memory/MEMORY_PROTOCOL_EXTENDED.md"
 
+# Hot/cold tiering (v4.0.0): existence-only — behavioral/aging checks are
+# lint_runner.py's job (SCHEMA_lint.md §13 ownership split), not verify.sh's.
+check_file "memory/archive/sessions/ARCHIVE_INDEX.md"
+check_file "memory/archive/decisions/ARCHIVE_INDEX.md"
+check_file "memory/archive/feedback/ARCHIVE_INDEX.md"
+
 echo
 echo "[T3] Edition profile:"
 PROFILE_PATH=""
