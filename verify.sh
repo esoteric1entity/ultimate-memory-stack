@@ -233,6 +233,51 @@ else
     EXIT_CODE=1
 fi
 
+# T8 — Manifest ↔ registered-skills cross-check (informational, WARN-only —
+# never touches EXIT_CODE). .ums-manifest.json is written only by the
+# setup-memory-stack.sh wrapper (Door 2/4 installs don't write one — its
+# absence is not itself a finding). Deliberately small per PLAN-refactor-
+# structural §4: no manifest file-list is invented, and the manifest is never
+# made load-bearing — this only checks its addons array against what [T6]
+# would consider a registered skill. lint_runner.py's job (SCHEMA_lint.md §13
+# ownership split) owns behavioral/aging checks; this stays existence-adjacent.
+MANIFEST_FILE="$WORKING_DIR/.ums-manifest.json"
+if [ -f "$MANIFEST_FILE" ]; then
+    echo
+    echo "[T8] Manifest addons ↔ registered skills (informational):"
+    # The addons array is written on ONE line by the wrapper's heredoc
+    # (verified in setup-memory-stack.sh) — grep/sed extraction, no jq
+    # dependency. Every extraction below is `set -e`-guarded: an empty or
+    # malformed manifest must never abort the whole verifier.
+    ADDONS_LINE="$(grep -o '"addons"[[:space:]]*:[[:space:]]*\[[^]]*\]' "$MANIFEST_FILE" 2>/dev/null || true)"
+    MANIFEST_ADDONS=()
+    if [ -n "$ADDONS_LINE" ]; then
+        while IFS= read -r addon; do
+            [ -n "$addon" ] && MANIFEST_ADDONS+=("$addon")
+        done < <(echo "$ADDONS_LINE" | grep -o '"[^"]*"' 2>/dev/null | sed '1d' | tr -d '"' || true)
+    fi
+    if [ "${#MANIFEST_ADDONS[@]}" -eq 0 ]; then
+        echo "  ✓ 0 addon(s) listed in manifest"
+    else
+        for addon in "${MANIFEST_ADDONS[@]}"; do
+            SHORT="${addon#memory-}"
+            MATCHED=0
+            if [ -d "$WORKING_DIR/.claude/skills" ]; then
+                while IFS= read -r skill_dir; do
+                    case "$(basename "$skill_dir")" in
+                        *"$SHORT"*) MATCHED=1 ;;
+                    esac
+                done < <(find "$WORKING_DIR/.claude/skills" -mindepth 1 -maxdepth 1 -type d 2>/dev/null || true)
+            fi
+            if [ "$MATCHED" -eq 1 ]; then
+                echo "  ✓ $addon → matching skill found"
+            else
+                echo "  ⚠ $addon: listed in manifest but no matching registered skill found (informational — does not fail verify)"
+            fi
+        done
+    fi
+fi
+
 echo
 echo "──────────────────────────────────────────────────"
 if [ "$EXIT_CODE" -eq 0 ]; then

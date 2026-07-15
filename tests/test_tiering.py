@@ -36,7 +36,7 @@ def _load(relpath, name):
     return mod
 
 
-mod = _load("core/openclaw-adapter/scripts/lint_runner.py", "lint_runner")
+mod = _load("core/shared-tools/lint_runner.py", "lint_runner")
 
 TEMPLATES = PKG / "common-specs" / "templates"
 
@@ -414,7 +414,7 @@ def test_all_six_tiering_checks_are_severity_low(tmp_path):
     assert all(f.severity == "low" for f in findings)
 
 
-LINT_RUNNER = PKG / "core" / "openclaw-adapter" / "scripts" / "lint_runner.py"
+LINT_RUNNER = PKG / "core" / "shared-tools" / "lint_runner.py"
 
 
 def test_severity_filter_low_shows_medium_hides_tiering_findings(tmp_path):

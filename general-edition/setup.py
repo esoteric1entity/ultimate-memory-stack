@@ -117,6 +117,8 @@ def create_user_overrides(working_dir: Path, compliance_preset: str, extensions:
         return False
     template_path = COMMON_SPECS_DIR / "templates" / "USER_OVERRIDES.template.md"
     body = build_user_overrides_body(_extract_template_body(template_path), compliance_preset, extensions)
+    if not body.endswith("\n"):
+        body += "\n"
     overrides_path.parent.mkdir(parents=True, exist_ok=True)
     overrides_path.write_text(body, encoding="utf-8")
     return True
@@ -444,7 +446,7 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
         log_audit_event(
             working_dir,
             action="initialize",
-            summary=f"General-edition v{STACK_VERSION} initialized; preset={compliance_preset}; extensions={extensions}",
+            summary=f"General-edition v{STACK_VERSION} deployment initialized; preset={compliance_preset}; extensions={','.join(extensions) if extensions else 'none'}",
             entry_id="<bootstrap>",  # canonical init entry_id matches Bash setup.sh
         )
         print(f"✓ Audit log initialized (compliance: {compliance_preset})")

@@ -192,7 +192,9 @@ Per Option C, 5 new self-improvement Lint checks ship by default in v3.5. The ad
 
 ```bash
 mkdir -p <openclaw-root>/.openclaw/lint/
-cp <path-to-this-skill>/scripts/lint_runner.py <openclaw-root>/.openclaw/lint/lint_runner.py
+# lint_runner.py moved to core/shared-tools/ in v4.0.0 (shared cross-harness
+# tooling, not adapter-specific) — copy from there, not scripts/.
+cp <path-to-this-skill>/../shared-tools/lint_runner.py <openclaw-root>/.openclaw/lint/lint_runner.py
 ```
 
 Lint runs surface-only by design. NEVER auto-mutates.

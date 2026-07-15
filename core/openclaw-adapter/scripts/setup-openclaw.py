@@ -208,12 +208,14 @@ def step_8_install_lint(openclaw_root: Path, script_dir: Path) -> None:
     lint_dir = openclaw_root / ".openclaw" / "lint"
     lint_dir.mkdir(parents=True, exist_ok=True)
 
-    src = script_dir / "lint_runner.py"
+    # lint_runner.py moved to core/shared-tools/ in v4.0.0 (shared cross-harness
+    # tooling, not adapter-specific) — script_dir is core/openclaw-adapter/scripts/.
+    src = script_dir.parent.parent / "shared-tools" / "lint_runner.py"
     if src.exists():
         shutil.copy2(src, lint_dir / "lint_runner.py")
         print(f"  lint_runner.py: installed at {lint_dir}")
     else:
-        print(f"  WARN: lint_runner.py not found in {script_dir}")
+        print(f"  WARN: lint_runner.py not found at {src}")
 
 
 def step_9_install_heartbeat_compactor(openclaw_root: Path, script_dir: Path, wire_cron: bool) -> None:

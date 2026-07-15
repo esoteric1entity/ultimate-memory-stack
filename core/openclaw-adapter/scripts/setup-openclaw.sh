@@ -270,11 +270,14 @@ echo "[Step 8] Installing Lint runner..."
 LINT_DIR="$OPENCLAW_ROOT/.openclaw/lint"
 mkdir -p "$LINT_DIR"
 
-if [[ -f "$SCRIPT_DIR/lint_runner.py" ]]; then
-    cp "$SCRIPT_DIR/lint_runner.py" "$LINT_DIR/lint_runner.py"
+# lint_runner.py moved to core/shared-tools/ in v4.0.0 (shared cross-harness
+# tooling, not adapter-specific) — SCRIPT_DIR is core/openclaw-adapter/scripts/.
+LINT_SRC="$SCRIPT_DIR/../../shared-tools/lint_runner.py"
+if [[ -f "$LINT_SRC" ]]; then
+    cp "$LINT_SRC" "$LINT_DIR/lint_runner.py"
     echo "  lint_runner.py: installed at $LINT_DIR/"
 else
-    echo "  WARN: lint_runner.py not found in $SCRIPT_DIR (adapter source may be incomplete)"
+    echo "  WARN: lint_runner.py not found at $LINT_SRC (adapter source may be incomplete)"
 fi
 
 # ============================================================

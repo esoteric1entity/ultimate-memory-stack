@@ -100,7 +100,7 @@ review (it never auto-mutates content) — it runs from the cloned package, not
 the installed scaffold (the scaffold doesn't include `core/`):
 
 ```bash
-python3 /path/to/ultimate-memory-stack/core/openclaw-adapter/scripts/lint_runner.py <YOUR_WORKSPACE>
+python3 /path/to/ultimate-memory-stack/core/shared-tools/lint_runner.py <YOUR_WORKSPACE>
 ```
 
 It auto-detects your vault shape (Claude Code via `.claude/rules/`, OpenClaw

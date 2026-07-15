@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib.util
 import pathlib
+import subprocess
 import sys
 
 import pytest
@@ -28,7 +29,7 @@ def _load(relpath, name):
     return mod
 
 
-mod = _load("core/openclaw-adapter/scripts/lint_runner.py", "lint_runner")
+mod = _load("core/shared-tools/lint_runner.py", "lint_runner")
 
 
 # --------------------------------------------------------------------------- #
@@ -611,6 +612,28 @@ class TestLintFindingToDict:
 
 def test_severity_levels_order():
     assert mod.SEVERITY_LEVELS == ["info", "low", "medium", "high", "critical"]
+
+
+# --------------------------------------------------------------------------- #
+# Compat shim (v4.0.0 relocation to core/shared-tools/ — deprecate-never-delete)
+# --------------------------------------------------------------------------- #
+
+def test_old_path_shim_still_executes(tmp_path):
+    """lint_runner.py at the pre-v4.0.0 path (core/openclaw-adapter/scripts/)
+    must still work — existing installed vaults and old docs invoke it there."""
+    (tmp_path / ".claude" / "rules").mkdir(parents=True)
+    (tmp_path / ".claude" / "rules" / "memory_protocol.md").write_text("core protocol\n", encoding="utf-8")
+    (tmp_path / "memory").mkdir()
+    (tmp_path / "memory" / "MEMORY_INDEX.md").write_text("index\n", encoding="utf-8")
+
+    shim = PKG / "core" / "openclaw-adapter" / "scripts" / "lint_runner.py"
+    r = subprocess.run(
+        [sys.executable, str(shim), str(tmp_path)],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
+    )
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "compat shim" in r.stderr.lower()
+    assert "No findings" in r.stdout
 
 
 if __name__ == "__main__":

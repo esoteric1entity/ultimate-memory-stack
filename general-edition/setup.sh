@@ -359,7 +359,7 @@ if [ "$MODE" = "change-preset" ]; then
     CHANGE_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     AUDIT_PATH="${WORKING_DIR}/memory/security/audit_log.jsonl"
     [ ! -f "$AUDIT_PATH" ] && touch "$AUDIT_PATH"  # initialize if first audit event
-    echo "{\"ts\":\"${CHANGE_TS}\",\"actor\":\"migration-script\",\"action\":\"preset-change\",\"entry_id\":\"<system>\",\"entry_summary\":\"Compliance preset changed to ${COMPLIANCE_PRESET}\",\"outcome\":\"success\"}" >> "$AUDIT_PATH"
+    echo "{\"ts\":\"${CHANGE_TS}\",\"actor\":\"migration-script\",\"actor_session\":0,\"action\":\"preset-change\",\"entry_id\":\"<system>\",\"entry_path\":\"memory/\",\"entry_category\":\"system\",\"entry_summary\":\"Compliance preset changed to ${COMPLIANCE_PRESET}\",\"outcome\":\"success\"}" >> "$AUDIT_PATH"
 
     upsert_override_key "$OVERRIDES_PATH" "compliance" "compliance: ${COMPLIANCE_PRESET}"
 
@@ -507,7 +507,7 @@ case "$COMPLIANCE_PRESET" in
         touch "${WORKING_DIR}/memory/security/audit_log.jsonl"
         touch "${WORKING_DIR}/memory/quarantine/quarantine_log.jsonl"
         INIT_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        echo "{\"ts\":\"${INIT_TS}\",\"actor\":\"migration-script\",\"action\":\"initialize\",\"entry_id\":\"<bootstrap>\",\"entry_summary\":\"General-edition v${STACK_VERSION} deployment initialized; preset=${COMPLIANCE_PRESET}\",\"outcome\":\"success\"}" >> "${WORKING_DIR}/memory/security/audit_log.jsonl"
+        echo "{\"ts\":\"${INIT_TS}\",\"actor\":\"migration-script\",\"actor_session\":0,\"action\":\"initialize\",\"entry_id\":\"<bootstrap>\",\"entry_path\":\"memory/\",\"entry_category\":\"system\",\"entry_summary\":\"General-edition v${STACK_VERSION} deployment initialized; preset=${COMPLIANCE_PRESET}; extensions=${EXTENSIONS:-none}\",\"outcome\":\"success\"}" >> "${WORKING_DIR}/memory/security/audit_log.jsonl"
         echo "✓ Audit log initialized for compliance: ${COMPLIANCE_PRESET}"
         ;;
 esac

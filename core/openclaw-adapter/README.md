@@ -39,9 +39,11 @@ core/openclaw-adapter/
     ├── setup-openclaw.sh                 # Bash setup (one-shot install)
     ├── setup-openclaw.py                 # Python parity script
     ├── heartbeat_compactor.py             # Cron-triggered Lint runner
-    ├── lint_runner.py                    # Standalone Lint surface tool
+    ├── lint_runner.py                    # Compat shim (moved in v4.0.0 — see below)
     └── self_test.py                      # T1-T9 validation
 ```
+
+**Moved in v4.0.0:** `lint_runner.py`'s real implementation now lives at `core/shared-tools/lint_runner.py` — it's cross-harness tooling used by every edition, not adapter-specific. The file at the path above is a deprecate-never-delete compat shim; existing installed vaults and old docs keep working unchanged.
 
 ---
 

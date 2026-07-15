@@ -113,7 +113,9 @@ adapter_version: "1.0"
 
 ```bash
 mkdir -p <openclaw-root>/.openclaw/lint
-cp $ADAPTER/scripts/lint_runner.py <openclaw-root>/.openclaw/lint/lint_runner.py
+# lint_runner.py moved to core/shared-tools/ in v4.0.0 (shared cross-harness
+# tooling, not adapter-specific) — copy from there, not $ADAPTER/scripts/.
+cp $ADAPTER/../shared-tools/lint_runner.py <openclaw-root>/.openclaw/lint/lint_runner.py
 cp $ADAPTER/scripts/heartbeat_compactor.py <openclaw-root>/.openclaw/heartbeat_compactor.py
 ```
 
