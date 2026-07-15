@@ -227,7 +227,7 @@ This package ships the **general-edition** — suited to software dev, research,
 | **`enterprise`** | Business-customer PII, SOC2 prep, GDPR awareness |
 | **`custom`** | Multiple regulatory regimes (advanced — requires `overrides/compliance.override.md`) |
 
-**Pick `none` if unsure.** You can change later — no need to commit upfront.
+**Pick `none` if unsure.** You can change later — no need to commit upfront. Your choice (and any extensions from Decision 3) is written to `memory/user/USER_OVERRIDES.md` at install time — a file the installer creates once and never overwrites again; see "Compliance preset switching" below for changing it later.
 
 ### Decision 3: Extensions (general-edition only, optional)
 
@@ -663,17 +663,19 @@ Edition is a structural choice — not a simple preset change. When a future edi
 (General-edition only.) **To change preset on an existing general-edition deployment:**
 
 ```bash
-# Door 1a (Bash)
+# Door 1a (Bash) / Door 1b (PowerShell) / Door 1c (Python)
 ./setup.sh --change-preset=enterprise
 
-# Door 4 (Manual) — edit general-edition/PROFILE.md directly
-# Change the line "compliance: <old>" to "compliance: <new>"
-# Save the file. Next agent session re-validates entries against new patterns.
+# Door 4 (Manual) — edit memory/user/USER_OVERRIDES.md directly (NOT PROFILE.md —
+# PROFILE.md is regenerable as of v4.0.0 and a hand-edit to it will not survive
+# the next install/upgrade; see "Customizing your configuration" in USER_GUIDE.md)
+# Uncomment/add the line "compliance: <new>". Save the file. Next agent session
+# re-validates entries against the new patterns.
 ```
 
-**What happens:**
-1. PROFILE.md backed up automatically (Door 1a)
-2. PROFILE.md updated with new preset
+**What happens (Door 1a/1b/1c):**
+1. `memory/user/USER_OVERRIDES.md` backed up automatically
+2. `USER_OVERRIDES.md` updated with the new preset (created first if it didn't exist yet)
 3. Audit log captures the change
 4. Existing entries re-validated against new patterns at next session
 5. Failed validations route to quarantine

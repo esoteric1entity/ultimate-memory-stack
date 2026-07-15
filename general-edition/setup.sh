@@ -143,6 +143,100 @@ if [ "$COMPLIANCE_PRESET" = "custom" ]; then
 fi
 
 # ============================================================
+# USER_OVERRIDES pattern (v4.0.0, PLAN-merge-on-install) — permanent fix for
+# the 2026-06-15 data-loss debt. PROFILE.md is now regenerable; user config
+# lives in memory/user/USER_OVERRIDES.md, created once and never rewritten.
+# ============================================================
+
+# Create memory/user/USER_OVERRIDES.md from the template if absent. NEVER
+# write if present — not even to reformat it; user-owned from creation.
+# Escape a value for safe use in a sed s/// REPLACEMENT field (not the pattern
+# side). Unreachable today — every caller's value is pre-validated against a
+# fixed enum (VALID_PRESETS) before it gets here — but sed's replacement-field
+# `&` (means "the matched text") and `\` corrupt the file SILENTLY, even under
+# `set -e`, if that ever changes. Escape backslash first, then `&`, then the
+# delimiter this file's sed calls use (`/`).
+_sed_escape_replacement() {
+    printf '%s' "$1" | sed -e 's/[\&/]/\\&/g'
+}
+
+create_user_overrides() {
+    local overrides_path="${WORKING_DIR}/memory/user/USER_OVERRIDES.md"
+    if [ -f "$overrides_path" ]; then
+        return 0
+    fi
+    local template_path="${COMMON_SPECS_DIR}/templates/USER_OVERRIDES.template.md"
+    mkdir -p "${WORKING_DIR}/memory/user"
+
+    # Extract the fenced ```markdown ... ``` block from the doc-wrapped template.
+    # Fail loudly if the closing fence is missing (a future template edit could
+    # otherwise ship trailing prose into every install's config silently).
+    if ! awk '/^```markdown$/{flag=1; next} /^```$/{if(flag){closed=1; exit}} flag{print} END{exit !closed}' "$template_path" > "$overrides_path"; then
+        echo "✗ ERROR: ${template_path} has no closing \`\`\` fence — cannot extract USER_OVERRIDES body" >&2
+        rm -f "$overrides_path"
+        exit 1
+    fi
+
+    local today
+    today=$(date -u +"%Y-%m-%d")
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s/<YYYY-MM-DD>/${today}/" "$overrides_path"
+    else
+        sed -i "s/<YYYY-MM-DD>/${today}/" "$overrides_path"
+    fi
+
+    # Bootstrap-collected compliance value — only written if non-default.
+    if [ "$COMPLIANCE_PRESET" != "none" ]; then
+        local escaped_preset
+        escaped_preset="$(_sed_escape_replacement "$COMPLIANCE_PRESET")"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/^# compliance: <preset>.*/compliance: ${escaped_preset}/" "$overrides_path"
+        else
+            sed -i "s/^# compliance: <preset>.*/compliance: ${escaped_preset}/" "$overrides_path"
+        fi
+    fi
+
+    # Bootstrap-collected extensions — append-after-anchor (mirrors the PROFILE.md
+    # technique below), then drop the now-superseded commented placeholder lines.
+    if [ -n "$EXTENSIONS" ]; then
+        local OV_EXT_SED_SCRIPT="/^# extensions:/a\\
+extensions:"
+        local ov_ext
+        IFS=',' read -ra EXT_ARRAY_OV <<< "$EXTENSIONS"
+        for ov_ext in "${EXT_ARRAY_OV[@]}"; do
+            OV_EXT_SED_SCRIPT="${OV_EXT_SED_SCRIPT}\\
+  - ${ov_ext}"
+        done
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "$OV_EXT_SED_SCRIPT" "$overrides_path"
+            sed -i '' -e "/^# extensions:/d" -e "/^#   - <ext>\$/d" "$overrides_path"
+        else
+            sed -i "$OV_EXT_SED_SCRIPT" "$overrides_path"
+            sed -i -e "/^# extensions:/d" -e "/^#   - <ext>\$/d" "$overrides_path"
+        fi
+    fi
+}
+
+# Set `key` in USER_OVERRIDES.md to `line` ("key: value"), touching nothing
+# else. Order: replace a live line; else uncomment+replace the template's
+# commented line; else insert right after the OPENING `---` — inside the
+# frontmatter block, where a YAML-frontmatter-only reader (protocol §1.1)
+# will find it (awk, not sed, for GNU/BSD-portable single-match addressing).
+upsert_override_key() {
+    local path="$1" key="$2" line="$3" has_live has_commented tmp
+    tmp="${path}.tmp.$$"
+    has_live=$(grep -cE "^${key}: " "$path" 2>/dev/null || true)
+    has_commented=$(grep -cE "^# ${key}:" "$path" 2>/dev/null || true)
+    if [ "${has_live:-0}" -gt 0 ]; then
+        awk -v key="$key" -v line="$line" '$0 ~ "^" key ": " && !done { print line; done=1; next } { print }' "$path" > "$tmp" && mv "$tmp" "$path"
+    elif [ "${has_commented:-0}" -gt 0 ]; then
+        awk -v key="$key" -v line="$line" '$0 ~ "^# " key ":" && !done { print line; done=1; next } { print }' "$path" > "$tmp" && mv "$tmp" "$path"
+    else
+        awk -v line="$line" '/^---$/ && !done { print; print line; done=1; next } { print }' "$path" > "$tmp" && mv "$tmp" "$path"
+    fi
+}
+
+# ============================================================
 # VERIFY-ONLY / STATUS MODE
 # ============================================================
 
@@ -210,8 +304,14 @@ if [ "$MODE" = "change-preset" ]; then
         exit 1
     fi
 
-    # Backup PROFILE.md
-    cp "${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md" "${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md.backup.$(date +%Y%m%d-%H%M%S)"
+    # v4.0.0: write to USER_OVERRIDES.md — PROFILE.md is regenerable and no
+    # longer authoritative for this value. Create the file first if this
+    # deployment predates it (e.g. never re-installed since v4.0.0 shipped).
+    OVERRIDES_PATH="${WORKING_DIR}/memory/user/USER_OVERRIDES.md"
+    [ ! -f "$OVERRIDES_PATH" ] && create_user_overrides
+
+    # Backup before mutating (belt and suspenders — mirrors the pre-v4.0.0 PROFILE.md backup)
+    cp "$OVERRIDES_PATH" "${OVERRIDES_PATH}.backup.$(date +%Y%m%d-%H%M%S)"
 
     # Log change to audit log
     CHANGE_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -219,14 +319,9 @@ if [ "$MODE" = "change-preset" ]; then
     [ ! -f "$AUDIT_PATH" ] && touch "$AUDIT_PATH"  # initialize if first audit event
     echo "{\"ts\":\"${CHANGE_TS}\",\"actor\":\"migration-script\",\"action\":\"preset-change\",\"entry_id\":\"<system>\",\"entry_summary\":\"Compliance preset changed to ${COMPLIANCE_PRESET}\",\"outcome\":\"success\"}" >> "$AUDIT_PATH"
 
-    # Edit PROFILE.md compliance field (sed in-place; OS-aware)
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s/^compliance: .*/compliance: ${COMPLIANCE_PRESET}/" "${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"
-    else
-        sed -i "s/^compliance: .*/compliance: ${COMPLIANCE_PRESET}/" "${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"
-    fi
+    upsert_override_key "$OVERRIDES_PATH" "compliance" "compliance: ${COMPLIANCE_PRESET}"
 
-    echo "✓ Preset changed to ${COMPLIANCE_PRESET}"
+    echo "✓ Preset changed to ${COMPLIANCE_PRESET} (memory/user/USER_OVERRIDES.md)"
     echo "→ Next session, Claude will re-validate existing entries against new detection patterns"
     echo "→ Entries failing new validation will route to quarantine for review"
     exit 0
@@ -261,6 +356,31 @@ if [ -f "${WORKING_DIR}/.deployment-info" ]; then
     rm -f "${WORKING_DIR}/.deployment-info"
 fi
 
+# Self-reference guard (adversarial-round finding, 2026-07-14): SCRIPT_DIR is
+# wherever THIS script happens to be running from. If that's the INSTALLED
+# copy inside WORKING_DIR/ultimate-memory-stack/general-edition/, then
+# SCRIPT_DIR and the install target are the same directory — the "differs
+# from shipped" archive check below (cmp against SCRIPT_DIR/PROFILE.md)
+# compares the file to itself (always equal, so a hand-edited PROFILE.md is
+# never archived), and the wipe step then deletes common-specs/ and tries to
+# cp -r FROM the path it just deleted, crashing and permanently destroying
+# the directory. Refuse before any of that runs. --change-preset/--verify/
+# --status already exit above and don't reach this point.
+# `|| true` is required, not cosmetic: under `set -e`, a plain assignment whose
+# command substitution ends in a failing command (the `cd` when the directory
+# doesn't exist yet — the normal fresh-install case) aborts the whole script.
+INSTALLED_GENERAL_EDITION="$(cd "${WORKING_DIR}/ultimate-memory-stack/general-edition" 2>/dev/null && pwd -P || true)"
+THIS_SCRIPT_DIR="$(cd "${SCRIPT_DIR}" && pwd -P)"
+if [ -n "$INSTALLED_GENERAL_EDITION" ] && [ "$THIS_SCRIPT_DIR" = "$INSTALLED_GENERAL_EDITION" ]; then
+    echo "✗ ERROR: this is the INSTALLED copy of setup.sh, running against its own directory."
+    echo "  ${SCRIPT_DIR} IS the install target — there is no separate shipped source to refresh from."
+    echo "  To re-install or add extensions, run the ORIGINAL package's setup.sh (the one you"
+    echo "  cloned/downloaded), not the copy inside ${WORKING_DIR}."
+    echo "  To change the compliance preset on this existing install, use --change-preset instead"
+    echo "  (safe to run from the installed copy)."
+    exit 1
+fi
+
 # ============================================================
 # MIGRATION MODE
 # ============================================================
@@ -288,18 +408,36 @@ echo "→ Copying memory stack files..."
 
 mkdir -p "${WORKING_DIR}/ultimate-memory-stack" "${WORKING_DIR}/.claude/rules"
 
-# cp -r re-run nesting guard
+# v4.0.0 (PLAN-merge-on-install, unified existing-scaffold behavior): archive
+# anything user-touched, THEN refresh. A pre-v4.0.0 vault may have a
+# hand-edited PROFILE.md — archive it (with a migration notice) BEFORE the
+# regenerable general-edition/ tree gets wiped below, so the edit is never
+# silently lost. Compared against the SHIPPED source about to be copied,
+# never a version stamp the user could have edited away.
+INSTALLED_PROFILE="${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"
+SHIPPED_PROFILE="${SCRIPT_DIR}/PROFILE.md"
+if [ -f "$INSTALLED_PROFILE" ] && ! cmp -s "$INSTALLED_PROFILE" "$SHIPPED_PROFILE"; then
+    ARCHIVE_DIR="${WORKING_DIR}/memory/archive"
+    mkdir -p "$ARCHIVE_DIR"
+    ARCHIVE_PATH="${ARCHIVE_DIR}/PROFILE.pre-upgrade.$(date -u +"%Y%m%d-%H%M%S").md"
+    cp "$INSTALLED_PROFILE" "$ARCHIVE_PATH"
+    echo "⚠️  Existing PROFILE.md differs from the shipped default — archived to ${ARCHIVE_PATH}"
+    echo "   PROFILE.md is regenerable as of v4.0.0; your edits are not auto-applied."
+    echo "   Compare $(basename "$ARCHIVE_PATH") against the new PROFILE.md, then port any values you"
+    echo "   want to keep into memory/user/USER_OVERRIDES.md (create it if it doesn't exist yet —"
+    echo "   see common-specs/templates/USER_OVERRIDES.template.md for the format)."
+fi
+
+# cp -r re-run nesting guard — v4.0.0: archive-then-refresh, not refuse (§3.4a)
 if [ -d "${WORKING_DIR}/ultimate-memory-stack/common-specs" ]; then
-    echo "✗ ERROR: ${WORKING_DIR}/ultimate-memory-stack/common-specs already exists"
-    echo "  Remove with: rm -rf ${WORKING_DIR}/ultimate-memory-stack/  (for clean re-install)"
-    exit 1
+    echo "⚠️  Existing common-specs at ${WORKING_DIR}/ultimate-memory-stack/common-specs — wiping for clean install"
+    rm -rf "${WORKING_DIR}/ultimate-memory-stack/common-specs"
 fi
 cp -r "${COMMON_SPECS_DIR}" "${WORKING_DIR}/ultimate-memory-stack/common-specs"
 
 if [ -d "${WORKING_DIR}/ultimate-memory-stack/general-edition" ]; then
-    echo "✗ ERROR: ${WORKING_DIR}/ultimate-memory-stack/general-edition already exists"
-    echo "  Remove with: rm -rf ${WORKING_DIR}/ultimate-memory-stack/  (for clean re-install)"
-    exit 1
+    echo "⚠️  Existing general-edition at ${WORKING_DIR}/ultimate-memory-stack/general-edition — wiping for clean install"
+    rm -rf "${WORKING_DIR}/ultimate-memory-stack/general-edition"
 fi
 cp -r "${SCRIPT_DIR}" "${WORKING_DIR}/ultimate-memory-stack/general-edition"
 
@@ -353,38 +491,12 @@ GITIGNORE_EOF
     fi
 fi
 
-# Update PROFILE.md with selected compliance preset
-PROFILE_PATH="${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"
-if [ "$COMPLIANCE_PRESET" != "none" ]; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s/^compliance: none$/compliance: ${COMPLIANCE_PRESET}/" "$PROFILE_PATH"
-    else
-        sed -i "s/^compliance: none$/compliance: ${COMPLIANCE_PRESET}/" "$PROFILE_PATH"
-    fi
-fi
-
-# Activate extensions — write the `extensions:` block into PROFILE.md right after
-# the `compliance:` line, mirroring setup.py's update_profile_extensions() semantics
-# (sed insert instead of a Python re.sub, same insertion point, same list-item shape).
-if [ -n "$EXTENSIONS" ]; then
-    echo "→ Activating extensions: ${EXTENSIONS}"
-    # Anchored + restricted to a bare "compliance: <word>" line (no trailing
-    # comment) so this matches ONLY the frontmatter field, never the unrelated
-    # "compliance: none # DEFAULT..." prose example later in the doc body.
-    EXT_SED_SCRIPT="/^compliance: [a-zA-Z0-9_-]*\$/a\\
-extensions:"
-    IFS=',' read -ra EXT_ARRAY_WRITE <<< "$EXTENSIONS"
-    for ext in "${EXT_ARRAY_WRITE[@]}"; do
-        EXT_SED_SCRIPT="${EXT_SED_SCRIPT}\\
-  - ${ext}"
-    done
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "$EXT_SED_SCRIPT" "$PROFILE_PATH"
-    else
-        sed -i "$EXT_SED_SCRIPT" "$PROFILE_PATH"
-    fi
-    echo "✓ PROFILE.md: extensions block written"
-fi
+# v4.0.0: compliance/extensions choices are USER choices — they land in
+# USER_OVERRIDES.md (create-once, never rewritten again), not PROFILE.md.
+# PROFILE.md's frontmatter carries only the shipped default and is never
+# edited by the installer (it stays regenerable — see PROFILE.md §2.1).
+create_user_overrides
+echo "✓ memory/user/USER_OVERRIDES.md ready"
 
 # ============================================================
 # T3+ FEATURE SETUP

@@ -98,109 +98,137 @@ def test_stack_version_loaded_from_version_file():
 
 
 # ===========================================================================
-# update_profile_compliance — regex substitution
+# build_user_overrides_body — pure template-filling function (v4.0.0)
 # ===========================================================================
 
-def test_update_compliance_happy_path(tmp_path):
-    p = _make_profile(tmp_path, SAMPLE_PROFILE)
-    mod.update_profile_compliance(p, "enterprise")
+TEMPLATE_BODY = """\
+---
+schema_version: "3.0"
+created_at: <YYYY-MM-DD>
+---
+
+# --- Values the installer writes at bootstrap (edit freely after) ---
+# compliance: <preset>          # written here only if you chose something other than PROFILE.md's shipped default (none)
+# extensions:                   # written here only if you selected any at bootstrap
+#   - <ext>
+"""
+
+
+def test_build_body_fills_date():
+    out = mod.build_user_overrides_body(TEMPLATE_BODY, "none", [])
+    assert "<YYYY-MM-DD>" not in out
+    assert "created_at: " in out
+
+
+def test_build_body_default_preset_leaves_compliance_commented():
+    out = mod.build_user_overrides_body(TEMPLATE_BODY, "none", [])
+    assert "# compliance: <preset>" in out
+    assert "\ncompliance: none" not in out
+
+
+def test_build_body_nondefault_preset_uncomments_compliance():
+    out = mod.build_user_overrides_body(TEMPLATE_BODY, "enterprise", [])
+    assert "compliance: enterprise" in out
+    assert "# compliance: <preset>" not in out
+
+
+def test_build_body_no_extensions_leaves_placeholder_commented():
+    out = mod.build_user_overrides_body(TEMPLATE_BODY, "none", [])
+    assert "# extensions:" in out
+    assert "\nextensions:" not in out
+
+
+def test_build_body_extensions_replace_placeholder_pair():
+    out = mod.build_user_overrides_body(TEMPLATE_BODY, "none", ["gdpr", "soc2"])
+    assert "extensions:\n  - gdpr\n  - soc2" in out
+    assert "#   - <ext>" not in out
+
+
+def test_build_body_both_together_independent():
+    out = mod.build_user_overrides_body(TEMPLATE_BODY, "custom", ["pci-dss"])
+    assert "compliance: custom" in out
+    assert "extensions:\n  - pci-dss" in out
+
+
+# ===========================================================================
+# create_user_overrides — create-once, never-rewrite (v4.0.0)
+# ===========================================================================
+
+def test_create_user_overrides_creates_when_absent(tmp_path):
+    created = mod.create_user_overrides(tmp_path, "enterprise", ["gdpr"])
+    assert created is True
+    out = (tmp_path / "memory" / "user" / "USER_OVERRIDES.md").read_text(encoding="utf-8")
+    assert "compliance: enterprise" in out
+    assert "extensions:\n  - gdpr" in out
+
+
+def test_create_user_overrides_never_touches_existing_file(tmp_path):
+    overrides = tmp_path / "memory" / "user" / "USER_OVERRIDES.md"
+    overrides.parent.mkdir(parents=True)
+    original = "# MY CUSTOM CONTENT — must survive byte for byte\n"
+    overrides.write_text(original, encoding="utf-8")
+    created = mod.create_user_overrides(tmp_path, "enterprise", ["gdpr", "soc2"])
+    assert created is False
+    assert overrides.read_text(encoding="utf-8") == original
+
+
+def test_create_user_overrides_default_preset_no_extensions_stays_minimal(tmp_path):
+    mod.create_user_overrides(tmp_path, "none", [])
+    out = (tmp_path / "memory" / "user" / "USER_OVERRIDES.md").read_text(encoding="utf-8")
+    # Stock bootstrap choices leave both placeholders commented (no live keys).
+    assert "\ncompliance: none" not in out
+    assert "\nextensions:" not in out
+
+
+# ===========================================================================
+# upsert_override_key — replace-live / uncomment-commented / insert-fallback
+# ===========================================================================
+
+def test_upsert_replaces_live_key(tmp_path):
+    p = tmp_path / "USER_OVERRIDES.md"
+    p.write_text("---\nschema_version: \"3.0\"\n---\ncompliance: none\nextensions:\n  - gdpr\n", encoding="utf-8")
+    mod.upsert_override_key(p, "compliance", "compliance: enterprise")
     out = p.read_text(encoding="utf-8")
     assert "compliance: enterprise" in out
-    assert "compliance: none" not in out
+    assert "extensions:\n  - gdpr" in out  # untouched
 
 
-def test_update_compliance_preserves_trailing_comment(tmp_path):
-    # Regex is `^compliance: \w+` with count=1 — it matches only the word and
-    # leaves the trailing inline comment intact.
-    p = _make_profile(tmp_path, SAMPLE_PROFILE)
-    mod.update_profile_compliance(p, "enterprise")
+def test_upsert_uncomments_commented_key(tmp_path):
+    p = tmp_path / "USER_OVERRIDES.md"
+    p.write_text("---\nschema_version: \"3.0\"\n---\n# compliance: <preset>          # comment\n", encoding="utf-8")
+    mod.upsert_override_key(p, "compliance", "compliance: custom")
     out = p.read_text(encoding="utf-8")
-    assert "compliance: enterprise                    # DEFAULT" in out
+    assert out.splitlines()[-1] == "compliance: custom"
 
 
-def test_update_compliance_only_first_occurrence(tmp_path):
-    body = "compliance: none\nsomething\ncompliance: none\n"
-    p = _make_profile(tmp_path, body)
-    mod.update_profile_compliance(p, "enterprise")
+def test_upsert_inserts_inside_frontmatter_when_key_absent(tmp_path):
+    # Insert right after the OPENING `---` — inside the frontmatter block,
+    # where a YAML-frontmatter-only reader (protocol §1.1) will find it.
+    p = tmp_path / "USER_OVERRIDES.md"
+    p.write_text("---\nschema_version: \"3.0\"\n---\n# no compliance key anywhere\n", encoding="utf-8")
+    mod.upsert_override_key(p, "compliance", "compliance: enterprise")
     out = p.read_text(encoding="utf-8")
-    # count=1 → only the first line is rewritten
-    assert out == "compliance: enterprise\nsomething\ncompliance: none\n"
-
-
-def test_update_compliance_no_match_is_noop(tmp_path):
-    body = "# no compliance field here\nedition: general\n"
-    p = _make_profile(tmp_path, body)
-    mod.update_profile_compliance(p, "enterprise")
-    assert p.read_text(encoding="utf-8") == body
-
-
-def test_update_compliance_anchored_at_line_start(tmp_path):
-    # An indented occurrence (not at line start) must NOT be substituted
-    # because the regex uses ^ in MULTILINE mode.
-    body = "  compliance: none\ncompliance: none\n"
-    p = _make_profile(tmp_path, body)
-    mod.update_profile_compliance(p, "custom")
-    out = p.read_text(encoding="utf-8")
-    # The indented line is untouched; the first line-anchored one is changed.
-    assert out == "  compliance: none\ncompliance: custom\n"
-
-
-def test_update_compliance_empty_file_noop(tmp_path):
-    p = _make_profile(tmp_path, "")
-    mod.update_profile_compliance(p, "enterprise")
-    assert p.read_text(encoding="utf-8") == ""
+    lines = out.splitlines()
+    assert lines[0] == "---"
+    assert lines[1] == "compliance: enterprise"
+    assert lines[2] == 'schema_version: "3.0"'
+    assert lines[3] == "---"
+    assert "# no compliance key anywhere" in out
 
 
 # ===========================================================================
-# update_profile_extensions — append block after compliance line
+# archive_edited_profile — migration-notice archival (v4.0.0)
 # ===========================================================================
 
-def test_update_extensions_empty_list_noop(tmp_path):
-    p = _make_profile(tmp_path, SAMPLE_PROFILE)
-    before = p.read_text(encoding="utf-8")
-    mod.update_profile_extensions(p, [])
-    assert p.read_text(encoding="utf-8") == before
-
-
-def test_update_extensions_inserts_block_after_compliance(tmp_path):
-    body = "compliance: none\ncompliance_overridable: true\n"
-    p = _make_profile(tmp_path, body)
-    mod.update_profile_extensions(p, ["gdpr", "soc2"])
-    out = p.read_text(encoding="utf-8")
-    expected = (
-        "compliance: none\n"
-        "extensions:\n"
-        "  - gdpr\n"
-        "  - soc2\n"
-        "compliance_overridable: true\n"
-    )
-    assert out == expected
-
-
-def test_update_extensions_single(tmp_path):
-    body = "compliance: enterprise\n"
-    p = _make_profile(tmp_path, body)
-    mod.update_profile_extensions(p, ["pci-dss"])
-    out = p.read_text(encoding="utf-8")
-    assert out == "compliance: enterprise\nextensions:\n  - pci-dss\n"
-
-
-def test_update_extensions_no_compliance_line_noop(tmp_path):
-    body = "edition: general\nschema_version: 3.0\n"
-    p = _make_profile(tmp_path, body)
-    mod.update_profile_extensions(p, ["gdpr"])
-    # No `^compliance: \w+` to anchor on → substitution is a no-op.
-    assert p.read_text(encoding="utf-8") == body
-
-
-def test_update_extensions_then_compliance_independent(tmp_path):
-    # Order used by setup_fresh: compliance first, then extensions.
-    body = "compliance: none\n"
-    p = _make_profile(tmp_path, body)
-    mod.update_profile_compliance(p, "enterprise")
-    mod.update_profile_extensions(p, ["gdpr"])
-    out = p.read_text(encoding="utf-8")
-    assert out == "compliance: enterprise\nextensions:\n  - gdpr\n"
+def test_archive_edited_profile_copies_and_preserves_content(tmp_path, capsys):
+    installed = tmp_path / "PROFILE.md"
+    installed.write_text("compliance: none\n# USER HAND-EDIT\n", encoding="utf-8")
+    archive_path = mod.archive_edited_profile(tmp_path, installed)
+    assert archive_path.exists()
+    assert archive_path.read_text(encoding="utf-8") == "compliance: none\n# USER HAND-EDIT\n"
+    assert archive_path.parent == tmp_path / "memory" / "archive"
+    out = capsys.readouterr().out
+    assert "USER_OVERRIDES.md" in out
 
 
 # ===========================================================================
@@ -478,18 +506,63 @@ def test_change_preset_missing_profile_exits_1(tmp_path, capsys):
     assert "PROFILE.md not found" in out
 
 
-def test_change_preset_happy_path_updates_profile(tmp_path):
-    # Build the exact scaffold change_preset expects, then verify it rewrites
-    # the compliance line (and writes a backup copy alongside it).
+def test_change_preset_happy_path_updates_user_overrides_not_profile(tmp_path):
+    # v4.0.0: change_preset targets USER_OVERRIDES.md (create-once, then
+    # upsert) — PROFILE.md is regenerable and must NOT be touched at all.
     profile_dir = tmp_path / "ultimate-memory-stack" / "general-edition"
     profile_dir.mkdir(parents=True)
     profile = profile_dir / "PROFILE.md"
     profile.write_text("compliance: none\n", encoding="utf-8")
     mod.change_preset(tmp_path, "enterprise")
-    assert profile.read_text(encoding="utf-8") == "compliance: enterprise\n"
-    backups = list(profile_dir.glob("PROFILE.backup.*.md"))
+
+    # PROFILE.md is the presence gate only — untouched by the change.
+    assert profile.read_text(encoding="utf-8") == "compliance: none\n"
+    assert list(profile_dir.glob("PROFILE.backup.*.md")) == []
+
+    overrides = tmp_path / "memory" / "user" / "USER_OVERRIDES.md"
+    assert "compliance: enterprise" in overrides.read_text(encoding="utf-8")
+    backups = list((tmp_path / "memory" / "user").glob("USER_OVERRIDES.backup.*.md"))
     assert len(backups) == 1
-    assert backups[0].read_text(encoding="utf-8") == "compliance: none\n"
+
+
+def test_change_preset_creates_user_overrides_when_predates_it(tmp_path):
+    # A deployment from before USER_OVERRIDES.md existed (PROFILE.md present,
+    # no overrides file yet) must not crash — change_preset creates it first.
+    profile_dir = tmp_path / "ultimate-memory-stack" / "general-edition"
+    profile_dir.mkdir(parents=True)
+    (profile_dir / "PROFILE.md").write_text("compliance: none\n", encoding="utf-8")
+    assert not (tmp_path / "memory" / "user" / "USER_OVERRIDES.md").exists()
+    mod.change_preset(tmp_path, "enterprise")
+    overrides = tmp_path / "memory" / "user" / "USER_OVERRIDES.md"
+    assert overrides.exists()
+    assert "compliance: enterprise" in overrides.read_text(encoding="utf-8")
+
+
+def test_change_preset_custom_refused_without_override_file(tmp_path, capsys):
+    # Adversarial-round finding (2026-07-14): change_preset() had NO
+    # complexity-floor check — `--change-preset=custom` silently "succeeded"
+    # with no override file at all, the exact footgun the gate (§3.2a) exists
+    # to prevent. setup_fresh() always enforced this; change_preset() must too.
+    profile_dir = tmp_path / "ultimate-memory-stack" / "general-edition"
+    profile_dir.mkdir(parents=True)
+    (profile_dir / "PROFILE.md").write_text("compliance: none\n", encoding="utf-8")
+    with pytest.raises(SystemExit) as exc:
+        mod.change_preset(tmp_path, "custom")
+    assert exc.value.code == 1
+    assert "compliance.override.md" in capsys.readouterr().out
+    # Refused BEFORE creating USER_OVERRIDES.md — no stray file on the refused path.
+    assert not (tmp_path / "memory" / "user" / "USER_OVERRIDES.md").exists()
+
+
+def test_change_preset_custom_succeeds_with_override_file_present(tmp_path):
+    profile_dir = tmp_path / "ultimate-memory-stack" / "general-edition"
+    profile_dir.mkdir(parents=True)
+    (profile_dir / "PROFILE.md").write_text("compliance: none\n", encoding="utf-8")
+    (profile_dir / "overrides").mkdir()
+    (profile_dir / "overrides" / "compliance.override.md").write_text("# user config\n", encoding="utf-8")
+    mod.change_preset(tmp_path, "custom")
+    overrides = tmp_path / "memory" / "user" / "USER_OVERRIDES.md"
+    assert "compliance: custom" in overrides.read_text(encoding="utf-8")
 
 
 # ===========================================================================

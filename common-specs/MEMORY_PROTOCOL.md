@@ -9,7 +9,7 @@
 
 ## 1. Session Start
 
-**1.1 Edition detection:** read the YAML frontmatter of `<edition>/PROFILE.md` — first ~40 lines only (e.g. `Read` with `limit: 40`), never the full file — for: edition, compliance preset, audit policy, quarantine UX, pattern-key threshold, signature scheme, override map. Missing PROFILE.md → halt, warn user.
+**1.1 Edition detection:** read the YAML frontmatter of `<edition>/PROFILE.md` — first ~40 lines only — for: edition, compliance preset, audit policy, quarantine UX, pattern-key threshold, signature scheme, override map. Missing PROFILE.md → halt, warn user; then same limited read of `memory/user/USER_OVERRIDES.md` if present (wins; absent ≠ halt) — EXTENDED §E4.3.
 
 **1.2 Tiered loading** (do NOT load everything blindly):
 - **Tier 1 (always):** `sessions/session_state.md`, `user/user_profile.md`
@@ -28,7 +28,7 @@
 | T6 | No file's schema_version > protocol's | INFO |
 | T7 | No PII/PHI patterns outside user_profile | CRITICAL-skip file |
 | T8 | Entries have valid SCHEMA_A18 frontmatter | WARNING |
-| T9 | Edition PROFILE.md + override map resolve | WARNING |
+| T9 | PROFILE.md + override map resolve | WARNING |
 
 **1.4 Greet:** brief recap + next step; mention edition/preset on first session; mention T1–T9 failures. Skip on mid-task resume.
 
@@ -78,7 +78,7 @@ Levels 5–8: an active `supersedes` chain wins; point-in-time queries return th
 
 Override files (`<edition>/overrides/X.override.md`) replace same-named sections of `common-specs/X.md`; rest inherits. Precedence detail: EXTENDED §E4.1.
 
-Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `healthcare` (biotech-only, non-overridable) / `enterprise` (GDPR+SOC2) / `custom` (via user-authored `overrides/compliance.override.md`). Logged to session_state.md every session. Activation table: EXTENDED §E4.2.
+Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `healthcare` (biotech-only, non-overridable) / `enterprise` (GDPR+SOC2) / `custom` (via user-authored `overrides/compliance.override.md`). Logged every session. Activation table: EXTENDED §E4.2.
 
 ---
 
@@ -118,7 +118,7 @@ Before high-impact tasks (deletes, config changes, restructures, bulk ops): scor
 > Hard errors at write-time — a capping write is blocked with remediation guidance; `/override-cap` or `MEMORY_PROTOCOL_OVERRIDE=cap-bypass` for emergencies (audit-logged). Legacy over-cap files get `legacy_overflow` grace handling. Full model: EXTENDED §E8.
 
 | File | Cap | Over-cap action |
-|------|----------|---------------------|
+|---|---|---|
 | `sessions/session_state.md` | 1500 ln | Archive old summaries |
 | `decisions/decisions.md` | 1500 ln | Archive FINALs >20 sessions old |
 | `feedback/feedback.md` | 300 ln | Consolidate into standing rules |

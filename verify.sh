@@ -116,7 +116,31 @@ if [ -n "$PROFILE_PATH" ]; then
     PRESET=$(grep -E "^compliance:" "$PROFILE_PATH" 2>/dev/null | head -1 | sed 's/compliance: *//; s/#.*$//; s/ *$//' || echo "unknown")
     echo "  ✓ PROFILE.md at ${PROFILE_PATH#$WORKING_DIR/}"
     echo "    edition:    ${EDITION:-(unset)}"
-    echo "    compliance: ${PRESET:-(unset)}"
+    echo "    compliance: ${PRESET:-(unset)} (shipped default)"
+    if grep -q "REGENERABLE" "$PROFILE_PATH" 2>/dev/null; then
+        echo "  ✓ PROFILE.md header marks itself regenerable (v4.0.0 overrides pattern)"
+    else
+        echo "  ℹ️  PROFILE.md header does not mark itself regenerable — pre-v4.0.0 package or a stale copy"
+    fi
+
+    # USER_OVERRIDES.md (v4.0.0): absence is normal for Door-4 manual installs,
+    # so this is informational only — it never sets EXIT_CODE.
+    OVERRIDES_PATH="$WORKING_DIR/memory/user/USER_OVERRIDES.md"
+    if [ -f "$OVERRIDES_PATH" ]; then
+        OV_PRESET=$(grep -E "^compliance:" "$OVERRIDES_PATH" 2>/dev/null | head -1 | sed 's/compliance: *//; s/#.*$//; s/ *$//')
+        echo "  ✓ USER_OVERRIDES.md present at memory/user/USER_OVERRIDES.md"
+        if [ -n "$OV_PRESET" ]; then
+            echo "    compliance override: ${OV_PRESET} (active value — wins over PROFILE.md's ${PRESET:-unknown})"
+            # Adversarial-round finding (2026-07-14): downstream checks (e.g. [T4])
+            # branch on $PRESET — leaving it at PROFILE.md's shipped default made
+            # [T4] permanently report "opt-in, skipped" for any non-default-preset
+            # install, even one with a real, populated audit_log.jsonl. The
+            # override, when present, IS the active value.
+            PRESET="$OV_PRESET"
+        fi
+    else
+        echo "  ℹ️  USER_OVERRIDES.md absent — PROFILE.md defaults apply directly (normal for Door-4 manual installs)"
+    fi
 else
     echo "  ✗ MISSING: PROFILE.md (looked in ultimate-memory-stack/<edition>-edition/ and memory/)"
     EXIT_CODE=1

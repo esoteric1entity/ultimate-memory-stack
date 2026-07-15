@@ -20,8 +20,9 @@ This is the long-form usage guide for the Memory branch (UMS — general-edition
 6. [The security hooks](#6-the-security-hooks)
 7. [Obsidian GUI (optional)](#7-obsidian-gui-optional)
 8. [Graphiti knowledge graph (optional)](#8-graphiti-knowledge-graph-optional)
-9. [Troubleshooting](#9-troubleshooting)
-10. [When to escalate to a DEC](#10-when-to-escalate-to-a-dec)
+9. [Customizing your configuration](#9-customizing-your-configuration)
+10. [Troubleshooting](#10-troubleshooting)
+11. [When to escalate to a DEC](#11-when-to-escalate-to-a-dec)
 
 ## 1. How UMS thinks about memory
 
@@ -182,7 +183,15 @@ cd recommended-addons/graphiti-installer
 
 Graphiti ingests the decisions + learnings as Episodic nodes, extracts entities, and lets you query "what does the agent know about X" via natural language.
 
-## 9. Troubleshooting
+## 9. Customizing your configuration
+
+Your compliance preset, extensions, and any other setting `PROFILE.md` defines live in `memory/user/USER_OVERRIDES.md` — created once at install time, never touched by the installer again. `PROFILE.md` itself is regenerable: an install or upgrade may refresh it freely, so don't hand-edit it — your edit would not survive the next upgrade.
+
+To change a setting, edit `memory/user/USER_OVERRIDES.md` directly (uncomment the relevant line, or add it if the template didn't include it — unknown keys are preserved) or use `setup.sh --change-preset=<new>` / `setup.py --change-preset=<new>` for the compliance preset specifically. A value in USER_OVERRIDES.md always wins over PROFILE.md's shipped default.
+
+No USER_OVERRIDES.md yet? Normal for Door 4 (manual) installs, or a deployment installed before v4.0.0 — PROFILE.md's defaults apply directly until you create one (copy `common-specs/templates/USER_OVERRIDES.template.md`, or just run the installer once).
+
+## 10. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -191,8 +200,9 @@ Graphiti ingests the decisions + learnings as Episodic nodes, extracts entities,
 | Heartbeat stale (more than 2 sessions old; OpenClaw-adapter installs) | Heartbeat compactor isn't running | Manually update HEARTBEAT.md; check compactor cron |
 | `git log` shows duplicate entries | Two agents wrote the same DEC simultaneously | Merge, dedupe, add cross-ref |
 | `quarantine/` keeps growing | Lint is detecting content that needs review | Review and either move back to memory/ or delete |
+| I edited PROFILE.md and my change disappeared | PROFILE.md is regenerable (v4.0.0+) — edits don't persist across install/upgrade | Put the value in `memory/user/USER_OVERRIDES.md` instead (§9 above) |
 
-## 10. When to escalate to a DEC
+## 11. When to escalate to a DEC
 
 **Use a DEC when:**
 - The choice affects the project architecture (adds/renames a component, changes a protocol)

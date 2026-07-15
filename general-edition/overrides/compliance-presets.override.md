@@ -13,6 +13,8 @@
 
 This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with general-edition-specific implementation details. The presets selectable in general-edition are `none` / `enterprise` / `custom`; this file specifies HOW they work in general-edition. The shared common-spec also defines a `healthcare` preset value, but it is biotech-edition-reserved and **not selectable in general-edition** (the setup wizard refuses it with an "institutional edition only" message) — see §5.2.
 
+> **Where the active preset value comes from (v4.0.0):** the installer writes the bootstrap-selected preset to `memory/user/USER_OVERRIDES.md` (not `PROFILE.md` — that file is now regenerable and holds only the shipped default, `none`). `USER_OVERRIDES.md`, if present, wins. See `PROFILE.md` §2.1.
+
 ### §5.1 `none` Preset (General-Edition Default)
 
 **Activation behavior:**

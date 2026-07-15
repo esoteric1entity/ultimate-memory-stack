@@ -15,6 +15,10 @@ This section REPLACES `common-specs/MEMORY_PROTOCOL.md` §3.
 
 When memory files contradict each other, resolve in this order. General-edition's key difference from biotech-edition: **compliance rank is PRESET-DEPENDENT** — `none` preset allows more user flexibility; `enterprise` is moderately strict; `custom` is user-defined.
 
+### USER_OVERRIDES precedence (v4.0.0)
+
+Before the hierarchy below applies, resolve the ACTIVE VALUE of any PROFILE.md-defined setting (compliance preset included): `memory/user/USER_OVERRIDES.md`, if present, wins over `PROFILE.md`'s frontmatter — see `PROFILE.md` §2.1 and `MEMORY_PROTOCOL_EXTENDED.md` §E4.3. This is a value-resolution step, not a new conflict-resolution rank; once the active preset is resolved, rank 1 below applies exactly as written using that resolved value.
+
 ### Resolution order (highest authority wins)
 
 The hierarchy structure is identical to common-spec, but the strictness of rank 1 varies by active preset:

@@ -75,28 +75,87 @@ def log_audit_event(working_dir: Path, action: str, summary: str,
         f.write(json.dumps(entry, separators=(",", ":")) + "\n")
 
 
-def update_profile_compliance(profile_path: Path, new_preset: str):
-    """Update compliance field in PROFILE.md."""
-    content = profile_path.read_text(encoding="utf-8")
-    content = re.sub(r"^compliance: \w+", f"compliance: {new_preset}", content, count=1, flags=re.MULTILINE)
-    profile_path.write_text(content, encoding="utf-8")
+# ---------------------------------------------------------------------------
+# USER_OVERRIDES pattern (v4.0.0, PLAN-merge-on-install) — permanent fix for
+# the 2026-06-15 data-loss debt. PROFILE.md is now regenerable; user config
+# lives in memory/user/USER_OVERRIDES.md, created once and never rewritten.
+# ---------------------------------------------------------------------------
+
+def _extract_template_body(template_path: Path) -> str:
+    """Pull the fenced ```markdown ... ``` block out of a doc-wrapped template file."""
+    text = template_path.read_text(encoding="utf-8")
+    match = re.search(r"```markdown\n(.*?)\n```", text, re.DOTALL)
+    if not match:
+        raise ValueError(f"Template {template_path} has no fenced markdown block")
+    return match.group(1)
 
 
-def update_profile_extensions(profile_path: Path, extensions: list):
-    """Add/update extensions list in PROFILE.md."""
-    if not extensions:
-        return
-    content = profile_path.read_text(encoding="utf-8")
-    ext_block = "extensions:\n" + "\n".join(f"  - {e}" for e in extensions)
-    # Append after compliance line; simple approach
-    content = re.sub(
-        r"^(compliance: \w+)",
-        rf"\1\n{ext_block}",
-        content,
-        count=1,
-        flags=re.MULTILINE,
-    )
-    profile_path.write_text(content, encoding="utf-8")
+def build_user_overrides_body(template_body: str, compliance_preset: str, extensions: list) -> str:
+    """Fill the template body with any bootstrap-collected values. Pure function — no I/O."""
+    body = template_body.replace("<YYYY-MM-DD>", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+    if compliance_preset and compliance_preset != "none":
+        body = re.sub(
+            r"^# compliance: <preset>.*$",
+            f"compliance: {compliance_preset}",
+            body, count=1, flags=re.MULTILINE,
+        )
+    if extensions:
+        ext_block = "extensions:\n" + "\n".join(f"  - {e}" for e in extensions)
+        body = re.sub(
+            r"^# extensions:.*\n#   - <ext>$",
+            ext_block,
+            body, count=1, flags=re.MULTILINE,
+        )
+    return body
+
+
+def create_user_overrides(working_dir: Path, compliance_preset: str, extensions: list) -> bool:
+    """Create memory/user/USER_OVERRIDES.md from the template if absent. NEVER write if present
+    — not even to reformat it; this file is user-owned from the moment it exists."""
+    overrides_path = working_dir / "memory" / "user" / "USER_OVERRIDES.md"
+    if overrides_path.exists():
+        return False
+    template_path = COMMON_SPECS_DIR / "templates" / "USER_OVERRIDES.template.md"
+    body = build_user_overrides_body(_extract_template_body(template_path), compliance_preset, extensions)
+    overrides_path.parent.mkdir(parents=True, exist_ok=True)
+    overrides_path.write_text(body, encoding="utf-8")
+    return True
+
+
+def upsert_override_key(overrides_path: Path, key: str, value_line: str):
+    """Set `key` in USER_OVERRIDES.md to value_line's content, touching nothing else.
+    Order: replace a live `key: ...` line; else uncomment+replace the template's
+    commented `# key: ...` line; else append after the frontmatter close. Used by
+    --change-preset now that PROFILE.md is regenerable and no longer authoritative."""
+    content = overrides_path.read_text(encoding="utf-8")
+    live_re = re.compile(rf"^{re.escape(key)}: .*$", re.MULTILINE)
+    if live_re.search(content):
+        content = live_re.sub(value_line, content, count=1)
+    else:
+        commented_re = re.compile(rf"^# {re.escape(key)}:.*$", re.MULTILINE)
+        if commented_re.search(content):
+            content = commented_re.sub(value_line, content, count=1)
+        else:
+            # Fallback: insert right after the frontmatter's closing `---`.
+            content = re.sub(r"^---$", f"---\n{value_line}", content, count=1, flags=re.MULTILINE)
+    overrides_path.write_text(content, encoding="utf-8")
+
+
+def archive_edited_profile(working_dir: Path, installed_profile: Path) -> Path:
+    """Archive a PROFILE.md that differs from the shipped default before it gets
+    regenerated, and print a migration notice. Never auto-ports values — the
+    user decides what to carry into USER_OVERRIDES.md."""
+    archive_dir = working_dir / "memory" / "archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    archive_path = archive_dir / f"PROFILE.pre-upgrade.{ts}.md"
+    shutil.copy(installed_profile, archive_path)
+    print(f"⚠️  Existing PROFILE.md differs from the shipped default — archived to {archive_path}")
+    print("   PROFILE.md is regenerable as of v4.0.0; your edits are not auto-applied.")
+    print(f"   Compare {archive_path.name} against the new PROFILE.md, then port any values you")
+    print("   want to keep into memory/user/USER_OVERRIDES.md (create it if it doesn't exist yet —")
+    print("   see common-specs/templates/USER_OVERRIDES.template.md for the format).")
+    return archive_path
 
 
 def generate_hmac_secret() -> str:
@@ -212,6 +271,26 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     print(f"Compliance preset: {compliance_preset}")
     print(f"Extensions: {extensions if extensions else 'none'}")
 
+    # Self-reference guard (adversarial-round finding, 2026-07-14): SCRIPT_DIR is
+    # wherever THIS script happens to be running from. If that's the INSTALLED
+    # copy inside working_dir/ultimate-memory-stack/general-edition/, then
+    # SCRIPT_DIR and the install target are the same directory — the "differs
+    # from shipped" archive check below compares the file to itself (always
+    # false, so a hand-edited PROFILE.md is never archived), and the wipe step
+    # then deletes common-specs/ and tries to copytree FROM the path it just
+    # deleted, crashing and permanently destroying the directory. Refuse before
+    # any of that runs. --change-preset/--verify/--status don't reach this
+    # function and remain safe to run from the installed copy.
+    installed_general_edition = (working_dir / "ultimate-memory-stack" / "general-edition").resolve()
+    if SCRIPT_DIR.resolve() == installed_general_edition:
+        print(f"✗ ERROR: this is the INSTALLED copy of setup.py, running against its own directory.")
+        print(f"  {SCRIPT_DIR} IS the install target — there is no separate shipped source to refresh from.")
+        print(f"  To re-install or add extensions, run the ORIGINAL package's setup.py (the one you")
+        print(f"  cloned/downloaded), not the copy inside {working_dir}.")
+        print(f"  To change the compliance preset on this existing install, use --change-preset instead")
+        print(f"  (safe to run from the installed copy).")
+        sys.exit(1)
+
     # PHI/HIPAA is biotech-edition only — refuse it in the public general-edition
     if compliance_preset in BIOTECH_ONLY or any(e in BIOTECH_ONLY for e in extensions):
         print(f"✗ '{compliance_preset}'/PHI handling is part of the institutional biotech-edition, not the public general-edition.")
@@ -258,6 +337,17 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     print("\n→ Copying memory stack files...")
     target_root = working_dir / "ultimate-memory-stack"
     target_root.mkdir(parents=True, exist_ok=True)
+
+    # v4.0.0 (PLAN-merge-on-install, unified existing-scaffold behavior): archive
+    # anything user-touched, THEN refresh. A pre-v4.0.0 vault may have a hand-edited
+    # PROFILE.md — archive it (with a migration notice) BEFORE the regenerable
+    # general-edition/ tree gets wiped below, so the edit is never silently lost.
+    # Compared against the SHIPPED source about to be copied, never a version stamp
+    # the user could have edited away.
+    installed_profile = target_root / "general-edition" / "PROFILE.md"
+    shipped_profile = SCRIPT_DIR / "PROFILE.md"
+    if installed_profile.exists() and installed_profile.read_bytes() != shipped_profile.read_bytes():
+        archive_edited_profile(working_dir, installed_profile)
 
     # Surface re-install action with explicit warning before wipe
     if (target_root / "common-specs").exists():
@@ -320,12 +410,11 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
         )
         print(f"✓ Audit log initialized (compliance: {compliance_preset})")
 
-    # Update PROFILE.md
-    profile_path = target_root / "general-edition" / "PROFILE.md"
-    if compliance_preset != "none":
-        update_profile_compliance(profile_path, compliance_preset)
-    if extensions:
-        update_profile_extensions(profile_path, extensions)
+    # v4.0.0: compliance/extensions choices are USER choices — they land in
+    # USER_OVERRIDES.md (create-once, never rewritten again), not PROFILE.md.
+    # PROFILE.md's frontmatter carries only the shipped default and is never
+    # edited by the installer (it stays regenerable — see PROFILE.md §2.1).
+    create_user_overrides(working_dir, compliance_preset, extensions)
 
     # Tier detection
     tier = detect_tier()
@@ -383,7 +472,8 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
 
 
 def change_preset(working_dir: Path, new_preset: str):
-    """Change compliance preset on existing deployment."""
+    """Change compliance preset on existing deployment. Writes to USER_OVERRIDES.md
+    (v4.0.0) — PROFILE.md is regenerable and no longer authoritative for this value."""
     if new_preset in BIOTECH_ONLY:
         print(f"✗ '{new_preset}'/PHI handling is biotech-edition only, not available in the public general-edition.")
         sys.exit(1)
@@ -391,17 +481,37 @@ def change_preset(working_dir: Path, new_preset: str):
         print(f"✗ Invalid preset: {new_preset}")
         sys.exit(1)
 
+    # Custom preset complexity floor (adversarial-round finding, 2026-07-14):
+    # setup_fresh() has always enforced this gate but change_preset() never did
+    # — `--change-preset=custom` silently "succeeded" with no override file at
+    # all, the exact footgun this gate exists to prevent (§3.2a). Mirrors
+    # setup_fresh()'s check, but against the INSTALLED deployment's overrides/
+    # dir (working_dir), not SCRIPT_DIR — change_preset is designed to run
+    # from the installed copy.
+    if new_preset == "custom":
+        override_path = working_dir / "ultimate-memory-stack" / "general-edition" / "overrides" / "compliance.override.md"
+        if not override_path.exists():
+            print(f"✗ ERROR: 'custom' preset requires {override_path}")
+            print(f"  The 'custom' preset needs explicit configuration with ≥1 override — write that file first")
+            print(f"  (see overrides/compliance-presets.override.md §5.4 for the pattern).")
+            sys.exit(1)
+
     profile_path = working_dir / "ultimate-memory-stack" / "general-edition" / "PROFILE.md"
     if not profile_path.exists():
         print(f"✗ PROFILE.md not found at {profile_path}")
         sys.exit(1)
 
-    # Backup
-    backup_path = profile_path.with_suffix(f".backup.{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.md")
-    shutil.copy(profile_path, backup_path)
+    overrides_path = working_dir / "memory" / "user" / "USER_OVERRIDES.md"
+    if not overrides_path.exists():
+        # Deployment predates USER_OVERRIDES.md (or it was never created) —
+        # create it now, empty of bootstrap values, so there's something to upsert into.
+        create_user_overrides(working_dir, "none", [])
 
-    # Update
-    update_profile_compliance(profile_path, new_preset)
+    # Backup before mutating (belt and suspenders — mirrors the pre-v4.0.0 PROFILE.md backup)
+    backup_path = overrides_path.with_suffix(f".backup.{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.md")
+    shutil.copy(overrides_path, backup_path)
+
+    upsert_override_key(overrides_path, "compliance", f"compliance: {new_preset}")
 
     # Log
     log_audit_event(
@@ -410,7 +520,7 @@ def change_preset(working_dir: Path, new_preset: str):
         summary=f"Compliance preset changed to {new_preset}",
     )
 
-    print(f"✓ Preset changed to {new_preset}")
+    print(f"✓ Preset changed to {new_preset} (memory/user/USER_OVERRIDES.md)")
     print(f"→ At next session, Claude will re-validate existing entries")
     print(f"→ Entries failing new detection patterns route to quarantine")
 

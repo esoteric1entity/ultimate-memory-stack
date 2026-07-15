@@ -1,7 +1,7 @@
 ---
 name: install-ultimate-memory-stack
-version: "1.7"
-description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
+version: "1.8"
+description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), creates memory/user/USER_OVERRIDES.md (create-once, never rewritten — see PROFILE.md §2.1) with the chosen preset/extensions, and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
 edition: any
@@ -246,13 +246,20 @@ This is the file-copy + scaffold step. Use Read, Write, Edit tools as needed.
 
 ### 7b. Copy common-specs/ + chosen edition
 
-Use Bash. On a re-install the two package directories may already exist — remove them first (they are the regenerable spec copy per Step 0.5; this must NEVER touch `<MEMORY_DIR>` or other user data). Without the removal, `cp -r` NESTS the new copy inside the old directory instead of refreshing it, leaving stale spec files in place:
+Use Bash. On a re-install the two package directories may already exist — remove them first (they are the regenerable spec copy per Step 0.5; this must NEVER touch `<MEMORY_DIR>` or other user data). Without the removal, `cp -r` NESTS the new copy inside the old directory instead of refreshing it, leaving stale spec files in place.
+
+**Archive-before-wipe (v4.0.0, PLAN-merge-on-install):** BEFORE removing, check whether `<STACK_DIR>/<EDITION>-edition/PROFILE.md` exists and differs from the shipped source at `<SOURCE_PATH>/<EDITION>-edition/PROFILE.md` (byte comparison — `cmp -s`, never a version stamp the user could have edited away). If it exists and differs, it was hand-edited under the pre-v4.0.0 model — archive it so the wipe below never silently loses it:
 ```bash
 mkdir -p "<STACK_DIR>"
+if [ -f "<STACK_DIR>/<EDITION>-edition/PROFILE.md" ] && ! cmp -s "<STACK_DIR>/<EDITION>-edition/PROFILE.md" "<SOURCE_PATH>/<EDITION>-edition/PROFILE.md"; then
+    mkdir -p "<MEMORY_DIR>/archive"
+    cp "<STACK_DIR>/<EDITION>-edition/PROFILE.md" "<MEMORY_DIR>/archive/PROFILE.pre-upgrade.$(date -u +%Y%m%d-%H%M%S).md"
+fi
 rm -rf "<STACK_DIR>/common-specs" "<STACK_DIR>/<EDITION>-edition"
 cp -r "<SOURCE_PATH>/common-specs" "<STACK_DIR>/common-specs"
 cp -r "<SOURCE_PATH>/<EDITION>-edition" "<STACK_DIR>/<EDITION>-edition"
 ```
+If a copy was archived, tell the user: "Your previous PROFILE.md had customizations — archived to `memory/archive/PROFILE.pre-upgrade.<date>.md`. PROFILE.md is regenerable as of v4.0.0; port any values you want to keep into `memory/user/USER_OVERRIDES.md` (Step 7f creates it if it doesn't exist yet)."
 
 Report: "✓ Files copied"
 
@@ -307,13 +314,17 @@ Append the initialization entry **only if the audit log was created above** (ent
 
 Report appropriately based on what was initialized.
 
-### 7f. Update PROFILE.md with selected preset + extensions
+### 7f. Create USER_OVERRIDES.md (compliance + extensions choices)
 
-Use Edit tool to modify `<STACK_DIR>/general-edition/PROFILE.md`:
-- Set `compliance: <COMPLIANCE_PRESET>` (was `compliance: none`)
-- Add `extensions:` list if extensions were selected
+**v4.0.0 (PLAN-merge-on-install):** `PROFILE.md` is regenerable — the installer never writes to it (see 7b's archive-before-wipe instead). User configuration, including the compliance preset + extensions chosen in Steps 3–4, lives in `<MEMORY_DIR>/user/USER_OVERRIDES.md` — created ONCE, never rewritten again.
 
-> **PRESERVE mode (Step 0.5):** on a re-install, if `PROFILE.md` already carries user customizations (a `compliance:`/`extensions:` value different from the package default, or hand-added fields), do **NOT** blindly reset it — show the user the current values and confirm before editing. The spec tree is regenerable, but an edited PROFILE is the user's configuration.
+- If `<MEMORY_DIR>/user/USER_OVERRIDES.md` already exists: **do nothing.** Never write to it, not even to reformat it — it is user-owned from the moment it exists.
+- If absent: Read `common-specs/templates/USER_OVERRIDES.template.md`, extract the fenced ```markdown ... ``` block (that block IS the file body — the surrounding Purpose/Usage-notes/Cross-references sections are documentation for humans, not part of what you write), fill in today's date for `<YYYY-MM-DD>`, then:
+  - If `<COMPLIANCE_PRESET>` is not `none`: uncomment the `# compliance: <preset>...` line, set it to `compliance: <COMPLIANCE_PRESET>`.
+  - If any extensions were selected: replace the commented `# extensions:` + `#   - <ext>` lines with a live `extensions:` list (one `- <ext>` per selection).
+  - Use Write to create `<MEMORY_DIR>/user/USER_OVERRIDES.md` with the result.
+
+> **PRESERVE mode (Step 0.5) still applies, and is now simpler:** the create-once/never-rewrite rule above already IS the preserve behavior for this file — there is no "confirm before editing" judgment call anymore, because the installer never edits an existing USER_OVERRIDES.md at all.
 
 ---
 
@@ -484,6 +495,7 @@ If any step fails:
 - It does NOT modify files outside the working directory + ~/.config/keys/ (if T3+ key generation)
 - For custom preset: refuses to proceed without `overrides/compliance.override.md`
 - When an existing store is detected (Step 0.5), it is backed up to `memory.backup.<ts>/` before any write, and user-data files are never overwritten — so an install-over-existing-data is recoverable. (Fresh installs create no backup because there is nothing yet to preserve.)
+- **USER_OVERRIDES.md (v4.0.0):** create-once, never rewritten — if it exists, Step 7f does not touch it under any circumstance. `PROFILE.md` is regenerable; a hand-edited one is archived (7b), never merged or guessed at.
 
 ---
 
@@ -493,6 +505,7 @@ If any step fails:
 - `BOOTSTRAP_PROMPT.md` §The Activation Prompt (the Manual / Bash equivalent workflow)
 - `common-specs/MODULARITY.md` (consumer agent topology rationale)
 - `common-specs/SCHEMA_compliance_profile.md` §5 (preset definitions)
+- `common-specs/templates/USER_OVERRIDES.template.md` (Step 7f's source; precedence mechanics: `PROFILE.md` §2.1 + `MEMORY_PROTOCOL_EXTENDED.md` §E4.3)
 
 ---
 
@@ -509,6 +522,7 @@ If any step fails:
 | 1.5 | 2026-07-10 | **Protocol CORE/EXTENDED split (v4.0.0 eager-load fix).** Step 7c now also warns (never auto-edits) if the target's CLAUDE.md still has an old at-sign import of the protocol file — that content already auto-loads via `.claude/rules/`, so the old import double-loads it. Step 7d now additionally installs `MEMORY_PROTOCOL_EXTENDED.md` to the vault root (`memory/`, never `.claude/rules/`) as an on-demand reference. |
 | 1.6 | 2026-07-11 | **Upgrade-path fix.** Step 7b now removes the pre-existing regenerable package directories (`common-specs/`, `<EDITION>-edition/`) before copying. Previously, on a re-install over an existing scaffold, the recursive copy nested the new package inside the old directory, so Step 7c silently re-installed the STALE pre-split protocol and Step 7d could not find the extended protocol file — the eager-load fix never took effect on upgrades via this door. User data (`memory/`) is untouched. No behavior change for fresh installs. |
 | 1.7 | 2026-07-11 | **Doc-coherence pass (v4.0.0).** Step 0's "what this will do" summary and the frontmatter description now say the copy lands in `ultimate-memory-stack/` (was ambiguous about the nested layout — matches Step 7b's actual behavior, which was already correct). Retired "Method A/B" install-guide labels in Step 2 validation + Error Handling replaced with the door taxonomy (Door 4 manual / Door 1a Bash) to match the restructured INSTALL.md. No behavior change. |
+| 1.8 | 2026-07-14 | **Overrides pattern (v4.0.0, PLAN-merge-on-install) — permanent fix for the 2026-06-15 data-loss debt's remaining PROFILE.md gap.** Step 7b now archives a hand-edited `PROFILE.md` to `memory/archive/PROFILE.pre-upgrade.<date>.md` (byte-compared against the shipped source) BEFORE the regenerable-tree wipe, instead of the wipe silently discarding it. Step 7f no longer edits `PROFILE.md` at all — it creates `memory/user/USER_OVERRIDES.md` from the new template if absent (with the chosen preset/extensions), and never touches it if present. `PROFILE.md` is now fully regenerable; USER_OVERRIDES.md values win on conflict (`PROFILE.md` §2.1, `MEMORY_PROTOCOL_EXTENDED.md` §E4.3). Matches identical behavior added to `setup.sh`/`setup.py` in the same release. No change to Step 0.5's memory/-tree backup-and-preserve machinery. |
 
 When this skill is updated, bump `version:` in the frontmatter + record changes here. Treat the skill itself like any other memory stack artifact — schema_version compatibility matters.
 

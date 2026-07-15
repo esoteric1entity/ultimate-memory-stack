@@ -5,6 +5,7 @@ audit_log: opt-in
 quarantine_ux: toast
 crypto_signatures_scheme: "hmac-sha256"
 pattern_key_threshold: 5
+eager_set_budget_bytes: 80000
 override_file_map:
   - spec_file: "MEMORY_PROTOCOL.md §3 (Conflict Resolution)"
     override_file: "overrides/generic-conflict-resolution.override.md"
@@ -17,8 +18,8 @@ override_file_map:
 # General-Edition Profile
 
 > **File:** `general-edition/PROFILE.md`
-> **Version:** 1.0 — stable
-> **Status:** stable
+> **Version:** 1.1 — stable
+> **Status:** stable — **REGENERABLE (v4.0.0):** the installer may overwrite this file freely on install/upgrade. It holds shipped defaults, not your configuration — user customization lives in `memory/user/USER_OVERRIDES.md` instead (create-once, never rewritten; values there take precedence over this file's frontmatter). See §2.1 + `MEMORY_PROTOCOL_EXTENDED.md` §E4.3.
 > **Authors:** see /AUTHORS.md
 > **Design basis:** memory R&D structure, design philosophy, documentation discipline, per-edition Tier B behaviors (B1/B2/B6/B7/B8), modular consumer architecture
 
@@ -26,9 +27,9 @@ override_file_map:
 
 ## What This File Is
 
-**Purpose:** Declare the general-edition's defaults + user-selectable compliance choices + override-file map. Loaded by MEMORY_PROTOCOL.md §1.1 (Edition Detection) at every session start.
+**Purpose:** Declare the general-edition's shipped defaults + override-file map. Loaded by MEMORY_PROTOCOL.md §1.1 (Edition Detection) at every session start, immediately followed by a limited read of `memory/user/USER_OVERRIDES.md` if it exists — those values win on conflict.
 
-**This is the load-bearing file for general-edition.** All behavior divergence from common-spec defaults flows from here. Unlike biotech-edition (which has non-overridable defaults), general-edition supports user customization within the compliance preset framework.
+**This is the load-bearing file for general-edition.** All behavior divergence from common-spec defaults flows from here or from USER_OVERRIDES.md. Unlike biotech-edition (which has non-overridable defaults), general-edition supports user customization — as of v4.0.0, via USER_OVERRIDES.md rather than by hand-editing this file (this file is now regenerable and hand-edits to it are not preserved across upgrades).
 
 ---
 
@@ -132,6 +133,10 @@ lint:
     missing_concept: false          # OPT-IN for general (T3 required + LLM cost)
 ```
 
+## 2.1 USER_OVERRIDES Precedence (v4.0.0)
+
+Every value above is a **shipped default**, not your configuration. If `memory/user/USER_OVERRIDES.md` exists, its frontmatter values **override the corresponding value above** — read second, at the same session-start step (MEMORY_PROTOCOL.md §1.1). The installer creates USER_OVERRIDES.md once (from `common-specs/templates/USER_OVERRIDES.template.md`) if absent, and never writes to it again; this file's frontmatter may be freely regenerated on any install/upgrade. If USER_OVERRIDES.md is absent (e.g. a Door-4 manual install that never ran an installer), the defaults above apply directly — this is a supported state, not a halt condition. Full mechanics + the installer's archive-and-migration-notice behavior for a pre-v4.0.0 hand-edited copy of this file: `MEMORY_PROTOCOL_EXTENDED.md` §E4.3.
+
 ## 3. Compliance Detection Patterns (selected by active preset)
 
 | Active preset | Detection patterns file |
@@ -227,6 +232,8 @@ When deploying general-edition, the setup wizard MUST collect:
 
 ## 11. Cross-References
 
+- `memory/user/USER_OVERRIDES.md` (v4.0.0+): user configuration lives here, not in this file — see §2.1
+- `common-specs/templates/USER_OVERRIDES.template.md`: the template the installer creates it from
 - `PROFILE.md` parent: `../common-specs/` (the universal foundation)
 - `MODULARITY.md`: brand-protection vs modular distinction
 - `MEMORY_PROTOCOL.md` §1.1 (edition detection loads this file)

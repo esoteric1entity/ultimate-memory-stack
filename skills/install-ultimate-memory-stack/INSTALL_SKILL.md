@@ -1,6 +1,6 @@
 # How to Install the `install-ultimate-memory-stack` Skill
 
-> **Skill version:** 1.7 — see `SKILL.md` frontmatter + changelog for the authoritative version  ·  **This guide revised:** 2026-07-11
+> **Skill version:** 1.8 — see `SKILL.md` frontmatter + changelog for the authoritative version  ·  **This guide revised:** 2026-07-14
 > **Audience:** Users who want to register the Ultimate Memory Stack Skill installer in Claude Code
 > **Status:** STABLE — v1.0 validated end-to-end 2026-06-10 (fresh install, general-edition; T1–T9 all pass); v1.1–v1.4 added existing-store data-safety (backup + preserve), `$HOME`/system-dir install guards (canonicalised in v1.4), and harness-agnostic wording — see SKILL.md changelog.
 

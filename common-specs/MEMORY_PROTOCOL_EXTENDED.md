@@ -222,6 +222,19 @@ Active compliance preset (from PROFILE.md) selects detection patterns + redactio
 
 Active preset is **always logged** to session_state.md at session start.
 
+### E4.3 USER_OVERRIDES Precedence (v4.0.0)
+
+**Rationale.** Since the 2026-06-15 data-loss near-miss, the skill door has protected an existing vault with a backup-and-preserve stopgap — but the underlying debt stayed open: user edits to `PROFILE.md` were still treated as refreshable, so an upgrade or re-install regenerated the file and the user's customization survived only as a backup they had to manually re-apply. This section is the permanent fix: the **overrides pattern**, not a merge engine. User-mutable configuration moves into a file the installer creates exactly once and never writes again; `PROFILE.md` becomes fully regenerable.
+
+**Mechanics.**
+- New file: `memory/user/USER_OVERRIDES.md`, YAML frontmatter only. Template: `common-specs/templates/USER_OVERRIDES.template.md`.
+- **Precedence:** a value present in USER_OVERRIDES.md wins over the same-named value in `<edition>/PROFILE.md`'s frontmatter. `PROFILE.md` is the shipped-defaults source; USER_OVERRIDES.md is the user's configuration.
+- **Installer contract:** on install/upgrade — USER_OVERRIDES.md absent → create from the template (writing in the bootstrap-collected `compliance` value if it differs from the shipped default, and `extensions` if any were selected — the same trigger conditions the pre-v4.0.0 code used when it wrote those into PROFILE.md directly). USER_OVERRIDES.md present → **never write to it, not even to reformat it.**
+- **Pre-existing hand-edited PROFILE.md (pre-v4.0.0 vaults):** detected by comparing the on-disk `PROFILE.md` against the shipped source file about to be copied (byte comparison — never a `Version:` line or other stamp the user could have edited away). If they differ: copy the old file to `memory/archive/PROFILE.pre-upgrade.<date>.md`, print a migration notice naming the values to port into USER_OVERRIDES.md, THEN regenerate PROFILE.md. Values are never auto-ported — silently guessing which edits were intentional is how corruption happens; the notice puts the decision in front of the user.
+- **Door-4 (manual) tolerance:** a manual install that never ran an installer may have no USER_OVERRIDES.md at all. This is a supported state, not a halt condition — PROFILE.md's shipped defaults apply directly (core §1.1).
+- **Parser defensiveness:** USER_OVERRIDES.md is user-owned prose+frontmatter. Reordered keys, extra comments, and keys the reader doesn't recognize are preserved and ignored, never stripped or "normalized" — the installer's own never-rewrite rule makes this doubly true, but the *protocol's* read must tolerate it too, since a user may hand-edit the file directly.
+- **`eager_set_budget_bytes`** (default **80,000**, ships in PROFILE.md's frontmatter): the one numeric tuning knob USER_OVERRIDES.md commonly carries — an advisory nudge threshold for the live vault's summed eager-load bytes, distinct from the fresh-install release gate. Lint-checked, not enforced. Full accounting: `SPEC-hotcold-v4.md` §S2.
+
 ---
 
 ## E5. Risk Scoring Rubric
