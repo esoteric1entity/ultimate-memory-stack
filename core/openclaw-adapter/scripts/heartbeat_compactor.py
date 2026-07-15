@@ -40,6 +40,15 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# this script's status glyphs — force UTF-8 so output can never crash a
+# compaction run (UnicodeEncodeError). Same guard as general-edition/setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
 
 # Heartbeat header pattern — matches "## 🔵 Current heartbeat" or "## 🟦 Prior heartbeat"
 HEARTBEAT_HEADER_RE = re.compile(r"^## (?:🔵|🟦) (?:Current|Prior) heartbeat", re.MULTILINE)

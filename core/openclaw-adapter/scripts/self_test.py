@@ -36,6 +36,15 @@ import re
 import sys
 from pathlib import Path
 
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# this script's result glyphs — force UTF-8 so the T1-T9 result-print loop
+# can never crash the run (UnicodeEncodeError). Same guard as setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
 
 ROOT_FILES = [
     "MEMORY.md",

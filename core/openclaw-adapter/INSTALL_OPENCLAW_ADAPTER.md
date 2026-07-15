@@ -141,7 +141,7 @@ Paste:
 python $ADAPTER/scripts/self_test.py <openclaw-root>
 ```
 
-Expected: all 9 tests PASS.
+Expected: all 9 tests PASS or WARN (warnings are non-blocking — e.g. T5 warns on a fresh install because `decisions.md`/`session_state.md`/`feedback.md` are created on first use; the adapter is usable). Only CRITICAL failures (exit code 2) mean the install needs repair.
 
 ### Step 10 — Log DEC entry
 

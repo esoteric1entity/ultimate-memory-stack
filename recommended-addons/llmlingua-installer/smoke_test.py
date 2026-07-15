@@ -35,6 +35,15 @@ from __future__ import annotations
 import sys
 import time
 
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# this script's output glyphs — force UTF-8 so the smoke test can never crash
+# on printing (UnicodeEncodeError). Same guard as general-edition/setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
 
 SAMPLE_PROMPT = (
     "The Ultimate Memory Stack v3.6.0 release bundles three security-vetted, opt-in "

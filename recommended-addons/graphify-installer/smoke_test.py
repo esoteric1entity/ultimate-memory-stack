@@ -26,6 +26,17 @@ from __future__ import annotations
 import sys
 import textwrap
 
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# everything this script prints (it echoes runtime library metadata and
+# exception text) — force UTF-8 so output can never crash the smoke test
+# (UnicodeEncodeError). Same guard as general-edition/setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
+
 
 def check_import() -> None:
     """Step 1: Import graphify module (single-y — the actual module name shipped by the graphifyy distribution).

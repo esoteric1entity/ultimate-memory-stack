@@ -16,12 +16,17 @@ import shutil
 import subprocess
 import sys
 
-# Windows consoles often default to cp1252 — force UTF-8 so unicode glyphs in
-# progress output cannot crash the install (UnicodeEncodeError).
-if sys.platform == "win32":
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# this script's progress glyphs — force UTF-8 on stdout so output can never
+# crash the install (UnicodeEncodeError). The crash class isn't Windows-only,
+# and tests/test_console_encoding.py exercises it everywhere. stdout ONLY:
+# stderr already defaults to errors="backslashreplace" (crash-proof, and it
+# preserves exact codepoints in diagnostics — reconfiguring it would lose
+# that). Gated on __main__ so importing this module (tests) never mutates
+# process-wide streams.
+if __name__ == "__main__":
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except AttributeError:
         pass
 from datetime import datetime, timezone

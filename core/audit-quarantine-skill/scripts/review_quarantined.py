@@ -33,6 +33,15 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# this script's review glyphs — force UTF-8 so output can never crash a
+# review session (UnicodeEncodeError). Same guard as general-edition/setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Audit Quarantine Review CLI")

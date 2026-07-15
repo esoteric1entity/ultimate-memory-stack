@@ -336,6 +336,10 @@ fi
 echo ""
 echo "[Step 10] Running T1-T9 self-test..."
 
+# ST_STATUS feeds the final-summary "Self-test:" line — previously that line
+# was a hardcoded "PASSED" regardless of the actual outcome (even when
+# self_test.py was missing). Labels match setup-openclaw.py's step_10 exactly.
+ST_STATUS="PASSED"
 if [[ -f "$SCRIPT_DIR/self_test.py" ]]; then
     set +e
     $PYTHON_CMD "$SCRIPT_DIR/self_test.py" "$OPENCLAW_ROOT"
@@ -348,10 +352,12 @@ if [[ -f "$SCRIPT_DIR/self_test.py" ]]; then
         3)
             echo "  self_test.py: PASSED with WARNINGS (T1-T9 mostly green; non-blocking warns)"
             echo "  Install is valid — review warnings above when convenient."
+            ST_STATUS="PASSED with warnings"
             ;;
         4)
             echo "  self_test.py: PASSED with INFO notes (T1-T9 green; informational items)"
             echo "  Install is valid — review info notes above when convenient."
+            ST_STATUS="PASSED with info notes"
             ;;
         2)
             echo "  self_test.py: FAILED (CRITICAL — see output above)" >&2
@@ -364,6 +370,7 @@ if [[ -f "$SCRIPT_DIR/self_test.py" ]]; then
     esac
 else
     echo "  WARN: self_test.py not found; skipping (adapter source may be incomplete)"
+    ST_STATUS="SKIPPED (self_test.py not found)"
 fi
 
 # ============================================================
@@ -429,7 +436,7 @@ echo "Memory tree:          ${#SUBDIRS[@]} subdirectories created"
 echo "Compliance preset:    $COMPLIANCE"
 echo "Lint runner:          installed at .openclaw/lint/"
 echo "Heartbeat compactor:  installed at .openclaw/"
-echo "Self-test:            PASSED"
+echo "Self-test:            $ST_STATUS"
 echo ""
 echo "Next steps:"
 echo "  1. Open OpenClaw in this directory: $OPENCLAW_ROOT"

@@ -54,6 +54,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# all output glyphs — force UTF-8 so a finding's text can never crash the
+# lint run (UnicodeEncodeError). Same guard as general-edition/setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
 
 SEVERITY_LEVELS = ["info", "low", "medium", "high", "critical"]
 

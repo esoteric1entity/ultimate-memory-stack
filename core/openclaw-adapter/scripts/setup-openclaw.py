@@ -31,6 +31,15 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# this script's progress glyphs — force UTF-8 so output can never crash the
+# install (UnicodeEncodeError). Same guard as general-edition/setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
 
 ROOT_FILES = [
     "MEMORY.md",
@@ -243,23 +252,46 @@ def step_9_install_heartbeat_compactor(openclaw_root: Path, script_dir: Path, wi
         print("")
 
 
-def step_10_self_test(openclaw_root: Path, script_dir: Path) -> bool:
+def step_10_self_test(openclaw_root: Path, script_dir: Path) -> str | None:
+    """Run T1-T9; returns a status label for the summary, or None on failure.
+
+    Exit codes interpreted per self_test.py's own contract (0=PASS,
+    2=CRITICAL, 3=WARN, 4=INFO) — warn/info are non-blocking, the install is
+    valid. setup-openclaw.sh Step 10 has always handled this correctly; this
+    function used to treat ANY non-zero as failure, so every fresh install
+    (where T5 warns about not-yet-created memory files) exited 4 and skipped
+    the Step-11 install log. Parity restored to the Bash behavior.
+
+    Note the exit-code namespaces are distinct: THIS installer's own exit 4
+    means "self-test failed", while self_test.py's exit 4 means INFO
+    (non-blocking) — do not conflate them when wrapping either script.
+    """
     print("\n[Step 10] Running T1-T9 self-test...")
     self_test = script_dir / "self_test.py"
     if not self_test.exists():
         print(f"  WARN: self_test.py not found in {script_dir}; skipping")
-        return True
+        return "SKIPPED (self_test.py not found)"
 
     result = subprocess.run(
         [sys.executable, str(self_test), str(openclaw_root)],
         capture_output=False,
     )
     if result.returncode == 0:
-        print("  self_test.py: PASSED")
-        return True
-    else:
-        print("  self_test.py: FAILED — check output above", file=sys.stderr)
-        return False
+        print("  self_test.py: PASSED (all T1-T9 green)")
+        return "PASSED"
+    if result.returncode == 3:
+        print("  self_test.py: PASSED with WARNINGS (T1-T9 mostly green; non-blocking warns)")
+        print("  Install is valid — review warnings above when convenient.")
+        return "PASSED with warnings"
+    if result.returncode == 4:
+        print("  self_test.py: PASSED with INFO notes (T1-T9 green; informational items)")
+        print("  Install is valid — review info notes above when convenient.")
+        return "PASSED with info notes"
+    if result.returncode == 2:
+        print("  self_test.py: FAILED (CRITICAL — see output above)", file=sys.stderr)
+        return None
+    print(f"  self_test.py: FAILED (unexpected exit code {result.returncode})", file=sys.stderr)
+    return None
 
 
 def step_11_log_install(openclaw_root: Path, datestamp: str, compliance: str, wire_cron: bool) -> None:
@@ -346,8 +378,8 @@ def main() -> int:
     step_8_install_lint(openclaw_root, script_dir)
     step_9_install_heartbeat_compactor(openclaw_root, script_dir, wire_cron)
 
-    self_test_ok = step_10_self_test(openclaw_root, script_dir)
-    if not self_test_ok:
+    self_test_status = step_10_self_test(openclaw_root, script_dir)
+    if self_test_status is None:
         return 4
 
     step_11_log_install(openclaw_root, datestamp, compliance, wire_cron)
@@ -361,7 +393,7 @@ def main() -> int:
     print(f"Compliance preset:    {compliance}")
     print("Lint runner:          installed at .openclaw/lint/")
     print("Heartbeat compactor:  installed at .openclaw/")
-    print("Self-test:            PASSED")
+    print(f"Self-test:            {self_test_status}")
     print()
     print("Next steps:")
     print(f"  1. Open OpenClaw in this directory: {openclaw_root}")

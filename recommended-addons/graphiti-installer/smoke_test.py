@@ -30,6 +30,17 @@ import shutil
 import sys
 import tempfile
 import time
+
+# Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
+# everything this script prints (it echoes runtime library metadata and
+# exception text) — force UTF-8 so output can never crash the smoke test
+# (UnicodeEncodeError). Same guard as general-edition/setup.py.
+if __name__ == "__main__":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        pass
+
 from pathlib import Path
 
 
