@@ -29,7 +29,11 @@ Probe (read-only) and report what you find:
    Does `~/.openclaw/workspace/` exist, or does the target carry `AGENTS.md` + `SOUL.md`
    → OpenClaw workspace? Neither → `generic` (any 9-root-file-convention harness).
 2. **Existing install:** `.ums-manifest.json` or `memory/` at the target → this is a
-   re-install/upgrade, not a fresh install. Read the manifest and say so.
+   re-install/upgrade, not a fresh install. Read the manifest and say so. **If the
+   existing install predates v4.0.0** (pre-v4.0.0 vaults lack `memory/user/USER_OVERRIDES.md`
+   and have an oversized `.claude/rules/memory_protocol.md`), point the user at
+   `general-edition/MIGRATION_v3.6_to_v4.0.md` instead of a plain re-install — it runs
+   the same one-command, non-destructive, `--dry-run`-previewable path.
 3. **Tools:** can you run bash? PowerShell? python3? (Decides Step 3's mechanism.)
 
 ## Step 2 — Confirm the target

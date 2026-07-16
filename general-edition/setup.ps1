@@ -6,12 +6,19 @@
 
 #Requires -Version 5.1
 
+# CmdletBinding forces strict parameter validation — without it, PowerShell
+# silently accepts and ignores an unrecognized switch (e.g. a typo, or a flag
+# that doesn't exist here yet) rather than erroring, which previously made
+# `-DryRun` (before it existed as a real parameter below) a silent no-op that
+# ran the real migration instead of refusing — step-8 adversarial round.
+[CmdletBinding()]
 param(
     [string]$Compliance = "none",
     [string]$Extensions = "",
     [string]$MigrateFrom = "",
     [string]$BackupLocation = "",
     [string]$ChangePreset = "",
+    [switch]$DryRun,
     [switch]$Verify,
     [switch]$Status,
     [switch]$GenerateHmacSecret,
@@ -43,6 +50,8 @@ if ($Help) {
     Write-Host "  .\setup.ps1 -Compliance none                               # Fresh install with preset"
     Write-Host "  .\setup.ps1 -Compliance enterprise -Extensions soc2,gdpr   # Multi-regime"
     Write-Host "  .\setup.ps1 -MigrateFrom v2.0                              # Migrate from v2.0"
+    Write-Host "  .\setup.ps1 -MigrateFrom v3.6                              # Migrate from v3.6.x to v4.0.0"
+    Write-Host "  .\setup.ps1 -MigrateFrom v3.6 -DryRun                      # Preview the v3.6 migration, no writes"
     Write-Host "  .\setup.ps1 -ChangePreset enterprise                       # Change preset on existing deploy"
     Write-Host "  .\setup.ps1 -Verify                                        # Self-test"
     Write-Host "  .\setup.ps1 -Status                                        # Show state"
@@ -142,6 +151,7 @@ if ($MigrateFrom) {
     $pythonArgs += "--migrate-from"
     $pythonArgs += $MigrateFrom
 }
+if ($DryRun) { $pythonArgs += "--dry-run" }
 if ($BackupLocation) {
     $pythonArgs += "--backup-location"
     $pythonArgs += $BackupLocation

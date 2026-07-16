@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **One-command migration from v3.6.x to v4.0.0** (`setup.sh`/`setup.py --migrate-from=v3.6`, `--dry-run`-previewable, non-destructive — backs up `memory/` before any write, and a second run against an already-migrated vault is a recognized zero-write no-op). See `general-edition/MIGRATION_v3.6_to_v4.0.md`.
 - **Hot/cold tiering — memory stays lean as it grows.** `sessions/`, `decisions/`, and `feedback/` now rotate their oldest entries once a file hits its `MEMORY_PROTOCOL.md` §11 line cap: the full entry moves to `memory/archive/<category>/<category>-archive.md` (nothing deleted), and a one-line pointer lands in a new per-category `ARCHIVE_INDEX.md`, so every rotated entry stays findable by ID without loading the archive file. Fresh installs get empty `ARCHIVE_INDEX.md` files at all three locations from day one. 6 new advisory lint checks (all severity LOW — `eager-set-over-budget`, `file-nearing-cap`, `archive-unindexed`, `archive-count-drift`, `archive-index-missing`, `entry-over-cap`) watch for drift; `verify.sh` checks existence post-install. Backports the maintainer's own field-proven pattern — measured over ~87 days of production use, the always-loaded index went 26.5KB → ~12KB across two tiering iterations with zero information loss — adapted to UMS's category layout, not a code transplant.
 
 ### Fixed

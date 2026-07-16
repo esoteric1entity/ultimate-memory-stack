@@ -141,6 +141,7 @@ The activation wizard (paste `ultimate-memory-stack/common-specs/BOOTSTRAP_PROMP
 
 ## Documentation
 
+- **[general-edition/MIGRATION_v3.6_to_v4.0.md](general-edition/MIGRATION_v3.6_to_v4.0.md)** — Upgrading an existing v3.6.x install to v4.0.0 (one command, non-destructive, `--dry-run`-previewable)
 - **[INSTALL.md](INSTALL.md)** — Install guide: the four doors (script / agent / marketplace / manual) up top, plus the full multi-method reference below
 - **[QUICKSTART.md](QUICKSTART.md)** — 5-minute tour of what UMS does
 - **[USER_GUIDE.md](USER_GUIDE.md)** — Long-form usage guide

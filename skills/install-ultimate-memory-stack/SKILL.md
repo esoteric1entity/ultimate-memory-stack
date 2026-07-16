@@ -1,6 +1,6 @@
 ---
 name: install-ultimate-memory-stack
-version: "1.8"
+version: "1.9"
 description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), creates memory/user/USER_OVERRIDES.md (create-once, never rewritten — see PROFILE.md §2.1) with the chosen preset/extensions, and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
@@ -78,7 +78,7 @@ If `<WORKING_DIR>/memory/` **or** `<WORKING_DIR>/.ums-manifest.json` exists, thi
 
 If neither is found, this is a fresh install — proceed normally.
 
-> This mirrors what the shell installer (`setup-memory-stack.sh`) and the agent flow (`INSTALL_AGENT.md` Step 1, existing-install detection) already do; the skill door must match them.
+> This mirrors what the shell installer (`setup-memory-stack.sh`) and the agent flow (`INSTALL_AGENT.md` Step 1, existing-install detection) already do; the skill door must match them. If the existing install predates v4.0.0 and the user would rather run a non-interactive script than walk through this conversational flow, point them at `general-edition/MIGRATION_v3.6_to_v4.0.md` (`--migrate-from=v3.6`, `--dry-run`-previewable) — same non-destructive outcome, different door.
 
 ---
 
@@ -523,6 +523,7 @@ If any step fails:
 | 1.6 | 2026-07-11 | **Upgrade-path fix.** Step 7b now removes the pre-existing regenerable package directories (`common-specs/`, `<EDITION>-edition/`) before copying. Previously, on a re-install over an existing scaffold, the recursive copy nested the new package inside the old directory, so Step 7c silently re-installed the STALE pre-split protocol and Step 7d could not find the extended protocol file — the eager-load fix never took effect on upgrades via this door. User data (`memory/`) is untouched. No behavior change for fresh installs. |
 | 1.7 | 2026-07-11 | **Doc-coherence pass (v4.0.0).** Step 0's "what this will do" summary and the frontmatter description now say the copy lands in `ultimate-memory-stack/` (was ambiguous about the nested layout — matches Step 7b's actual behavior, which was already correct). Retired "Method A/B" install-guide labels in Step 2 validation + Error Handling replaced with the door taxonomy (Door 4 manual / Door 1a Bash) to match the restructured INSTALL.md. No behavior change. |
 | 1.8 | 2026-07-14 | **Overrides pattern (v4.0.0, PLAN-merge-on-install) — permanent fix for the 2026-06-15 data-loss debt's remaining PROFILE.md gap.** Step 7b now archives a hand-edited `PROFILE.md` to `memory/archive/PROFILE.pre-upgrade.<date>.md` (byte-compared against the shipped source) BEFORE the regenerable-tree wipe, instead of the wipe silently discarding it. Step 7f no longer edits `PROFILE.md` at all — it creates `memory/user/USER_OVERRIDES.md` from the new template if absent (with the chosen preset/extensions), and never touches it if present. `PROFILE.md` is now fully regenerable; USER_OVERRIDES.md values win on conflict (`PROFILE.md` §2.1, `MEMORY_PROTOCOL_EXTENDED.md` §E4.3). Matches identical behavior added to `setup.sh`/`setup.py` in the same release. No change to Step 0.5's memory/-tree backup-and-preserve machinery. |
+| 1.9 | 2026-07-15 | **Migration doc cross-reference (v4.0.0, PLAN-migration-v36x-to-v400).** Step 0.5 now points users with a pre-v4.0.0 install at `general-edition/MIGRATION_v3.6_to_v4.0.md` as an alternative to this conversational flow — the new `--migrate-from=v3.6` script path (idempotent, `--dry-run`-previewable). No behavior change to this skill's own PRESERVE-mode mechanics. |
 
 When this skill is updated, bump `version:` in the frontmatter + record changes here. Treat the skill itself like any other memory stack artifact — schema_version compatibility matters.
 

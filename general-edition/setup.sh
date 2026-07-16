@@ -36,6 +36,7 @@ SKIP_WIZARD=false
 MIGRATE_FROM=""
 BACKUP_LOCATION=""
 VERIFY_ONLY=false
+DRY_RUN=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -66,6 +67,9 @@ while [[ $# -gt 0 ]]; do
         --skip-wizard)
             SKIP_WIZARD=true
             ;;
+        --dry-run)
+            DRY_RUN=true
+            ;;
         --help)
             echo "Ultimate Memory Stack — General-Edition Setup"
             echo ""
@@ -74,6 +78,8 @@ while [[ $# -gt 0 ]]; do
             echo "  ./setup.sh --compliance=none                     # Fresh install with compliance preset"
             echo "  ./setup.sh --compliance=enterprise --extensions=soc2,gdpr"
             echo "  ./setup.sh --migrate-from=v2.0                   # Migrate from v2.0"
+            echo "  ./setup.sh --migrate-from=v3.6                   # Migrate from v3.6.x to v4.0.0"
+            echo "  ./setup.sh --migrate-from=v3.6 --dry-run         # Preview the v3.6→v4.0.0 migration, no writes"
             echo "  ./setup.sh --change-preset=enterprise            # Change preset on existing deploy"
             echo "  ./setup.sh --verify                              # Run self-test"
             echo "  ./setup.sh --status                              # Show current state"
@@ -127,6 +133,32 @@ if [ -n "$EXTENSIONS" ]; then
                 ;;
         esac
     done
+fi
+
+# Validate --migrate-from (v4.0.0: v2.0's existing behavior is unchanged;
+# v3.6 is the new v3.6.x → v4.0.0 entry point). Any other value used to
+# silently set MODE=migrate with no validation at all — a typo like
+# `--migrate-from=v36` would have run the v2.0 backup-and-delegate path
+# against a vault it was never designed for.
+if [ "$MODE" = "migrate" ]; then
+    case "$MIGRATE_FROM" in
+        v2.0|v3.6)
+            ;;
+        *)
+            echo "✗ ERROR: Invalid --migrate-from value '${MIGRATE_FROM}'"
+            echo "  Valid: v2.0 | v3.6"
+            exit 1
+            ;;
+    esac
+fi
+
+# --dry-run is only meaningful for --migrate-from (both v2.0 and v3.6 now
+# genuinely preview-only — step-8 adversarial round Finding 13 fixed v2.0's
+# prior silent-no-op-that-wasn't); ignored for a fresh install so it can't
+# silently change that behavior.
+if [ "$DRY_RUN" = true ] && [ "$MODE" != "migrate" ]; then
+    echo "⚠️  --dry-run only applies to --migrate-from; ignoring it here."
+    DRY_RUN=false
 fi
 
 # Custom preset complexity floor — overrides/compliance.override.md is USER-AUTHORED
@@ -259,6 +291,91 @@ create_archive_indexes() {
     done
 }
 
+# ---------------------------------------------------------------------------
+# MIGRATION MODE helpers (v4.0.0, PLAN-migration-v36x-to-v400, step-8
+# adversarial round) — data-safety fixes shared by the pre-flight idempotency
+# check and the real migration path below.
+# ---------------------------------------------------------------------------
+
+# Blank out (never delete — must preserve line numbers) fenced ```...```
+# code-block content before searching for a stale @-import, so a documented
+# EXAMPLE of the old import syntax doesn't false-positive and permanently
+# defeat idempotency detection (Finding 9).
+_strip_fenced_code_blocks() {
+    awk '
+        /^```/ { f = !f; print ""; next }
+        f { print ""; next }
+        { print }
+    ' "$1"
+}
+
+# All 1-based line numbers of a stale @-import line, whole-line-anchored so
+# prose mentions and HTML comments don'\''t false-positive (Finding 6), and
+# ALL matches reported, not just the first (Finding 10). Empty output if none.
+_find_stale_claude_imports() {
+    _strip_fenced_code_blocks "$1" | grep -nE '^[[:space:]]*@[A-Za-z0-9_./-]*MEMORY_PROTOCOL\.md[[:space:]]*$' | cut -d: -f1
+}
+
+# A bare "first 3 bytes are ---" check is satisfied by a truncated/corrupted
+# PROFILE.md, permanently misclassifying it as already-migrated (Finding 5).
+# Require an actual closing --- fence within the first 4096 bytes.
+_has_real_yaml_frontmatter() {
+    local file="$1" head rest
+    head="$(head -c 4096 "$file" 2>/dev/null || true)"
+    case "$head" in
+        ---*) ;;
+        *) return 1 ;;
+    esac
+    rest="${head:3}"
+    case "$rest" in
+        *$'\n'---*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Second-granularity timestamps collide on a fast/back-to-back re-run — never
+# crash (Python's shutil.copytree) or silently nest into an existing dir
+# (Bash's cp -r) on a collision; find the next free name instead
+# (Findings 1/2/12).
+_unique_backup_destination() {
+    local base="$1" candidate="$1" n=2
+    while [ -e "$candidate" ]; do
+        candidate="${base}-${n}"
+        n=$((n + 1))
+    done
+    printf '%s' "$candidate"
+}
+
+# --backup-location under memory/ itself would plant a permanent nested copy
+# inside the very tree it's meant to safeguard (Finding 11).
+_refuse_if_backup_location_unsafe() {
+    local working_dir="$1" backup_location="$2" memory_real backup_parent_real
+    memory_real="$(cd "${working_dir}/memory" 2>/dev/null && pwd -P || true)"
+    backup_parent_real="$(cd "$(dirname "$backup_location")" 2>/dev/null && pwd -P || true)"
+    if [ -n "$memory_real" ] && [ -n "$backup_parent_real" ]; then
+        case "$backup_parent_real" in
+            "$memory_real"|"$memory_real"/*)
+                echo "✗ ERROR: --backup-location (${backup_location}) is inside memory/ — refusing."
+                echo "  A backup must live OUTSIDE the tree it's backing up. Pick a location outside ${memory_real}."
+                exit 1
+                ;;
+        esac
+    fi
+}
+
+# Replace whatever currently exists at $2 (symlink, file, or directory) with
+# a fresh copy of $1 — never write THROUGH a symlink (Findings 3/4) and
+# never silently nest inside an unexpected directory at this path (Finding 7).
+_safe_copy_file() {
+    local src="$1" dst="$2"
+    if [ -L "$dst" ] || [ -f "$dst" ]; then
+        rm -f "$dst"
+    elif [ -d "$dst" ]; then
+        rm -rf "$dst"
+    fi
+    cp "$src" "$dst"
+}
+
 # Set `key` in USER_OVERRIDES.md to `line` ("key: value"), touching nothing
 # else. Order: replace a live line; else uncomment+replace the template's
 # commented line; else insert right after the OPENING `---` — inside the
@@ -370,6 +487,81 @@ if [ "$MODE" = "change-preset" ]; then
 fi
 
 # ============================================================
+# MIGRATION MODE — v3.6 IDEMPOTENCY + DRY-RUN PRE-CHECK
+# ============================================================
+# Runs BEFORE any write in the script (including the .deployment-info clear
+# below) so both the already-migrated no-op and --dry-run can guarantee zero
+# writes (PLAN-migration-v36x-to-v400 §2.2 step zero + §5 idempotency
+# requirement). Read-only: safe to run even against the installed copy,
+# before the self-reference guard gets a chance to refuse it.
+
+if [ "$MODE" = "migrate" ] && [ "$MIGRATE_FROM" = "v3.6" ]; then
+    RULES_FILE="${WORKING_DIR}/.claude/rules/memory_protocol.md"
+    EXTENDED_FILE="${WORKING_DIR}/memory/MEMORY_PROTOCOL_EXTENDED.md"
+    OVERRIDES_FILE="${WORKING_DIR}/memory/user/USER_OVERRIDES.md"
+    PROFILE_FILE="${WORKING_DIR}/ultimate-memory-stack/general-edition/PROFILE.md"
+    CLAUDE_MD_FILE="${WORKING_DIR}/CLAUDE.md"
+    SHIPPED_PROFILE_PRECHECK="${SCRIPT_DIR}/PROFILE.md"
+
+    RULES_OVERSIZED=false
+    if [ ! -f "$RULES_FILE" ] || [ "$(wc -c < "$RULES_FILE")" -ge 15000 ]; then
+        RULES_OVERSIZED=true
+    fi
+    PROFILE_HAS_FRONTMATTER=false
+    [ -f "$PROFILE_FILE" ] && _has_real_yaml_frontmatter "$PROFILE_FILE" && PROFILE_HAS_FRONTMATTER=true
+    STALE_IMPORT_LINES=""
+    [ -f "$CLAUDE_MD_FILE" ] && STALE_IMPORT_LINES="$(_find_stale_claude_imports "$CLAUDE_MD_FILE")"
+
+    ALREADY_MIGRATED=true
+    [ "$RULES_OVERSIZED" = true ] && ALREADY_MIGRATED=false
+    [ -f "$EXTENDED_FILE" ] || ALREADY_MIGRATED=false
+    [ -f "$OVERRIDES_FILE" ] || ALREADY_MIGRATED=false
+    [ "$PROFILE_HAS_FRONTMATTER" = true ] || ALREADY_MIGRATED=false
+    [ -n "$STALE_IMPORT_LINES" ] && ALREADY_MIGRATED=false
+
+    if [ "$ALREADY_MIGRATED" = true ]; then
+        echo "✓ Already migrated to v${STACK_VERSION} — nothing to do."
+        exit 0
+    fi
+
+    if [ "$DRY_RUN" = true ]; then
+        echo "→ DRY RUN: v3.6 → v${STACK_VERSION} migration plan (no writes will be made):"
+        # These three always happen once migration proceeds past the
+        # already-migrated gate — unconditional overwrites in the shared
+        # copy flow below, not gated on the file's current state (the old
+        # preview under-reported this as conditional — step-8 adversarial
+        # round Finding 4).
+        echo "  - refresh the vendored ultimate-memory-stack/ scaffold (common-specs/, general-edition/)"
+        echo "  - refresh .claude/rules/memory_protocol.md"
+        echo "  - refresh memory/MEMORY_PROTOCOL_EXTENDED.md"
+        [ -f "$OVERRIDES_FILE" ] || echo "  - create memory/user/USER_OVERRIDES.md"
+        if [ -f "$PROFILE_FILE" ] && ! cmp -s "$PROFILE_FILE" "$SHIPPED_PROFILE_PRECHECK"; then
+            echo "  - archive existing PROFILE.md (differs from the shipped default) and regenerate"
+        fi
+        echo "  - create per-category ARCHIVE_INDEX.md files where absent (tiering scaffold)"
+        if [ -n "$STALE_IMPORT_LINES" ]; then
+            WHERE="$(echo "$STALE_IMPORT_LINES" | sed 's/^/CLAUDE.md:/' | paste -sd, -)"
+            echo "  - DETECTED: stale @-import at ${WHERE} — will NOT be auto-edited; see MIGRATION_v3.6_to_v4.0.md for the exact line(s) to remove"
+        fi
+        if [ -d "${WORKING_DIR}/.openclaw" ]; then
+            echo "  - DETECTED: .openclaw/ present — the OpenClaw adapter's own overwrite semantics are unchanged by this migration; its own backups apply"
+        fi
+        PREVIEW_BACKUP="$(_unique_backup_destination "${WORKING_DIR}/memory.backup.v3.6.<timestamp>")"
+        echo "→ Backup would be created at: ${PREVIEW_BACKUP}/"
+        exit 0
+    fi
+elif [ "$MODE" = "migrate" ] && [ "$MIGRATE_FROM" = "v2.0" ] && [ "$DRY_RUN" = true ]; then
+    # v2.0's --dry-run used to be silently ignored (a real migration ran
+    # anyway) — step-8 adversarial round Finding 13. Now a genuine preview.
+    PREVIEW_BACKUP_LOCATION="${BACKUP_LOCATION:-${WORKING_DIR}/memory.backup.v2.<timestamp>}"
+    echo "→ DRY RUN: v2.0 → v${STACK_VERSION} migration plan (no writes will be made):"
+    echo "  - back up memory/ to ${PREVIEW_BACKUP_LOCATION}/"
+    echo "  - delegate schema migration to the Claude Code wizard (per MIGRATION_v2_to_v3.md)"
+    echo "  - refresh the vendored ultimate-memory-stack/ scaffold, rules copy, USER_OVERRIDES/tiering scaffold (same conditional items as any re-install)"
+    exit 0
+fi
+
+# ============================================================
 # PRE-FLIGHT CHECKS
 # ============================================================
 
@@ -386,7 +578,8 @@ echo "=========================================="
 [ ! -d "${COMMON_SPECS_DIR}" ] && { echo "✗ common-specs/ not found"; exit 1; }
 
 # Check writable working dir
-[ ! -w "${WORKING_DIR}" ] && { echo "✗ Working dir not writable"; exit 1; }
+[ ! -d "${WORKING_DIR}" ] && { echo "✗ Working dir does not exist: ${WORKING_DIR}"; exit 1; }
+[ ! -w "${WORKING_DIR}" ] && { echo "✗ Working dir not writable: ${WORKING_DIR}"; exit 1; }
 
 # Detect Claude Code
 command -v claude &> /dev/null || echo "⚠️  Claude Code CLI not in PATH"
@@ -428,18 +621,51 @@ fi
 # ============================================================
 
 if [ "$MODE" = "migrate" ]; then
-    [ -z "$BACKUP_LOCATION" ] && BACKUP_LOCATION="${WORKING_DIR}/memory.backup.v2.$(date +%Y%m%d-%H%M%S)"
-
     if [ ! -d "${WORKING_DIR}/memory" ]; then
         echo "✗ No existing memory/ at ${WORKING_DIR}"
         exit 1
     fi
 
-    echo "→ Migrating v${MIGRATE_FROM} → v${STACK_VERSION}"
-    echo "→ Backup: ${BACKUP_LOCATION}"
-    cp -r "${WORKING_DIR}/memory" "${BACKUP_LOCATION}"
-    echo "✓ Backup complete"
-    echo "→ Schema migration via Claude Code wizard (per MIGRATION_v2_to_v3.md)"
+    if [ "$MIGRATE_FROM" = "v3.6" ]; then
+        # v3.6.x → v4.0.0 (PLAN-migration-v36x-to-v400): the already-migrated
+        # no-op and --dry-run were handled above, before any write — reaching
+        # here means a real migration is proceeding. Backup name is version-
+        # specific (was hardcoded "v2" for every --migrate-from value, a bug
+        # this branch fixes for v3.6 without touching the v2.0 path below).
+        [ -z "$BACKUP_LOCATION" ] && BACKUP_LOCATION="${WORKING_DIR}/memory.backup.v3.6.$(date +%Y%m%d-%H%M%S)"
+        _refuse_if_backup_location_unsafe "$WORKING_DIR" "$BACKUP_LOCATION"
+        BACKUP_LOCATION="$(_unique_backup_destination "$BACKUP_LOCATION")"
+        echo "→ Migrating v3.6 → v${STACK_VERSION}"
+        echo "→ Backup: ${BACKUP_LOCATION}"
+        cp -r "${WORKING_DIR}/memory" "${BACKUP_LOCATION}"
+        echo "✓ Backup complete"
+
+        # Disclosure-only detections (§2.3): never auto-edited, never fixed here.
+        if [ -f "${WORKING_DIR}/CLAUDE.md" ]; then
+            STALE_IMPORT_LINES_REAL="$(_find_stale_claude_imports "${WORKING_DIR}/CLAUDE.md")"
+            if [ -n "$STALE_IMPORT_LINES_REAL" ]; then
+                WHERE_REAL="$(echo "$STALE_IMPORT_LINES_REAL" | sed 's/^/CLAUDE.md:/' | paste -sd, -)"
+                echo "⚠️  ${WHERE_REAL} still imports MEMORY_PROTOCOL.md — this doubles the eager-load cost"
+                echo "    since .claude/rules/memory_protocol.md already auto-loads every session."
+                echo "    Delete that line from CLAUDE.md by hand (never auto-edited)."
+            fi
+        fi
+        if [ -d "${WORKING_DIR}/.openclaw" ]; then
+            echo "ℹ️  .openclaw/ detected — this migration only covers the general-edition Claude Code vault."
+            echo "    The OpenClaw adapter's own overwrite semantics are unchanged by v4.0.0; its own backups apply."
+        fi
+        echo "→ Continuing with the standard refresh (rules copy, EXTENDED, USER_OVERRIDES, PROFILE, tiering scaffold)..."
+    else
+        # v2.0 (unchanged from pre-v4.0.0 behavior — acceptance criterion (b)).
+        [ -z "$BACKUP_LOCATION" ] && BACKUP_LOCATION="${WORKING_DIR}/memory.backup.v2.$(date +%Y%m%d-%H%M%S)"
+        _refuse_if_backup_location_unsafe "$WORKING_DIR" "$BACKUP_LOCATION"
+        BACKUP_LOCATION="$(_unique_backup_destination "$BACKUP_LOCATION")"
+        echo "→ Migrating v${MIGRATE_FROM} → v${STACK_VERSION}"
+        echo "→ Backup: ${BACKUP_LOCATION}"
+        cp -r "${WORKING_DIR}/memory" "${BACKUP_LOCATION}"
+        echo "✓ Backup complete"
+        echo "→ Schema migration via Claude Code wizard (per MIGRATION_v2_to_v3.md)"
+    fi
 fi
 
 # ============================================================
@@ -487,14 +713,14 @@ cp -r "${SCRIPT_DIR}" "${WORKING_DIR}/ultimate-memory-stack/general-edition"
 # so a re-run of the COPIED installer reads the real version, not a fallback.
 [ -f "${SCRIPT_DIR}/../VERSION" ] && cp "${SCRIPT_DIR}/../VERSION" "${WORKING_DIR}/ultimate-memory-stack/VERSION"
 
-cp "${COMMON_SPECS_DIR}/MEMORY_PROTOCOL.md" "${WORKING_DIR}/.claude/rules/memory_protocol.md"
+_safe_copy_file "${COMMON_SPECS_DIR}/MEMORY_PROTOCOL.md" "${WORKING_DIR}/.claude/rules/memory_protocol.md"
 chmod 644 "${WORKING_DIR}/.claude/rules/memory_protocol.md"  # normalize permissions
 
 # Initialize memory/ directories
 mkdir -p "${WORKING_DIR}/memory/"{sessions,decisions,feedback,projects,security,references,user,archive,quarantine}
 
 # Extended protocol reference — on-demand only, vault root, NEVER .claude/rules/ (would recreate eager-load cost)
-cp "${COMMON_SPECS_DIR}/MEMORY_PROTOCOL_EXTENDED.md" "${WORKING_DIR}/memory/MEMORY_PROTOCOL_EXTENDED.md"
+_safe_copy_file "${COMMON_SPECS_DIR}/MEMORY_PROTOCOL_EXTENDED.md" "${WORKING_DIR}/memory/MEMORY_PROTOCOL_EXTENDED.md"
 
 # Initialize audit log based on preset
 case "$COMPLIANCE_PRESET" in

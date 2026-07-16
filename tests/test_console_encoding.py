@@ -103,12 +103,19 @@ def test_general_setup_survives_legacy_console(tmp_path):
 def test_every_glyph_printing_script_has_the_guard():
     """Class-pinning sweep: a repo script that prints AND contains any
     character cp1252 can't encode must carry the reconfigure guard — so this
-    crash class can't silently reappear in a new or edited script."""
+    crash class can't silently reappear in a new or edited script. Scoped to
+    git-tracked files (not a raw filesystem walk) so untracked debris sitting
+    in the working tree — build artifacts, editor caches, anything not
+    actually shipped — can never make this test fail for the wrong reason."""
+    tracked = subprocess.run(
+        ["git", "ls-files", "*.py"], cwd=str(PKG), capture_output=True, text=True, check=True,
+    ).stdout.splitlines()
     offenders = []
-    for p in sorted(PKG.rglob("*.py")):
-        rel = p.relative_to(PKG)
-        if ".git" in rel.parts or rel.parts[0] == "tests":
+    for line in sorted(tracked):
+        rel = pathlib.PurePosixPath(line)
+        if rel.parts[0] == "tests":
             continue
+        p = PKG / line
         text = p.read_text(encoding="utf-8", errors="replace")
         if "print(" not in text:
             continue

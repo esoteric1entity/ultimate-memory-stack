@@ -238,6 +238,7 @@ The threshold: would you want a future agent to know about this decision? If yes
 ## Cross-references
 
 - [`README.md`](./README.md) — package overview
+- [`general-edition/MIGRATION_v3.6_to_v4.0.md`](./general-edition/MIGRATION_v3.6_to_v4.0.md) — upgrading an existing v3.6.x install to v4.0.0 (one command, non-destructive, `--dry-run`-previewable)
 - [`INSTALL.md`](./INSTALL.md) — Memory branch install (four doors + full multi-method reference)
 - [`QUICKSTART.md`](./QUICKSTART.md) — 5-minute tour
 - [`common-specs/MEMORY_PROTOCOL.md`](./common-specs/MEMORY_PROTOCOL.md) — master protocol spec
