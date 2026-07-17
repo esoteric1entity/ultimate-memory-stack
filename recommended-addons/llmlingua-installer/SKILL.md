@@ -135,11 +135,11 @@ If the user wants LLMLingua wired into the memory stack's outbound prompt path:
 1. **Ask:**
    ```
    Wire LLMLingua into the memory stack outbound path?
-     (a) Yes — Tier C opt-in flag set in <edition>/PROFILE.md; compression triggers when prompt budget exceeded
+     (a) Yes — Tier C opt-in flag set in memory/user/USER_OVERRIDES.md; compression triggers when prompt budget exceeded
      (b) No — install only; user invokes LLMLingua manually via Python API
    ```
 
-2. **If yes:** add to `<working-dir>/<edition>/PROFILE.md`:
+2. **If yes:** add to `<working-dir>/memory/user/USER_OVERRIDES.md`:
    ```yaml
    addons:
      llmlingua:

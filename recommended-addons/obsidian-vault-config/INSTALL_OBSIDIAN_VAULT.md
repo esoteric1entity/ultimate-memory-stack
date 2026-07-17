@@ -65,9 +65,9 @@ cp <path-to>/recommended-addons/obsidian-vault-config/obsidian_config/hotkeys.js
    "<VAULT_PATH>/.obsidian/hotkeys.json"
 ```
 
-### Step 6 — (Optional) Register vault in PROFILE.md
+### Step 6 — (Optional) Register vault in USER_OVERRIDES.md
 
-Edit `<working-dir>/<edition>/PROFILE.md`:
+Edit `<working-dir>/memory/user/USER_OVERRIDES.md` (the upgrade-safe config file — **not** `PROFILE.md`, which is regenerable):
 
 ```yaml
 addons:

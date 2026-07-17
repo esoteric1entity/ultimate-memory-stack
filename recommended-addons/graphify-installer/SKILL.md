@@ -187,7 +187,7 @@ Wire Graphify output into the memory stack as Layer 1 reference artifact?
   (b) No — install only; user runs Graphify ad-hoc on demand
 ```
 
-If yes, add to `<working-dir>/<edition>/PROFILE.md`:
+If yes, add to `<working-dir>/memory/user/USER_OVERRIDES.md`:
 ```yaml
 addons:
   graphify:

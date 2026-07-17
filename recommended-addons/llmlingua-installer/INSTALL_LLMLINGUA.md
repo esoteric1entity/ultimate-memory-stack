@@ -100,7 +100,7 @@ Do not proceed with half-installed state.
 
 ### Step 6 — (Optional) Register with memory stack
 
-If you want LLMLingua wired into the memory stack's outbound prompt path, edit `<working-dir>/<edition>/PROFILE.md` and add:
+If you want LLMLingua wired into the memory stack's outbound prompt path, edit `<working-dir>/memory/user/USER_OVERRIDES.md` (the upgrade-safe config file — **not** `PROFILE.md`, which is regenerable) and add:
 
 ```yaml
 addons:
@@ -174,7 +174,7 @@ pip-audit
 If new HIGH/CRITICAL CVEs surface, decide:
 1. **Patch in place** if Sentinel vets a newer minor (requires fresh VET- entry)
 2. **Migrate to SecurityLingua** if that's farther along (likely the right move long-term)
-3. **Disable LLMLingua** if no good patch exists (toggle `addons.llmlingua.enabled: false` in PROFILE.md)
+3. **Disable LLMLingua** if no good patch exists (toggle `addons.llmlingua.enabled: false` in `memory/user/USER_OVERRIDES.md`)
 
 ---
 

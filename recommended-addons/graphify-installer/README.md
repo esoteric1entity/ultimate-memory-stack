@@ -141,7 +141,7 @@ Provide codebase symbol-graph capability to the Ultimate Memory Stack via Graphi
 - Run `pip-audit` pre-install and block on HIGH/CRITICAL CVEs
 - Verify installed package identity via `pip show` (catches L2 bypass)
 - Smoke-test the install via `smoke_test.py`
-- Register the addon in `<edition>/PROFILE.md` if user opts to wire into memory protocol
+- Register the addon in `memory/user/USER_OVERRIDES.md` if user opts to wire into memory protocol
 - Subscribe to upstream security advisories
 - Log activation per the security-first and documentation-discipline standing rules
 

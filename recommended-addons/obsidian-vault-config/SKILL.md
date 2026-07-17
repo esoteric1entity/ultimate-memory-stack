@@ -143,15 +143,15 @@ See `obsidian_config/README.md` in this Skill folder for the hotkey binding deta
 
 ---
 
-## Step 6 — Register Vault in `<edition>/PROFILE.md` (Optional)
+## Step 6 — Register Vault in `memory/user/USER_OVERRIDES.md` (Optional)
 
 ```
 Register this vault as the canonical Obsidian view of the memory stack?
-  (a) Yes — adds an addons.obsidian block to PROFILE.md; documents the vault path
-  (b) No — vault is configured; PROFILE.md untouched
+  (a) Yes — adds an addons.obsidian block to memory/user/USER_OVERRIDES.md; documents the vault path
+  (b) No — vault is configured; USER_OVERRIDES.md untouched
 ```
 
-If yes, add to `<working-dir>/<edition>/PROFILE.md`:
+If yes, add to `<working-dir>/memory/user/USER_OVERRIDES.md`:
 ```yaml
 addons:
   obsidian:
@@ -215,7 +215,7 @@ pipeline: config-obsidian-vault Skill v1.0
 - **Templates installed:** 10 (4 top-level + 6 memory-bank)
 - **Plugin recommendations dropped:** dataview, templater, tasks, excalidraw
 - **Hotkeys configured:** [yes | no]
-- **PROFILE.md registered:** [yes | no]
+- **USER_OVERRIDES.md registered:** [yes | no]
 - **Tags:** tier-b, activation, obsidian, addon, config-only
 ```
 
@@ -232,7 +232,7 @@ What's there now:
   - .templates/ — 10 SCHEMA_A18-compliant templates ready for use
   - .obsidian/community-plugins.json — 4 plugin recommendations
   - .obsidian/hotkeys.json — pre-configured hotkeys (if Step 5 ran)
-  - PROFILE.md — vault registered as memory-stack canonical view (if Step 6 ran)
+  - USER_OVERRIDES.md — vault registered as memory-stack canonical view (if Step 6 ran)
 
 Next steps for you:
   1. Open <VAULT_PATH> in Obsidian (File → Open Vault)
@@ -259,7 +259,7 @@ Memory protocol integration:
 | 3 | Templates copy | Documentation discipline (templates carry full SCHEMA_A18 + documentation structure) |
 | 4 | Plugin recommendations | OpenClaw research identified Obsidian as recommended addon |
 | 5 | Hotkeys (optional) | Ideal-first design |
-| 6 | PROFILE.md registration (optional) | Tier B/C addon registration |
+| 6 | USER_OVERRIDES.md registration (optional) | Tier B/C addon registration |
 | 7 | Manual verify | Ideal-first design (validate before declaring done) |
 | 8 | Log activation | Auditability + documentation discipline |
 | 9 | Hand-off | Ideal-first design |

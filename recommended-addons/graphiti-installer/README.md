@@ -46,7 +46,7 @@ Graphiti's upstream default is `PostHog telemetry ON`. This installer:
 
 1. Sets `GRAPHITI_TELEMETRY_ENABLED=false` before first import (Step 5)
 2. Persists the env var to your shell rc / Conda activate.d / Windows PowerShell `$PROFILE` (Step 6)
-3. Documents the override in your `<edition>/PROFILE.md` if you wire Graphiti into the memory stack (Step 8)
+3. Documents the override in your `memory/user/USER_OVERRIDES.md` if you wire Graphiti into the memory stack (Step 8)
 
 **This is the security baseline.** Re-enabling telemetry is a deliberate user decision and should be logged as a DEC entry per the documentation discipline.
 
@@ -139,7 +139,7 @@ Provide bi-temporal knowledge-graph storage to the Ultimate Memory Stack as the 
 - Run `pip-audit` pre-install and block on HIGH/CRITICAL CVEs
 - Persist `GRAPHITI_TELEMETRY_ENABLED=false` to environment
 - Smoke-test bi-temporal round-trip via `smoke_test.py`
-- Optionally wire into `<edition>/PROFILE.md` as Layer 5 backend
+- Optionally wire into `memory/user/USER_OVERRIDES.md` as Layer 5 backend
 - Subscribe to upstream security advisories
 - Log activation to vetting_log.md + decisions.md
 

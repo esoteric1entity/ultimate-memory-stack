@@ -184,11 +184,11 @@ Verifies:
 
 ```
 Wire Graphiti into the memory stack as Layer 5 storage?
-  (a) Yes — `<edition>/PROFILE.md` gets graphiti config block; memory entries promote to graph at threshold
+  (a) Yes — `memory/user/USER_OVERRIDES.md` gets graphiti config block; memory entries promote to graph at threshold
   (b) No — install only; user invokes Graphiti via Python API for ad-hoc queries
 ```
 
-If yes, add to `<working-dir>/<edition>/PROFILE.md`:
+If yes, add to `<working-dir>/memory/user/USER_OVERRIDES.md`:
 ```yaml
 addons:
   graphiti:

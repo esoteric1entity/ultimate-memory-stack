@@ -101,7 +101,7 @@ Bring v3.0/v3.5 deployments into Obsidian-canonical alignment by providing a one
 - Drop 10 SCHEMA_A18-compliant templates into `<vault>/.templates/`
 - Drop community plugin recommendations (`.obsidian/community-plugins.json`)
 - Drop hotkey configuration (`.obsidian/hotkeys.json`) if user wants
-- Register vault in `<edition>/PROFILE.md` if user opts to
+- Register vault in `memory/user/USER_OVERRIDES.md` if user opts to
 - Verify post-config setup via manual ls checks
 - Log activation to vetting_log.md + decisions.md
 

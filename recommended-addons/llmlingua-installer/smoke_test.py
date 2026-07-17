@@ -170,7 +170,7 @@ def main() -> int:
     print("Next steps:")
     print("  - Log activation to memory/security/vetting_log.md (VET-### entry)")
     print("  - Log activation to memory/decisions/decisions.md (DEC-### entry)")
-    print("  - Optionally register addon in <edition>/PROFILE.md to wire into memory protocol")
+    print("  - Optionally register addon in memory/user/USER_OVERRIDES.md to wire into memory protocol")
     print()
     return 0
 

@@ -127,7 +127,7 @@ Provide token-level prompt compression to the Ultimate Memory Stack as an opt-in
 - Pin compatible `transformers` + `torch` + `sentencepiece` versions
 - Run `pip-audit` pre-install and block on HIGH/CRITICAL CVEs
 - Smoke-test the install via `smoke_test.py`
-- Register the addon in `<edition>/PROFILE.md` if user opts to wire it into memory protocol
+- Register the addon in `memory/user/USER_OVERRIDES.md` if user opts to wire it into memory protocol
 - Log activation to `vetting_log.md` + `decisions.md` per the vetting and documentation disciplines
 
 ### Scope — CANNOT

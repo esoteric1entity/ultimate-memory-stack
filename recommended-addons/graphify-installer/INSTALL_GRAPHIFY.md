@@ -135,7 +135,7 @@ Notes:
 
 ### Step 8 — (Optional) Register with memory stack
 
-Edit `<working-dir>/<edition>/PROFILE.md`:
+Edit `<working-dir>/memory/user/USER_OVERRIDES.md` (the upgrade-safe config file — **not** `PROFILE.md`, which is regenerable):
 
 ```yaml
 addons:

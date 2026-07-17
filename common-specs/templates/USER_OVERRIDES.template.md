@@ -33,6 +33,15 @@ created_at: <YYYY-MM-DD>
 # delete_recovery_window_days: 7
 # expires_at_default_days: 28
 # eager_set_budget_bytes: 80000   # advisory eager-load nudge threshold (MEMORY_PROTOCOL_EXTENDED.md §E12); shipped default lives in PROFILE.md
+
+# --- Addon registration (each addon's own INSTALL_*.md / SKILL provides its block) ---
+# Persistent addon config lives HERE, not in PROFILE.md — PROFILE.md is regenerable
+# and hand-edits to it are archived away on upgrade. Example shape:
+# addons:
+#   llmlingua:
+#     enabled: true
+#     trigger: budget_exceeded
+#     compression_ratio_target: 5
 ```
 
 ---
