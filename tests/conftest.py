@@ -34,7 +34,12 @@ def v36_source_dir(tmp_path_factory):
         ["git", "archive", V36_SOURCE_COMMIT],
         cwd=str(PKG), capture_output=True, timeout=30,
     )
-    assert proc.returncode == 0, proc.stderr.decode("utf-8", errors="replace")
+    assert proc.returncode == 0, (
+        "git archive of the v3.6.2 baseline %s failed: %s\n"
+        "In CI this usually means a shallow checkout — the migration fixture "
+        "needs full git history (set fetch-depth: 0 on actions/checkout)."
+        % (V36_SOURCE_COMMIT, proc.stderr.decode("utf-8", errors="replace"))
+    )
     with tarfile.open(fileobj=io.BytesIO(proc.stdout)) as tf:
         tf.extractall(str(dest), filter="data")
     assert (dest / "VERSION").read_text(encoding="utf-8").strip() == "3.6.2"

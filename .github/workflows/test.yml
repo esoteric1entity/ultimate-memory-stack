@@ -20,6 +20,12 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history required: the migration suite builds a v3.6.2 fixture
+          # via `git archive 59541b9` (tests/conftest.py). The default shallow
+          # clone lacks that baseline commit and every migration test errors at
+          # setup — do not lower this back to a shallow fetch.
+          fetch-depth: 0
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
