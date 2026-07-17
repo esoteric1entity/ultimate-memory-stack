@@ -1,14 +1,14 @@
 ---
 name: install-ultimate-memory-stack
 version: "1.9"
-description: Interactive installer for the Ultimate Memory Stack v3.6.2. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), creates memory/user/USER_OVERRIDES.md (create-once, never rewritten — see PROFILE.md §2.1) with the chosen preset/extensions, and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
+description: Interactive installer for the Ultimate Memory Stack v4.0.0. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), creates memory/user/USER_OVERRIDES.md (create-once, never rewritten — see PROFILE.md §2.1) with the chosen preset/extensions, and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
 edition: any
 license: Apache-2.0
 ---
 
-# Install Ultimate Memory Stack v3.6.2 — Skill Workflow
+# Install Ultimate Memory Stack v4.0.0 — Skill Workflow
 
 When this skill is invoked (typically via `/install-ultimate-memory-stack` slash command or when the user asks Claude to install/deploy/activate the memory stack), execute the workflow below **IN ORDER**. Treat each step as required unless the user explicitly opts to skip.
 
@@ -40,7 +40,7 @@ Do not proceed until the working directory is a project directory (not `$HOME` o
 Then greet the user briefly and confirm intent:
 
 ```
-👋 You're about to install the Ultimate Memory Stack v3.6.2 in:
+👋 You're about to install the Ultimate Memory Stack v4.0.0 in:
     <current working directory>
 
 This will:
@@ -309,7 +309,7 @@ touch "<MEMORY_DIR>/quarantine/quarantine_log.jsonl"
 
 Append the initialization entry **only if the audit log was created above** (enterprise/custom presets; skip for preset `none`):
 ```json
-{"ts":"<ISO-8601-UTC>","actor":"install-skill","actor_session":0,"action":"initialize","entry_id":"<bootstrap>","entry_path":"memory/","entry_category":"system","entry_summary":"Ultimate Memory Stack v3.6.2 deployment initialized via Skill installer; edition=<EDITION>; preset=<COMPLIANCE_PRESET>; extensions=<EXTENSIONS>","outcome":"success"}
+{"ts":"<ISO-8601-UTC>","actor":"install-skill","actor_session":0,"action":"initialize","entry_id":"<bootstrap>","entry_path":"memory/","entry_category":"system","entry_summary":"Ultimate Memory Stack v4.0.0 deployment initialized via Skill installer; edition=<EDITION>; preset=<COMPLIANCE_PRESET>; extensions=<EXTENSIONS>","outcome":"success"}
 ```
 
 Report appropriately based on what was initialized.
@@ -405,7 +405,7 @@ schema_version: "3.0"
 ---
 
 ### Session Summary
-Initial setup via Skill installer. Ultimate Memory Stack v3.6.2 deployed:
+Initial setup via Skill installer. Ultimate Memory Stack v4.0.0 deployed:
 - Edition: <EDITION>
 - Compliance preset: <COMPLIANCE_PRESET>
 - Extensions: <EXTENSIONS>
@@ -446,7 +446,7 @@ Final summary:
 
 ```
 ========================================
-✅ Ultimate Memory Stack v3.6.2 — INSTALLED
+✅ Ultimate Memory Stack v4.0.0 — INSTALLED
 ========================================
 
 Edition: <EDITION>

@@ -1,6 +1,6 @@
 # Audit Quarantine Skill — Core Deliverable
 
-> **Status:** stable — ships with UMS v3.6.2
+> **Status:** stable — ships with UMS v4.0.0
 > **Tier:** A (CORE deliverable — required for memory hygiene completeness; not opt-in)
 > **Edition:** any (general public edition + the planned institutional edition; different UX defaults per edition, B2)
 > **Last updated:** 2026-07-11
@@ -15,7 +15,7 @@ The Audit Quarantine Skill is the **review side** of MEMORY_PROTOCOL_EXTENDED.md
 - An earlier release cycle identified the gap: "/audit-quarantine Skill not yet packaged"
 - The behavioral protocol was captured in MEMORY_PROTOCOL_EXTENDED.md §E3.3, with a Skill artifact planned for v3.1
 - This Skill closes that gap
-- Originally delivered with v3.5; ships with UMS v3.6.2 (see the Status line above)
+- Originally delivered with v3.5; ships with UMS v4.0.0 (see the Status line above)
 
 **What's included:**
 

@@ -1,6 +1,6 @@
 ---
 file: INSTALL
-title: "Install Guide (UMS v3.6.2)"
+title: "Install Guide (UMS v4.0.0)"
 license: Apache 2.0
 ---
 
@@ -371,7 +371,7 @@ The script confirms the install target interactively (auto-detecting an OpenClaw
 ```
 ==========================================
 Ultimate Memory Stack — General-Edition Setup
-Version: 3.6.2
+Version: 4.0.0
 Working directory: <working-dir>
 Compliance preset: none
 Extensions: none
@@ -413,7 +413,7 @@ Same as Door 4 Step 4.
 /path/to/ultimate-memory-stack/verify.sh    # run from the working directory; or pass it as an argument
 ```
 
-Expected: ends with `✅ All checks passed — Ultimate Memory Stack v3.6.2 install is valid.` If anything fails, see [Troubleshooting](#troubleshooting).
+Expected: ends with `✅ All checks passed — Ultimate Memory Stack v4.0.0 install is valid.` If anything fails, see [Troubleshooting](#troubleshooting).
 
 **Total time: ~30 sec for script + ~2-3 min for wizard.**
 
@@ -528,7 +528,7 @@ After ANY install method, verify these:
 
 **Expected output (verify.sh, preset `none`):** sectioned `[T1]`–`[T7]` checks (memory dirs, edition profile, audit logs per preset, common-specs, registered skills, bootstrap prompt), ending with:
 ```
-✅ All checks passed — Ultimate Memory Stack v3.6.2 install is valid.
+✅ All checks passed — Ultimate Memory Stack v4.0.0 install is valid.
 ```
 
 (The edition-level alternative `general-edition/setup.sh --verify` prints a shorter check: T1/T2 lines, an audit-log status line, and a "Deployment tier:" section.)
@@ -792,7 +792,7 @@ python3 setup.py --generate-hmac-secret
 
 ## Recommended addons and core skills
 
-> These components ship as part of v3.6.2.
+> These components ship as part of v4.0.0.
 
 ### What the addons add beyond the base stack
 

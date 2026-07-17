@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] — 2026-07-16
+
+> **Upgrading from 3.6.x?** See [`general-edition/MIGRATION_v3.6_to_v4.0.md`](general-edition/MIGRATION_v3.6_to_v4.0.md) for the one-command, non-destructive migration (`--dry-run`-previewable).
+
+This release changes the installed layout, not just repo content — that's the reason for a major version bump rather than another 3.6.x patch. The protocol-split fix promised for v3.6.3 ships here; v3.6.3 was folded into 4.0.0 because it ships alongside layout-changing features (the PROFILE.md/USER_OVERRIDES.md split, hot/cold tiering) that warrant a major version on their own.
+
 ### Added
 - **One-command migration from v3.6.x to v4.0.0** (`setup.sh`/`setup.py --migrate-from=v3.6`, `--dry-run`-previewable, non-destructive — backs up `memory/` before any write, and a second run against an already-migrated vault is a recognized zero-write no-op). See `general-edition/MIGRATION_v3.6_to_v4.0.md`.
 - **Hot/cold tiering — memory stays lean as it grows.** `sessions/`, `decisions/`, and `feedback/` now rotate their oldest entries once a file hits its `MEMORY_PROTOCOL.md` §11 line cap: the full entry moves to `memory/archive/<category>/<category>-archive.md` (nothing deleted), and a one-line pointer lands in a new per-category `ARCHIVE_INDEX.md`, so every rotated entry stays findable by ID without loading the archive file. Fresh installs get empty `ARCHIVE_INDEX.md` files at all three locations from day one. 6 new advisory lint checks (all severity LOW — `eager-set-over-budget`, `file-nearing-cap`, `archive-unindexed`, `archive-count-drift`, `archive-index-missing`, `entry-over-cap`) watch for drift; `verify.sh` checks existence post-install. Backports the maintainer's own field-proven pattern — measured over ~87 days of production use, the always-loaded index went 26.5KB → ~12KB across two tiering iterations with zero information loss — adapted to UMS's category layout, not a code transplant.
@@ -63,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Version bumped 3.6.0 → 3.6.1** so existing marketplace installs receive the install-skill data-safety fix (existing-store backup + preserve, shipped in skill v1.1/1.2) via `/plugin update` — the fix was committed but undelivered while the package still advertised 3.6.0.
 
 ### Known issues
-- The always-loaded `memory_protocol.md` (~55k chars) exceeds Claude Code's 40k rules-file recommendation, so Claude Code shows a per-session performance notice at launch. A protocol core/extended split that brings the always-loaded core under the threshold is scheduled for **v3.6.3**. No functional impact — sessions work normally.
+- The always-loaded `memory_protocol.md` (~55k chars) exceeds Claude Code's 40k rules-file recommendation, so Claude Code shows a per-session performance notice at launch. A protocol core/extended split that brings the always-loaded core under the threshold is scheduled for **v3.6.3**. No functional impact — sessions work normally. *(that release was folded into and shipped as v4.0.0)*
 
 ### Documentation
 - `INSPIRATIONS.md`: documented the project's architecture-origin provenance — the architecture is original to esoteric1entity (design begun early 2026; the Memory and Security branches are descendants of that original design) — and clarified contributor / inspiration credit across `AUTHORS.md` and `NOTICE`.

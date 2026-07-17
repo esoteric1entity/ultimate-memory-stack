@@ -5,7 +5,7 @@
 > **Last Updated:** 2026-06-16
 
 > **Source research:** memory-bank + PKM patterns from the project research base (210-source review)
-> **Status:** stable — ships with UMS v3.6.0
+> **Status:** stable — ships with UMS v4.0.0
 > Open questions are tracked in §7.
 
 ---

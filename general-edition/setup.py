@@ -42,7 +42,7 @@ COMMON_SPECS_DIR = SCRIPT_DIR.parent / "common-specs"
 try:
     STACK_VERSION = (SCRIPT_DIR.parent / "VERSION").read_text(encoding="utf-8").strip()
 except OSError:
-    STACK_VERSION = "3.6.2"  # fallback for a general-edition dir copied standalone
+    STACK_VERSION = "4.0.0"  # fallback for a general-edition dir copied standalone
 
 # Public general-edition presets. healthcare/PHI is intentionally EXCLUDED —
 # PHI/HIPAA handling ships ONLY in the institutional biotech-edition (not public).

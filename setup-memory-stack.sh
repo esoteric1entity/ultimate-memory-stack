@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Ultimate Memory Stack v3.6.2 — top-level installer (Linux / macOS / WSL)
+# Ultimate Memory Stack v4.0.0 — top-level installer (Linux / macOS / WSL)
 # Apache-2.0 © 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
@@ -36,7 +36,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
     STACK_VERSION="$(tr -d ' \r\n' < "$SCRIPT_DIR/VERSION")"
 else
-    STACK_VERSION="3.6.2"
+    STACK_VERSION="4.0.0"
 fi
 
 # ---------- arg parsing ----------

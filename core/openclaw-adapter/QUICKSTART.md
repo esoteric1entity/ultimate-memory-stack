@@ -1,4 +1,4 @@
-# Ultimate Memory Stack v3.6.2 — Quick-Start for OpenClaw (No-Claude Path)
+# Ultimate Memory Stack v4.0.0 — Quick-Start for OpenClaw (No-Claude Path)
 
 ---
 file: QUICKSTART
@@ -11,13 +11,13 @@ schema: A18
 scope: file
 status: active
 audience: public
-purpose: "Single-page deployment runbook for any user installing Ultimate Memory Stack v3.6.2 onto an OpenClaw harness, with no dependency on Claude Code being present on the target machine"
+purpose: "Single-page deployment runbook for any user installing Ultimate Memory Stack v4.0.0 onto an OpenClaw harness, with no dependency on Claude Code being present on the target machine"
 related: [README.md, INSTALL_OPENCLAW_ADAPTER.md, MAPPING.md, SKILL.md]
 ---
 
 ## What this is
 
-A condensed deployment runbook (~3-5 minutes of reading + 15-30 minutes of execution) for installing the **Ultimate Memory Stack v3.6.2** onto a machine running **OpenClaw** (or any compatible harness following the same 9-root-file convention) **without requiring Claude Code on the target machine**.
+A condensed deployment runbook (~3-5 minutes of reading + 15-30 minutes of execution) for installing the **Ultimate Memory Stack v4.0.0** onto a machine running **OpenClaw** (or any compatible harness following the same 9-root-file convention) **without requiring Claude Code on the target machine**.
 
 The memory stack is a metadata + protocol layer — harness-agnostic by design per the modular consumer architecture decision. Inference (LLM calls) is delegated to whatever model endpoint OpenClaw is configured to use (e.g., Ollama local, Ollama Turbo cloud, OpenAI-compatible API). The memory stack itself does not call Claude or any specific model.
 
@@ -236,5 +236,5 @@ See the repository root for license terms and contribution guidelines.
 ## Footnotes / Spec compatibility
 
 - Schema version: **3.0** (per memory protocol)
-- Stack version: **v3.6.2**
+- Stack version: **v4.0.0**
 - This quick-start covers the **no-Claude-required path**; if Claude Code is present on the target machine, the slash-command Skills (`/install-openclaw-adapter`, `/audit-quarantine`, etc.) provide an alternative entry that wraps the same Python scripts shown here.

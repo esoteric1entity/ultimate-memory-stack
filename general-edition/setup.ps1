@@ -37,7 +37,7 @@ $VersionFile = Join-Path $ScriptDir "..\VERSION"
 if (Test-Path $VersionFile) {
     $StackVersion = (Get-Content $VersionFile -Raw).Trim()
 } else {
-    $StackVersion = "3.6.2"
+    $StackVersion = "4.0.0"
 }
 $CommonSpecsDir = Join-Path $ScriptDir "..\common-specs"
 $WorkingDir = if ($env:WORKING_DIR) { $env:WORKING_DIR } else { Get-Location }

@@ -1,5 +1,5 @@
 # ==============================================================================
-# Ultimate Memory Stack v3.6.2 - top-level installer (Windows / PowerShell)
+# Ultimate Memory Stack v4.0.0 - top-level installer (Windows / PowerShell)
 # Apache-2.0 (C) 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
@@ -41,7 +41,7 @@ $VersionFile = Join-Path $ScriptDir "VERSION"
 if (Test-Path $VersionFile) {
     $StackVersion = (Get-Content $VersionFile -Raw).Trim()
 } else {
-    $StackVersion = "3.6.2"
+    $StackVersion = "4.0.0"
 }
 
 if ($Help) {

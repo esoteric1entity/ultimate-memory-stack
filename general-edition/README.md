@@ -3,7 +3,7 @@
 > The public, general-purpose edition of the Ultimate Memory Stack — the edition this repository ships.
 > Field-agnostic by default; compliance features are opt-in.
 >
-> **Status:** stable — ships with UMS v3.6.2
+> **Status:** stable — ships with UMS v4.0.0
 > **Parent:** [`../README.md`](../README.md) (Ultimate Memory Stack overview)
 
 ---

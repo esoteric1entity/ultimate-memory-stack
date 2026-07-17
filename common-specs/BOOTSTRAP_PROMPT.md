@@ -1,7 +1,7 @@
 # Ultimate Memory Stack — Bootstrap Prompt
 
 > **File:** `common-specs/BOOTSTRAP_PROMPT.md`
-> **Status:** stable — ships with UMS v3.6.2, alongside the companion files (MEMORY_PROTOCOL.md + MEMORY_PROTOCOL_EXTENDED.md + schemas)
+> **Status:** stable — ships with UMS v4.0.0, alongside the companion files (MEMORY_PROTOCOL.md + MEMORY_PROTOCOL_EXTENDED.md + schemas)
 > **Authors:** see /AUTHORS.md
 >
 > Version history lives in [`CHANGELOG.md`](../CHANGELOG.md).
@@ -96,7 +96,7 @@
 ## The Activation Prompt
 
 ```
-You are deploying the Ultimate Memory Stack v3.6.2 in this working directory.
+You are deploying the Ultimate Memory Stack v4.0.0 in this working directory.
 
 The complete spec lives in `ultimate-memory-stack/common-specs/` plus the general-edition profile in `ultimate-memory-stack/general-edition/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
 
@@ -372,7 +372,7 @@ Tracked for future refinement, not resolved in this bootstrap:
 
 ## Status
 
-**Stable — ships with UMS v3.6.2.** The companion files carry the detail this bootstrap references:
+**Stable — ships with UMS v4.0.0.** The companion files carry the detail this bootstrap references:
 - ARCHITECTURE.md — Layer 0–6 details + tier markers
 - MEMORY_PROTOCOL.md — Tier 1/2/3 loading + conflict resolution + self-test (CORE, auto-loaded)
 - MEMORY_PROTOCOL_EXTENDED.md — full rationale, tables, and mechanics behind the CORE rules (on-demand, never auto-loaded)

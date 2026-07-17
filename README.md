@@ -3,7 +3,7 @@
 > **Persistent, modular memory for AI agents.** Works with Claude Code, OpenClaw, and any harness that supports the 9-root-file convention. Install in one command; opt-in to addons; verify after install.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Status: v3.6.2](https://img.shields.io/badge/Status-v3.6.2-green.svg)](#)
+[![Status: v4.0.0](https://img.shields.io/badge/Status-v4.0.0-green.svg)](#)
 [![Skills: 7](https://img.shields.io/badge/Skills-7-orange.svg)](#)
 [![Tests](https://github.com/esoteric1entity/ultimate-memory-stack/actions/workflows/test.yml/badge.svg)](https://github.com/esoteric1entity/ultimate-memory-stack/actions/workflows/test.yml)
 
@@ -185,10 +185,10 @@ To set expectations:
 
 ## Project status
 
-**v3.6.2 (patch) — current.** A harness-messaging + docs-consolidation cleanup over **v3.6.1**. Predecessor versions (v3.0/v3.5) have run in production on the maintainer's own machines since 2026-05-19, across Claude Code and OpenClaw deployments on three platforms, with a cross-machine validation cycle before v3.6.0 was cut.
+**v4.0.0 (major) — current.** Changes the installed layout, not just repo content: the protocol splits into a small always-loaded core plus an on-demand extended reference, `PROFILE.md` becomes a fully regenerable artifact with user configuration moved to `memory/user/USER_OVERRIDES.md`, and memory vaults gain a hot/cold tiered archive index. A one-command, non-destructive migration (with `--dry-run`) upgrades existing v3.6.x installs — see `general-edition/MIGRATION_v3.6_to_v4.0.md`. Predecessor versions (v3.0/v3.5/v3.6.0/v3.6.1/v3.6.2) have run in production on the maintainer's own machines since 2026-05-19, across Claude Code and OpenClaw deployments on three platforms, with a cross-machine validation cycle before v3.6.0 was cut.
 
 - Build: production-ready
-- Verification: two complementary layers — `verify.sh` validates an *install* (scaffold, registration, manifest), and `tests/` holds a **190-test pytest suite** covering the logic modules (lint runner, heartbeat compactor, edition setup, quarantine review) plus the installer next-steps and the skill install-guard. Run them with `python -m pytest tests/`
+- Verification: two complementary layers — `verify.sh` validates an *install* (scaffold, registration, manifest), and `tests/` holds a **340-test pytest suite** (2 environment-specific skips) covering the logic modules (lint runner, heartbeat compactor, edition setup, quarantine review, migration) plus the installer next-steps and the skill install-guard. Run them with `python -m pytest tests/`
 - License: Apache-2.0
 - Maintenance: actively maintained
 

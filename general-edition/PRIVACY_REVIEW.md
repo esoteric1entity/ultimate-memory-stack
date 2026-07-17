@@ -1,7 +1,7 @@
 # Privacy & Data Handling — General Edition
 
 > **File:** `general-edition/PRIVACY_REVIEW.md`
-> **Status:** stable — ships with UMS v3.6.2
+> **Status:** stable — ships with UMS v4.0.0
 > **Scope:** how the general edition stores and handles your data.
 
 ---

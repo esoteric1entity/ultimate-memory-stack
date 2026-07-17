@@ -18,7 +18,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -f "${SCRIPT_DIR}/../VERSION" ]; then
     STACK_VERSION="$(tr -d ' \r\n' < "${SCRIPT_DIR}/../VERSION")"
 else
-    STACK_VERSION="3.6.2"
+    STACK_VERSION="4.0.0"
 fi
 COMMON_SPECS_DIR="${SCRIPT_DIR}/../common-specs"
 WORKING_DIR="${WORKING_DIR:-$(pwd)}"

@@ -1,6 +1,6 @@
 # Ultimate Memory Stack — Architecture
 
-> **Status:** stable (ships with UMS v3.6.0) · **Authors:** see /AUTHORS.md
+> **Status:** stable (ships with UMS v4.0.0) · **Authors:** see /AUTHORS.md
 > **In one sentence:** a 7-layer architecture (Layer 0–6) separating protocol, storage, compliance, search, caching, graph, and cryptographic concerns — each layer tier-gated to activate as its infrastructure unblocks.
 >
 > Version history lives in [`CHANGELOG.md`](../CHANGELOG.md).

@@ -2,7 +2,7 @@
 
 > **File:** `general-edition/DEPLOYMENT.md`
 > **Version:** 1.2 — 2026-07-11
-> **Status:** Stable — ships with UMS v3.6.2
+> **Status:** Stable — ships with UMS v4.0.0
 > **Audience:** Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts
 
 ---

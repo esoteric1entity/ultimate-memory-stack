@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Ultimate Memory Stack v3.6.2 — post-install verification
+# Ultimate Memory Stack v4.0.0 — post-install verification
 # Apache-2.0 © 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
@@ -29,7 +29,7 @@ fi
 # Version: read from the VERSION file (#14 re-audit follow-on — was hardcoded,
 # would lie after a bump). Prefer the installed scaffold's copy, then the
 # package next to this script; fall back only if neither is present.
-STACK_VERSION="3.6.2"
+STACK_VERSION="4.0.0"
 for _vf in "$WORKING_DIR/ultimate-memory-stack/VERSION" "$SCRIPT_DIR/VERSION"; do
     if [ -f "$_vf" ]; then STACK_VERSION="$(tr -d ' \r\n' < "$_vf")"; break; fi
 done
