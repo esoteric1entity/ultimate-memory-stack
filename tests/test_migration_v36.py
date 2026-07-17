@@ -1,19 +1,18 @@
-"""Tests for PLAN-migration-v36x-to-v400 — the v3.6.x -> v4.0.0 migration mode
+"""Tests for the v3.6.x -> v4.0.0 migration mode
 (`--migrate-from=v3.6`) in both general-edition installers (setup.py, setup.sh).
 
 Fixture: a real v3.6.2 install (from `git archive` of the pre-v4.0.0 baseline,
 see tests/conftest.py's `v36_source_dir`) aged into a vault that trips every
-recon-migration.md risk #1-6 — see tests/fixtures/build_v36_vault.py.
+the known migration risks #1-6 — see tests/fixtures/build_v36_vault.py.
 
-Design note — tiering opt-in reconciled away (§2.2e superseded): the original
-design-round plan asked for an interactive y/N tiering opt-in during
+Design note — tiering opt-in reconciled away: an earlier
+design asked for an interactive y/N tiering opt-in during
 migration, default N, because at design time (2026-07-10) `create_archive_indexes()`
 did not exist yet. It shipped at train step 6/7 as an UNCONDITIONAL,
 idempotent, create-only-if-absent scaffold step that ALREADY runs on every
 fresh install and re-install with no consent gate at all (verified live: it
-never overwrites, never touches existing data). `TIERING-MIGRATION-NOTES.md`
-(the authoritative step-6 handoff, written after the plan) confirms this
-explicitly: re-running the installer already creates the ARCHIVE_INDEX files
+never overwrites, never touches existing data): re-running the installer
+already creates the ARCHIVE_INDEX files
 as a harmless side effect. Requiring the migration path alone to gate this
 behind a NEW interactive prompt would (a) diverge from what fresh/re-installs
 already do, (b) break `--dry-run`/non-interactive testability, and (c) add a
@@ -108,7 +107,7 @@ def _clear_stale_import(target: pathlib.Path) -> None:
 
 
 # ===========================================================================
-# 1. Fixture sanity — trips all of recon-migration.md's risks #1-6
+# 1. Fixture sanity — trips all of the known migration risks #1-6
 # ===========================================================================
 
 def test_fixture_trips_all_six_risks(tmp_path, v36_source_dir):
@@ -339,7 +338,7 @@ def test_invalid_migrate_from_value_rejected_bash(tmp_path):
 # ===========================================================================
 # 7. Step-8 adversarial round regressions — every fix below is paired with a
 #    reproduction of the finding it closes (findings are numbered per the
-#    3-reviewer round, 2026-07-15; see 00-V4-SCOPE-AND-ROUTING.md §6).
+#    3-reviewer round, 2026-07-15).
 # ===========================================================================
 
 @pytest.mark.parametrize("runner", RUNNERS)

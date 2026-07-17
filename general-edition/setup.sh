@@ -175,7 +175,7 @@ if [ "$COMPLIANCE_PRESET" = "custom" ]; then
 fi
 
 # ============================================================
-# USER_OVERRIDES pattern (v4.0.0, PLAN-merge-on-install) — permanent fix for
+# USER_OVERRIDES pattern (v4.0.0) — permanent fix for
 # the 2026-06-15 data-loss debt. PROFILE.md is now regenerable; user config
 # lives in memory/user/USER_OVERRIDES.md, created once and never rewritten.
 # ============================================================
@@ -257,8 +257,8 @@ extensions:"
 }
 
 # Pre-scaffold empty memory/archive/<category>/ARCHIVE_INDEX.md for each
-# tiered category on fresh install (SPEC-hotcold-v4 §S4: fresh installs get
-# these by default, not lazily on first rotation). Idempotent per category —
+# tiered category on fresh install (fresh installs get these by default, not
+# lazily on first rotation). Idempotent per category —
 # never overwrites an existing ARCHIVE_INDEX.md (rotation may have populated it).
 create_archive_indexes() {
     local template_path="${COMMON_SPECS_DIR}/templates/ARCHIVE_INDEX.template.md"
@@ -292,7 +292,7 @@ create_archive_indexes() {
 }
 
 # ---------------------------------------------------------------------------
-# MIGRATION MODE helpers (v4.0.0, PLAN-migration-v36x-to-v400, step-8
+# MIGRATION MODE helpers (v4.0.0, step-8
 # adversarial round) — data-safety fixes shared by the pre-flight idempotency
 # check and the real migration path below.
 # ---------------------------------------------------------------------------
@@ -491,7 +491,7 @@ fi
 # ============================================================
 # Runs BEFORE any write in the script (including the .deployment-info clear
 # below) so both the already-migrated no-op and --dry-run can guarantee zero
-# writes (PLAN-migration-v36x-to-v400 §2.2 step zero + §5 idempotency
+# writes (step-zero already-migrated detection + idempotency
 # requirement). Read-only: safe to run even against the installed copy,
 # before the self-reference guard gets a chance to refuse it.
 
@@ -627,7 +627,7 @@ if [ "$MODE" = "migrate" ]; then
     fi
 
     if [ "$MIGRATE_FROM" = "v3.6" ]; then
-        # v3.6.x → v4.0.0 (PLAN-migration-v36x-to-v400): the already-migrated
+        # v3.6.x → v4.0.0: the already-migrated
         # no-op and --dry-run were handled above, before any write — reaching
         # here means a real migration is proceeding. Backup name is version-
         # specific (was hardcoded "v2" for every --migrate-from value, a bug
@@ -676,7 +676,7 @@ echo "→ Copying memory stack files..."
 
 mkdir -p "${WORKING_DIR}/ultimate-memory-stack" "${WORKING_DIR}/.claude/rules"
 
-# v4.0.0 (PLAN-merge-on-install, unified existing-scaffold behavior): archive
+# v4.0.0 (unified existing-scaffold behavior): archive
 # anything user-touched, THEN refresh. A pre-v4.0.0 vault may have a
 # hand-edited PROFILE.md — archive it (with a migration notice) BEFORE the
 # regenerable general-edition/ tree gets wiped below, so the edit is never
@@ -766,7 +766,7 @@ fi
 create_user_overrides
 echo "✓ memory/user/USER_OVERRIDES.md ready"
 
-# v4.0.0 hot/cold tiering (SPEC-hotcold-v4 §S4): pre-scaffold empty
+# v4.0.0 hot/cold tiering: pre-scaffold empty
 # ARCHIVE_INDEX.md files for the 3 tiered categories.
 create_archive_indexes
 echo "✓ memory/archive/{sessions,decisions,feedback}/ARCHIVE_INDEX.md ready"

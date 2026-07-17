@@ -4,7 +4,7 @@
 > **Version:** 1.0 — 2026-05-15
 > **Compose with:** Most commonly `enterprise` base preset; can compose with `none` or `custom`
 > **Activates:** GDPR consent tracking + right-to-be-forgotten enforcement + EU-jurisdiction patterns
-> **Status:** DRAFT
+> **Status:** stable — ships with UMS v4.0.0
 
 ---
 

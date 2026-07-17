@@ -1,4 +1,4 @@
-"""Tests for the hot/cold tiering backport (v4.0.0, SPEC-hotcold-v4 Stage 2).
+"""Tests for the hot/cold tiering backport (v4.0.0).
 
 Covers the plan's §8 Stage-2 test plan:
   1. Template validity (ARCHIVE_INDEX.template.md + the 3 tiered category
@@ -140,7 +140,7 @@ def test_eager_set_over_budget_respects_profile_override(tmp_path):
 # --- F1 regression: underscore/space-separated values must NOT truncate to
 # their leading digits — they should fail to match and fall back to the
 # 80,000 default, not silently misparse as budget=1 or budget=80.
-# (REVIEW-STEP6-TIERING-2026-07-15.md F1)
+# (review finding F1)
 
 def test_eager_set_budget_underscore_separator_falls_back_to_default(tmp_path):
     _make_claude_code_vault(tmp_path)
@@ -231,7 +231,7 @@ def test_archive_count_drift_no_fire_when_matching(tmp_path):
 # --- F3 regression: the pointer-count match must survive wording drift that
 # doesn't change its meaning — capitalization, an intervening parenthetical,
 # a line wrap before the count. All three used to produce zero findings on a
-# genuine mismatch. (REVIEW-STEP6-TIERING-2026-07-15.md F3)
+# genuine mismatch. (review finding F3)
 
 @pytest.mark.parametrize(
     "pointer_text",
@@ -256,7 +256,7 @@ def test_archive_count_drift_fires_despite_pointer_wording_drift(tmp_path, point
 # --- F2 regression: check_archive_count_drift must also read MEMORY_INDEX.md's
 # Archived column, independent of the hot-side pointer (the FROZEN spec's §S6
 # and SCHEMA_lint.md §13 both require it; the check used to only look at the
-# hot pointer). (REVIEW-STEP6-TIERING-2026-07-15.md F2)
+# hot pointer). (review finding F2)
 
 def test_archive_count_drift_fires_on_memory_index_archived_column_mismatch(tmp_path):
     _make_claude_code_vault(tmp_path)
@@ -310,7 +310,7 @@ def test_archive_index_missing_no_fire_when_present(tmp_path):
 
 # --- F4 regression: the spec's "non-empty" wording covers ANY file in the
 # dir, not just the conventional <category>-archive.md name — a differently
-# named or extra file used to go undetected. (REVIEW-STEP6-TIERING-2026-07-15.md F4)
+# named or extra file used to go undetected. (review finding F4)
 
 def test_archive_index_missing_fires_for_non_conventional_filename(tmp_path):
     _make_claude_code_vault(tmp_path)
@@ -344,7 +344,7 @@ def test_entry_over_cap_no_fire_under_300_bytes(tmp_path):
 # --- F2 regression: check_entry_over_cap must also scan MEMORY_INDEX.md's
 # Recent Entries row descriptions (FROZEN spec §S6 + SCHEMA_lint.md §13 both
 # require it — the check used to only look at ARCHIVE_INDEX files).
-# (REVIEW-STEP6-TIERING-2026-07-15.md F2)
+# (review finding F2)
 
 def test_entry_over_cap_fires_for_long_memory_index_row_description(tmp_path):
     _make_claude_code_vault(tmp_path)
@@ -387,7 +387,7 @@ def test_entry_over_cap_ignores_bullets_outside_recent_entries_section(tmp_path)
 def test_all_six_tiering_checks_are_severity_low(tmp_path):
     # Build one vault that trips all 6 at once, confirm severity uniformity.
     # (minor item: check_archive_count_drift was previously omitted from this
-    # aggregate — REVIEW-STEP6-TIERING-2026-07-15.md "Minor" section.)
+    # aggregate — from the review's "Minor" section.)
     _make_claude_code_vault(tmp_path)
     _write(tmp_path / ".claude" / "rules" / "memory_protocol.md", "x" * 90_000)
     _write(
@@ -420,7 +420,7 @@ LINT_RUNNER = PKG / "core" / "shared-tools" / "lint_runner.py"
 def test_severity_filter_low_shows_medium_hides_tiering_findings(tmp_path):
     """Exercises the REAL --severity CLI path via subprocess (minor item:
     the prior version re-implemented the filter inline instead of testing
-    main()'s actual filter code — REVIEW-STEP6-TIERING-2026-07-15.md)."""
+    main()'s actual filter code — per the review.)"""
     import json
 
     _make_claude_code_vault(tmp_path)

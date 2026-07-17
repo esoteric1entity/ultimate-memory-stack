@@ -148,7 +148,7 @@ Without a protocol layer, every session re-derives its own approach to memory. L
 **T0.** No infrastructure required. Works on Claude Code default install.
 
 ### Cross-references
-- `MEMORY_PROTOCOL.md` v3.0 (operational details)
+- `MEMORY_PROTOCOL.md` (operational details)
 - `SCHEMA_A18` (entry metadata; protocol enforces frontmatter)
 - `memory/sessions/session_state.md` (lifeline artifact)
 

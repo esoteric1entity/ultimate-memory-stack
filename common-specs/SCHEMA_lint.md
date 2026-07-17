@@ -411,9 +411,9 @@ Same as standard v2.0 → v3.0 migration. Lint becomes active after edition PROF
 
 ## 12. Status
 
-**v1.0 SPEC — ready for implementation.** Lint is now a formal v3.0 feature.
+**SHIPPED — stable.** Lint runs today via `core/shared-tools/lint_runner.py`; §13 below documents the 6 tiering checks added in v4.0.0. The phased plan below is retained as design history — Phase A deterministic checks are live; Phases B and C remain future enhancements.
 
-Implementation phases:
+Implementation phases (original plan):
 - **Phase A (T0 deterministic checks):** Implement 4 checks (orphan, broken-ref, stale-tentative, stale-webfetch). Can ship immediately at T0.
 - **Phase B (T3 LLM-assisted):** Implement contradiction + missing-concept checks when Code Execution available.
 - **Phase C (UX polish):** Skill-wrapped `/lint-memory` at T4 via a future Skill extension.

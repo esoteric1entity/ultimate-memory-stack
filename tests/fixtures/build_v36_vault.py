@@ -1,7 +1,7 @@
 """Builds a v3.6.2-shaped installed vault for the migration tests
-(PLAN-migration-v36x-to-v400 §step 2).
+(materializes the v3.6.2 source tree the migration tests run against).
 
-The fixture must trip ALL of recon-migration.md's risks #1-6:
+The fixture must trip ALL of the known migration risks #1-6:
   1. stale 55KB .claude/rules/memory_protocol.md (v3.6.2's real installer
      output — untouched)
   2. stale CLAUDE.md `@...MEMORY_PROTOCOL.md` import line (hand-added)

@@ -4,7 +4,7 @@
 > **Version:** 1.0 — 2026-05-15
 > **Compose with:** `enterprise` + `soc2` base most commonly; can compose with `none` for solo developers
 > **Activates:** PCI-DSS payment card industry data security standards — cardholder data detection + tokenization patterns
-> **Status:** DRAFT
+> **Status:** stable — ships with UMS v4.0.0
 
 ---
 

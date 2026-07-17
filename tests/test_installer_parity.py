@@ -1,4 +1,4 @@
-"""Installer parity pinning test (PLAN-refactor-structural.md Part D).
+"""Installer parity pinning test.
 
 general-edition/setup.sh and setup.py duplicate copy/write logic by design —
 the plan's §1 explicitly REJECTED consolidating them (the Bash door's value
@@ -117,7 +117,7 @@ def test_same_profile_md(parity_pair):
 
 def test_same_user_overrides_effective_values(parity_pair):
     # The ACTUAL effective compliance/extensions values live here post-v4.0.0
-    # (PLAN-merge-on-install moved them out of PROFILE.md).
+    # (the v4.0.0 overrides pattern moved them out of PROFILE.md).
     py_dir, sh_dir = parity_pair
     py_ov = (py_dir / "memory" / "user" / "USER_OVERRIDES.md").read_text(encoding="utf-8")
     sh_ov = (sh_dir / "memory" / "user" / "USER_OVERRIDES.md").read_text(encoding="utf-8")

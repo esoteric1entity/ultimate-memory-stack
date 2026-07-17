@@ -34,7 +34,7 @@
 | CVE history (LLMLingua itself) | None published on GitHub Security Advisories |
 | CVE risk (transitive deps) | **Accumulates over time** — pinned `transformers`/`torch` versions don't get security patches automatically |
 
-**Recommendation:** Use LLMLingua if you need prompt compression today, but plan a v3.6+ migration evaluation of SecurityLingua before this pinning becomes unsupported.
+**Recommendation:** Use LLMLingua if you need prompt compression today, but plan a future migration evaluation of SecurityLingua before this pinning becomes unsupported.
 
 ---
 
@@ -58,7 +58,7 @@
 1. ✅ Pin `llmlingua==0.2.2` exactly (installer's `requirements.txt`)
 2. ✅ Pin compatible `transformers` + `torch` version range (bounded)
 3. ✅ Document unmaintained status (this README + SKILL.md Step 0 disclosure)
-4. ✅ Plan v3.6+ migration path (this README + DEC-### at activation time)
+4. ✅ Plan a future migration path (this README + a decision record at activation time)
 5. ✅ `pip-audit` pre-install on transitive tree (SKILL.md Step 2)
 
 ---
@@ -136,7 +136,7 @@ Provide token-level prompt compression to the Ultimate Memory Stack as an opt-in
 - Upgrade beyond `==0.2.2` (would invalidate the Sentinel vetting; requires fresh VET- entry + DEC override)
 - Patch transitive CVEs that emerge after install (user must periodically re-audit)
 - Install if base Ultimate Memory Stack isn't deployed (Step 1 precondition check)
-- Substitute for SecurityLingua-based future approach (v3.6+ migration path documented; not implemented here)
+- Substitute for SecurityLingua-based future approach (future migration path documented; not implemented here)
 - Operate in offline environments without pre-cached compression model
 
 ---
@@ -153,7 +153,7 @@ Provide token-level prompt compression to the Ultimate Memory Stack as an opt-in
 
 ---
 
-## Migration Path to v3.6+
+## Migration Path (Future Release)
 
 When evaluating SecurityLingua (arXiv:2506.12707) as a successor:
 
@@ -161,7 +161,7 @@ When evaluating SecurityLingua (arXiv:2506.12707) as a successor:
 2. **Sentinel vet SecurityLingua** as VET-### entry (full Mode 1 pre-vetting)
 3. **Compare deltas:** API compatibility, dependency burden, license, active maintenance
 4. **If migration warranted:** capture as DEC-### with full 5-element documentation discipline, create `securitylingua-installer/` mirroring this Skill's pattern
-5. **Don't deprecate LLMLingua installer immediately** — keep both available for v3.5 → v3.6 transition window
+5. **Don't deprecate LLMLingua installer immediately** — keep both available during the transition window
 
 ---
 

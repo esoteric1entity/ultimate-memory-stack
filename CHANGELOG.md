@@ -37,7 +37,7 @@ This release changes the installed layout, not just repo content — that's the 
 
 ### Documentation
 - Tightened public docs to release-granularity detail (internal record-ID citations trimmed from `INSPIRATIONS.md`, `MAPPING.md`, this file, and the addon `requirements.txt` headers; substance preserved everywhere).
-- Install-guide corrections: unified door taxonomy, fixed manual-install layout contradiction, corrected the wizard-step description, documented the addon flag values, component version-labels reconciled (install skill → v1.7).
+- Install-guide corrections: unified door taxonomy, fixed manual-install layout contradiction, corrected the wizard-step description, documented the addon flag values, component version-labels reconciled (install skill → v1.9).
 
 ## [3.6.2] — 2026-06-16
 

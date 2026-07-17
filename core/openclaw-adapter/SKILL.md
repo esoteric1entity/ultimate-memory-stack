@@ -1,6 +1,6 @@
 ---
 name: install-openclaw-adapter
-description: Install the Ultimate Memory Stack General Edition adapter onto an OpenClaw harness deployment. Generates 9 root auto-load files (MEMORY/AGENTS/SOUL/TOOLS/IDENTITY/USER/HEARTBEAT/BOOTSTRAP/DREAMS) mapped to v3.0/v3.5 semantics, configures heartbeat-driven Lint compaction via cron, sets up tier mapping (HOT/WARM/COLD/DETAIL/DAILY ↔ Tier 1/2/3), and inherits all 4 PASS-vetted addons (LLMLingua, Graphiti, Graphify, Obsidian). Use when the user asks to install, deploy, port, or adapt the memory stack to an OpenClaw harness (or an OpenClaw-family / compatible 9-root-file harness such as NVIDIA NemoClaw or NanoClaw).
+description: Install the Ultimate Memory Stack General Edition adapter onto an OpenClaw harness deployment. Generates 9 root auto-load files (MEMORY/AGENTS/SOUL/TOOLS/IDENTITY/USER/HEARTBEAT/BOOTSTRAP/DREAMS) mapped to v3.0/v3.5 semantics, configures heartbeat-driven Lint compaction via cron, sets up tier mapping (HOT/WARM/COLD/DETAIL/DAILY ↔ Tier 1/2/3), and inherits the 3 PASS-vetted addons (LLMLingua, Graphiti, Graphify) plus the config-only Obsidian vault addon. Use when the user asks to install, deploy, port, or adapt the memory stack to an OpenClaw harness (or an OpenClaw-family / compatible 9-root-file harness such as NVIDIA NemoClaw or NanoClaw).
 version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["ideal-first design", "documentation discipline", "modular consumer architecture", "Other-harness compatibility", "cross-harness convergence validation", "Option C extension"]
@@ -30,7 +30,7 @@ What this does:
   - Creates 9 root auto-load files (MEMORY/AGENTS/SOUL/TOOLS/IDENTITY/USER/HEARTBEAT/BOOTSTRAP/DREAMS)
   - Maps v3.0/v3.5 tier semantics (Tier 1/2/3) to OpenClaw tiers (HOT/WARM/COLD/DETAIL/DAILY)
   - Sets up heartbeat-driven Lint compaction (cron-triggered, surface-only by design)
-  - Inherits 4 PASS-vetted addons (LLMLingua, Graphiti, Graphify, Obsidian) — installable separately
+  - Inherits 3 PASS-vetted addons (LLMLingua, Graphiti, Graphify) + Obsidian vault config (config-only, no vetting required) — installable separately
   - Bootstrap budget: 60K chars total (validated against a real OpenClaw deployment)
 
 What this does NOT do (explicit out-of-scope for v3.5):

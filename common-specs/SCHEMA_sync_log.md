@@ -2,7 +2,7 @@
 
 > **File:** `common-specs/SCHEMA_sync_log.md`
 > **Version:** 1.0 (schema ships now; the sync implementation is a future deliverable)
-> **Status:** READY — schema locked for v3.5; sync implementation deferred to Phase 4+
+> **Status:** ships with UMS v4.0.0 — schema design-locked at v3.5; sync implementation deferred to Phase 4+
 > **Authority:** project design principles — plan-first schema lock, ideal-first design, documentation discipline, v3.5 design-level scope-carve
 > **Author:** esoteric1entity
 > **Companion docs:** a Phase 4+ multi-machine-sync implementation design note (not yet published)

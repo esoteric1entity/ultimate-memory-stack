@@ -21,7 +21,7 @@ The analogy that resolves this cleanly: **SQL is branded; applications consuming
 These elements ARE the Ultimate Memory Stack. They are not user-changeable. They define the product:
 
 ### Brand identity
-- **Stack name:** "Ultimate Memory Stack" (working title; final-name decision still deferred)
+- **Stack name:** "Ultimate Memory Stack" (the shipped, public product name)
 - **Authors:** see `/AUTHORS.md`
 - **License:** Apache-2.0
 

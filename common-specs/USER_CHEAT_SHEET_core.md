@@ -112,7 +112,7 @@ Claude Code has ~60 slash commands. Realistically, you'll use these 13:
 | `/permissions` | Adjust tool permissions |
 | `/review` | Run code review on current changes |
 | `/memory` | View/edit memory files |
-| `/audit-quarantine` | (Biotech-edition only) Review quarantine queue |
+| `/audit-quarantine` | Review quarantine queue (both editions; full workflow in biotech, toast + optional workflow in general) |
 | `/lint-memory` | Run memory integrity check — surfaces orphans, broken refs, stale TENTATIVE, stale citations, contradictions (T3+) |
 | `/graphify` | Build codebase knowledge graph (Tier C adjacent tool — see TIER_C_ACTIVATION.md). Available after `uv tool install graphifyy && graphify install`. Multi-modal: code + SQL + docs + papers + images + videos. Runs locally for code (Tree-sitter AST); LLM for docs. |
 
@@ -248,6 +248,7 @@ If you open your `memory/` directory in Obsidian, wiki-links become clickable + 
 
 - **Setting up?** Read your edition's `DEPLOYMENT.md`.
 - **Upgrading from v2.0?** Read your edition's `MIGRATION_v2_to_v3.md`.
+- **Upgrading from v3.6.x?** Read your edition's `MIGRATION_v3.6_to_v4.0.md`.
 - **Want HIPAA-grade behavior?** A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 - **Tweaking presets?** Read `overrides/compliance-presets.override.md` (general-edition) or your edition's overrides.
 - **Curious about architecture?** Read `ARCHITECTURE.md` in common-specs (deeper, ~30 KB).

@@ -14,6 +14,7 @@
 | **T0 first deployment** | Manual copy + paste activation prompt — 5 min |
 | **T2+ first deployment** | Run `setup.sh` / `setup.ps1` / `setup.py` — 30 sec |
 | **Upgrade from v2.0 → v3.0** | Run `MIGRATION_v2_to_v3.md` procedure first |
+| **Upgrade from v3.6.x → v4.0.0** | Run `MIGRATION_v3.6_to_v4.0.md` procedure first |
 | **Personal/hobby project** | T0 manual is great fit (no infrastructure needed) |
 | **B2B SaaS preparing for SOC2** | T2+ recommended; add `soc2` extension |
 
@@ -251,6 +252,7 @@ Or edit PROFILE.md directly. On preset change, system re-validates existing entr
 - `BOOTSTRAP_PROMPT.md`
 - `PROFILE.md`
 - `MIGRATION_v2_to_v3.md`
+- `MIGRATION_v3.6_to_v4.0.md` — current v3.6.x → v4.0.0 upgrade
 - `PRIVACY_REVIEW.md`
 - `overrides/compliance-presets.override.md` (preset selection details)
 - `overrides/generic-examples.override.md` (use case examples)

@@ -1,7 +1,7 @@
 """Shared pytest fixtures for the suite.
 
 V36_SOURCE_COMMIT pins the pre-v4.0.0 baseline used to build a v3.6.2-shaped
-vault fixture for the migration tests (PLAN-migration-v36x-to-v400 §step 2:
+vault fixture for the migration tests (migration mode design note:
 `git archive` does NOT extract trees via `git show <rev>:<dir>` — verified —
 so this materializes the old source with `git archive | tar -x` into a
 session-scoped temp dir, extracted once and reused read-only by every test
@@ -21,8 +21,8 @@ PKG = pathlib.Path(__file__).resolve().parents[1]
 
 # Pre-v4.0.0 baseline (v3.6.2, tagged in the plan's evidence base) — the last
 # commit before the v4.0.0 train's protocol-split/overrides/tiering/refactor
-# work landed. Verified reachable and VERSION==3.6.2 (00-V4 §3.0 stale-citation
-# rule: re-checked live, not trusted from the design-round citation).
+# work landed. Verified reachable and VERSION==3.6.2 (re-checked live, not
+# trusted from a stale citation).
 V36_SOURCE_COMMIT = "59541b9"
 
 

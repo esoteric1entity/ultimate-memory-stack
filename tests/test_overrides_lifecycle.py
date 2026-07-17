@@ -1,8 +1,7 @@
-"""End-to-end lifecycle tests for the USER_OVERRIDES pattern (v4.0.0, PLAN-merge-on-install).
+"""End-to-end lifecycle tests for the USER_OVERRIDES pattern (v4.0.0).
 
 Real subprocess invocations of general-edition/setup.py against tmp_path working
-dirs — the four mandatory scenarios from PLAN-merge-on-install.md §4 step 6 /
-§6 acceptance criterion (a): fresh install, re-install-over-customized,
+dirs — the four mandatory scenarios: fresh install, re-install-over-customized,
 upgrade-from-3.6.x-style vault, and aborted/interrupted install. Each asserts
 zero user-value loss and USER_OVERRIDES.md byte-stability where it pre-existed.
 

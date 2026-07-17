@@ -4,7 +4,7 @@
 > **Version:** 1.0 — 2026-05-15
 > **Compose with:** `enterprise` base preset most commonly; can compose with others
 > **Activates:** SOC2 Trust Services Criteria — access controls, change management, audit-ready patterns
-> **Status:** DRAFT
+> **Status:** stable — ships with UMS v4.0.0
 
 ---
 

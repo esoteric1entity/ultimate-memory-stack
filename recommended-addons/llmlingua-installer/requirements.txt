@@ -1,5 +1,5 @@
 # LLMLingua Installer — Pinned Dependency Manifest
-# Generated for v3.5 Ultimate release; vetted and PASSED per project security review.
+# Vetted and PASSED per project security review.
 # Authority: the project's security-first tool-installation policy.
 #
 # Rationale for each pin:

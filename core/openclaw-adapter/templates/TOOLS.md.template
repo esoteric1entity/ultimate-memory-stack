@@ -52,8 +52,8 @@ Status updated by each addon's installer Skill on completion. NOT INSTALLED is t
 - MIT licensed; 48h security response SLA
 
 ### Obsidian vault config (PKM addon)
-- MVP scope shipped in v3.5 (memory_bank/ templates deferred to v3.5.1)
-- 10 files: SKILL + README + INSTALL + 3 templates + community-plugins.json + hotkeys.json + obsidian_config/README
+- Full scope shipped, including the memory_bank/ templates
+- Files: SKILL + README + INSTALL + 10 templates (4 top-level + 6 memory_bank/) + community-plugins.json + hotkeys.json + obsidian_config/README
 - No Python install; pure markdown + JSON config
 - Obsidian desktop app: https://obsidian.md/ (user installs separately)
 
@@ -68,12 +68,12 @@ Each section there points back to the installer Skill folder under `recommended-
 
 ---
 
-## Addons NOT included in v3.5 (out of scope)
+## Addons NOT included (out of scope)
 
 | Addon | Why not | Status |
 |---|---|---|
-| **DGM-H** | Combined Sentinel REVIEW_REQUIRED + Warden CONCUR+ELEVATE → deferred from v3.5 | Phase 4+ candidate; 5 Warden gates required for future inclusion |
-| **Auto-Dream** | C1 — Anthropic Dreaming beta gated | v4.0 candidate |
+| **DGM-H** | Combined Sentinel REVIEW_REQUIRED + Warden CONCUR+ELEVATE → deferred | Phase 4+ candidate; 5 Warden gates required for future inclusion |
+| **Auto-Dream** | C1 — Anthropic Dreaming beta gated | Phase 4+ candidate |
 | **OpenClaw-family harness coverage** (e.g. NVIDIA NemoClaw, NanoClaw) | Roadmap phasing | Deferred |
 | **Multi-Machine Sync** | Scheduled for Phase 4+ | Design notes drafted; impl gated |
 
@@ -96,4 +96,4 @@ Each section there points back to the installer Skill folder under `recommended-
 - `recommended-addons/graphify-installer/` (Tier C C3)
 - `recommended-addons/obsidian-vault-config/` (Tier B recommended)
 - `common-specs/TIER_C_ACTIVATION.md` (per-tool activation guide)
-- Design rationale: Tier C designed-in framework; v3.5 addons batch ships the 3 vetted PASS addons (DGM-H deferred)
+- Design rationale: Tier C designed-in framework; the addons batch ships the 3 vetted PASS addons (DGM-H deferred)

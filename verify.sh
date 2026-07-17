@@ -236,8 +236,8 @@ fi
 # T8 — Manifest ↔ registered-skills cross-check (informational, WARN-only —
 # never touches EXIT_CODE). .ums-manifest.json is written only by the
 # setup-memory-stack.sh wrapper (Door 2/4 installs don't write one — its
-# absence is not itself a finding). Deliberately small per PLAN-refactor-
-# structural §4: no manifest file-list is invented, and the manifest is never
+# absence is not itself a finding). Deliberately small by design: no manifest
+# file-list is invented, and the manifest is never
 # made load-bearing — this only checks its addons array against what [T6]
 # would consider a registered skill. lint_runner.py's job (SCHEMA_lint.md §13
 # ownership split) owns behavioral/aging checks; this stays existence-adjacent.

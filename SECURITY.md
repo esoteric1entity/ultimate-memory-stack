@@ -4,7 +4,8 @@
 
 | Version | Supported |
 |---|---|
-| 3.6.x | ✅ current release line |
+| 4.0.x | ✅ current release line |
+| 3.6.x | ⚠️ security fixes only (previous release line) |
 | < 3.6 | ❌ pre-release R&D versions (never published) |
 
 ## Reporting a vulnerability

@@ -9,7 +9,7 @@
 
 ## What This Adapter Does
 
-The OpenClaw General Edition Adapter ports the Ultimate Memory Stack onto the **OpenClaw harness** — the first non-Claude-Code consumer of the memory stack. It generates the 9 root auto-load files OpenClaw expects, maps tier semantics across the two harnesses, and inherits all 4 PASS-vetted addons.
+The OpenClaw General Edition Adapter ports the Ultimate Memory Stack onto the **OpenClaw harness** — the first non-Claude-Code consumer of the memory stack. It generates the 9 root auto-load files OpenClaw expects, maps tier semantics across the two harnesses, and inherits the 3 PASS-vetted addons plus the config-only Obsidian vault addon.
 
 **Why this matters:**
 - Validates the modular consumer architecture in practice

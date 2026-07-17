@@ -81,7 +81,7 @@ def log_audit_event(working_dir: Path, action: str, summary: str,
 
 
 # ---------------------------------------------------------------------------
-# USER_OVERRIDES pattern (v4.0.0, PLAN-merge-on-install) — permanent fix for
+# USER_OVERRIDES pattern (v4.0.0) — permanent fix for
 # the 2026-06-15 data-loss debt. PROFILE.md is now regenerable; user config
 # lives in memory/user/USER_OVERRIDES.md, created once and never rewritten.
 # ---------------------------------------------------------------------------
@@ -129,7 +129,7 @@ def create_user_overrides(working_dir: Path, compliance_preset: str, extensions:
     return True
 
 
-# Categories that tier per SPEC-hotcold-v4 §S2 — MEMORY_PROTOCOL.md §11.6.
+# Categories that tier per MEMORY_PROTOCOL.md §11.6.
 # category -> (Title-case label, hot file relpath under memory/, archive file name)
 TIERED_CATEGORIES = {
     "sessions": ("Sessions", "sessions/session_state.md", "sessions-archive.md"),
@@ -140,8 +140,8 @@ TIERED_CATEGORIES = {
 
 def create_archive_indexes(working_dir: Path) -> None:
     """Create empty memory/archive/<category>/ARCHIVE_INDEX.md for each tiered
-    category on fresh install (SPEC-hotcold-v4 §S4: fresh installs get these by
-    default, not lazily on first rotation). Idempotent per category — never
+    category on fresh install (fresh installs get these by default, not lazily
+    on first rotation). Idempotent per category — never
     overwrites an existing ARCHIVE_INDEX.md (rotation may have populated it)."""
     template_path = COMMON_SPECS_DIR / "templates" / "ARCHIVE_INDEX.template.md"
     template_body = _extract_template_body(template_path)
@@ -334,7 +334,7 @@ def _refuse_if_installed_copy(working_dir: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
-# MIGRATION MODE (v4.0.0, PLAN-migration-v36x-to-v400) — a single entry point
+# MIGRATION MODE (v4.0.0) — a single entry point
 # for existing vaults. v3.6 adds already-migrated detection (idempotency),
 # --dry-run, and disclosure-only detections; both branches fall through into
 # setup_fresh()'s existing conditional refresh (rules copy, EXTENDED,
@@ -618,7 +618,7 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     target_root = working_dir / "ultimate-memory-stack"
     target_root.mkdir(parents=True, exist_ok=True)
 
-    # v4.0.0 (PLAN-merge-on-install, unified existing-scaffold behavior): archive
+    # v4.0.0 (unified existing-scaffold behavior): archive
     # anything user-touched, THEN refresh. A pre-v4.0.0 vault may have a hand-edited
     # PROFILE.md — archive it (with a migration notice) BEFORE the regenerable
     # general-edition/ tree gets wiped below, so the edit is never silently lost.
@@ -697,7 +697,7 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     create_user_overrides(working_dir, compliance_preset, extensions)
     print("✓ memory/user/USER_OVERRIDES.md ready")
 
-    # v4.0.0 hot/cold tiering (SPEC-hotcold-v4 §S4): pre-scaffold empty
+    # v4.0.0 hot/cold tiering: pre-scaffold empty
     # ARCHIVE_INDEX.md files for the 3 tiered categories.
     create_archive_indexes(working_dir)
     print("✓ memory/archive/{sessions,decisions,feedback}/ARCHIVE_INDEX.md ready")

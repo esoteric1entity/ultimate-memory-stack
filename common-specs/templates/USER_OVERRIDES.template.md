@@ -32,7 +32,7 @@ created_at: <YYYY-MM-DD>
 # delete_semantics: hard
 # delete_recovery_window_days: 7
 # expires_at_default_days: 28
-# eager_set_budget_bytes: 80000   # advisory eager-load nudge threshold (MEMORY_PROTOCOL_EXTENDED.md §S-Tiering); shipped default lives in PROFILE.md
+# eager_set_budget_bytes: 80000   # advisory eager-load nudge threshold (MEMORY_PROTOCOL_EXTENDED.md §E12); shipped default lives in PROFILE.md
 ```
 
 ---

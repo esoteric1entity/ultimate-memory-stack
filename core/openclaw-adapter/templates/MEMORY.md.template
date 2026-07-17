@@ -43,7 +43,7 @@ content_sha256: <!-- populated at write time per MEMORY_PROTOCOL_EXTENDED §E3.1
 - Recent feedback → [USER.md](./USER.md)
 - Active heartbeat → [HEARTBEAT.md](./HEARTBEAT.md)
 - Next-actions handoff → [BOOTSTRAP.md](./BOOTSTRAP.md)
-- Auto-Dream (v4.0 placeholder) → [DREAMS.md](./DREAMS.md)
+- Auto-Dream (placeholder; Phase 4+) → [DREAMS.md](./DREAMS.md)
 
 ## What lives where
 

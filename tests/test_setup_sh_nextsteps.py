@@ -101,7 +101,7 @@ def test_setup_sh_compliance_custom_refused_on_stock_tree(tmp_path):
 def test_setup_sh_extensions_written_to_user_overrides(tmp_path):
     # v4.0.0: compliance/extensions choices are USER choices — they land in
     # USER_OVERRIDES.md (create-once, never rewritten), not PROFILE.md, which
-    # is now regenerable (PLAN-merge-on-install §3.4b).
+    # is now regenerable (v4.0.0 overrides pattern).
     r = _run_setup(tmp_path, parented=False, compliance="enterprise", extensions="gdpr,soc2")
     assert r.returncode == 0, r.stdout + r.stderr
     overrides = tmp_path / "memory" / "user" / "USER_OVERRIDES.md"

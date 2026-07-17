@@ -46,9 +46,9 @@ if __name__ == "__main__":
 
 
 SAMPLE_PROMPT = (
-    "The Ultimate Memory Stack v3.6.0 release bundles three security-vetted, opt-in "
-    "addons (LLMLingua, Graphiti, Graphify) alongside five surface-only Lint checks "
-    "added to MEMORY_PROTOCOL_EXTENDED.md §E7. Automated self-modification remains deferred "
+    "The Ultimate Memory Stack bundles three security-vetted, opt-in "
+    "addons (LLMLingua, Graphiti, Graphify) alongside surface-only Lint checks "
+    "documented in MEMORY_PROTOCOL_EXTENDED.md §E7. Automated self-modification remains deferred "
     "by design: memory-hygiene scanners surface findings for human review and never "
     "auto-mutate content, which preserves auditability and prevents feedback-loop "
     "reward hacking. Knowledge-graph and prompt-compression addons install "

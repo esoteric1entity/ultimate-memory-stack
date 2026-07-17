@@ -4,8 +4,7 @@ lint_runner.py — Standalone MEMORY_PROTOCOL §10.5 Lint Surface Tool
 =====================================================================
 
 Standalone runner for Memory Protocol §10.5 Lint checks (Karpathy LLM Wiki Pattern
-+ Option C extensions). Can be invoked manually or by
-heartbeat_compactor.py via cron.
++ Option C extensions). Invoked manually or on a cron schedule.
 
 SURFACE-ONLY by design — NEVER auto-mutates content. Emits findings as suggestions.
 
@@ -425,7 +424,7 @@ def _load_eager_set_budget(root: Path) -> int:
     # Anchored to end-of-line (optionally a trailing comment) so a value that
     # ISN'T a bare integer — "1_000" (Python-literal habit), "80 000" — fails
     # to match and falls back to the default instead of silently truncating
-    # to its leading digits (F1, REVIEW-STEP6-TIERING-2026-07-15.md).
+    # to its leading digits (F1).
     pattern = re.compile(r"^eager_set_budget_bytes:\s*(\d+)\s*(?:#.*)?$", re.MULTILINE)
 
     for profile_path in sorted(root.glob("ultimate-memory-stack/*-edition/PROFILE.md")):

@@ -1,5 +1,5 @@
 """Subprocess tests for verify.sh's [T8] manifest <-> registered-skills
-cross-check (PLAN-refactor-structural Part C — additive, informational only,
+cross-check (additive, informational only,
 never touches EXIT_CODE).
 
 Exercises the plan's 4 acceptance scenarios (§4) against the REAL

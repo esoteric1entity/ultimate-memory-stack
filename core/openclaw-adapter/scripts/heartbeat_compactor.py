@@ -155,9 +155,9 @@ def check_size_cap(heartbeat_md: Path) -> list[str]:
 
 def lint_orphans(openclaw_root: Path) -> list[str]:
     """Lint Check 1 (Option C): orphan entries (no incoming references)."""
-    # Surface-only stub — full implementation requires graph build of entry references.
-    # v3.5 ships with surface-only Lint mode; full implementation is v3.6+ work.
-    return []  # No findings stub; placeholder for v3.6+ expansion
+    # Surface-only stub in the adapter's own compactor — the full graph-build
+    # orphan check lives in core/shared-tools/lint_runner.py (check_orphan_entries).
+    return []  # adapter-side stub; run lint_runner.py for the full check
 
 
 def lint_stale_tentative(openclaw_root: Path) -> list[str]:
@@ -205,7 +205,7 @@ def lint_naming_inconsistencies(openclaw_root: Path) -> list[str]:
 
 def lint_standing_rule_candidates(openclaw_root: Path) -> list[str]:
     """Lint Check 5 (Option C): patterns ready for promotion to standing rule."""
-    # Surface-only stub — full implementation reads pattern_key recurrence_count
+    # Surface-only stub — the full promotion-candidate check lives in lint_runner.py (check_promotion_candidates)
     return []
 
 

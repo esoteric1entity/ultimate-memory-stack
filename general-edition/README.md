@@ -37,6 +37,7 @@ general-edition/
 ├── DEPLOYMENT.md                   ← Install + deployment guide (any harness)
 ├── setup.sh / setup.py / setup.ps1 ← Edition installers (invoked by the top-level setup-memory-stack.*)
 ├── MIGRATION_v2_to_v3.md           ← v2.0 → v3.x upgrade procedure
+├── MIGRATION_v3.6_to_v4.0.md       ← v3.6.x → v4.0.0 upgrade procedure (current)
 ├── USER_CHEAT_SHEET_general_addendum.md  ← General-edition best-practices addendum
 ├── overrides/                      ← Edition-specific overrides on top of common-specs/
 │   ├── generic-conflict-resolution.override.md

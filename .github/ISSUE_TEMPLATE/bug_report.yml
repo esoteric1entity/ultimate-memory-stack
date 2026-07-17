@@ -57,7 +57,7 @@ body:
     id: version
     attributes:
       label: UMS version
-      placeholder: "v3.6.x"
+      placeholder: "v4.0.x"
 
   - type: dropdown
     id: edition
