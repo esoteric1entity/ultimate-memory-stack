@@ -80,27 +80,27 @@ Do NOT duplicate them in this file. `feedback/feedback.md` is the single canonic
 - **Name:** <your-name>
 - **Role:** Research Scientist
 - **Organization:** <your-organization> (R&D Department)
-- **Domain:** Biotech R&D — molecular NGS-based assay development, liquid handling automation, bioinformatics
+- **Domain:** Computational research — data pipelines, automation, and analytics
 
 ## Communication preferences
 - **Response style:** Brief, direct
-- **Technical level:** Expert in domain (molecular diagnostics, ML, AI agents)
+- **Technical level:** Expert in domain (data analysis, ML, AI agents)
 - **Formatting:** Markdown tables ok; prefer concise summaries
 
 ## Tech stack
 - **Languages:** Python (primary), some TypeScript
-- **Frameworks:** Pandas, scikit-learn, custom NGS pipelines
+- **Frameworks:** Pandas, scikit-learn, custom data pipelines
 - **Tools:** uv (primary), Conda (project-specific envs), VS Code, Git
 - **Package managers:** uv preferred over pip for personal use
 
 ## Active projects
-- **NGS analysis workflows:** sequencing data processing + biomarker linkage. Active.
+- **analysis-pipeline-01:** batch data processing + entity linkage. Active.
 - **[Example project]:** Schema package design (phase 1 in progress). Active.
 
 ## Compliance posture
 - **Edition deployed:** general
 - **Compliance preset:** none (work projects use <your-organization> infrastructure separately)
-- **Regulatory exposure:** Work touches HIPAA in production but memory stack here is for development/R&D notes; PHI never enters this memory system
+- **Regulatory exposure:** Work may touch regulated data in production, but this memory stack holds development/R&D notes only; regulated data never enters this memory system
 
 ## Behavioral preferences
 (See `feedback/feedback.md` — pet peeves and "always do" items live there as FB-001 through FB-NNN entries.)

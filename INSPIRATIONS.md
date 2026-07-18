@@ -216,10 +216,10 @@ The following were part of that original base:
   "memory as files in a vault" solution shape.
 - The "modular umbrella, not monolith" architectural choice.
 - The Warden / Sentinel / Vault / Clerk peer-agent role model.
-- The 5-element decision discipline (DEC-023).
+- The 5-element decision discipline.
 - The heartbeat + daily log + compactor pattern.
 - The Tier 1 (HOT) / Tier 2 (WARM) / Tier 3 (COLD) load-priority model.
-- The 4-pass scrub procedure for v3.6.0 pre-push hygiene (LEARN-027).
+- The 4-pass scrub procedure for v3.6.0 pre-push hygiene.
 
 These were developed using multiple AI agents across multiple machines,
 working alongside — and under the direction of — the human designer.
@@ -228,7 +228,7 @@ documentation; every contribution passed through the project's cross-agent
 peer-review cycle before adoption. One convergence deserves note: an
 independent deployment arrived at the same cron-rotation design on its
 own — that convergent implementation is what the convergence-is-signal
-principle (DEC-046) codifies.
+principle codifies.
 
 Individual acknowledgements live in `AUTHORS.md` and `NOTICE`.
 

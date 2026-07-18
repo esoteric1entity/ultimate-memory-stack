@@ -25,7 +25,7 @@ from pathlib import Path
 
 SENTINEL_SESSION_STATE = "SENTINEL-SESSION-7f3a2c1d: legacy session note from v3.6.2 — do not lose me"
 SENTINEL_MEMORY_INDEX = "SENTINEL-INDEX-9b4e6a02: legacy pointer entry from v3.6.2"
-SENTINEL_USER_PROFILE = "SENTINEL-PROFILE-USER-2d81f4c9: Sam's v3.6.2 user profile note"
+SENTINEL_USER_PROFILE = "SENTINEL-PROFILE-USER-2d81f4c9: the user's v3.6.2 user profile note"
 SENTINEL_FEEDBACK = "SENTINEL-FEEDBACK-5a17c3e8: legacy feedback entry from v3.6.2"
 
 STALE_IMPORT_LINE = "@ultimate-memory-stack/common-specs/MEMORY_PROTOCOL.md"
@@ -51,7 +51,7 @@ def build_v36_vault(v36_source_dir: Path, target_dir: Path, compliance: str = "n
     profile.write_text(
         text.replace(
             "compliance: none                    # DEFAULT — user changes at bootstrap if needed",
-            "compliance: enterprise              # hand-edited by Sam, v3.6.2 era",
+            "compliance: enterprise              # hand-edited by the user, v3.6.2 era",
         ),
         encoding="utf-8",
     )
