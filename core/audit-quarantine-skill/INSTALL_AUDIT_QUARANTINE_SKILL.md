@@ -12,7 +12,7 @@
 1. **Ultimate Memory Stack, any 3.6.x or later, installed** at your working directory
 2. **`memory/quarantine/` directory exists** — adapter or the edition setup creates this
 3. **Python 3.10+** for the standalone script
-4. **Optional:** biotech-edition or general-edition profile loaded (Skill detects via PROFILE.md)
+4. **Optional:** general-edition profile loaded (Skill detects via PROFILE.md)
 
 ---
 
@@ -137,21 +137,21 @@ tail -10 <working-dir>/memory/security/audit_log.jsonl
 
 ### "I have 50 quarantined entries; full review will take forever"
 
-Use batch mode in `review_quarantined.py`:
+Use non-interactive batch mode in `review_quarantined.py` — it applies one decision to every entry:
 
 ```bash
-# Generate a decisions file from a CSV/spreadsheet review:
-echo "DEFER all entries with reason=pii-detected" | python review_quarantined.py <working-dir> --mode batch-by-reason --reason pii-detected --action DEFER
+# Defer all quarantined entries (optionally record a reason):
+python review_quarantined.py <working-dir> --mode batch --default-action defer --default-reason "bulk defer — full review scheduled"
 ```
 
 Or use the Skill's "SKIP TO END" option to defer all remaining.
 
-### "Biotech edition won't let me DEFER without a reason"
+### "Can I attach a reason when I DEFER an entry?"
 
-Per B2 — biotech-edition forensic completeness requires explicit reason. Supply one:
+Yes — in batch mode, supply an optional reason recorded with the DEFER:
 
 ```bash
-python review_quarantined.py <working-dir> --action DEFER --reason "Pending Sentinel re-vetting after CVE-2026-XXXX patch"
+python review_quarantined.py <working-dir> --mode batch --default-action defer --default-reason "Pending Sentinel re-vetting after a dependency patch"
 ```
 
 ### "I approved an entry but want to revoke it"

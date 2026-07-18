@@ -3,13 +3,12 @@ name: audit-quarantine
 description: Interactive review workflow for quarantined memory entries. Lists entries quarantined per MEMORY_PROTOCOL_EXTENDED.md §E3.3 validation-on-read failures, presents each for review (approve/reject/defer), batch-processes user decisions, and logs all actions to audit_log.jsonl. Use when the user asks to review quarantine, audit memory hygiene, or process quarantined entries.
 version: "1.0"
 authors: ["esoteric1entity"]
-decision_authority: ["ideal-first design", "documentation discipline", "quarantine UX (biotech workflow vs general toast)", "Tier C designed-in framework", "Option C extension"]
-target_edition: any (biotech + general both supported with different UX defaults)
+decision_authority: ["ideal-first design", "documentation discipline", "quarantine review UX", "Tier C designed-in framework", "Option C extension"]
+target_edition: general
 tier: A (core deliverable — required for memory hygiene completeness)
 license: Apache-2.0
 edition_behavior:
-  biotech: full review workflow with batch ops; entries cannot be released without explicit user approval (per B2 quarantine UX)
-  general: same review workflow OR toast-only notification at session start (user preference)
+  general: full review workflow with batch ops, or a toast-only notification at session start (user preference); entries are released only on explicit user approval
 references_protocol: MEMORY_PROTOCOL_EXTENDED.md §E3.3 (Quarantine Routing) — implements the review side of EXTENDED §E3.3 workflow
 ---
 
@@ -35,7 +34,7 @@ This will:
 Quarantine entries arrive here per MEMORY_PROTOCOL_EXTENDED.md §E3.3:
   - Validation-on-read failures (per §4)
   - Signature verification failures (Tier C C4)
-  - PHI detection in non-biotech entries (per §17)
+  - PHI/secret detection on read (per §17)
   - Lint HIGH/CRITICAL findings (per EXTENDED §E7 Option C checks)
 
 Continue? [Y/n]:
@@ -223,19 +222,14 @@ If yes, draft a DEC-### entry with full documentation discipline (all 5 elements
 
 ---
 
-## Edition-Specific Behavior (Per B2 Quarantine UX)
+## Review UX
 
-### Biotech edition (compliance: healthcare)
-- Full review workflow REQUIRED (cannot skip)
-- Each entry MUST receive explicit decision (no DEFER without comment)
-- DEFER requires user-supplied reason (audit trail completeness)
-- Approved entries trigger PHI re-scan before release
-
-### General edition (compliance: none / enterprise)
-- Same workflow available
+- Full review workflow available on demand (each entry gets an explicit APPROVE / REJECT / DEFER decision)
 - AT SESSION START: optional toast notification "X entries quarantined since last session — review?"
 - User can choose: review now (full workflow) or defer (toast persists next session)
 - DEFER allowed without comment
+
+> A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available); it may layer stricter quarantine requirements (mandatory DEFER reasons, PHI re-scan on approval). Not selectable in this edition.
 
 ---
 
@@ -246,7 +240,7 @@ If yes, draft a DEC-### entry with full documentation discipline (all 5 elements
 | 0 | Intent confirmation | documentation discipline |
 | 1 | Load quarantined entries | MEMORY_PROTOCOL_EXTENDED.md §E3.3 |
 | 2 | Read quarantine log | auditability principle |
-| 3 | Interactive review | B2 (workflow UX) |
+| 3 | Interactive review | quarantine review UX |
 | 4 | Apply approvals | MEMORY_PROTOCOL_EXTENDED.md §E3.4 (bi-temporal supersession) |
 | 5 | Apply rejections | preserve provenance even on delete |
 | 6 | Update quarantine_log | canonical JSONL format |

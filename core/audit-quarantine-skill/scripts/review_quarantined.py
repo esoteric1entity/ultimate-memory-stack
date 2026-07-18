@@ -10,11 +10,13 @@ Authority: MEMORY_PROTOCOL_EXTENDED.md §E3.3
 Companion: SKILL.md (Claude-executable equivalent)
 
 Usage:
-    python review_quarantined.py <working-dir> [--edition biotech|general] [--mode interactive|batch]
+    python review_quarantined.py <working-dir> [--mode interactive|batch]
 
 Modes:
     interactive  — Present each entry for review; user decides via stdin (default)
-    batch        — Read decisions from stdin; one per line: "ACTION entry-id [reason]"
+    batch        — Non-interactive processing for cron/CI: pass --default-action to apply
+                   one decision to every entry (optionally with --default-reason). Under a
+                   non-tty stdin with no --default-action, every entry is deferred.
 
 Exit codes:
     0 = success
@@ -46,7 +48,6 @@ if __name__ == "__main__":
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Audit Quarantine Review CLI")
     p.add_argument("working_dir", help="Working directory containing memory/quarantine/")
-    p.add_argument("--edition", choices=["biotech", "general"], default="general")
     p.add_argument("--mode", choices=["interactive", "batch"], default="interactive")
     p.add_argument(
         "--default-action",
@@ -54,14 +55,13 @@ def parse_args() -> argparse.Namespace:
         choices=["approve", "reject", "defer"],
         default=None,
         help="Non-interactive default action applied to every entry — bypasses prompt. "
-             "Enables true batch mode under non-tty stdin (cron, CI). "
-             "Biotech edition requires this WITH a reason when --mode batch is used.",
+             "Enables true batch mode under non-tty stdin (cron, CI).",
     )
     p.add_argument(
         "--default-reason",
         dest="default_reason",
         default="",
-        help="Required reason text when --default-action defer is used under biotech edition (per B2 quarantine policy).",
+        help="Optional reason text recorded when --default-action defer is used.",
     )
     p.add_argument("--session", type=int, default=0, help="Session number for log entries")
     p.add_argument("--actor", default="orchestrator", help="Actor identifier for log entries")
@@ -307,15 +307,10 @@ def main() -> int:
         return 3
 
     print(f"[audit-quarantine] Found {len(entries)} quarantined entries to review.")
-    print(f"[audit-quarantine] Edition: {args.edition} · Mode: {args.mode}")
+    print(f"[audit-quarantine] Mode: {args.mode}")
     if args.default_action:
         print(f"[audit-quarantine] Non-interactive batch: default_action={args.default_action}, default_reason={args.default_reason!r}")
     print()
-
-    # Biotech edition with --default-action defer REQUIRES --default-reason
-    if args.edition == "biotech" and args.default_action == "defer" and not args.default_reason:
-        print("ERROR: biotech edition + --default-action defer requires --default-reason (per B2 quarantine policy)", file=sys.stderr)
-        return 1
 
     counters = {"APPROVE": 0, "REJECT": 0, "DEFER": 0, "SKIP_TO_END": 0}
     skip_to_end = False
@@ -335,20 +330,8 @@ def main() -> int:
             skip_to_end = True
             decision = "DEFER"
 
-        # Biotech edition: DEFER requires reason
+        # Optional reason recorded with a DEFER (batch mode via --default-reason)
         reason = args.default_reason if args.default_action == "defer" else ""
-        if args.edition == "biotech" and decision == "DEFER" and not reason:
-            # Under non-tty stdin, this input() would have EOFError'd; now caught at present_entry
-            # level (returns DEFER with empty reason); biotech enforcement below catches that case.
-            if not sys.stdin.isatty():
-                print(f"ERROR: biotech edition DEFER without --default-reason and no tty — aborting at entry {entry_path.name}", file=sys.stderr)
-                return 1
-            while not reason:
-                try:
-                    reason = input("DEFER reason (biotech edition requires explicit reason): ").strip()
-                except EOFError:
-                    print("\n[non-tty stdin] biotech DEFER requires --default-reason flag; aborting.", file=sys.stderr)
-                    return 1
 
         frontmatter = parse_entry_frontmatter(entry_path)
         entry_id = frontmatter.get("id", entry_path.stem)
