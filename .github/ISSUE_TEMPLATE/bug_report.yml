@@ -65,7 +65,6 @@ body:
       label: Edition
       options:
         - general-edition
-        - biotech-edition (institutional / private)
         - unknown
 
   - type: dropdown

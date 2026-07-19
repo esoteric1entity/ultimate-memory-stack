@@ -5,7 +5,7 @@
 > **Note:** Audit logging (B1) is required in the `enterprise` preset.
 > **Companion:** SCHEMA_compliance_profile.md §5.3 (`enterprise` preset behaviors)
 > **Inherits:** All patterns from `detection_patterns_none.md` (secrets/credentials NEVER allowed regardless of preset)
-> **Does NOT inherit:** `detection_patterns_healthcare.md` patterns. Enterprise is PII-focused, NOT PHI-focused. PHI/HIPAA detection is biotech-edition-reserved — not selectable in general-edition (the installer refuses the `healthcare` preset and extension).
+> **Does NOT inherit:** PHI/HIPAA detection patterns. Enterprise is PII-focused, NOT PHI-focused; PHI is out of scope for this edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
 
 ---
 
@@ -25,8 +25,8 @@ Broad Personally Identifiable Information (PII) profile + business-identifier pa
 
 ## What this preset does NOT detect
 
-- PHI (MRN, specimen IDs, genomic identifiers, clinical data) — those are in `detection_patterns_healthcare.md`
-- PHI/HIPAA detection is biotech-edition-reserved — not available in general-edition (the installer refuses the `healthcare` preset and extension). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+- PHI (protected health information / clinical data) — out of scope for this edition
+- PHI/HIPAA detection is out of scope for this edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ## Detection rules
 
@@ -158,7 +158,7 @@ Broad Personally Identifiable Information (PII) profile + business-identifier pa
 
 **Severity:** HIGH (consent violation is a regulatory issue, not a data issue)
 **Action:** QUARANTINE-PENDING-USER-REVIEW
-**Notes:** Unique to enterprise/custom presets. Healthcare uses implicit BAA-based consent; enterprise requires explicit per-entry consent tracking.
+**Notes:** Unique to enterprise/custom presets. Enterprise requires explicit per-entry consent tracking.
 
 ### Pattern: SSN (inherited from `none`)
 
@@ -192,7 +192,7 @@ Some combinations elevate severity:
 | MEDIUM | WARN-AND-LOG |
 | LOW | LOG-ONLY |
 
-**Key difference from healthcare:** Most enterprise PII patterns default to WARN-AND-LOG rather than auto-redact. Rationale: enterprise contexts often legitimately need to USE PII (e.g., support ticket includes customer's name). Warn the user; let them decide.
+**Enterprise default:** Most enterprise PII patterns default to WARN-AND-LOG rather than auto-redact. Rationale: enterprise contexts often legitimately need to USE PII (e.g., support ticket includes customer's name). Warn the user; let them decide.
 
 ## Consent tracking
 
@@ -238,5 +238,5 @@ consent_party_pointer: <reference to consent record, NOT the party themselves>
 - `SCHEMA_audit_log.md` (detection + consent events log)
 - `SCHEMA_quarantine.md` §6 (PII detected + consent-violation reason codes)
 - `detection_patterns_none.md` (inherited — secrets/credentials)
-- `detection_patterns_healthcare.md` (sister preset — PHI-focused; enterprise is PII-focused; combine via `custom` preset)
+- `detection_patterns_healthcare.md` (PHI detection-pattern stub — a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available)
 - **Regulatory:** GDPR Article 32 (security of processing), Article 17 (right to erasure), SOC2 Trust Services Criteria

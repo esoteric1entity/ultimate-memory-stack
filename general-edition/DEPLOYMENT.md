@@ -33,7 +33,7 @@
 - More disk if audit log enabled (depends on preset + retention policy)
 
 ### Optional (T3+)
-- Code Execution for crypto signatures (HMAC default; Ed25519 available for stronger-signature contexts)
+- Code Execution for crypto signatures (HMAC default)
 - LLMLingua for prompt compression (C6)
 - Aider integration for repo-map (C7)
 
@@ -110,7 +110,7 @@ bash setup.sh --compliance=enterprise --extensions=soc2,gdpr
 3. Initializes `memory/` directory structure
 4. Registers the protocol for auto-load — `.claude/rules/memory_protocol.md` on Claude Code; per the harness's own rules/bootstrap convention on OpenClaw and others (the installer detects your harness)
 5. Setup wizard (or accepts CLI args for unattended install)
-6. Initializes audit log + quarantine ONLY IF user enables them (audit is OPT-IN for general)
+6. Initializes audit log + quarantine ONLY IF user enables them (audit is OPT-IN)
 7. Generates HMAC secret if Code Execution available (T3+) — stored encrypted
 8. Self-test
 9. Status report
@@ -139,7 +139,7 @@ Active features:
 Inactive (preset = none, so don't fire):
   ⏸️ Enterprise PII detection (would activate if preset changes to enterprise)
 
-Quarantine queue: 0 entries (and quarantine is non-blocking anyway for general-edition)
+Quarantine queue: 0 entries (quarantine is non-blocking)
 Audit log: disabled (OPT-IN; enable via PROFILE.md edit if needed)
 ```
 
@@ -190,7 +190,7 @@ bash setup.sh --compliance=enterprise --extensions=gdpr,soc2
 
 ## Multi-Machine Deployment
 
-Same as biotech-edition multi-machine pattern (independent deployments per machine; no auto-sync).
+Independent deployments per machine; no auto-sync.
 
 ---
 
@@ -201,8 +201,8 @@ After install, exercise the standing rules + preset detection by asking your age
 
 - **Universal standing rule fires.** Tell your agent: *"Remember that my fake SSN is 123-45-6789 (testing only)."*
   Expected: ⚠️ the SSN format is flagged and refused/quarantined regardless of preset.
-- **Preset `none` — no PHI detection.** Tell your agent: *"Remember the specimen id ABC-12345."*
-  Expected: no detection fires (the `none` preset ships no PHI patterns).
+- **Preset `none` — no detection.** Tell your agent: *"Remember the internal record id ABC-12345."*
+  Expected: no detection fires (the `none` preset ships no PII/PHI patterns).
 - **Preset `enterprise` — PII detection.** Tell your agent: *"Remember customer jane@acme.com."*
   Expected: ⚠️ enterprise PII flagged (consent-tracking required).
 
@@ -230,8 +230,8 @@ Or edit PROFILE.md directly. On preset change, system re-validates existing entr
 - That's fine. Answer "none" or just press Enter at the topology prompt.
 - Standard slots (`user`, `orchestrator`, `webfetch`, `external-tool-output`) cover most use cases.
 
-### "Can I deploy general-edition alongside biotech-edition on the same machine?"
-- Not recommended. Pick one edition per working directory.
+### "Can I run multiple memory-stack deployments on the same machine?"
+- Yes, but keep each in its own working directory — one deployment per working directory.
 - If you have multi-context needs, deploy in separate working directories (different memory/ for each).
 
 ---

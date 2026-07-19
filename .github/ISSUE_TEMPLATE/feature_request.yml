@@ -22,7 +22,7 @@ body:
         - A specific Skill (install-ultimate-memory-stack / audit-quarantine / openclaw-adapter)
         - A specific addon (graphify / graphiti / llmlingua / obsidian-vault-config)
         - New addon
-        - Edition-specific (biotech vs general)
+        - Edition / override-specific
         - Cross-cutting
     validations:
       required: true

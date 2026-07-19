@@ -18,7 +18,7 @@ Memory entries in our v2.0 stack carry **implicit metadata** — author, date, c
 - **TTL / decay** (when does this expire if not re-validated?)
 - **Quarantine state** (is this entry currently flagged as suspect?)
 - **CAS-style concurrency** (content_sha256 for safe parallel writes)
-- **Memory poisoning defense** (cryptographic signature for tamper detection in biotech-edition Wave 3)
+- **Memory poisoning defense** (optional cryptographic signature for tamper detection — Wave 3)
 
 A18 introduces **structured YAML frontmatter** at the top of every memory entry to make these fields machine-readable AND human-readable.
 
@@ -69,7 +69,7 @@ Each field maps to a concrete research finding:
 | `confidence` | Existing v2.0 (FINAL/TENTATIVE/EXPLORATORY) | Our decision confidence scale |
 | `status` | Quarantine workflow | active / superseded / quarantined / archived |
 | `content_sha256` | CAS pattern (Anthropic managed-agents memory) | For safe parallel writes per CAS pattern |
-| `signature` | Cryptographic provenance (biotech-grade deployments) | Optional Ed25519 signature for tamper detection |
+| `signature` | Cryptographic provenance (high-assurance deployments) | Optional Ed25519 signature for tamper detection |
 
 Each field has a defensible rationale tied to a specific research finding.
 
@@ -95,7 +95,7 @@ Each field has a defensible rationale tied to a specific research finding.
 
 **Caveats:**
 - The exact 28-day TTL number is a heuristic (Copilot's choice), not a measured optimum. We adopt the pattern, not the number — make TTL configurable per profile.
-- Ed25519 vs HMAC for signature is an open question (see §9) — both have merits; biotech-grade deployments should strongly prefer offline-key Ed25519; general can use either.
+- Ed25519 vs HMAC for signature is an open question (see §9) — both have merits; the shipped edition uses HMAC, and offline-key Ed25519 is planned for a future high-assurance institutional edition.
 
 ---
 
@@ -208,9 +208,9 @@ This is in ADDITION to the existing recurrence-count promotion rule (Pattern-Key
 
 #### Privacy + audit considerations
 
-Access tracking emits NO new entries to the audit log (B1) — counters are aggregate, not per-access records. No PHI risk per §17 healthcare compliance profile.
+Access tracking emits NO new entries to the audit log (B1) — counters are aggregate, not per-access records. No new sensitive-data exposure per the compliance profile.
 
-For biotech-edition deployments where finer-grained audit is required, the existing audit log (B1) already captures Tier load events (action: `read`); the access tracking fields here are an aggregate summary of that finer-grained data, not a replacement.
+For deployments requiring finer-grained audit, the existing audit log (B1) already captures Tier load events (action: `read`); the access tracking fields here are an aggregate summary of that finer-grained data, not a replacement.
 
 #### Backward compatibility
 
@@ -307,11 +307,11 @@ expires_at: YYYY-MM-DD              # 28-day default from last_validated, refres
 validation_status: valid | stale | invalidated  # Set by validator
 ```
 
-### Cryptographic fields (Wave 3 — biotech mandatory, general optional)
+### Cryptographic fields (Wave 3 — optional; may be required by compliance profile)
 
 ```yaml
 content_sha256: <hex>               # Hash of entry body for CAS (see normalization below)
-signature:                          # Optional Ed25519 (biotech) or HMAC (general)
+signature:                          # Optional (HMAC shipped; Ed25519 offline-key in the planned institutional edition)
   algorithm: ed25519 | hmac-sha256
   signature: <base64>
   signer: <public-key-id-or-session-id>
@@ -349,14 +349,14 @@ def compute_content_sha256(file_text: str) -> str:
 **Why this rule exists:** Without the `lstrip('\n')` step, two agents computing `content_sha256` for the same byte-identical file produce DIFFERENT hashes. This broke cross-machine round-trip verification during release validation — only the `[2].lstrip('\n')` form matched across independent implementations, so it is locked as canonical.
 
 **Edition behavior:**
-- **Biotech-edition:** `content_sha256` REQUIRED on every entry. Implementations MUST use this canonical normalization.
-- **General-edition:** `content_sha256` optional; if present, MUST use this canonical normalization.
+- **Compliance-profile deployments:** `content_sha256` REQUIRED on every entry. Implementations MUST use this canonical normalization.
+- **Default:** `content_sha256` optional; if present, MUST use this canonical normalization.
 
 **Backwards compat:** Prior implementations that did NOT lstrip will have legacy hashes. New writes should use the canonical form; existing hashes are NOT re-computed (would invalidate audit trails). Future validation: compute both forms and accept either during migration window.
 
 **Cross-reference:** MEMORY_PROTOCOL_EXTENDED.md §E3.1 (CAS-Style Concurrency) uses this same normalization for write-time hash comparison.
 
-### Bi-temporal fields (B5 — biotech enforced, general available)
+### Bi-temporal fields (B5 — optional; may be enforced by compliance profile)
 
 ```yaml
 valid_at: YYYY-MM-DD                # When this fact became true in the world (may predate created_at)
@@ -377,12 +377,12 @@ invalid_at: YYYY-MM-DD              # When this fact was superseded (set automat
 **Capabilities enabled:**
 - **Point-in-time queries** — "What did we believe on date X?" Filter: `valid_at ≤ X AND (invalid_at IS NULL OR invalid_at > X)`
 - **Fact lineage** — walk `supersedes:` chain to see how knowledge evolved over time
-- **HIPAA-grade audit forensics** — reconstruct memory state at any historical date (biotech-edition critical)
+- **Audit-grade forensics** — reconstruct memory state at any historical date (critical for high-compliance deployments)
 - **History-preserving supersession** — old facts get `invalid_at` set, not deleted; provenance survives
 
 **Edition behavior:**
-- **Biotech-edition:** `valid_at` REQUIRED on decision/feedback/security entries. `invalid_at` set automatically when a successor entry has `supersedes: <prior-id>`.
-- **General-edition:** Both fields OPTIONAL. Available to users who value temporal reasoning; safe default is `valid_at = created_at` if omitted.
+- **Compliance-profile deployments:** `valid_at` REQUIRED on decision/feedback/security entries. `invalid_at` set automatically when a successor entry has `supersedes: <prior-id>`.
+- **Default:** Both fields OPTIONAL. Available to users who value temporal reasoning; safe default is `valid_at = created_at` if omitted.
 
 **Markdown-now, graph-later:**
 - T0–T2: bi-temporal annotations in YAML; queries answered by grep + manual reasoning
@@ -644,8 +644,8 @@ A point-in-time query "what did we believe about Tier A on 2026-06-15?" finds DE
 
 ### Edition fit
 
-- **Biotech-edition:** All core + validation fields mandatory. Cryptographic signature strongly recommended for biotech in Wave 3 (Ed25519 with offline-generated key).
-- **General-edition:** All core + validation fields default-on. Cryptographic signature optional (HMAC with session-derived secret is simpler default).
+- **Compliance-profile deployments:** All core + validation fields mandatory. Cryptographic signature (HMAC) strongly recommended in Wave 3; Ed25519 offline-key signing is planned for a future institutional edition.
+- **Default:** All core + validation fields default-on. Cryptographic signature optional (HMAC with session-derived secret is simpler default).
 
 ---
 
@@ -677,8 +677,8 @@ A one-time migration adds frontmatter to existing v2.0 entries:
 
 ### Wave 3 (cryptographic)
 - Signature generation + verification scripts
-- Biotech-edition: Ed25519 with offline-generated keypair (user keeps private key in password manager)
-- General-edition: HMAC-SHA256 with session-derived secret
+- High-assurance profile: Ed25519 with offline-generated keypair (user keeps private key in password manager)
+- Default: HMAC-SHA256 with session-derived secret
 
 ### NOT in scope (and why)
 
@@ -692,11 +692,8 @@ A one-time migration adds frontmatter to existing v2.0 entries:
 
 1. **Date format:** ISO 8601 (`2026-05-13`) or with time (`2026-05-13T14:30:00Z`)? Trade-off: precision vs. readability. Lean: bare dates for daily-grain, full timestamps if we need finer.
 2. **Schema migration trigger:** Run the v2.0 → v3.0 frontmatter migration all at once, or staged with each Wave 1 item?
-3. **`expires_at` default for biotech vs general:**
-   - Biotech: 30 days?
-   - General: 90 days?
-   - Or both 28 days (matching Copilot)?
-4. **Signature algorithm for biotech-edition:** Ed25519 with offline-generated keypair (most secure; the operator must manage the private key) or HMAC with session-derived secret (simpler, slightly weaker)?
+3. **`expires_at` default:** TTL default configurable per compliance profile (e.g., 90 days, or 28 days matching Copilot). What should the shipped default be?
+4. **Signature algorithm for high-assurance profile:** Ed25519 with offline-generated keypair (most secure; the operator must manage the private key) or HMAC with session-derived secret (simpler, slightly weaker)?
 5. **What does WebFetch-sourced content quarantine look like by default?** Any entry with `source_agent: webfetch` should probably start in a "preliminary" state requiring orchestrator validation before promotion to `active`.
 
 ---

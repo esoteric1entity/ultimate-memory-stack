@@ -158,9 +158,7 @@ Each line in `memory/security/sync_log.jsonl` is a single JSON object with the f
 
 Per MEMORY_PROTOCOL §11 file size limits + the audit_log rotation pattern:
 - When `sync_log.jsonl` exceeds 50,000 lines, rotate to `sync_log_<YYYY-MM>.jsonl` (gzip old months)
-- Per-edition retention defaults (parallel to audit_log B1 conventions):
-  - **biotech-edition:** 365 days minimum (forensic completeness)
-  - **general-edition:** 90 days default; user-configurable
+- Retention default (parallel to audit_log B1 conventions): 90 days; user-configurable per compliance profile
 
 ### §6.3 Event ID sequencing
 

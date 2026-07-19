@@ -142,13 +142,13 @@ Contributors are listed in [`AUTHORS.md`](./AUTHORS.md) in alphabetical order. Y
 ## What NOT to do
 
 - **Don't commit secrets.** Even if your PR is private at first, git history is permanent. If you accidentally commit a secret, follow `git filter-repo` + rotate the secret + LEARN entry.
-- **Don't include employer names** in the public code (the biotech-edition is the exception, kept private for that reason).
+- **Don't include employer names** in the public code.
 - **Don't rewrite the LICENSE** in a PR. The project is Apache 2.0; relicensing is governed by the contributor-vote safeguard in CLA.md (and is not on the roadmap).
 - **Don't merge your own PR** without an approving review.
 
-## Institutional adoption (biotech edition)
+## Institutional adoption
 
-This public repository ships the **general edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available); it will layer non-overridable healthcare compliance (mandatory audit + quarantine workflows, HIPAA-aligned technical safeguards) on the same architecture you see here. It is not selectable in the general-edition installer today.
+This public repository is the general-purpose stack. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). It is not selectable in the installer today.
 
 Interested in institutional adoption? Open a GitHub Issue describing your use case (or use GitHub Security Advisories for private/sensitive inquiries) so we can gauge demand. Licensing terms for any future institutional deployments will be defined when that edition becomes available.
 

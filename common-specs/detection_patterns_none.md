@@ -25,7 +25,7 @@
 ## What this preset does NOT detect
 
 - Names, emails, addresses, phone numbers (no PII detection)
-- MRNs, specimen IDs, genomic identifiers (no PHI detection)
+- Protected health information / clinical identifiers (no PHI detection)
 - Business secrets, internal employee IDs (no enterprise patterns)
 - Consent tracking fields (no GDPR-aware patterns)
 
@@ -173,7 +173,7 @@ AKIA[0-9A-Z]{16}
 
 - **MEMORY_PROTOCOL.md §4** — Validation-on-read fires these patterns when entries are loaded
 - **MEMORY_PROTOCOL_EXTENDED.md §E3.2** — Audit log captures detection events
-- **SCHEMA_quarantine.md §6** — `pii-detected` reason code routes flagged entries to quarantine (general edition only fires for CRITICAL severity at `none` preset)
+- **SCHEMA_quarantine.md §6** — `pii-detected` reason code routes flagged entries to quarantine (fires for CRITICAL severity at `none` preset)
 - **SCHEMA_compliance_profile.md §5.1** — This file defines the `none` preset's detection scope
 
 ## Maintenance

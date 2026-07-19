@@ -53,7 +53,7 @@ Same design philosophy as `eslint --no-fix` or `pylint` without auto-formatting.
 
 ### Why per-edition cadence?
 
-- **Biotech (weekly):** HIPAA-regulated context benefits from frequent integrity checks; matches biotech-edition's higher compliance posture
+- **Weekly (high-compliance profiles):** regulated contexts benefit from frequent integrity checks; a stricter compliance posture warrants a tighter cadence
 - **General (monthly):** Lower friction for non-regulated contexts; user can opt to run on-demand more frequently
 
 ---
@@ -66,7 +66,7 @@ Same design philosophy as `eslint --no-fix` or `pylint` without auto-formatting.
 | Lint prevents wiki rot | Karpathy 2026 gist + commentary | Source author's framing |
 | Orphan / broken-ref checks are well-understood deterministic operations | Graph theory + standard linter design | First principles |
 | Contradiction detection requires semantic analysis | Cross-entry reasoning is non-trivial without LLM | Established knowledge |
-| Surface-only design preserves user trust | Security-first principle + biotech-edition quarantine design | Existing design pattern |
+| Surface-only design preserves user trust | Security-first principle + quarantine design | Existing design pattern |
 
 ---
 
@@ -78,12 +78,12 @@ Each lint run produces a single JSONL line summarizing the run, followed by zero
 
 **Run header line:**
 ```jsonl
-{"ts":"2026-05-15T15:30:00Z","run_id":"<uuid-or-ts>","trigger":"manual|scheduled","actor":"user|orchestrator|lint-skill","actor_session":<N>,"edition":"biotech|general","tier_active":<T0-T4>,"checks_run":["orphan","broken-ref","stale-tentative","stale-webfetch","contradiction","missing-concept"],"entries_scanned":<N>,"findings_count":<N>}
+{"ts":"2026-05-15T15:30:00Z","run_id":"<uuid-or-ts>","trigger":"manual|scheduled","actor":"user|orchestrator|lint-skill","actor_session":<N>,"edition":"general","tier_active":<T0-T4>,"checks_run":["orphan","broken-ref","stale-tentative","stale-webfetch","contradiction","missing-concept"],"entries_scanned":<N>,"findings_count":<N>}
 ```
 
 **Finding line (one per finding):**
 ```jsonl
-{"ts":"<run-ts>","run_id":"<same-run-id>","finding_type":"<check-name>","severity":"LOW|MEDIUM|HIGH|CRITICAL","entry_id":"<offending-entry>","entry_path":"<file:line>","description":"<human-readable>","suggested_remediation":"<actionable-text>","auto_actionable":false}
+{"ts":"<run-ts>","run_id":"<same-run-id>","finding_type":"<check-name>","severity":"info|low|medium|high|critical","entry_id":"<offending-entry>","entry_path":"<file:line>","description":"<human-readable>","suggested_remediation":"<actionable-text>","auto_actionable":false}
 ```
 
 ### 4.2 Finding Severity Mapping
@@ -102,24 +102,6 @@ Severity drives surface UX: HIGH/CRITICAL → review-required; MEDIUM → flagge
 ### 4.3 Configuration (in PROFILE.md per edition)
 
 ```yaml
-# Biotech-edition (per PROFILE.md update)
-lint:
-  cadence: weekly                    # auto-run frequency
-  mode: auto                         # auto OR suggested
-  blocking_on_critical: true         # block new writes if HIGH findings unresolved
-  retention_runs_days: 365           # keep lint_runs.jsonl history
-  thresholds:
-    stale_tentative_sessions: 10    # TENTATIVE not revisited in N sessions
-    stale_webfetch_days: 30          # webfetch entries not re-validated in N days
-    orphan_minimum_age_sessions: 5  # don't flag entries < N sessions old as orphans
-  checks_enabled:
-    orphan: true
-    broken_ref: true
-    stale_tentative: true
-    stale_webfetch: true
-    contradiction: true              # requires T3
-    missing_concept: true            # requires T3
-
 # General-edition (per PROFILE.md update)
 lint:
   cadence: monthly
@@ -127,7 +109,7 @@ lint:
   blocking_on_critical: false        # never block in general-edition
   retention_runs_days: 90
   thresholds:
-    stale_tentative_sessions: 20    # more lenient than biotech
+    stale_tentative_sessions: 20    # TENTATIVE not revisited in N sessions
     stale_webfetch_days: 90
     orphan_minimum_age_sessions: 10
   checks_enabled:
@@ -236,7 +218,7 @@ lint:
 **Severity:** LOW (user choice — sometimes terms don't need anchoring)
 
 **Suggested remediation:**
-- "Term 'NGS-assay-name' appears in 12 entries but has no dedicated reference entry. Consider creating one for clarity?"
+- "Term 'service-name' appears in 12 entries but has no dedicated reference entry. Consider creating one for clarity?"
 
 ---
 
@@ -259,10 +241,10 @@ Output: lint run summary + findings written to lint_runs.jsonl; user-facing repo
 
 ### 6.2 Auto: Per-Edition Cadence
 
-**Biotech-edition (weekly auto):**
+**High-compliance profiles (weekly auto):**
 - At session start, if last lint run was >7 days ago, run auto-lint
 - Findings surface via blocking workflow (if HIGH/CRITICAL severity) or toast (LOW/MEDIUM)
-- User must review HIGH/CRITICAL before continuing new writes (similar to the biotech quarantine workflow, feature B2)
+- User must review HIGH/CRITICAL before continuing new writes (similar to the quarantine review workflow, feature B2)
 
 **General-edition (monthly suggested):**
 - At session start, if last lint run was >30 days ago, suggest run via toast
@@ -276,8 +258,8 @@ Output: lint run summary + findings written to lint_runs.jsonl; user-facing repo
 - High/Critical findings additionally surface as security-relevant events
 
 **Quarantine integration:**
-- HIGH-severity contradictions may route to quarantine if biotech-edition (user reviews via /audit-quarantine)
-- General-edition: surfaces in lint findings UI; quarantine not auto-triggered
+- HIGH-severity contradictions may route to quarantine for review via `/audit-quarantine`
+- Lower-severity findings surface in the lint findings UI; quarantine is not auto-triggered
 
 **Self-trimming complementarity (§10):**
 - Self-trimming = usage-based (last-accessed); Lint = integrity-based (cross-entry checks)
@@ -293,7 +275,7 @@ Output: lint run summary + findings written to lint_runs.jsonl; user-facing repo
 - Run at T0 with 4 deterministic checks
 - Run at T3 with all 6 checks (deterministic + LLM-assisted)
 - Write findings to `lint_runs.jsonl` (append-only)
-- Surface findings via edition-appropriate UX (toast for general; blocking workflow for biotech if critical)
+- Surface findings via appropriate UX (toast; blocking workflow when configured for critical findings)
 - Run on-demand via `/lint-memory`
 - Run automatically per edition cadence
 - Suggest specific remediations per finding
@@ -324,7 +306,7 @@ Output: lint run summary + findings written to lint_runs.jsonl; user-facing repo
 ```
 $ /lint-memory
 
-Memory Lint Report — 2026-11-15T15:30:00Z (weekly run, biotech-edition)
+Memory Lint Report — 2026-11-15T15:30:00Z (weekly run, high-compliance profile)
 
 Entries scanned: 234
 Findings: 7 (3 actionable now; 4 informational)
@@ -387,7 +369,7 @@ Same as standard v2.0 → v3.0 migration. Lint becomes active after edition PROF
 
 ## 10. Open Questions (for v3.x refinement)
 
-1. **Threshold defaults:** Are `stale_tentative_sessions: 10` (biotech) and `20` (general) right? Operational data will inform tuning.
+1. **Threshold defaults:** Is `stale_tentative_sessions: 20` the right default? Operational data will inform tuning.
 2. **Orphan tolerance:** Should orphan threshold be tunable per-category (e.g., references/ might naturally have many orphans)?
 3. **Contradiction LLM cost:** At T3, semantic contradiction checks cost LLM tokens. Should there be a budget cap or sampling strategy?
 4. **Auto-fix override:** Some users may want auto-fix for trivial cases (typo-fix for fuzzy-matched broken refs). Add as opt-in?
@@ -400,10 +382,9 @@ Same as standard v2.0 → v3.0 migration. Lint becomes active after edition PROF
 - `MEMORY_PROTOCOL_EXTENDED.md` §E7 (Lint Operation full spec)
 - `MEMORY_PROTOCOL.md` §10 (Self-Trimming — complementary)
 - `SCHEMA_audit_log.md` (every lint run produces audit log entry)
-- `SCHEMA_quarantine.md` (HIGH-severity contradictions may route to biotech quarantine)
+- `SCHEMA_quarantine.md` (HIGH-severity contradictions may route to quarantine)
 - `SCHEMA_A18` (frontmatter fields drive 4 of 6 checks)
 - `USER_CHEAT_SHEET_core.md` — `/lint-memory` slash command + how to interpret findings
-- `biotech-edition/PROFILE.md` §lint (weekly auto)
 - `general-edition/PROFILE.md` §lint (monthly suggested)
 - Karpathy LLM Wiki ecosystem research
 

@@ -75,7 +75,7 @@ def parse_args() -> argparse.Namespace:
         "--compliance",
         choices=["none", "enterprise"],
         default="none",
-        help="Compliance preset (healthcare requires biotech-edition adapter; not available here)",
+        help="Compliance preset (healthcare not supported in this edition)",
     )
     parser.add_argument("--no-cron", action="store_true", help="Skip cron wiring suggestion")
     parser.add_argument("--update-profile", action="store_true", help="Update PROFILE.md only; skip all other steps")
@@ -205,7 +205,7 @@ addons: {{}}
 ## Cross-references
 
 - MEMORY_PROTOCOL §6 (edition profile application)
-- Compliance preset B7 (healthcare requires biotech-edition adapter)
+- Compliance preset (healthcare not supported in this edition)
 - Modular consumer architecture (adapter design principle)
 """
     profile_path.write_text(profile_content, encoding="utf-8")

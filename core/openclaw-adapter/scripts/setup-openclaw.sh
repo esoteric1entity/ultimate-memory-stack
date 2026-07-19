@@ -59,7 +59,7 @@ done
 
 if [[ "$COMPLIANCE" != "none" && "$COMPLIANCE" != "enterprise" ]]; then
     echo "ERROR: --compliance must be 'none' or 'enterprise' (got: $COMPLIANCE)" >&2
-    echo "Note: 'healthcare' preset requires biotech-edition adapter (compliance preset B7)" >&2
+    echo "Note: 'healthcare' preset is not supported in this edition (a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available)" >&2
     exit 1
 fi
 
@@ -247,7 +247,7 @@ addons: {}
 ## Cross-references
 
 - MEMORY_PROTOCOL §6 (edition profile application)
-- Compliance preset B7 (healthcare requires biotech-edition adapter)
+- Compliance preset (healthcare not supported in this edition)
 - Modular consumer architecture (adapter design principle)
 EOF
 

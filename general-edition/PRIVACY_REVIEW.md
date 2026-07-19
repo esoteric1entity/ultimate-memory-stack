@@ -30,7 +30,7 @@ The general edition is **field-agnostic** and ships **no PHI/HIPAA handling** â€
 
 - **Compliance presets:** `none` (default â€” no detection), `enterprise` (broad PII detection + audit + quarantine), `custom`.
 - **Extensions:** `gdpr` / `soc2` / `pci-dss` add jurisdiction-specific detection when you enable them.
-- Detection runs **locally**; flagged entries route to quarantine for your review (a non-blocking toast in general-edition). A universal standing rule refuses obvious secrets regardless of preset.
+- Detection runs **locally**; flagged entries route to quarantine for your review (a non-blocking toast). A universal standing rule refuses obvious secrets regardless of preset.
 
 ## Add-ons and the network
 

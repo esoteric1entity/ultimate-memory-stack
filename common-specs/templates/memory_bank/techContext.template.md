@@ -60,7 +60,7 @@ project_slug: <slug>
 - **Performance:** [e.g., must respond in <200ms; must handle 10K req/s]
 - **Memory:** [e.g., max 4GB; must run on N CPU cores]
 - **Compatibility:** [Browser / OS / version requirements]
-- **Security:** [e.g., must satisfy HIPAA §164.312 if biotech edition]
+- **Security:** [e.g., must satisfy HIPAA §164.312 if handling regulated data]
 - **Regulatory:** [Compliance requirements specific to this project]
 
 ## Dependencies

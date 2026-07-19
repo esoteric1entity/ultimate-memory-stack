@@ -53,7 +53,7 @@ adapter_version: "1.0"
 This profile honors **general-edition `compliance: none`** by default. To upgrade:
 
 - **`enterprise` preset:** GDPR/SOC2 baseline → no SSN, no financial IDs, consent tracking enabled
-- **`healthcare` preset:** NOT available in general-edition adapter (requires biotech-edition adapter; B7 compliance review pending)
+- **`healthcare` preset:** NOT available in this edition (a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available)
 
 To change compliance preset, edit `<edition>/PROFILE.md` and re-run `setup-openclaw.sh --update-profile`.
 

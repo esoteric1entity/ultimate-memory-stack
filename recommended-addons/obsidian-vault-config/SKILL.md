@@ -4,7 +4,7 @@ description: Configure an Obsidian vault to work with the Ultimate Memory Stack.
 version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["ideal-first design", "documentation discipline", "OpenClaw research — Obsidian PKM patterns", "convergent adoption of Obsidian-style wiki-links + frontmatter across peer deployments", "recommended addon"]
-edition: any (general + biotech both supported)
+edition: any
 tier: B (recommended; not auto-installed but lightweight to set up)
 license: MIT (Obsidian app is freeware for personal use; templates here are licensed Apache-2.0)
 upstream_url: https://obsidian.md/

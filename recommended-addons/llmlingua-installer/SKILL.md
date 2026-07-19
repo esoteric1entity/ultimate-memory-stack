@@ -3,9 +3,9 @@ name: install-llmlingua
 description: Optional installer for LLMLingua prompt compression addon (Tier C C6, opt-in). Wraps the Ultimate Memory Stack with token-level perplexity-based prompt compression (Microsoft Research, MIT licensed). Pins llmlingua==0.2.2 exactly (upstream stale ~2 years); runs pip-audit pre-install; installs to user-chosen conda or venv environment; verifies via smoke test. Use when the user asks to install, deploy, activate, or enable LLMLingua / prompt compression for their memory stack deployment.
 version: "1.0"
 authors: ["esoteric1entity"]
-decision_authority: ["security-first vetting", "ideal-first design", "documentation discipline", "Tier C designed-in", "PASS-verdict addon batch"]
+decision_authority: ["security-first vetting", "ideal-first design", "documentation discipline", "Tier C opt-in", "PASS-verdict addon batch"]
 vetting_reference: security pre-vetted 2026-05-27 (verdict PASS with conditions)
-edition: any (general-edition + biotech-edition both supported)
+edition: any
 tier: C (opt-in; not loaded by default)
 license: "MIT (LLMLingua); installer under Apache-2.0"
 upstream_status: stale (last release 2024-04-09 v0.2.2); Microsoft Research moved to SecurityLingua arXiv 2506.12707

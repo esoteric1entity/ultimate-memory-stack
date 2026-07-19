@@ -3,7 +3,7 @@
 # Version: 1.1 — 2026-06-16
 # Tier: T2+ (requires Bash; HMAC keys at T3+ via Python/Code Execution)
 # Author: see /AUTHORS.md
-# License: Apache-2.0 (general-edition is the public-distribution candidate; biotech-edition is private per PRIVACY_REVIEW.md)
+# License: Apache-2.0
 
 set -e
 
@@ -84,7 +84,7 @@ while [[ $# -gt 0 ]]; do
             echo "  ./setup.sh --verify                              # Run self-test"
             echo "  ./setup.sh --status                              # Show current state"
             echo ""
-            echo "Compliance presets: none | enterprise | custom   (PHI/healthcare = biotech-edition only)"
+            echo "Compliance presets: none | enterprise | custom   (PHI/healthcare not available in general-edition)"
             echo "Extensions: gdpr | soc2 | pci-dss (comma-separated)"
             echo ""
             echo "See INSTALL.md for details."
@@ -99,11 +99,11 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-# Validate compliance preset (PHI/healthcare is biotech-edition only — refuse here)
+# Validate compliance preset (PHI/healthcare is not available in general-edition — refuse here)
 case "$COMPLIANCE_PRESET" in
     healthcare)
-        echo "✗ ERROR: PHI/healthcare compliance is part of the institutional biotech-edition, not the public general-edition."
-        echo "  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md for institutional adoption."
+        echo "✗ ERROR: PHI/healthcare compliance is not available in the general-edition (a HIPAA/PHI-focused institutional edition is planned for a future release)."
+        echo "  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md."
         exit 1
         ;;
     none|enterprise|custom)
@@ -123,7 +123,7 @@ if [ -n "$EXTENSIONS" ]; then
             gdpr|soc2|pci-dss)
                 ;;
             healthcare)
-                echo "✗ ERROR: the 'healthcare' extension is biotech-edition only (PHI), not in the public general-edition."
+                echo "✗ ERROR: the 'healthcare' extension (PHI) is not available in the general-edition (planned institutional edition)."
                 exit 1
                 ;;
             *)
@@ -809,7 +809,7 @@ echo ""
 # Effective tier summary at install completion
 echo "Effective tier detection:"
 command -v node &> /dev/null && echo "  Node.js:      available  (T2 features active)" || echo "  Node.js:      NOT installed  (T2 features dormant)"
-python3 -c "import cryptography" 2>/dev/null && echo "  cryptography: available  (T3 HMAC/Ed25519 ready)" || echo "  cryptography: NOT installed  (T3 signatures dormant)"
+python3 -c "import cryptography" 2>/dev/null && echo "  cryptography: available  (T3 HMAC ready)" || echo "  cryptography: NOT installed  (T3 signatures dormant)"
 command -v ollama &> /dev/null && echo "  Ollama:       available  (T1 semantic search ready)" || echo "  Ollama:       NOT installed  (T1 semantic dormant)"
 echo ""
 echo "Active feature surface: 20 Tier A + 12 Tier B (edition-configured)"

@@ -30,7 +30,7 @@ The **installer** scaffolds; the **activation wizard** populates. Right after in
 | `.claude/skills/<name>/SKILL.md` | The addon installer Skills you selected (`/install-graphiti`, `/install-graphify`, `/install-llmlingua`, `/config-obsidian-vault`) — Claude Code skill door; the script/agent/manual doors (incl. OpenClaw) scaffold the same addons without registering Claude skills |
 | `.ums-manifest.json` | Exactly what the installer did (door, harness, addons) |
 | `.deployment-info` | Completion certificate — present only if install finished |
-| `ultimate-memory-stack/` | The package itself (specs, templates, editions) — code, not your data |
+| `ultimate-memory-stack/` | The package itself (specs, templates, edition) — code, not your data |
 
 Then you paste the activation prompt from [`ultimate-memory-stack/common-specs/BOOTSTRAP_PROMPT.md`](./common-specs/BOOTSTRAP_PROMPT.md) into your agent, answer the wizard, and it creates the two living files everything orbits:
 

@@ -16,10 +16,10 @@
 | **Compliance preset** | `none` (default), `enterprise`, or `custom` | `<edition>/PROFILE.md` |
 | **Audit log (EXTENDED §E3.2)** | OPT-IN (default OFF) — set `audit_log: true` in PROFILE.md to enable | B1 |
 | **Quarantine UX (EXTENDED §E3.3)** | Toast at session start: "X entries quarantined — review?"; full workflow Skill available | Skill at `core/audit-quarantine-skill/` |
-| **Pattern-key recurrence (§4)** | Threshold = 5 (less strict than biotech) | B6 |
+| **Pattern-key recurrence (§4)** | Threshold = 5 | B6 |
 | **Cryptographic signatures (C4)** | HMAC available (T3+, opt-in) | C4 |
 | **Lint findings (EXTENDED §E7)** | Surface as suggestions; non-blocking | EXTENDED §E7 |
-| **Doc completeness check (Lint #10)** | MEDIUM severity (vs biotech CRITICAL) | EXTENDED §E7 |
+| **Doc completeness check (Lint #10)** | MEDIUM severity | EXTENDED §E7 |
 
 **General-edition components (all 6 supported):**
 
@@ -52,7 +52,7 @@ You're using general-edition. Three things matter:
 2. **Audit log is OPT-IN.** Default OFF for `none` preset; ON for `enterprise`. Enable manually if you want it on for `none`.
 3. **Quarantine is NON-BLOCKING.** Suspicious entries surface as a toast at session start; you review at your pace. No queue blocking.
 
-General-edition is the lighter-touch sibling of biotech-edition. Most users start with `compliance: none` — that's fine.
+General-edition is the lighter-touch, general-purpose edition. Most users start with `compliance: none` — that's fine.
 
 ---
 
@@ -102,7 +102,7 @@ If you pick [R]eview:
     Justification (optional): _
 ```
 
-Compared to biotech-edition (blocking workflow with mandatory justifications), general-edition is intentionally lighter. You can defer indefinitely; the queue won't block new writes.
+General-edition is intentionally lighter — you can defer indefinitely; the queue won't block new writes.
 
 **Tip:** Don't let queue grow past 20. Detection patterns may be misconfigured if many false positives accumulate.
 
@@ -144,7 +144,7 @@ If you're considering `custom`, read `overrides/compliance-presets.override.md` 
 
 ## HMAC Signatures (T3+ only)
 
-General-edition uses HMAC by default for cryptographic signatures (lighter than biotech's Ed25519):
+General-edition uses HMAC by default for cryptographic signatures:
 
 - Generate secret at install: `python3 setup.py --generate-hmac-secret`
 - Secret derives from your session OR stored in `~/.config/keys/`
@@ -194,10 +194,8 @@ Stronger cryptographic guarantees (e.g. Ed25519) are part of the planned institu
 
 If your work involves PHI or HIPAA-grade enforcement — for example:
 
-- Work that is PRIMARILY in healthcare/biotech R&D (not occasional)
+- Work that is PRIMARILY in healthcare/regulated R&D (not occasional)
 - An institution with strict HIPAA enforcement requirements
-- A need for mandatory PHI detection with blocking workflow
-- Compliance rules that can't tolerate user-instruction overrides
 
 then note: A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
@@ -210,7 +208,7 @@ General-edition does not ship PHI/HIPAA compliance; its presets are `none`, `ent
 - **Sub-agent topology:** General-edition doesn't assume any specific sub-agents. Most users have none. Standard slots (`user`, `orchestrator`, `webfetch`, `external-tool-output`) cover everything.
 - **Mirror parity:** Only relevant if you mirror your memory dir to a second location. Most users have a single working directory.
 - **Institutional IP review:** That's the institutional edition's concern. General-edition is the public edition and carries no institution-specific content.
-- **Multi-machine sync:** Out of scope for v3.0. Each deployment is independent.
+- **Multi-machine sync:** Out of scope for v4.0.0. Each deployment is independent.
 
 ---
 

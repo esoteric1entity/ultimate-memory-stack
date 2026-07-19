@@ -53,7 +53,7 @@ data_subject_export_supported: true       # supports DSAR (data subject access r
 
 When `consent_revoked_at` is set:
 1. Within 24h: entry automatically routes to quarantine with reason_code `consent-revoked`
-2. Surfaces via toast at next session start (general-edition non-blocking UX)
+2. Surfaces via toast at next session start (non-blocking UX)
 3. User reviews; default disposition is DISCARD (per GDPR right-to-be-forgotten)
 4. Discard preserves entry in `memory/quarantine/.archive/discarded/` for forensic recovery (matches the B2 quarantine workflow behavior)
 
@@ -88,7 +88,7 @@ extensions:
 ## Standing Rules (Universal Floor)
 
 - NEVER store: passwords, API keys, credit cards (universal)
-- NEVER store: PHI — PHI/HIPAA handling is biotech-edition-reserved, not part of general-edition
+- NEVER store: PHI — PHI/HIPAA handling is reserved for a future institutional edition, not part of general-edition
 
 ## Risks + Mitigations
 

@@ -144,7 +144,7 @@ Like any third-party skill, review it before registering: `SKILL.md` in this dir
 
 **Fix:**
 1. Locate the Ultimate Memory Stack source package on your system
-2. Verify it contains: `<path>/common-specs/` AND the shipped `<path>/general-edition/` (the institutional `biotech-edition/` is a separate package and is not part of this public release)
+2. Verify it contains: `<path>/common-specs/` AND the shipped `<path>/general-edition/`
 3. Provide the correct path when the skill retries the question
 
 ### Symptom: Skill runs but Claude doesn't have Write/Bash tool permissions

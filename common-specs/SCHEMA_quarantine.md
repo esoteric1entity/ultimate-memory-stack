@@ -14,7 +14,7 @@ When a memory entry fails validation (frontmatter integrity, signature verificat
 
 The quarantine layer answers:
 - *Where do bad entries go?* (`memory/quarantine/`)
-- *Who decides release vs discard?* (user, with edition-specific UX)
+- *Who decides release vs discard?* (user, with user-approval UX)
 - *What history is preserved?* (full original entry + quarantine reason + audit trail)
 - *Can a quarantined entry be analyzed without polluting the memory vault?* (yes — quarantine directory is isolated; orchestrator does NOT load quarantined entries into context unless explicitly requested)
 
@@ -30,18 +30,15 @@ This is the **load-bearing defense against memory poisoning** (the maintainer's 
 - **False-positive recovery:** Validation rules are heuristic. PHI detectors fire on false positives (the word "genomic" in a non-PHI context). Quarantine lets the user release entries that are actually safe.
 - **Pattern learning:** Multiple quarantines on similar entries surface attack patterns or detector calibration issues. Deletion loses this signal.
 
-### Why divergent UX per edition?
+### Quarantine review UX
 
-| Edition | UX | Rationale |
-|---------|----|-----------|
-| **Biotech** | `/audit-quarantine` slash command opens a review workflow with batch approve/reject. Entries CANNOT be released without explicit user approval. | HIPAA-grade attention required; auto-release would violate §164.312 access controls. The friction is the point. |
-| **General** | One-line approval toast at session start: *"X entries quarantined since last session — review?"* with quick approve/reject inline. | Lower friction; most general-edition users don't have regulatory exposure. The approval is still required (no auto-release) but the UX is lightweight. |
+Quarantined entries surface at session start (a one-line toast: *"X entries quarantined since last session — review?"*), and the user reviews them via the `/audit-quarantine` slash command — a review workflow with batch approve/reject. Entries CANNOT be released without explicit user approval; the friction is the point.
 
 ### Why an explicit approval workflow (no auto-release)?
 
 - **Trust boundary:** The system that flagged an entry as suspicious cannot be the same system that decides to trust it again. User-in-the-loop is the trust anchor.
 - **Audit completeness:** Release decisions are themselves audit-worthy events. They get logged with `release_approver: user`.
-- **Edition consistency:** Both biotech and general require approval; only the UX differs.
+- **Consistency:** Release always requires explicit user approval; there is no auto-release path.
 
 ---
 
@@ -53,11 +50,11 @@ This is the **load-bearing defense against memory poisoning** (the maintainer's 
 | Quarantine + user approval is convergent production pattern | Security/compliance survey | Multi-system pattern observation |
 | Validation-on-read fires false positives on PHI detectors | Coding-agent research + clinical NLP literature | Domain knowledge |
 | A real prompt-injection incident during development validated the need | internal incident record | First-hand operational event |
-| HIPAA §164.312 access controls require approval workflows | HHS regulatory text | Federal regulation |
+| Access controls for sensitive data require approval workflows | Access-control best practice | Security design principle |
 | Auto-release would violate trust boundary | Defense-in-depth principle (the maintainer's OpenClaw expertise) | Security design principle |
 
 **Caveats:**
-- Quarantine UX details (biotech `/audit-quarantine` workflow specifics) need user testing during early deployments. Drafted here as a design contract; actual UX refined operationally.
+- Quarantine UX details (`/audit-quarantine` workflow specifics) need user testing during early deployments. Drafted here as a design contract; actual UX refined operationally.
 - False-positive rate of validation-on-read is unknown until the stack runs in production. Future versions may add tuning knobs.
 
 ---
@@ -165,21 +162,14 @@ The orchestrator:
 5. Sets the original entry's `status: quarantined` in its source file (the body and other frontmatter fields are preserved in BOTH the source file AND the quarantine copy, intentionally redundant for forensic reasons)
 6. Logs the event to the main audit log per `SCHEMA_audit_log.md` §4 (action: `quarantine`)
 
-### Step 3: User Notification (edition-specific)
+### Step 3: User Notification
 
-**Biotech edition:**
-- At next session start: list of quarantined entries surfaces in greeting
-- User invokes `/audit-quarantine` slash command to enter review workflow
+- At next session start: quarantined entries surface in the greeting, plus a one-line toast: *"3 entries quarantined since last session — review?"*
+- User invokes `/audit-quarantine` slash command to enter the review workflow
 - Review UI shows: entry summary, quarantine reason, original frontmatter, recommended disposition
 - User selects per-entry: APPROVE-RELEASE / DISCARD / DEFER
 - Batch approve/reject for multiple similar entries
-- Cannot be skipped — biotech edition blocks new writes until quarantine queue is reviewed if queue >5 entries
-
-**General edition:**
-- At next session start: one-line toast: *"3 entries quarantined since last session — review?"*
-- User clicks/types: APPROVE / REVIEW / DEFER
-- "REVIEW" opens a lighter-weight review screen; "APPROVE" approves all visible entries; "DEFER" skips
-- Non-blocking — user can ignore and work normally; queue accumulates
+- Non-blocking by default — the user can defer and work normally; the queue can optionally be configured to block new writes until it is reviewed once unreviewed entries exceed a configurable threshold
 
 ### Step 4: Disposition Execution
 
@@ -202,7 +192,7 @@ The orchestrator:
 - Entry remains quarantined
 - Re-surfaced at next session start
 - No log change (just deferred)
-- Biotech: warning surfaces if entry deferred more than 30 days (HIPAA forensic stale-state concern)
+- A warning surfaces if an entry is deferred longer than a configurable stale-deferral threshold
 
 ---
 
@@ -213,7 +203,7 @@ The orchestrator:
 | `frontmatter-invalid` | YAML parse failure, missing required fields, schema_version mismatch |
 | `signature-mismatch` | Layer 6 (C4) signature verification fails (T3+ only) |
 | `content_sha256-mismatch` | Frontmatter declares X, body computes Y (per SCHEMA_A18 CAS / B3) |
-| `phi-detected` | Compliance preset `healthcare` PHI detector fired |
+| `phi-detected` | PHI detector fired (PHI detection is reserved for the planned institutional edition) |
 | `pii-detected` | Compliance preset `enterprise` or `custom` PII detector fired |
 | `consistency-failure` | Cross-entry consistency check failed (e.g., supersedes references a non-existent entry) |
 | `provenance-suspicious` | source_agent: webfetch + last_validated absent (suspicious external entry) |
@@ -246,7 +236,7 @@ The orchestrator:
 {"ts":"2026-05-14T10:30:45.003Z","actor":"orchestrator","actor_session":8,"action":"quarantine","entry_id":"WEB-007","entry_path":"memory/references/web_articles.md","entry_category":"references","content_sha256_before":"abc123...","entry_summary":"WEB-007: Article on memory architecture by ... [TRUNCATED]","outcome":"success","quarantine_reason":"signature-mismatch","quarantine_destination":"memory/quarantine/references/WEB-007.md"}
 ```
 
-**T+15min (later in session):** The user invokes `/audit-quarantine` (biotech edition)
+**T+15min (later in session):** The user invokes `/audit-quarantine`
 - Review UI shows WEB-007 with reason "signature-mismatch"
 - The user reviews; entry content shows attempted prompt injection
 - The user selects DISCARD
@@ -270,10 +260,10 @@ Returns both the original quarantine event AND the discard disposition. Full for
 
 ### CAN
 - Isolate suspicious entries without losing forensic evidence
-- Surface entries to user via edition-appropriate UX (slash command for biotech, toast for general)
+- Surface entries to user via the `/audit-quarantine` review workflow and a session-start toast
 - Track disposition decisions in append-only quarantine_log.jsonl
 - Preserve original entry verbatim in quarantine directory
-- Block biotech edition writes when quarantine queue exceeds threshold (forcing review)
+- Optionally block writes when the quarantine queue exceeds a configurable threshold (forcing review)
 - Integrate with audit log (every quarantine action produces an audit entry)
 - Support cascade quarantine (if entry X is quarantined and entry Y is derived from X, quarantine Y too)
 - Provide forensic recovery via jq / grep / Python queries
@@ -288,8 +278,7 @@ Returns both the original quarantine event AND the discard disposition. Full for
 
 ### Edition fit
 
-- **Biotech-edition:** Quarantine queue is BLOCKING when >5 entries unreviewed; `/audit-quarantine` slash command is the canonical review path; cannot bypass review; cryptographic signatures expected (C4 at T3)
-- **General-edition:** Quarantine queue is NON-BLOCKING; one-line toast at session start; user can defer indefinitely; cryptographic signatures optional
+- Quarantine queue is NON-BLOCKING by default (optionally configured to block once unreviewed entries exceed a threshold); `/audit-quarantine` is the canonical review path; one-line toast at session start; user can defer; cryptographic signatures optional (C4 at T3)
 
 ### Deployment tier
 
@@ -317,7 +306,7 @@ If a user wants to retroactively scan existing v2.0 entries for poisoning (e.g.,
 
 ## 10. Open Questions
 
-1. **Queue size threshold for biotech blocking** — currently 5 entries unreviewed. Is that the right friction level? Lower forces more review (good for compliance); higher reduces interruption (better for daily flow). Defer to operational experience.
+1. **Queue-blocking threshold** — what queue size should trigger write-blocking when enabled? Lower forces more review (good for compliance); higher reduces interruption (better for daily flow). Defer to operational experience.
 2. **Cascade quarantine depth** — if entry X is quarantined and 100 entries reference X, do they ALL get quarantined? Probably no (too aggressive). Likely: flag for re-validation rather than full quarantine. A future design decision.
 3. **False-positive feedback loop** — when user RELEASES a quarantined entry as "false positive", should the validator that flagged it get the signal? E.g., adjust thresholds, learn the pattern. Probably yes but mechanism is unclear. Lean: log false-positive reason, surface to user at consolidation, manual tuning only at v3.0.
 4. **Discard vs delete distinction** — discard sets `status: discarded` but preserves file. Delete would actually remove. Is `delete` ever exposed? Probably NO in v3.0 — too risky. Discard is the user-facing primitive; actual file removal is admin/CLI only.
@@ -327,10 +316,10 @@ If a user wants to retroactively scan existing v2.0 entries for poisoning (e.g.,
 
 ## 11. Cross-References
 
-- **Design basis:** quarantine included in both editions (B2); memory-poisoning defenses (B8)
+- **Design basis:** quarantine included by default (B2); memory-poisoning defenses (B8)
 - **Protocol integration:** `MEMORY_PROTOCOL.md` §4 (validation-on-read triggers), EXTENDED §E3.3 (quarantine routing)
 - **Audit log integration:** `SCHEMA_audit_log.md` (every quarantine event produces an audit log entry; action codes `quarantine` / `release` / `discard`)
 - **Compliance integration:** `SCHEMA_compliance_profile.md` §detection-patterns (compliance preset determines what triggers quarantine)
 - **Cryptographic integration:** C4 signatures (signature failure is a primary quarantine trigger at T3+)
-- **Edition profiles:** `<edition>/PROFILE.md` (selects biotech blocking vs general non-blocking UX)
+- **Edition profiles:** `<edition>/PROFILE.md` (selects quarantine UX/behavior)
 - **Source research:** memory-poisoning defense research, validation-on-read pattern research

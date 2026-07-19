@@ -12,7 +12,7 @@
 
 > The activation prompt is short by design; capabilities live in companion files in `common-specs/`, with edition-specific overrides applied via the active edition's profile. (This replaced an earlier single-paste monolith: the feature surface — audit log, quarantine, signatures, per-project memory banks, edition profiles, tier gates — is too large for one prompt, and the referencing model lets schemas evolve independently.)
 
-### Feature inventory by tier (54 reviewed: 30 active, 10 designed-in, 12 excluded)
+### Feature inventory by tier (54 reviewed: 32 active, 10 designed-in, 12 excluded)
 
 **Tier A — Foundation (20 features, all active at T0+):**
 - Per-entry YAML frontmatter (SCHEMA_A18) — replaces v2.0 inline confidence tags
@@ -26,24 +26,24 @@
 - 13 more — see ARCHITECTURE.md for the full Layer 0–6 inventory
 
 **Tier B — Conditional / per-edition (12 features):**
-- **B1 Audit log** — biotech REQUIRED, general OPT-IN (JSONL append-only)
-- **B2 Quarantine workflow** — biotech `/audit-quarantine`, general one-line toast
+- **B1 Audit log** — OPT-IN by default; required under strict compliance presets (JSONL append-only)
+- **B2 Quarantine workflow** — `/audit-quarantine` review, surfaced via one-line toast
 - **B3 CAS concurrency** — scoped to replace-class operations (str_replace, insert)
 - **B4 Override-file convention** — `.override.md` shadow-files (engine behind edition profiles)
-- **B5 Bi-temporal annotations** — `valid_at` / `invalid_at` in SCHEMA_A18. Biotech: enforced. General: available. Enables point-in-time queries ("what did we believe on date X?"). Markdown-now, Graphiti-backed-later.
-- **B6 Pattern-key recurrence** — biotech ≥3, general ≥5
-- **B7 Compliance preset hybrid ⭐** — general-edition presets: `none` / `enterprise` + `custom` override (GDPR/SOC2/PCI-DSS). The `healthcare` preset is biotech-edition-reserved; not selectable in general-edition.
+- **B5 Bi-temporal annotations** — `valid_at` / `invalid_at` in SCHEMA_A18. Available (may be enforced by compliance preset). Enables point-in-time queries ("what did we believe on date X?"). Markdown-now, Graphiti-backed-later.
+- **B6 Pattern-key recurrence** — ≥5 (suggest to user)
+- **B7 Compliance preset hybrid ⭐** — presets: `none` / `enterprise` + `custom` override (GDPR/SOC2/PCI-DSS). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
 - **B8 Memory poisoning defenses** — provenance, validation-on-read, quarantine, optional signatures
-- **B9 Local semantic search via Ollama** — opt-in both editions; privacy-friendly; T1+
+- **B9 Local semantic search via Ollama** — opt-in; privacy-friendly; T1+
 - **B10 Embedding-cache as derived index** — required architecture (`memory/.index/`, gitignored, regenerable)
 - **B11 Hybrid retrieval** — semantic + BM25 + entity (mem0 pattern); v2.2 opt-in; depends on B9 + B10
 - **B12 Error-detector hook** — PostToolUse hook; designed-in now, activates when Node.js (T2) unblocks
 
 **Tier C — Designed-in for ideal state (10 features, activate with deployment-tier unblocks):**
 - **C1 Auto-Dream sleep-time consolidation** — Anthropic `dreaming-2026-04-21` beta. Offline async memory reorganization. Activates: Code Exec + Anthropic beta (T4).
-- **C2 Graphiti temporal-fact graph (Kuzu embedded) ⭐** — bi-temporal facts, point-in-time queries, fact lineage. Apache 2.0, zero-infra Kuzu backend; the strongest single storage upgrade, especially for clinical/regulatory provenance. Activates: Code Exec (T3).
+- **C2 Graphiti temporal-fact graph (Kuzu embedded) ⭐** — bi-temporal facts, point-in-time queries, fact lineage. Apache 2.0, zero-infra Kuzu backend; the strongest single storage upgrade, especially for regulatory/provenance use cases. Activates: Code Exec (T3).
 - **C3 Graphify structural code graph** — Tree-sitter AST + Leiden community detection for **codebase** structure (not memory entries; adjacent tool, see ARCHITECTURE.md §11.5). Optional. Activates: Code Exec + Node.js (T2–T3).
-- **C4 Cryptographic memory signatures** — Biotech: Ed25519 offline key (strongly recommended). General: HMAC session secret (optional). Activates: Code Exec (T3).
+- **C4 Cryptographic memory signatures** — HMAC with session-derived secret (optional). Activates: Code Exec (T3).
 - **C5 Self-improvement loop — deferred to a future evolution layer** (not in this release)
 - **C6 LLMLingua / LongLLMLingua prompt compression** — ~40× compound discount on hot cached prefixes. Activates: Code Exec + Python ML libs (T3).
 - **C7 Aider repo-map primitive** (Tree-sitter + PageRank) — deterministic always-fresh code-structure ranking; adjacent tool (see §11.5). Activates: Code Exec + Aider integration (T3).
@@ -66,7 +66,7 @@
 - Self-trimming protocol (every 10 sessions, suggestions-only)
 - Decision promotion pattern (inline → decisions.md at >5)
 - Heartbeat checkpoint (~30 min)
-- Healthcare compliance profile (folded into compliance preset B7 `healthcare` — biotech-edition-reserved; not selectable in general-edition)
+- Compliance preset system (B7: `none` / `enterprise` / `custom`) — a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available)
 - Schema versioning
 
 ---
@@ -169,10 +169,10 @@ Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code a
 
 Read `ultimate-memory-stack/general-edition/PROFILE.md`. It declares:
 - Which common-spec features are active (e.g., audit log: required vs opt-in)
-- Compliance preset (`none` / `enterprise` / `custom` for general; the `healthcare` preset is biotech-edition-reserved and not selectable in general-edition)
+- Compliance preset (`none` / `enterprise` / `custom`; a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available)
 - Override-file map — each line says "override file X applies override Y" (the B4 override-file convention)
 - Pattern-key recurrence threshold (general ≥5)
-- Cryptographic signature scheme (HMAC for general, activates at T3)
+- Cryptographic signature scheme (HMAC, activates at T3)
 - Audit log retention policy
 - Quarantine UX pattern (one-line toast)
 
@@ -363,7 +363,7 @@ See `ARCHITECTURE.md` for the template + worked examples.
 Tracked for future refinement, not resolved in this bootstrap:
 
 1. **MIGRATION_v2_to_v3.md** — automation script vs manual procedure for adding frontmatter; do we need a one-time migration agent?
-2. **Override-file precedence** — what if BOTH biotech and general edition override files exist (multi-edition deployment)? Edge case, but spec needs to handle it.
+2. **Override-file precedence** — what if multiple edition override files exist (multi-edition deployment)? Edge case, but spec needs to handle it.
 3. **First-run vs upgrade detection** — bootstrap currently asks the user. Could auto-detect from presence of `memory/MEMORY_INDEX.md` with Schema Version header. Tradeoff: less prompting vs less explicit.
 4. **Compliance preset selection UX** — for `general`, should it default to `none` or prompt-on-first-use? Currently prompts at Step 7.
 5. **Tier-detection auto-discovery** — Step 7 question 5 is manual. Could probe (e.g., try `node --version`, try Code Execution call). Deferred.

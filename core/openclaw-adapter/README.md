@@ -112,7 +112,7 @@ Port the Ultimate Memory Stack to the OpenClaw harness, enabling NAS-class OpenC
 - Mutate user's crontab (security boundary — present entry, user pastes)
 - Install DGM-H (deferred; Phase 4+ candidate)
 - Install Auto-Dream (v4.0 candidate, Anthropic beta gated)
-- Activate biotech-edition (B7 compliance review required separately)
+- Enable the `healthcare` compliance preset (not shipped in this edition)
 - Sync entries across machines (Phase 4+ candidate)
 - Port Warden/Sentinel/Vault/Clerk agents to OpenClaw runtime (advisory in AGENTS.md only until OpenClaw runtime supports peer-agent spawning)
 - Install unrecognized addons (only the 4 PASS-vetted ones have known Skills)

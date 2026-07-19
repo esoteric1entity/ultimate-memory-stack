@@ -19,28 +19,28 @@ The Ultimate Memory Stack uses a **7-layer architecture (Layer 0 through Layer 6
 **Why layered:**
 1. **Separation of concerns** — protocol rules don't mix with storage; storage doesn't mix with search
 2. **Tier-gated activation** — higher layers activate when their infrastructure unblocks (ideal-first: build for the ideal state)
-3. **Edition-aware** — both biotech and general editions use the same architecture; PROFILE.md selects which layers are mandatory vs optional vs disabled
+3. **Edition-aware** — the same architecture supports any edition; PROFILE.md selects which layers are mandatory vs optional vs disabled
 4. **Deployment portability** — each machine deploys at their highest available tier; the stack does not require all infrastructure to function
 
 **Two foundational principles from the research base** (Letta + Cline + MemoryOS + 9 others, 210 sources):
 - **Markdown as source of truth** — every layer must defer to Layer 1 (markdown vault) as authoritative. Higher layers are indexes, caches, or signatures — never primary storage.
 - **Per-entry metadata over inline tags** — YAML frontmatter (SCHEMA_A18) is the convergent pattern. Avoid inline tags ([FINAL], [TENTATIVE]) that don't survive consolidation.
 
-> **Editions note:** the public release ships the **general edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See [`CONTRIBUTING.md`](../CONTRIBUTING.md). Both editions share this architecture; the biotech defaults referenced throughout this document describe that edition's locked configuration.
+> **Editions note:** the public release ships the **general edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See [`CONTRIBUTING.md`](../CONTRIBUTING.md). The defaults referenced throughout this document describe the shipped general edition's configuration.
 
 ---
 
 ## 2. Layer Inventory
 
-| Layer | Name | Min Tier | Biotech (default) | General (default) | Active in current release? |
-|-------|------|----------|-------------------|-------------------|-----------------|
-| **0** | Protocol & Budget | T0 | Required | Required | YES |
-| **1** | Markdown Vault | T0 | Required | Required | YES |
-| **2** | Compliance & Audit | T0 | Required (HIPAA) | Opt-in (preset-driven) | YES (varies by edition) |
-| **3** | Hybrid Search | T1 | Optional | Optional | Designed-in, dormant at T0 |
-| **4** | Caching & Compression | T0 base / T3 advanced / T4 Dreaming | Optional | Optional | Active at T0; expands at T3/T4 |
-| **5** | Graph Backends | T2 | Optional | Optional | Designed-in, dormant at T0 |
-| **6** | Cryptographic Signatures | T3 | Strongly recommended | Optional | Designed-in, dormant at T0 |
+| Layer | Name | Min Tier | Default | Active in current release? |
+|-------|------|----------|---------|-----------------|
+| **0** | Protocol & Budget | T0 | Required | YES |
+| **1** | Markdown Vault | T0 | Required | YES |
+| **2** | Compliance & Audit | T0 | Opt-in (preset-driven) | YES |
+| **3** | Hybrid Search | T1 | Optional | Designed-in, dormant at T0 |
+| **4** | Caching & Compression | T0 base / T3 advanced / T4 Dreaming | Optional | Active at T0; expands at T3/T4 |
+| **5** | Graph Backends | T2 | Optional | Designed-in, dormant at T0 |
+| **6** | Cryptographic Signatures | T3 | Optional | Designed-in, dormant at T0 |
 
 **Tier glossary:**
 - **T0** — Anywhere (current Claude Code default install, no infrastructure)
@@ -91,7 +91,7 @@ This is **non-negotiable**. Undocumented features do not ship. If a feature lack
 >
 > **Scope — CANNOT**: Log full content of entries (only summaries — keep log size manageable, PHI-free). Provide cryptographic chain-of-custody (Layer 6 signatures do that). Replace OS-level audit logging.
 >
-> **Active in current release**: Yes (biotech REQUIRED, general OPT-IN).
+> **Active in current release**: Yes (opt-in / configurable per compliance preset).
 >
 > **Deployment tier**: T0 (markdown JSONL works anywhere).
 >
@@ -193,7 +193,7 @@ Persistent storage. Every memory entry is a markdown file with YAML frontmatter.
 ### Active features in the current release
 - 6-file per-project memory bank (A3, Tier A)
 - YAML frontmatter on every entry (A18, Tier A)
-- **Bi-temporal annotations** (`valid_at` / `invalid_at` in SCHEMA_A18, B5 Tier B — biotech enforced / general available)
+- **Bi-temporal annotations** (`valid_at` / `invalid_at` in SCHEMA_A18, B5 Tier B — available, opt-in)
 - **Wiki-link inline syntax** (`[[ID]]` body references parsed into A18 cross-reference YAML; auto-sync at T2+)
 - Pattern-key recurrence promotion (A8 + B6, Tier A/B)
 - Override-file convention (B4, Tier B)
@@ -235,11 +235,11 @@ This backports a field-proven pattern from the maintainer's own production Claud
 ## 6. Layer 2 — Compliance & Audit
 
 ### Purpose
-Regulated-data handling and forensic capability. Audit trail of read/write operations. Quarantine workflow for suspicious entries. Compliance preset selection (general-edition: none / enterprise / custom; `healthcare` is biotech-edition-reserved).
+Regulated-data handling and forensic capability. Audit trail of read/write operations. Quarantine workflow for suspicious entries. Compliance preset selection (none / enterprise / custom; `healthcare` is reserved for a planned institutional edition, not yet available).
 
 ### Rationale
-- Biotech edition MUST satisfy HIPAA §164.312 technical safeguards — audit controls, access controls, integrity controls
-- General edition must support opt-in compliance (HIPAA / GDPR / SOC2 / PCI-DSS / custom)
+- Regulated-data deployments may require HIPAA §164.312 technical safeguards — audit controls, access controls, integrity controls
+- The compliance layer supports opt-in presets (HIPAA / GDPR / SOC2 / PCI-DSS / custom) for these deployment shapes
 - Without audit log: post-incident investigation is blind. Memory poisoning happens; you need forensic capability.
 - Without quarantine: validated-bad entries either get loaded (and bias future behavior) or silently dropped (and lose evidence)
 - 3-preset hybrid (B7) handles real-world deployment shapes without requiring users to compose compliance from scratch
@@ -251,12 +251,12 @@ Regulated-data handling and forensic capability. Audit trail of read/write opera
 - The 3-preset hybrid resolves a real design tension — neither single toggle nor 4-toggle matrix; just "what deployment shape do you fit"
 
 ### Scope — CAN
-- Log every memory read/write to JSONL audit trail (B1; biotech REQUIRED / general OPT-IN)
+- Log every memory read/write to JSONL audit trail (B1; opt-in / configurable)
 - Quarantine entries failing validation-on-read (B2)
-- Enforce active compliance preset (B7): `none` / `healthcare` / `enterprise` / `custom`
-- Redact PII/PHI on detection per `healthcare` preset
+- Enforce active compliance preset (B7): `none` / `enterprise` / `custom`
+- Detect PII/PHI per the active compliance preset and route to quarantine (redaction is part of the planned institutional edition)
 - Detect memory poisoning patterns and route to quarantine
-- Provide `/audit-quarantine` workflow (biotech default UX) or one-line approval toast (general default UX)
+- Provide the `/audit-quarantine` review workflow (surfaced via a one-line approval toast at session start)
 - Track quarantine release decisions back to audit log
 - Run cross-entry consistency checks (e.g., DEC-### references must resolve)
 
@@ -267,11 +267,11 @@ Regulated-data handling and forensic capability. Audit trail of read/write opera
 - Replace human review of quarantined entries — Layer 2 surfaces; user decides
 
 ### Active features in the current release
-- Audit log JSONL (B1, biotech REQUIRED / general OPT-IN)
+- Audit log JSONL (B1, opt-in / configurable)
 - Quarantine queue + workflow (B2)
 - 3-preset compliance hybrid (B7) + custom override
 - Memory poisoning defenses (B8): provenance + validation-on-read + quarantine + (T3) signatures
-- PII/PHI detection patterns from v2.0 healthcare profile (now folded into `healthcare` preset)
+- PII detection-pattern framework (enterprise/custom presets); PHI patterns are reserved for the planned institutional edition
 
 ### Deployment tier
 - **T0** base: markdown JSONL audit log + quarantine queue (works anywhere)
@@ -316,7 +316,7 @@ At T0, retrieval is grep-only — works for small memory but doesn't scale to 10
 
 ### Active features in the current release
 - **DESIGNED-IN, DORMANT at T0.** All capabilities specified; activation gated by tier.
-- **B9 Ollama local semantic search** (Tier B, opt-in both editions): privacy-friendly, no cloud dependency, T1+ minimum
+- **B9 Ollama local semantic search** (Tier B, opt-in): privacy-friendly, no cloud dependency, T1+ minimum
 - **B10 Embedding-cache-as-derived-index** (Tier B, required architecture): indexes live at `memory/.index/`, gitignored, regenerable from Layer 1
 - **B11 Hybrid retrieval** (semantic + BM25 + entity, mem0-pattern): opt-in v2.2 — depends on B9 + B10 existing first
 - **C9 Transformers.js embeddings** (Tier C, Node.js 18+): alternative embedding backend if Ollama path (B9) isn't viable on a deployment
@@ -402,7 +402,7 @@ Reduce token cost via Anthropic prompt cache + context compression. At T4, inclu
 ### Rationale
 - Markdown wiki-links work but require parser traversal — slow for deep queries ("show full decision chain leading to Y")
 - Graph DBs optimized for traversal — milliseconds vs seconds
-- **Bi-temporal fact model** (Graphiti pattern) enables point-in-time queries: *"What did we believe on date X?"* — load-bearing for HIPAA-grade audit forensics in biotech-edition
+- **Bi-temporal fact model** (Graphiti pattern) enables point-in-time queries: *"What did we believe on date X?"* — load-bearing for regulatory/audit forensics
 - At T0, wiki-links work as fallback; graph adds speed AND temporal query capability
 - **Kuzu embedded backend** = in-process graph DB, comparable to SQLite for graphs. **Zero infrastructure overhead.** No separate server, no admin privilege. Critical for single-workstation deployments.
 
@@ -428,7 +428,7 @@ Reduce token cost via Anthropic prompt cache + context compression. At T4, inclu
 - Hybrid retrieval (semantic + lexical + graph traversal, weighted)
 - Cache traversal results within session
 - Surface graph-derived context to Tier 2/3 loads ("loading this project → also load related decisions")
-- Provide forensic capability for biotech-edition (HIPAA §164.312 audit-control reconstruction at any historical date)
+- Provide forensic/audit-control reconstruction at any historical date
 
 ### Scope — CANNOT
 - Replace markdown vault — graph is derived index, not store. Wipe and rebuild from Layer 1 anytime.
@@ -439,7 +439,7 @@ Reduce token cost via Anthropic prompt cache + context compression. At T4, inclu
 
 ### Active features in the current release
 - **DESIGNED-IN, DORMANT at T0.** Architecture, schema, integration patterns specified.
-- **C2 Graphiti temporal-fact graph (Kuzu embedded)** — activates with Code Execution (T3). Research verdict: *"strongest single storage upgrade on the future roadmap. Biotech-first for clinical/regulatory provenance."*
+- **C2 Graphiti temporal-fact graph (Kuzu embedded)** — activates with Code Execution (T3). Research verdict: *"strongest single storage upgrade on the future roadmap."*
 - **B5 bi-temporal annotations** (`valid_at` / `invalid_at` in SCHEMA_A18) — already adoptable at **T0 in pure markdown**. The graph backend just makes the queries fast later. Codifying the pattern NOW (in YAML) primes Layer 5 activation without re-migration.
 
 ### Deployment tier
@@ -470,8 +470,8 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 ### Rationale
 - A real memory-poisoning incident during development demonstrated need beyond Layer 2 validation-on-read
 - Validation-on-read catches format/structure issues; signatures catch content tampering after the write
-- Biotech edition: Ed25519 with offline key (asymmetric verification, satisfies higher integrity assurance)
-- General edition: HMAC with session-derived secret (symmetric, sufficient for single-user single-deployment)
+- Shipped signing scheme: HMAC with session-derived secret (symmetric, sufficient for single-user single-deployment)
+- Ed25519 with offline key (asymmetric verification, higher integrity assurance) is planned for a future institutional edition (not yet available)
 
 ### Sound reasoning
 - Production memory systems with audit trails commonly use HMAC at minimum
@@ -486,7 +486,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 - Detect tampering and route to Layer 2 quarantine (failed verification = automatic quarantine)
 - Rotate signing keys without invalidating old entries (signature scheme includes key-id; verify-only with old keys retained)
 - Attach signatures to audit log entries (chain-of-custody for B1)
-- Operate with offline private key (biotech Ed25519) or in-memory secret (general HMAC)
+- Operate with an in-memory secret (HMAC, shipped); offline private-key signing (Ed25519) is planned for a future institutional edition
 
 ### Scope — CANNOT
 - Encrypt content (this is signing, not encryption)
@@ -497,8 +497,8 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 
 ### Active features in the current release
 - **DESIGNED-IN, DORMANT at T0.** Schemes specified; activation gated by Code Exec (T3).
-- Biotech edition default: Ed25519 with offline key (RFC 8032)
-- General edition default: HMAC-SHA256 with session-derived secret
+- Default signing scheme: HMAC-SHA256 with session-derived secret
+- Ed25519 with offline key (RFC 8032) is planned for a future institutional edition (not yet available)
 - Both schemes integrate with `SCHEMA_A18` (`signature` field added to frontmatter when Layer 6 active)
 
 ### Deployment tier
@@ -528,16 +528,16 @@ Out-of-scope for memory stack design (orchestration is a separate layer of the b
 
 ### 11.2 Edition Profiles
 
-Both editions use the same Layer 0–6 architecture. PROFILE.md selects:
+The same Layer 0–6 architecture applies to any edition; `PROFILE.md` selects per-deployment configuration:
 
-| Layer Concern | Biotech Default | General Default |
-|---------------|-----------------|-----------------|
-| Compliance preset (B7) | `healthcare` (non-overridable) | `none` (overridable to enterprise/custom) |
-| Audit log (B1) | REQUIRED on every write | OPT-IN (configurable) |
-| Delete semantics | Tombstone + 30-day retention | Hard delete |
-| Quarantine UX | `/audit-quarantine` review workflow | One-line approval toast at session start |
-| Pattern-key recurrence (B6) | ≥3 | ≥5 |
-| Cryptographic signatures (C4) | Ed25519 (offline key), strongly recommended | HMAC (session secret), optional |
+| Layer Concern | Default |
+|---------------|---------|
+| Compliance preset (B7) | `none` (overridable to enterprise/custom) |
+| Audit log (B1) | OPT-IN (configurable) |
+| Delete semantics | Hard delete |
+| Quarantine UX | One-line approval toast at session start |
+| Pattern-key recurrence (B6) | ≥5 |
+| Cryptographic signatures (C4) | HMAC (session secret), optional |
 
 Override-file mechanism: edition-specific overrides at `<edition>/overrides/X.override.md` REPLACE sections of `common-specs/X.md` of the same name.
 
@@ -633,9 +633,9 @@ The Ultimate Memory Stack is a **branded module**; the consuming Claude architec
 | ID | Feature | Min Tier | Layer | Activation gate |
 |----|---------|----------|-------|------------------|
 | **C1** | **Auto-Dream sleep-time consolidation** (Anthropic `dreaming-2026-04-21` beta) — offline async memory reorganization between sessions; replaces Letta sleep-time framing | T4 | 4 | Code Exec + Anthropic beta access |
-| **C2** | **Graphiti temporal-fact graph (Kuzu embedded)** — bi-temporal facts, point-in-time queries, fact lineage. *Strongest single storage upgrade on the future roadmap. Biotech-first for clinical/regulatory provenance.* | T3 | 5 | Code Execution |
+| **C2** | **Graphiti temporal-fact graph (Kuzu embedded)** — bi-temporal facts, point-in-time queries, fact lineage. *Strongest single storage upgrade on the future roadmap.* | T3 | 5 | Code Execution |
 | **C3** | **Graphify structural code graph** — Tree-sitter AST + NetworkX + Leiden community detection. Codebase-adjacent, optional. (See §11.5 — adjacent tool, not a layer.) | T2–T3 | adjacent | Code Exec + likely Node.js |
-| **C4** | **Cryptographic memory signatures** — Biotech: Ed25519 with offline key (strongly recommended). General: HMAC with session-derived secret (optional). | T3 | 6 | Code Execution |
+| **C4** | **Cryptographic memory signatures** — HMAC with session-derived secret (shipped default); Ed25519 offline-key signing planned for a future institutional edition. | T3 | 6 | Code Execution |
 | **C5** | **DGM-H self-improvement loop** | T4 | — | **DEFERRED to a future evolution layer (see §14)** |
 | **C6** | **LLMLingua / LongLLMLingua prompt compression** on cached prefixes — ~40× compound discount (4× compression × 10× cache savings) | T3 | 4 | Code Exec + Python ML libs |
 | **C7** | **Aider repo-map primitive** (Tree-sitter + PageRank) — only deterministic always-fresh structural primitive in the surveyed cohort. (See §11.5 — adjacent tool, not a layer.) | T3 | adjacent | Code Exec + Aider integration |
@@ -649,7 +649,7 @@ The Ultimate Memory Stack is a **branded module**; the consuming Claude architec
 - **1 item unblock with Anthropic beta** (C1 full)
 - **1 item unblock with Skills** (C10 full)
 
-**C5 special note:** DGM-H (Darwin-Gödel Machine, Hawkins variant) self-improvement loop is **NOT** part of v3.0. It is a future evolution-layer initiative. The memory stack ships without it; it can be added later without re-architecture.
+**C5 special note:** DGM-H (Darwin-Gödel Machine, Hawkins variant) self-improvement loop is **NOT** part of v4.0.0. It is a future evolution-layer initiative. The memory stack ships without it; it can be added later without re-architecture.
 
 **Important: tools vs vendor benchmark claims.** Several Tier C items have peer-reviewed-or-not status. We adopt the **patterns and tools** that fit; we **do not cite vendor-published benchmark numbers** as authoritative (see §13 Tier D for the debunked-claims inventory). The standing rule: *"borrow ideas, not numbers."*
 
@@ -684,7 +684,7 @@ This is why some tools appear simultaneously in **Tier C (included)** and **Tier
 | Category | Count | What's excluded |
 |----------|-------|------------------|
 | **Vendor benchmark debunks (claims, not tools)** | 5 (D1–D5) | The NUMBERS — not the tools/patterns, which are individually in Tier A/B/C |
-| **Already parked elsewhere in the 5-layer architecture** | 3 (D6–D8) | KV-cache compression papers, inference engines, RMT papers — belong to other layers of the broader agent architecture |
+| **Already parked elsewhere in the 7-layer architecture** | 3 (D6–D8) | KV-cache compression papers, inference engines, RMT papers — belong to other layers of the broader agent architecture |
 | **Wholesale-inappropriate (borrow patterns only)** | 3 (D9–D11) | ChatGPT consumer memory wholesale (UX patterns borrowed only); Cursor's removed Memories (LESSON borrowed → A19); Zep Community Edition (deprecated, replaced by Graphiti) |
 | **Unverified claim** | 1 (D12) | "87% downstream contamination in 4 hours" — primary source not located. Do NOT cite. |
 
@@ -700,7 +700,7 @@ This is why some tools appear simultaneously in **Tier C (included)** and **Tier
 
 **What it would do:** A 6-script self-modifying memory system that improves itself between sessions — learning which memory patterns work, which conflict-resolution rules fire, which load-order tiers are too aggressive, etc.
 
-**Why not now:** DGM-H scope is large enough to warrant its own roadmap. Including it in v3.0 would:
+**Why not now:** DGM-H scope is large enough to warrant its own roadmap. Including it in v4.0.0 would:
 1. Block release on an unstable dependency (self-modifying systems require extensive testing)
 2. Conflict with the "documentation discipline" mandate (self-modifying code is hard to document)
 3. Introduce alignment + safety concerns (self-improving systems need robust guardrails)
@@ -715,9 +715,9 @@ This is why some tools appear simultaneously in **Tier C (included)** and **Tier
 **This architecture is stable.** The companion specs (`MEMORY_PROTOCOL.md`, `MEMORY_PROTOCOL_EXTENDED.md`, `SCHEMA_*.md`) and templates all ship alongside it. Remaining open questions are tracked here for future versions:
 
 1. **Layer 4 caching scope** — should explicit Anthropic prompt-cache integration be designed-in (vs leaving to user discipline)? Likely yes.
-2. ~~**Layer 5 graph backend choice** — Memgraph vs Neo4j vs lightweight in-memory~~ **CLOSED: Graphiti + Kuzu embedded** (zero infra overhead, actively-developed open-source, bi-temporal model is biotech-edition load-bearing). See §9.
-3. **Layer 6 signature scheme defaults** — Ed25519 (biotech) + HMAC (general) chosen, but key management UX is unresolved.
+2. ~~**Layer 5 graph backend choice** — Memgraph vs Neo4j vs lightweight in-memory~~ **CLOSED: Graphiti + Kuzu embedded** (zero infra overhead, actively-developed open-source, bi-temporal model is audit/regulatory load-bearing). See §9.
+3. **Layer 6 signature scheme defaults** — HMAC is the shipped default; Ed25519 offline-key signing is planned for a future institutional edition. Key management UX is unresolved.
 4. **Cross-layer sub-agent integration** — formal "Layer 7" or stay as cross-cutting concern? Currently cross-cutting (memory ≠ orchestration); revisit if real deployments surface integration friction.
 5. ~~**C10 placeholder** — "Anthropic beta features TBD"~~ **CLOSED: C10 is the Skill / template extraction pipeline (extract_skill.py-style).** See §12.
 6. **Wiki-link parser automation** — at T0–T1, inline `[[ID]]` ↔ YAML `related` sync is manual. At T2+ (Node.js), automated parser. Should the parser be a hard requirement at T2, or remain opt-in?
-7. **Bi-temporal default behavior in general-edition** — B5 is "available, not required" for general. Should `valid_at` default to `created_at` automatically, or be omitted unless explicitly set? Lean: auto-default to `created_at` (zero friction).
+7. **Bi-temporal default behavior** — B5 is "available, not required". Should `valid_at` default to `created_at` automatically, or be omitted unless explicitly set? Lean: auto-default to `created_at` (zero friction).

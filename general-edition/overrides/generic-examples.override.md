@@ -74,7 +74,7 @@ Q: Pet peeves
 
 - **Tier 1 fast loading:** session_state + user_profile every session
 - **Decisions promoted at >5:** auto-organize architectural choices
-- **Pattern-key promotion (≥5 for general):** developer pet peeves become standing rules
+- **Pattern-key promotion (≥5):** developer pet peeves become standing rules
 - **Bi-temporal:** decisions evolve over project lifecycle ("WebSocket was good in 2026-05; switched to gRPC in 2026-08 — both decisions preserved")
 - **Wiki-links inline:** `[[DEC-024]]` cross-references render in Obsidian for visual graph
 
@@ -288,7 +288,7 @@ Q: Pet peeves
 ## What General-Edition Excludes (PHI / HIPAA)
 
 General-edition does not ship PHI/HIPAA compliance. Its presets are `none`, `enterprise`, and `custom`. If your context involves:
-- HIPAA-covered PHI (patient data, specimens, genomic linking)
+- HIPAA-covered PHI (patient data)
 - Strict regulatory enforcement (no user override possible)
 - Healthcare provider operations
 

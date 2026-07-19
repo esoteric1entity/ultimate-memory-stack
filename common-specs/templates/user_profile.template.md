@@ -49,13 +49,13 @@ schema_version: "3.0"
 
 ## Compliance posture
 
-- **Edition deployed:** <biotech | general>
-- **Compliance preset:** <none | healthcare | enterprise | custom>
+- **Edition deployed:** general
+- **Compliance preset:** <none | enterprise | custom>
 - **Regulatory exposure:** <HIPAA / GDPR / SOC2 / none / other — be specific>
 
 ## Behavioral preferences
 
-Pet peeves ("never do") and "always do" behaviors live in `feedback/feedback.md` as FB-NNN entries — per BOOTSTRAP_PROMPT.md Step 7 #4. They auto-promote to standing rules upon recurrence_count threshold (per SCHEMA_A18 B6 — biotech ≥3, general ≥5).
+Pet peeves ("never do") and "always do" behaviors live in `feedback/feedback.md` as FB-NNN entries — per BOOTSTRAP_PROMPT.md Step 7 #4. They auto-promote to standing rules upon recurrence_count threshold (per SCHEMA_A18 B6 — recurrence_count ≥5).
 
 Do NOT duplicate them in this file. `feedback/feedback.md` is the single canonical location.
 

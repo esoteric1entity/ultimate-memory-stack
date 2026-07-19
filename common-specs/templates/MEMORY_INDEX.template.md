@@ -34,8 +34,8 @@
 - Decisions — decisions/decisions.md (created on first DEC-NNN entry; tiered — same Archived-column shape as Sessions/Feedback once active)
 - Security vetting — security/vetting_log.md (created on first vetting event)
 - References — references/references.md (created on first cross-ref entry)
-- Audit log — security/audit_log.jsonl (biotech: pre-created; general: opt-in)
-- Quarantine — quarantine/quarantine_log.jsonl (biotech: pre-created; general: opt-in)
+- Audit log — security/audit_log.jsonl (opt-in — created on first use)
+- Quarantine — quarantine/quarantine_log.jsonl (opt-in — created on first use)
 
 > Promote rows from Future → Active by adding backticks around the file path and filling the Entries / Last Updated / Last Accessed columns once the file exists. (keeps the T5 self-test green pre-population.)
 
@@ -58,7 +58,7 @@
 | User preferences | `feedback/feedback.md` |
 | Edition profile | `<path-to-PROFILE.md>` |
 
-> Fill the PROFILE path for your install method: script/Skill installs keep it at `../ultimate-memory-stack/<edition>-edition/PROFILE.md`; manual installs copy it to `PROFILE.md` (vault root).
+> Fill the PROFILE path for your install method: script/Skill installs keep it at `../ultimate-memory-stack/general-edition/PROFILE.md`; manual installs copy it to `PROFILE.md` (vault root).
 
 ### Future (created on first use — not linked until populated)
 
@@ -87,7 +87,7 @@
 - Entry IDs: DEC-NNN (decisions), FB-NNN (feedback), PRJ-NNN (projects), VET-NNN (vetting), CR-NNN (code reviews), REF-NNN (references), SESSION-NNN (session-state entries)
 - Confidence levels (decisions only): FINAL, TENTATIVE, EXPLORATORY
 - Status values: active, superseded, quarantined, archived, discarded
-- Bi-temporal fields (B5): `valid_at` / `invalid_at` — biotech enforced, general available
+- Bi-temporal fields (B5): `valid_at` / `invalid_at` — available (opt-in)
 - This index updates whenever entries are added/removed/consolidated
 - Last Accessed column powers self-trimming protocol (MEMORY_PROTOCOL.md §10)
 ```

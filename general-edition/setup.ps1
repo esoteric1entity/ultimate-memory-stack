@@ -2,7 +2,7 @@
 # Version: 1.1 — 2026-06-16
 # Tier: T2+ (PowerShell 5.1+; Python 3.8+ for full functionality)
 # Author: see /AUTHORS.md
-# License: Apache-2.0 (general-edition is the public-distribution candidate; biotech-edition is private)
+# License: Apache-2.0
 
 #Requires -Version 5.1
 
@@ -57,7 +57,7 @@ if ($Help) {
     Write-Host "  .\setup.ps1 -Status                                        # Show state"
     Write-Host "  .\setup.ps1 -GenerateHmacSecret                            # Generate HMAC secret (T3+)"
     Write-Host ""
-    Write-Host "Compliance presets: none | enterprise | custom   (PHI/healthcare = institutional biotech-edition, planned/not yet available)"
+    Write-Host "Compliance presets: none | enterprise | custom   (PHI/healthcare = planned for a future release, not available in general-edition)"
     Write-Host "Extensions: gdpr | soc2 | pci-dss (comma-separated)"
     Write-Host ""
     Write-Host "Note: Delegates to setup.py for most operations."
@@ -67,12 +67,12 @@ if ($Help) {
     exit 0
 }
 
-# PHI/healthcare (and biotech) is the planned institutional biotech-edition — refuse it
-# in the public general-edition BEFORE delegating to setup.py, so the Windows path
-# fails fast with a clear message instead of a confusing downstream exit. Mirrors setup.sh.
-if ($Compliance -in @("healthcare", "biotech")) {
-    Write-Host "X ERROR: PHI/healthcare compliance is part of the institutional biotech-edition, not the public general-edition." -ForegroundColor Red
-    Write-Host "  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md for institutional adoption."
+# PHI/healthcare is planned for a future release — refuse it in the general-edition
+# BEFORE delegating to setup.py, so the Windows path fails fast with a clear message
+# instead of a confusing downstream exit. Mirrors setup.sh.
+if ($Compliance -in @("healthcare")) {
+    Write-Host "X ERROR: PHI/healthcare compliance is not available in the general-edition (a HIPAA/PHI-focused institutional edition is planned for a future release)." -ForegroundColor Red
+    Write-Host "  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md."
     exit 1
 }
 

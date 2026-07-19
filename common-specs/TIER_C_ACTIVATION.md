@@ -25,7 +25,7 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 | **C1 Auto-Dream** | Anthropic `dreaming-2026-04-21` beta — offline async consolidation | T4 (Code Exec + Anthropic beta) | High — requires beta access | Dormant; design spec only |
 | **C2 Graphiti + Kuzu** | Bi-temporal knowledge graph (Layer 5) | **T1 (Ollama) or T3 (Anthropic API)** | Medium — `pip install graphiti-core[kuzu]` + MCP wiring | Refreshed 2026-05-19 |
 | **C3 Graphify** | Codebase structural knowledge graph (adjacent tool, §11.5) | **T3 (Python) or T4 (Skill install)** | Low — `uv tool install graphifyy && graphify install` | Refreshed 2026-05-19 |
-| **C4 Cryptographic signatures** | Ed25519 (biotech) / HMAC (general) memory entry signing | T3 (Code Execution) | Low — `cryptography` package + key gen via setup.py | Designed-in; ready to activate |
+| **C4 Cryptographic signatures** | HMAC memory-entry signing (Ed25519 offline-key variant planned) | T3 (Code Execution) | Low — `cryptography` package + key gen via setup.py | Designed-in; signing pipeline not yet implemented |
 | **C6 LLMLingua / LongLLMLingua** | Prompt compression on cached prefixes (~40× compound discount) | T3 (Code Exec + Python ML libs) | Medium | Designed-in; further research needed |
 | **C7 Aider repo-map** | Tree-sitter + PageRank code-structure primitive (adjacent tool, §11.5) | T3 (Code Execution + Aider integration) | Medium | Designed-in; further research needed |
 | **C8 LLM-as-judge evals** | Extends the manual eval harness with auto-grading | T3+ (LLM-callable infrastructure) | Medium-High | Designed-in; further research needed |
@@ -46,7 +46,7 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 
 ### What it is
 
-Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.0 (April 27, 2026). 26.3k stars. arXiv:2501.13956. Per ARCHITECTURE.md §9, this is the **biotech-first designed-in storage upgrade** for clinical/regulatory provenance.
+Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.0 (April 27, 2026). 26.3k stars. arXiv:2501.13956. Per ARCHITECTURE.md §9, this is the **designed-in storage upgrade** for temporal provenance / point-in-time audit.
 
 ### When to activate
 
@@ -119,7 +119,7 @@ This makes Graphiti queries available as `mcp__graphiti__*` tools in your Claude
 
 - **Vendor benchmark numbers** (94.8% / +18.5% on LongMemEval / DMR) are not treated as authoritative — adopt the design, not the numbers.
 - **First ingestion** is LLM-intensive (graph extraction). Subsequent updates are incremental.
-- **Bi-temporal model** is the load-bearing value — point-in-time queries ("what did we believe on date X?") for HIPAA/regulatory forensics.
+- **Bi-temporal model** is the load-bearing value — point-in-time queries ("what did we believe on date X?") for audit/forensic reconstruction.
 
 ### Deactivation
 
@@ -228,7 +228,7 @@ ls ./graphify-out/                       # expect: graph.html, GRAPH_REPORT.md, 
 your codebase
      │
      ▼
-[graphify build ./codebase --out ./graphify-out]
+[graphify ./codebase]  → ./graphify-out/
      │
      ▼
 graphify-out/{graph.html, GRAPH_REPORT.md, graph.json}
@@ -271,28 +271,18 @@ rm -rf ./graphify-out/              # remove generated graphs
 
 ### What it is
 
-Per-entry cryptographic signatures for tamper detection. Biotech-edition: **Ed25519** with offline private key (strongly recommended). General-edition: **HMAC** with session-derived secret (optional).
+Per-entry cryptographic signatures for tamper detection. The shipped edition uses **HMAC** with a session-derived secret. **Ed25519** with an offline private key is planned for a future high-assurance edition (not yet available).
 
 ### When to activate
 
-- **T3 (Code Execution + cryptography package available):** Both editions
-- Biotech-edition deployments are STRONGLY RECOMMENDED to activate (HIPAA §164.312(c)(1) integrity controls)
-- General-edition deployments are OPTIONAL
+- **T3 (Code Execution + cryptography package available)**
+- Recommended for high-integrity deployments; optional otherwise
 
 ### Install + key generation
 
-**Biotech-edition (Ed25519):**
-```bash
-# Ed25519 keypair signing ships with the institutional biotech-edition
-# (see CONTRIBUTING.md "Institutional adoption" for access).
-# cryptography package required; verify:
-python3 -c "import cryptography; print(cryptography.__version__)"
+The shipped edition signs with **HMAC**. Ed25519 offline-key signing is planned for a future high-assurance edition (not yet available).
 
-# Key generation is part of the biotech-edition setup; store the private
-# key per your organization's HIPAA key-management policy.
-```
-
-**General-edition (HMAC):**
+**HMAC signing (shipped):**
 ```bash
 python3 <package>/general-edition/setup.py --generate-hmac-secret
 # Output: ~/.config/ultimate-memory-stack/keys/general-edition.hmac.secret (256-bit, file mode 0o600)
@@ -302,14 +292,11 @@ python3 <package>/general-edition/setup.py --generate-hmac-secret
 
 ```bash
 ls -la ~/.config/ultimate-memory-stack/keys/
-# Expect (general-edition): general-edition.hmac.secret (mode 600)
-# (biotech-edition: private.pem mode 600 + public.pem mode 644)
+# Expect: general-edition.hmac.secret (mode 600)
 ```
 
-Add the public key reference to `<edition>/PROFILE.md`:
+Add the secret reference to `<edition>/PROFILE.md`:
 ```yaml
-ed25519_public_key_path: ~/.config/ultimate-memory-stack/keys/biotech-edition.public.pem
-# OR
 hmac_secret_path: ~/.config/ultimate-memory-stack/keys/general-edition.hmac.secret
 ```
 
@@ -329,7 +316,7 @@ The signing pipeline is designed-in but not yet implemented in the protocol. Fut
 
 ### Deactivation
 
-Revoke the public key in `<edition>/PROFILE.md`. Existing signatures become unverifiable (which is the security-correct behavior — key compromise = revoke).
+Rotate the signing key (HMAC secret) referenced in `PROFILE.md` — regenerate via `setup.py --generate-hmac-secret`. Existing signatures become unverifiable (which is the security-correct behavior — key compromise = rotate).
 
 ---
 
@@ -415,7 +402,7 @@ For every Tier C tool:
 | Aider repo-map | YES (similar pattern) | N/A | N/A |
 | Auto-Dream | Memory → Anthropic Dreaming beta | N/A | N/A |
 
-For biotech-edition with PHI exposure concern: prefer Ollama-based ingestion for both Graphiti + Graphify to keep all data local. Cloud LLM is faster but exfiltrates content.
+For sensitive or private data: prefer Ollama-based ingestion for both Graphiti + Graphify to keep all data local. Cloud LLM is faster but exfiltrates content.
 
 ---
 

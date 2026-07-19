@@ -11,7 +11,7 @@
 
 ## §5 Preset Definitions — General-Edition Implementation
 
-This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with general-edition-specific implementation details. The presets selectable in general-edition are `none` / `enterprise` / `custom`; this file specifies HOW they work in general-edition. The shared common-spec also defines a `healthcare` preset value, but it is biotech-edition-reserved and **not selectable in general-edition** (the setup wizard refuses it with an "institutional edition only" message) — see §5.2.
+This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with general-edition-specific implementation details. The presets selectable in general-edition are `none` / `enterprise` / `custom`; this file specifies HOW they work in general-edition. The shared common-spec also defines a `healthcare` preset value, but it is reserved for a planned future institutional edition and **not selectable in general-edition** (the setup wizard refuses it) — see §5.2.
 
 > **Where the active preset value comes from (v4.0.0):** the installer writes the bootstrap-selected preset to `memory/user/USER_OVERRIDES.md` (not `PROFILE.md` — that file is now regenerable and holds only the shipped default, `none`). `USER_OVERRIDES.md`, if present, wins. See `PROFILE.md` §2.1.
 
@@ -20,11 +20,11 @@ This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with gener
 **Activation behavior:**
 - Selected at bootstrap (Step 7 Q3) if user picks "none — solo dev / personal projects / no regulatory exposure"
 - Default if user skips Q3 (matches "lowest friction" principle)
-- Can be CHANGED later via PROFILE.md edit + `setup.sh --change-preset=<new>` (or manual edit)
+- Can be CHANGED later via `setup.sh --change-preset=<new>` (or by editing `memory/user/USER_OVERRIDES.md`)
 
 **Active in general-edition with `none`:**
 - Detection patterns: `../common-specs/detection_patterns_none.md` only (secrets, credentials, basic identifiers)
-- Audit log: OFF by default (user can opt-in via `audit_log: true` in PROFILE.md)
+- Audit log: OFF by default (user can opt-in via `audit_log: true` in `memory/user/USER_OVERRIDES.md`)
 - Quarantine UX: one-line toast at session start
 - Quarantine triggers: manual flag + signature-mismatch (if Layer 6 active at T3+)
 - Delete semantics: hard delete + 7-day recovery window
@@ -41,24 +41,20 @@ Q: Compliance preset selection
 Your choice [1]: _
 
 ✓ Compliance preset set to `none`. Audit log will be OPT-IN (default OFF).
-  You can change this later by editing PROFILE.md.
+  You can change this later by editing `memory/user/USER_OVERRIDES.md`.
 ```
 
 ### §5.2 HIPAA / PHI Workloads — Institutional Edition (Planned)
 
 The general-edition does **not** offer a selectable `healthcare` preset. The
 setup wizard accepts `none`, `enterprise`, and `custom` only; selecting a
-HIPAA/healthcare path is refused with an "institutional edition only" message.
+HIPAA/healthcare path is refused.
 
 A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
-**For comparison only** (this describes the planned institutional edition; it is
-not selectable here): the institutional edition is designed to provide
-HIPAA-grade, non-overridable PHI defaults and a blocking quarantine workflow,
-versus the general-edition's broad-PII `enterprise` preset with non-blocking
-toast UX. The `healthcare` detection-pattern value still lives in the shared
-schema (biotech-edition-reserved; not selectable in general-edition) so the
-future institutional edition can consume it.
+The `healthcare` detection-pattern value still lives in the shared
+schema (not selectable in general-edition) so the planned future institutional
+edition can consume it.
 
 ### §5.3 `enterprise` Preset (General-Edition Implementation)
 
@@ -148,7 +144,7 @@ User can change preset at any time:
 $ setup.sh --change-preset=<new-preset>
 ```
 
-Or by editing PROFILE.md directly. On preset change:
+Or by editing `memory/user/USER_OVERRIDES.md` directly. On preset change:
 
 1. **Log change to audit trail** (even if audit was OFF, this event is recorded)
 2. **Backwards re-validation** — scan all existing memory entries against new preset detection patterns
@@ -157,7 +153,7 @@ Or by editing PROFILE.md directly. On preset change:
 
 ### §5.6 Cross-Edition Migration
 
-If user starts with general-edition (`none` preset) and later realizes they need biotech-grade compliance:
+If user starts with general-edition (`none` preset) and later realizes they need HIPAA/PHI-grade compliance:
 
 A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 

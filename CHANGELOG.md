@@ -58,13 +58,13 @@ This release changes the installed layout, not just repo content — that's the 
 ### Fixed
 - **macOS: installer failed at addon registration** — `setup-memory-stack.sh` used a bash-4 associative array (`declare -A`), but macOS ships bash 3.2; replaced with a portable case-statement lookup. Caught by the cross-OS install CI on launch day (the macOS leg had never run on real Apple hardware before).
 - **Install skill could overwrite an existing `memory/` store** — the `/install-ultimate-memory-stack` skill (≤ v1.1) created `session_state.md` / `MEMORY_INDEX.md` / `user_profile.md` / project briefs / `feedback.md` without checking whether they already existed, so re-running it over an existing project-local memory store reset accumulated memory to empty templates. Skill **v1.2** adds an existing-store safety gate (detect → timestamped `memory.backup.<ts>/` → preserve mode; user-data files are now create-if-absent), matching the shell and agent install doors, which already preserved data. (Claude Code's native memory and `CLAUDE.md` are unaffected — UMS writes only to the project-local `memory/`.)
-- **Windows installer accepted a compliance preset it then rejected** — `general-edition/setup.ps1` listed `healthcare` as a valid preset/extension while `setup.sh`/`setup.py` refuse it, so passing `-Compliance healthcare` produced a confusing downstream failure. The PS1 now rejects it up-front with the institutional-edition message, matching the other installers.
+- **Windows installer accepted a compliance preset it then rejected** — `general-edition/setup.ps1` listed `healthcare` as a valid preset/extension while `setup.sh`/`setup.py` refuse it, so passing `-Compliance healthcare` produced a confusing downstream failure. The PS1 now rejects it up-front, matching the other installers.
 - **Install skill now refuses unsafe install locations** — the `/install-ultimate-memory-stack` skill (v1.3) guards against scaffolding into `$HOME` or a system directory (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`), which would otherwise scatter `memory/`, `.claude/`, and `ultimate-memory-stack/` across the user's home/root. It now stops and asks the user to `cd` into a dedicated project directory first.
 - **Install-skill data-preservation guard made explicit** — Step 8 of the install skill (v1.3) now spells out the per-file existence check (`[ -e <target> ]` → preserve, do not write, ask first) so the Step 0.5 existing-store protection is mechanical rather than advisory prose; Step 7f now confirms before resetting a user-customized `PROFILE.md` on a re-install.
 
 ### Changed
 - **Install doors reordered to lead with the safe paths** — the landing page, `README.md`, and `INSTALL.md` now present the **script** and **agent** doors first (both detect and preserve an existing `memory/` store); the Claude Code **marketplace** door follows, with a "back up an existing store first" note. The backup guidance is scoped to the marketplace door — the only one with overwrite potential.
-- **Gated the public biotech/healthcare offer** — the public package ships **general-edition only** (compliance presets `none`/`enterprise`/`custom`; extensions `gdpr`/`soc2`/`pci-dss`). Docs, prompts, the install skill, and `setup.ps1` no longer offer the `healthcare` preset/extension or a selectable biotech edition (the installers already refused them — this aligns the docs to that gate). A HIPAA/PHI-focused institutional edition is **planned for a future release (not yet available)**; all references are now forward-looking rather than present-availability claims.
+- **Gated the public healthcare/institutional offer** — the public package ships **general-edition only** (compliance presets `none`/`enterprise`/`custom`; extensions `gdpr`/`soc2`/`pci-dss`). Docs, prompts, the install skill, and `setup.ps1` no longer offer the `healthcare` preset/extension or a selectable institutional edition (the installers already refused them — this aligns the docs to that gate). A HIPAA/PHI-focused institutional edition is **planned for a future release (not yet available)**; all references are now forward-looking rather than present-availability claims.
 - **Marketplace (Door 3) install docs hardened** — added a "these are Claude Code slash commands, not shell commands" callout, a Prerequisites line (Claude Code installed + authenticated), and the explicit exit → `cd` → relaunch steps, and promoted the back-up-an-existing-store note from a parenthetical to a prominent warning (README, INSTALL.md, landing page). Addresses UX gaps surfaced by the post-launch install test.
 - **Version bumped 3.6.0 → 3.6.1** so existing marketplace installs receive the install-skill data-safety fix (existing-store backup + preserve, shipped in skill v1.1/1.2) via `/plugin update` — the fix was committed but undelivered while the package still advertised 3.6.0.
 
@@ -82,7 +82,7 @@ This release changes the installed layout, not just repo content — that's the 
 - `CITATION.cff` (GitHub "Cite this repository" support) + "Citing this work" README section — a courtesy citation request (esoteric1entity / PDuk Brainworks), entirely optional; the Apache-2.0 terms are unchanged.
 
 ### Added (2026-06-12 — unit-test suite)
-- **`tests/` — a 177-test pytest unit suite** (282 assertions) covering the package's logic modules: `lint_runner.py`, `heartbeat_compactor.py`, `general-edition/setup.py`, and `review_quarantined.py`. Previously these modules were exercised only by full install runs + `verify.sh` (an install validator); they now have isolated, deterministic unit coverage. Includes a regression guard for the doc-completeness matcher fix (both `### Purpose` and `**Purpose:**` forms) and for the biotech/healthcare-refusal branches. Run with `python -m pytest tests/`. (No bugs surfaced — the modules were sound post-audit; the suite locks current behavior in.)
+- **`tests/` — a 177-test pytest unit suite** (282 assertions) covering the package's logic modules: `lint_runner.py`, `heartbeat_compactor.py`, `general-edition/setup.py`, and `review_quarantined.py`. Previously these modules were exercised only by full install runs + `verify.sh` (an install validator); they now have isolated, deterministic unit coverage. Includes a regression guard for the doc-completeness matcher fix (both `### Purpose` and `**Purpose:**` forms) and for the compliance-preset refusal branches. Run with `python -m pytest tests/`. (No bugs surfaced — the modules were sound post-audit; the suite locks current behavior in.)
 
 ### Fixed (2026-06-12 final pre-push review)
 - Removed dead `AGENTS.md` cross-references from `INSPIRATIONS.md` (the file isn't shipped); replaced the dangling `OPENCLAW_GENERAL_EDITION_DESIGN_NOTES.md` references throughout the OpenClaw adapter (×7, in SKILL/MAPPING/scripts) with the shipped `MAPPING.md`.
@@ -109,7 +109,7 @@ This release changes the installed layout, not just repo content — that's the 
 - Top-level `verify.sh` post-install validation (T1–T7 install-checkable self-test wrapper)
 - Public README with debut-quality framing
 - Influences & Original Work section recognising upstream work (Obsidian, Graphiti, Graphify, LLMLingua, Cline memory-bank, Karpathy lint philosophy)
-- "Institutional adoption (biotech edition)" section in CONTRIBUTING.md; biotech-edition availability note in README / INSTALL / ARCHITECTURE
+- "Institutional adoption" section in CONTRIBUTING.md; institutional-edition availability note in README / INSTALL / ARCHITECTURE
 - **Four-door install architecture** (the Agent Architect Stack install convention): (1) self-hosted Claude Code **marketplace** (`.claude-plugin/plugin.json` + `marketplace.json`, `/plugin marketplace add esoteric1entity/ultimate-memory-stack`); (2) **agent-executed install** — `INSTALL_AGENT.md`, a human-reviewable spec any agent harness can execute (Claude Code, OpenClaw, Hermes, generic); (3) upgraded **script** installers; (4) **manual** + activation prompt
 - Install engine in `setup-memory-stack.sh`/`.ps1`: harness detection (Claude Code / OpenClaw workspace / generic), interactive target confirmation with detected defaults, `--target`/`-Target` + `--yes`/`-Yes` flags, package-root guard (refuses to mix user memory into the package tree), safe re-install (refreshes only the product-owned scaffold; `memory/` data never touched), harness registration (`.claude/rules/memory_protocol.md`), and a `.ums-manifest.json` install manifest
 - Modular install entry points (`setup-memory-stack.{sh,ps1}` + `verify.sh`)
@@ -129,7 +129,7 @@ This release changes the installed layout, not just repo content — that's the 
 ### Changed
 - `INSTALL.md` rewritten for the standalone repo: entry-point scripts first, per-method requirements stated (Windows route requires Python 3.8+), umbrella-era cross-references removed
 - `install-ultimate-memory-stack` Skill promoted v1.0 DRAFT → **v1.0 STABLE** after first end-to-end execution (T1–T9 self-test 9/9 PASS); Step 2 now offers only editions actually present in the source package
-- `INSTALLATION_GUIDE.md` comprehensively revised (guide rev 3.0): documents the top-level entry scripts + `verify.sh` throughout; install-skill section made present-tense (it ships); biotech-edition consistently framed as the institutional package; expected-output blocks replaced with verified live-run output; §17/§18 section order restored; internal references and sanitization artifacts removed
+- `INSTALLATION_GUIDE.md` comprehensively revised (guide rev 3.0): documents the top-level entry scripts + `verify.sh` throughout; install-skill section made present-tense (it ships); the institutional edition consistently framed as the planned package; expected-output blocks replaced with verified live-run output; §17/§18 section order restored; internal references and sanitization artifacts removed
 - License decision locked: **Apache-2.0** (was: a long-standing deferred placeholder)
 - All internal `branches/memory/package/` paths in install + spec docs rewritten to be self-contained for the per-package repo layout
 - Top-level README replaced with the v3.6.0 debut release version (former v3.0 R&D README archived in the umbrella's R&D tree)
@@ -147,15 +147,15 @@ This was the last R&D-internal release before the v3.6.0 cut. Highlights:
 ### Added
 - v3.5 BUILD COMPLETE — 10 core components shipped (Option C self-improvement Lint, OpenClaw General Edition Adapter, Multi-Machine Sync DESIGN, 4 PASS-vetted addons, claudeless QUICKSTART, etc.)
 - Cross-machine round-trip validated: Claude Code ↔ OpenClaw byte-identical memory entries
-- SHA-256 hashing for forensic audit-log integrity (biotech edition)
-- Quarantine workflow lockable in biotech edition; non-overridable healthcare compliance preset
+- SHA-256 hashing for forensic audit-log integrity
+- Quarantine workflow lockable under a strict compliance preset; non-overridable compliance profile
 - B7 compliance preset (custom)
 - Claudeless QUICKSTART guide for general-edition deployments
 
 ### Fixed
 - v3.2.1 tier-marker regression in `MEMORY.md`
 - v3.2.2 `HEARTBEAT.md` injection-limit overflow
-- B2 field-type validation failure in biotech edition
+- B2 field-type validation failure
 - Typo (`decission` → `decision`)
 - `setup-openclaw.sh` python vs python3 detection mismatch
 
@@ -171,8 +171,8 @@ This was the last R&D-internal release before the v3.6.0 cut. Highlights:
 - 9-root-file convention formalized (per `MEMORY_PROTOCOL.md` §2)
 - SCHEMA_A18 frontmatter standard
 - bash-guard + write-guard hooks (precursor to the agent-shield Layer 4)
-- B1/B2/B7 biotech edition locks
-- Edition split: biotech-edition (HIPAA-grade) vs general-edition (user-configurable)
+- B1/B2/B7 compliance locks
+- Edition split: an institutional compliance edition vs a user-configurable general edition
 
 ### Breaking
 - v2.0 files no longer canonical (preserved in upstream R&D archive)
@@ -224,7 +224,7 @@ The individual spec documents in `common-specs/` previously carried their own ve
 ### `BOOTSTRAP_PROMPT.md`
 | Version | Date | Changes |
 |---|---|---|
-| 1.0–2.0 | 2026-04-10 | Rapid early iterations: core files + session protocol → adaptive loading tiers, conflict resolution, risk scoring, cascade detection → subdirectory structure, MEMORY_INDEX, consolidation protocol → tiered context budget, 9-level conflict hierarchy, healthcare compliance profile, self-test suite |
+| 1.0–2.0 | 2026-04-10 | Rapid early iterations: core files + session protocol → adaptive loading tiers, conflict resolution, risk scoring, cascade detection → subdirectory structure, MEMORY_INDEX, consolidation protocol → tiered context budget, 9-level conflict hierarchy, compliance profile, self-test suite |
 | 3.0 | 2026-05-13 | Paradigm shift to the referencing model: per-entry frontmatter (A18), per-project memory banks (A3), Layer 0–6 architecture with T0–T4 tier markers, edition profiles, compliance-preset hybrid, audit/quarantine/signature features, migration path from v2.0 — drawn from a 210-source research base |
 | 3.0 rev-1 | 2026-05-14 | Corrected Tier C ID mismatches; all 12 Tier B items listed explicitly; surfaced B5 bi-temporal fields, C2 Graphiti+Kuzu, C3 Graphify with the adjacent-tool distinction; Obsidian-vault compatibility callout; "borrow ideas, not numbers" framing |
 
@@ -233,7 +233,7 @@ The individual spec documents in `common-specs/` previously carried their own ve
 |---|---|---|---|
 | `SCHEMA_audit_log.md` | 1.0 | 2026-05-14 | JSONL audit format; canonical formatting (compact JSON, second-precision ts, `entry_id` sentinels) locked 2026-05-26 after cross-script drift was caught in validation |
 | `SCHEMA_quarantine.md` | 1.0 | 2026-05-14 | Quarantine workflow + reason codes |
-| `SCHEMA_compliance_profile.md` | 1.0 | 2026-05-14 | 3-preset hybrid (none / healthcare / enterprise) + custom |
+| `SCHEMA_compliance_profile.md` | 1.0 | 2026-05-14 | 3-preset hybrid + custom |
 | `SCHEMA_lint.md` | 1.0 | 2026-05-15 | 6 lint checks (Karpathy LLM Wiki pattern); +5 self-improvement checks added with the v3.5 retrofits |
 | `SCHEMA_sync_log.md` | 1.0 | 2026-05-28 | Cross-machine sync provenance schema (implementation is a future deliverable; schema ships now) |
 | `USER_CHEAT_SHEET_core.md` | 1.1 | 2026-05-29 | v1.0 (2026-05-15) + v1.1 deployment section |

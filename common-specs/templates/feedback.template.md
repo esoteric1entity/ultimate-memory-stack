@@ -57,7 +57,7 @@ tags: [<tag1>, <tag2>]
 
 ## Worked example — Pattern promotion
 
-After 3 occurrences (biotech) or 5 occurrences (general) of the same pattern_key, per B6:
+After 5 occurrences of the same pattern_key, per B6:
 
 ```markdown
 ## FB-003: Output formatting — tables should use markdown pipe syntax, not ASCII
@@ -66,7 +66,7 @@ After 3 occurrences (biotech) or 5 occurrences (general) of the same pattern_key
 id: FB-003
 created_at: 2026-04-15
 pattern_key: output.formatting.tables
-recurrence_count: 3                           # auto-promoted at threshold
+recurrence_count: 5                           # auto-promoted at threshold
 first_seen: 2026-04-01
 last_seen: 2026-04-15
 related: [FB-001, FB-002]                     # prior instances same pattern_key
@@ -78,7 +78,7 @@ tags: [formatting, ux, promoted-to-standing-rule]
 **Behavior to change:** Default to `| col | col |\n|-----|-----|` for ALL tables.
 **Reasoning:** Renders in markdown viewers; ASCII tables don't.
 **Apply to:** All output, all contexts.
-**Promotion:** This pattern hit threshold (recurrence_count=3 for biotech, ≥5 general). Auto-promoted to standing rule in `.claude/rules/auto_rules.md` per MEMORY_PROTOCOL.md §4.
+**Promotion:** This pattern hit threshold (recurrence_count ≥5). Auto-promoted to standing rule in `.claude/rules/auto_rules.md` per MEMORY_PROTOCOL.md §4.
 ```
 
 When promoted, a corresponding DEC entry captures the source feedback chain (provenance):
@@ -96,7 +96,7 @@ tags: [standing-rule, auto-promoted, formatting]
 
 ## Usage notes
 
-- **Patterns auto-promote at threshold:** Biotech recurrence_count ≥3, general ≥5 (per the B6 recurrence convention)
+- **Patterns auto-promote at threshold:** recurrence_count ≥5 (per the B6 recurrence convention)
 - **pattern_key naming:** Use stable dotted notation. Hierarchical. Examples: `output.formatting.tables`, `tool.use.parallel`, `git.commit.never-amend`. Consistent keys enable counting.
 - **first_seen / last_seen:** Temporal range — useful for "how stable is this pattern?"
 - **Promotion creates standing rule:** Once auto-promoted, the rule lives in `.claude/rules/auto_rules.md` AND a DEC entry with full provenance

@@ -5,8 +5,8 @@ version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["security-first vetting", "ideal-first design", "documentation discipline", "Tier C Layer 5 storage upgrade", "PASS-verdict addon batch"]
 vetting_reference: pre-release security vetting (verdict PASS with conditions)
-edition: any (biotech preferred — designed-in for clinical/regulatory provenance per ARCHITECTURE.md §9)
-tier: C (opt-in for general; biotech-first designed-in)
+edition: any
+tier: C (opt-in)
 license: Apache 2.0 (Graphiti); installer license: Apache-2.0
 upstream_status: active (last release 2026-05-21 v0.29.1; coordinated CVE disclosure track record)
 known_cve_history: CVE-2026-32247 (Cypher Injection) — patched at v0.28.2; Kuzu backend was UNAFFECTED
@@ -17,7 +17,7 @@ maintainers: paulzep + sunnysideup (Zep AI commercial backing)
 
 When this Skill is invoked (typically via `/install-graphiti` slash command or when the user asks Claude to install/deploy/activate Graphiti), execute the workflow below **IN ORDER**.
 
-Graphiti is the Layer 5 storage upgrade in the Ultimate Memory Stack architecture (per ARCHITECTURE.md §9). It is biotech-first **designed-in** for clinical/regulatory provenance, but available as opt-in Tier C for general-edition deployments.
+Graphiti is the Layer 5 storage upgrade in the Ultimate Memory Stack architecture (per ARCHITECTURE.md §9). It is an opt-in Tier C Layer 5 storage upgrade.
 
 ---
 
@@ -45,7 +45,7 @@ What Graphiti does:
 
 Vetting reference: pre-release security vetting (verdict PASS with conditions)
 License: Apache 2.0 (permissive)
-Tier: C — biotech-first designed-in; general-edition opt-in
+Tier: C — opt-in addon
 
 Continue with install? [Y/n]:
 ```
@@ -243,7 +243,7 @@ pipeline: install-graphiti Skill v1.0
 ---
 
 - **Date:** <today>
-- **Verdict:** ACTIVATED (Tier C — biotech-first designed-in)
+- **Verdict:** ACTIVATED (Tier C — opt-in)
 - **Backend:** Kuzu (parameterized labels prevent Cypher injection class)
 - **Telemetry:** DISABLED (env var set)
 - **MCP server:** [installed | not installed]
@@ -286,7 +286,7 @@ Operational notes:
 | 5 | Install with floor pin | vetting condition #1 |
 | 6 | Persist telemetry-off | vetting condition #2 |
 | 7 | Smoke test | ideal-first design |
-| 8 | Register with stack (opt) | Tier C designed-in (C2) |
+| 8 | Register with stack (opt) | Tier C opt-in (C2) |
 | 9 | Security subscription | vetting condition #5 |
 | 10 | Log activation | security-first vetting + documentation discipline |
 | 11 | Hand-off | ideal-first design |

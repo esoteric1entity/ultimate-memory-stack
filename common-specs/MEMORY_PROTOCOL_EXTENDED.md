@@ -76,7 +76,7 @@ Pin Tier 1 entries at **BOTH the start AND end** of the bootstrap injection. So 
 **End-pin content (compressed):** The end-pin can be a CONDENSED version (e.g., session_state heartbeat top section only, not the full file). Goal is recency anchoring, not full re-injection. Reduces budget impact while preserving rot mitigation.
 
 **Edition behavior:**
-- **Both editions:** Position-pinning applied. No edition-specific override (universal best practice).
+- **All deployments:** Position-pinning applied. No edition-specific override (universal best practice).
 - **Per-harness:** Implementation differs (see below).
 
 **Implementation per harness:**
@@ -150,11 +150,11 @@ Every memory write produces an entry in `memory/security/audit_log.jsonl`:
 {"ts":"2026-05-14T15:30:00Z","actor":"orchestrator","session":7,"action":"write","entry_id":"DEC-024","entry_summary":"<first-200-chars>","content_sha256_before":"...","content_sha256_after":"...","outcome":"success"}
 ```
 
-**Biotech edition:** REQUIRED on every write (including reads-for-validation if SCHEMA_audit_log.md so configures). Non-overridable.
+**Under strict compliance presets (e.g., `enterprise`):** REQUIRED on every write (including reads-for-validation if SCHEMA_audit_log.md so configures). Non-overridable.
 
-**General edition:** OPT-IN; default OFF. User enables via `audit_log: true` in compliance profile.
+**Otherwise:** OPT-IN; default OFF. User enables via `audit_log: true` in compliance profile.
 
-**Do NOT log entry content** — only summaries (first 200 chars) to keep log size manageable and PHI-free.
+**Do NOT log entry content** — only summaries (first 200 chars) to keep log size manageable and avoid logging sensitive content.
 
 ### E3.3 Quarantine Routing Detail (B2)
 
@@ -164,7 +164,7 @@ If validation-on-read (core §4) fails for an entry:
 3. Set entry's `status: quarantined` in frontmatter
 4. Log to audit log per E3.2
 
-**Biotech edition UX:** Surface quarantine via `/audit-quarantine` — review workflow with batch approve/reject. Entries cannot be released without explicit user approval.
+**Quarantine review UX:** Surface quarantine via `/audit-quarantine` — review workflow with batch approve/reject. Entries cannot be released without explicit user approval.
 
 > **Implementation note:** `/audit-quarantine` ships as a **packaged Skill artifact** at `core/audit-quarantine-skill/`.
 >
@@ -174,9 +174,9 @@ If validation-on-read (core §4) fails for an entry:
 > - `INSTALL_AUDIT_QUARANTINE_SKILL.md` — manual fallback for non-Skill environments
 > - `scripts/review_quarantined.py` — standalone Python CLI equivalent
 >
-> Both biotech and general-edition UX (full workflow vs toast notification) are supported.
+> Both surfacing modes (full review workflow and toast notification) are supported.
 
-**General edition UX:** One-line toast at session start: "X entries quarantined since last session — review?" with quick approve/reject inline.
+**Session-start surfacing:** One-line toast at session start: "X entries quarantined since last session — review?" with quick approve/reject inline.
 
 ### E3.4 Bi-Temporal Supersession (B5)
 
@@ -207,7 +207,7 @@ For every common-spec file `common-specs/X.md`, check for an override at `<editi
 
 **Example:**
 - `common-specs/MEMORY_PROTOCOL.md` defines `§5 Write Operations`
-- `biotech-edition/overrides/MEMORY_PROTOCOL.override.md` overrides its quarantine-routing subsection with biotech-specific workflow details
+- `<edition>/overrides/MEMORY_PROTOCOL.override.md` overrides its quarantine-routing subsection with edition-specific workflow details
 - Other sections of MEMORY_PROTOCOL.md inherit unchanged
 
 ### E4.2 Compliance Preset (B7)
@@ -217,7 +217,6 @@ Active compliance preset (from PROFILE.md) selects detection patterns + redactio
 | Preset | What activates |
 |--------|----------------|
 | `none` | No regulatory detection. Standard hygiene only (secrets, credentials). Lowest friction. |
-| `healthcare` | Full PHI detection (MRN, specimen IDs, accession numbers, genomic identifiers). Redact-on-sight. Audit log default ON. Biotech: non-overridable. |
 | `enterprise` | GDPR + SOC2 baseline — provenance + audit + consent tracking. Hard delete with recovery window. |
 | `custom` | Compliance is fully configured via `<edition>/overrides/compliance.override.md` (user-authored) — fine-grained for power users. |
 
@@ -329,12 +328,12 @@ pass itself.
 
 #### Edition behavior (5 new checks)
 
-| Check | biotech-edition | general-edition |
+| Check | Strict compliance preset | Default |
 |---|---|---|
 | 7 Promotion candidates | ✅ Enabled (cadence: weekly) | ✅ Enabled (cadence: monthly) |
 | 8 Pattern condensation | ✅ Enabled (T3 — needs LLM) | ⚠️ Opt-in (Tier C) |
 | 9 Naming inconsistencies | ✅ Enabled (T3 — needs LLM) | ⚠️ Opt-in (Tier C) |
-| 10 Doc completeness gaps | ✅ Enabled — CRITICAL severity (HIPAA forensics demand documentation-discipline compliance) | ✅ Enabled — MEDIUM severity |
+| 10 Doc completeness gaps | ✅ Enabled — CRITICAL severity (strict compliance requires documentation-discipline) | ✅ Enabled — MEDIUM severity |
 | 11 Standing-rule candidates | ✅ Enabled | ⚠️ Opt-in (Tier C) |
 
 #### Maturity
@@ -346,8 +345,8 @@ pass itself.
 ### Trigger Mechanisms
 
 - **Manual:** `/lint-memory` slash command (runs immediately; outputs to chat + logs to `memory/security/lint_runs.jsonl`)
-- **Auto biotech:** Weekly cadence; if last run >7 days ago, runs at session start; HIGH/CRITICAL findings block new writes until reviewed (matches the biotech quarantine pattern)
-- **Auto general:** Monthly cadence; surfaces as toast at session start; non-blocking; user opts in to review or defers
+- **Auto (default cadence):** Monthly; surfaces as toast at session start; non-blocking; user opts in to review or defers
+- **Auto (strict compliance presets):** Weekly; if last run >7 days ago, runs at session start; HIGH/CRITICAL findings block new writes until reviewed (matches the quarantine pattern)
 
 ### Surface-Only Design
 
@@ -382,7 +381,7 @@ This matches `eslint --no-fix` philosophy — Lint is a checker, not an editor.
      - Returns to orchestrator: { findings: [...], summary: "...", severity_counts: {...} }
    ↓
 4. Orchestrator receives findings:
-     - Surfaces to user per edition mode (chat output / toast / blocking on biotech CRITICAL)
+     - Surfaces to user per configured mode (chat output / toast / blocking on CRITICAL under strict presets)
      - Appends single "lint-run" entry to audit_log.jsonl per E3.2
      - Does NOT see Vault's intermediate analysis (Vault context discarded)
 ```
@@ -403,33 +402,14 @@ In the OpenClaw General Edition Adapter, Lint runs as a Skill with `metadata.ope
 `memory/security/lint_runs.jsonl` — append-only JSONL log of each lint run + findings. Format per SCHEMA_lint.md §4.1.
 
 Retention:
-- **Biotech:** 365 days minimum (HIPAA forensic completeness)
-- **General:** 90 days default; configurable
+- 90 days default; configurable (longer retention available under stricter compliance presets)
 
 ### Edition Configuration
 
-Per-edition PROFILE.md gains a `lint:` config block:
+PROFILE.md gains a `lint:` config block:
 
 ```yaml
-# Biotech (non-overridable cadence/mode)
-lint:
-  cadence: weekly
-  mode: auto
-  blocking_on_critical: true
-  retention_runs_days: 365
-  thresholds:
-    stale_tentative_sessions: 10
-    stale_webfetch_days: 30
-    orphan_minimum_age_sessions: 5
-  checks_enabled:
-    orphan: true
-    broken_ref: true
-    stale_tentative: true
-    stale_webfetch: true
-    contradiction: true            # T3 required
-    missing_concept: true          # T3 required
-
-# General (configurable; defaults shown)
+# Lint config (configurable; defaults shown)
 lint:
   cadence: monthly
   mode: suggested
@@ -444,21 +424,21 @@ lint:
     broken_ref: true
     stale_tentative: true
     stale_webfetch: true
-    contradiction: false           # opt-in for general
-    missing_concept: false         # opt-in for general
+    contradiction: false           # opt-in
+    missing_concept: false         # opt-in
 ```
 
 ### Integration with Existing Workflows
 
 - **Audit log integration (B1):** Every lint run logs a `lint-run` action to audit_log.jsonl
-- **Quarantine integration (B2):** HIGH-severity contradictions may route to quarantine for biotech-edition (per `SCHEMA_quarantine.md` §6 reason codes — `lint-contradiction` is a valid reason)
+- **Quarantine integration (B2):** HIGH-severity contradictions may route to quarantine (per `SCHEMA_quarantine.md` §6 reason codes — `lint-contradiction` is a valid reason)
 - **Self-trimming (E6) complementarity:** Findings overlap (e.g., orphan + low-value TENTATIVE) — surface once across both, not twice
 - **Bi-temporal (B5) handling:** Contradictions in explicit `supersedes:` chains are NOT flagged by Lint (the chain itself resolves them); Lint catches contradictions that lack explicit chains
 
 ### When To Run Lint
 
 - Whenever the user invokes `/lint-memory`
-- Per-edition auto-cadence at session start (biotech weekly; general monthly)
+- Auto-cadence at session start (monthly by default; weekly under strict compliance presets)
 - During consolidation pass (every 10 sessions per E6) — run alongside self-trimming
 
 ### What Lint CANNOT Do
@@ -523,10 +503,9 @@ The error gives the user actionable remediation (archive instructions per the co
 
 ### Edition behavior
 
-| Edition | Default mode | Override mechanism | Audit |
-|---|---|---|---|
-| **biotech-edition** | Hard error (non-overridable in healthcare preset) | Requires admin token via `compliance.healthcare.cap_override_admin_token` config | Override logged to audit_log; HIPAA forensic complete |
-| **general-edition** | Hard error (user-overridable) | `/override-cap` slash command OR env var | Override logged to audit_log if audit_log enabled per B1 opt-in |
+| Default mode | Override mechanism | Audit |
+|---|---|---|
+| Hard error (user-overridable) | `/override-cap` slash command OR env var | Override logged to audit_log if audit_log enabled per B1 opt-in |
 
 ### Backward compatibility (legacy over-cap files)
 
@@ -569,9 +548,9 @@ Cross-machine validation includes exercising:
 
 ### E9.1 When promoting
 
-  - Merge duplicates (keep most recent confidence)
-  - Keep only the latest FINAL per topic
-  - Remove superseded TENTATIVE entries (or set their `invalid_at` if you want bi-temporal history)
+- Merge duplicates (keep most recent confidence)
+- Keep only the latest FINAL per topic
+- Remove superseded TENTATIVE entries (or set their `invalid_at` if you want bi-temporal history)
 - Promoted decisions get full SCHEMA_A18 frontmatter at promotion time (not inherited from session_state — fresh assignment)
 - If promoting via trigger C (PageRank signal), the entry's existing `access_count`, `last_accessed`, and `recent_sessions` carry over (they represent its access history; don't reset).
 
@@ -596,7 +575,7 @@ Borrowed pattern from Aider's repo-map PageRank algorithm — files heavily-refe
 
 ### E9.4 Edition behavior
 
-Both editions accept Triggers A/B/C/D identically. The only edition difference is Trigger B's threshold (3 for biotech vs 5 for general per core §4). PageRank signal (Trigger C) uses same thresholds in both editions for now; may be tuned per-edition in future revisions if data warrants.
+Triggers A/B/C/D are accepted identically. Trigger B's Pattern-Key promotion threshold is 5 (per core §4). The PageRank signal (Trigger C) uses the same thresholds for now; it may be tuned in future revisions if data warrants.
 
 ---
 
@@ -606,10 +585,10 @@ Both editions accept Triggers A/B/C/D identically. The only edition difference i
 
 1. ~~**CAS hash function** — should `content_sha256` be normalized before hashing?~~ **CLOSED: yes — canonical normalization is locked in SCHEMA_A18 §"`content_sha256` normalization".**
 2. **Quarantine release escalation** — the `/audit-quarantine` workflow ships; escalation paths beyond approve/reject/defer may grow in a future version.
-3. **Audit log retention defaults** — biotech (1 year minimum for HIPAA forensics?), general (90 days?). Per-edition PROFILE.md decides; the core protocol defines the rotation mechanism (§11).
+3. **Audit log retention defaults** — longer retention (e.g., 1 year) under stricter compliance presets vs 90 days by default? PROFILE.md decides; the core protocol defines the rotation mechanism (§11).
 4. **Pattern-key promotion target** — auto-promote where? `.claude/rules/auto_rules.md`? Or DEC entries? Lean toward DEC entries with `source_agent: auto-promoted-from-pattern` and full provenance.
 5. **Compaction trigger threshold** — protocol says "near context limit"; should it be deterministic (e.g., ~85%)? Community-derived guidance suggests ~95%.
-6. **Edition mixing** — the `healthcare` preset is **NOT supported in general-edition**: the installer refuses it (general-edition presets are `none` / `enterprise` / `custom` only; `healthcare` is biotech-edition-reserved). General-edition deployments with regulatory needs use the `enterprise` or `custom` preset. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+6. **`healthcare` preset (not available)** — the `healthcare` preset is **NOT selectable**: the installer refuses it (the shipped presets are `none` / `enterprise` / `custom` only). Deployments with regulatory needs use the `enterprise` or `custom` preset. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 

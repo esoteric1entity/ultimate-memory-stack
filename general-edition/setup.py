@@ -4,7 +4,7 @@ Ultimate Memory Stack — General-Edition Setup Script (Cross-Platform)
 Version: 1.1 — 2026-06-16
 Tier: T2+ (Python 3.8+); HMAC secrets at T3+ via cryptography package
 Author: see /AUTHORS.md
-License: Apache-2.0 (general-edition is the public-distribution candidate; biotech-edition is private)
+License: Apache-2.0
 """
 
 import argparse
@@ -45,10 +45,11 @@ except OSError:
     STACK_VERSION = "4.0.0"  # fallback for a general-edition dir copied standalone
 
 # Public general-edition presets. healthcare/PHI is intentionally EXCLUDED —
-# PHI/HIPAA handling ships ONLY in the institutional biotech-edition (not public).
+# not part of general-edition (a HIPAA/PHI-focused institutional edition is
+# planned for a future release).
 VALID_PRESETS = {"none", "enterprise", "custom"}
 VALID_EXTENSIONS = {"gdpr", "soc2", "pci-dss"}
-BIOTECH_ONLY = {"healthcare"}  # requested in general-edition -> redirect to biotech
+UNAVAILABLE_PRESETS = {"healthcare"}  # not available in general-edition; planned institutional edition
 
 
 def log_audit_event(working_dir: Path, action: str, summary: str,
@@ -571,10 +572,10 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     _refuse_if_installed_copy(working_dir)
     _refuse_if_not_writable(working_dir)
 
-    # PHI/HIPAA is biotech-edition only — refuse it in the public general-edition
-    if compliance_preset in BIOTECH_ONLY or any(e in BIOTECH_ONLY for e in extensions):
-        print(f"✗ '{compliance_preset}'/PHI handling is part of the institutional biotech-edition, not the public general-edition.")
-        print(f"  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md for institutional adoption.")
+    # PHI/HIPAA is not available in general-edition — refuse it (planned institutional edition)
+    if compliance_preset in UNAVAILABLE_PRESETS or any(e in UNAVAILABLE_PRESETS for e in extensions):
+        print(f"✗ '{compliance_preset}'/PHI handling is not available in the general-edition (a HIPAA/PHI-focused institutional edition is planned for a future release).")
+        print(f"  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md.")
         sys.exit(1)
 
     # Validate compliance preset
@@ -760,8 +761,8 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
 def change_preset(working_dir: Path, new_preset: str):
     """Change compliance preset on existing deployment. Writes to USER_OVERRIDES.md
     (v4.0.0) — PROFILE.md is regenerable and no longer authoritative for this value."""
-    if new_preset in BIOTECH_ONLY:
-        print(f"✗ '{new_preset}'/PHI handling is biotech-edition only, not available in the public general-edition.")
+    if new_preset in UNAVAILABLE_PRESETS:
+        print(f"✗ '{new_preset}'/PHI handling is not available in the general-edition (planned institutional edition).")
         sys.exit(1)
     if new_preset not in VALID_PRESETS:
         print(f"✗ Invalid preset: {new_preset}")
@@ -819,7 +820,7 @@ def main():
                         default=Path(os.environ.get("WORKING_DIR", str(Path.cwd()))),
                         help="Target deployment directory (env var WORKING_DIR honored; flag overrides env var)")
     parser.add_argument("--compliance", default="none",
-                        help="none | enterprise | custom (PHI/healthcare is biotech-edition only)")
+                        help="none | enterprise | custom (PHI/healthcare not available in general-edition)")
     parser.add_argument("--extensions", default="",
                         help="Comma-separated: gdpr,soc2,pci-dss")
     parser.add_argument("--migrate-from", choices=["v2.0", "v3.6"])

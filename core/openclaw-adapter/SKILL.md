@@ -4,7 +4,7 @@ description: Install the Ultimate Memory Stack General Edition adapter onto an O
 version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["ideal-first design", "documentation discipline", "modular consumer architecture", "Other-harness compatibility", "cross-harness convergence validation", "Option C extension"]
-target_harness: openclaw (general-edition; biotech deferred pending B7 compliance review)
+target_harness: openclaw (general-edition)
 edition: general-edition only (v3.5 scope)
 tier: A (core deliverable — NOT opt-in; required for OpenClaw deployment)
 license: Apache-2.0
@@ -37,7 +37,7 @@ What this does NOT do (explicit out-of-scope for v3.5):
   - Install DGM-H (deferred to a future evolution layer)
   - Install Auto-Dream (v4.0 candidate, Anthropic beta gated)
   - Multi-machine sync (Phase 4+ candidate)
-  - Biotech-edition overrides (B7 compliance review required)
+  - Healthcare compliance preset (not shipped in this edition)
   - Ports to other OpenClaw-family harnesses (e.g. NVIDIA NemoClaw, NanoClaw) + ClawHub distribution (deferred to a later phase)
 
 Edition: general-edition (compliance: none / enterprise — NOT healthcare)
@@ -182,7 +182,7 @@ Compliance preset:
 
 Write `<openclaw-root>/ultimate-memory-stack/general-edition/PROFILE.md` with chosen preset. Per MEMORY_PROTOCOL §6.
 
-If user later wants `healthcare` preset, that requires biotech-edition adapter (separate work).
+If user later wants the `healthcare` preset, a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
 
 ---
 
@@ -331,7 +331,7 @@ For Sentinel-vetted addon installs:
 | 4 | Generate 9 root files | modular consumer architecture validation |
 | 5 | Generate memory/ tree | MEMORY_PROTOCOL §1.2 |
 | 6 | Empty audit + quarantine | MEMORY_PROTOCOL_EXTENDED §E3.2 + §E3.3 |
-| 7 | Edition profile | MEMORY_PROTOCOL §6 + B7 compliance preset |
+| 7 | Edition profile | MEMORY_PROTOCOL §6 |
 | 8 | Option C Lint install | Option C extension |
 | 9 | Heartbeat compactor cron | cross-harness convergence |
 | 10 | Optional addon wiring | Tier C addon policy + Option C extension |
@@ -347,7 +347,7 @@ For Sentinel-vetted addon installs:
 - **Cannot mutate user's crontab** (security boundary) — presents cron entry; user pastes via `crontab -e`
 - **Cannot install DGM-H** — deferred; reverts to Phase 4+ candidate
 - **Cannot install Auto-Dream** — v4.0 candidate, Anthropic Dreaming beta gated
-- **Cannot activate biotech-edition** — separate work; B7 compliance review required
+- **Cannot enable the healthcare compliance preset** — not shipped in this edition; a HIPAA/PHI-focused institutional edition is planned for a future release
 - **Cannot sync entries across machines** — Multi-Machine Sync is a Phase 4+ candidate; this adapter prepares the schema (sync_log.jsonl scope) but doesn't implement
 - **Cannot guarantee bootstrap stays under 60K** if user adds large content to root files — heartbeat compactor surfaces violations; user must act
 - **Cannot install addons it doesn't recognize** — only the 4 PASS-vetted ones (LLMLingua / Graphiti / Graphify / Obsidian) have known Skills; new addons require fresh VET-### entries

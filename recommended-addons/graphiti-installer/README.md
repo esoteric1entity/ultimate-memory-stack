@@ -1,24 +1,23 @@
 # Graphiti Installer — Recommended Addon
 
 > **Status:** stable — ships with UMS v4.0.0 (security-reviewed: PASS)
-> **Tier:** C2 (biotech-first designed-in; general-edition opt-in)
+> **Tier:** C2 (opt-in addon)
 > **Last updated:** 2026-06-16
 
 ---
 
 ## What This Addon Does
 
-**Graphiti** is a bi-temporal knowledge-graph framework (Apache 2.0, maintained by Zep AI) for storing memory entries as temporal facts. Per ARCHITECTURE.md §9, it is the **Layer 5 storage upgrade** in the Ultimate Memory Stack — biotech-first designed-in for clinical/regulatory provenance.
+**Graphiti** is a bi-temporal knowledge-graph framework (Apache 2.0, maintained by Zep AI) for storing memory entries as temporal facts. Per ARCHITECTURE.md §9, it is the **Layer 5 storage upgrade** in the Ultimate Memory Stack.
 
 **Why install it on the Ultimate Memory Stack:**
 - Bi-temporal queries (valid_at + recorded_at) match MEMORY_PROTOCOL §3 B5 conflict resolution
 - Knowledge graph enables relationship-aware retrieval (entries linked by `[[ID]]` materialize as graph edges)
-- Provenance + recall for clinical/regulatory contexts (biotech-first per ARCHITECTURE.md §9)
+- Provenance + recall for entries linked across sessions
 - MCP server option lets Claude Code query the graph natively
 
-**Why it's Tier C in general-edition (designed-in for biotech):**
-- Biotech-edition: designed-in (Tier C2)
-- General-edition: opt-in (Tier C2)
+**Why it's Tier C (opt-in):**
+- Opt-in Tier C2 upgrade
 - Backend storage adds operational footprint
 - LLM ingestion has cost/latency (mitigated by the Ollama path)
 
@@ -111,11 +110,11 @@ python smoke_test.py                       # Verify install + telemetry-off
 
 ### Purpose
 
-Provide bi-temporal knowledge-graph storage to the Ultimate Memory Stack as the Layer 5 storage upgrade, enabling clinical/regulatory provenance (biotech-first) and relationship-aware recall (general-edition opt-in).
+Provide bi-temporal knowledge-graph storage to the Ultimate Memory Stack as the Layer 5 storage upgrade, enabling provenance and relationship-aware recall.
 
 ### Rationale
 
-- Per ARCHITECTURE.md §9 Graphiti is the designed-in Layer 5 backend
+- Per ARCHITECTURE.md §9 Graphiti is the Layer 5 storage backend
 - Sentinel vetting confirmed PASS with conditions; all conditions enforced by this installer
 - A research refresh found Graphiti gained MCP server + Ollama paths — installer offers both
 - This addon is one of 3 PASS-verdict addons proceeding in v3.5
@@ -126,7 +125,7 @@ Provide bi-temporal knowledge-graph storage to the Ultimate Memory Stack as the 
 1. Per the security-first standing rule: Graphiti PASSED Sentinel vetting; installer enforces all 5 conditions
 2. Per the ideal-first design principle: Kuzu backend is the cleanest topology (no server, no Cypher injection class)
 3. Per the documentation discipline: this README + SKILL.md capture purpose/rationale/scope
-4. As Tier C2: Graphiti is the Layer 5 storage upgrade — biotech-first designed-in (mandatory there), general-edition opt-in
+4. As Tier C2: Graphiti is the Layer 5 storage upgrade — an opt-in Tier C2 upgrade
 5. MCP + Ollama paths reduce T3→T1 friction for cost-conscious deployments
 6. Graphiti proceeds with its Sentinel-specified guardrails
 

@@ -56,7 +56,7 @@ What separates effective users from confused ones:
 4. **Use confidence levels (FINAL/TENTATIVE/EXPLORATORY) honestly.** FINAL = settled forever. TENTATIVE = subject to revision. EXPLORATORY = testing. Marking everything FINAL erases nuance.
 5. **Heartbeat during long sessions.** ~30 min checkpoints in session_state.md prevent context loss if anything crashes. Don't skip this.
 6. **Run `/compact` proactively, not reactively.** Once context exceeds ~85%, your responses degrade. Compact before you feel pressure.
-7. **Review the quarantine queue regularly.** If your edition has quarantine, suspicious entries land there. Review = release-or-discard with brief justification.
+7. **Review the quarantine queue regularly.** Suspicious entries land there. Review = release-or-discard with brief justification.
 8. **Don't manually edit memory files unless you understand the consequences.** YAML frontmatter is precise; broken frontmatter quarantines the entry on next read.
 9. **Document the WHY, not the WHAT.** "Used Pandas" tells future-you nothing. "Used Pandas because we may add categorical ops later; SQLite was rejected because mixed dtypes get painful" tells future-you everything.
 10. **Trust the architecture; don't customize prematurely.** The defaults are research-backed and battle-tested. Customize only when you have a specific friction.
@@ -112,7 +112,7 @@ Claude Code has ~60 slash commands. Realistically, you'll use these 13:
 | `/permissions` | Adjust tool permissions |
 | `/review` | Run code review on current changes |
 | `/memory` | View/edit memory files |
-| `/audit-quarantine` | Review quarantine queue (both editions; full workflow in biotech, toast + optional workflow in general) |
+| `/audit-quarantine` | Review quarantine queue (review workflow — surfaced as a toast at session start) |
 | `/lint-memory` | Run memory integrity check — surfaces orphans, broken refs, stale TENTATIVE, stale citations, contradictions (T3+) |
 | `/graphify` | Build codebase knowledge graph (Tier C adjacent tool — see TIER_C_ACTIVATION.md). Available after `uv tool install graphifyy && graphify install`. Multi-modal: code + SQL + docs + papers + images + videos. Runs locally for code (Tree-sitter AST); LLM for docs. |
 
@@ -120,7 +120,7 @@ If a command isn't in this list, you probably don't need it.
 
 ## Interpreting Lint Findings
 
-Lint is your memory's periodic check-up. It runs automatically (weekly biotech / monthly general) and on-demand via `/lint-memory`. Here's what each finding type means + how to act:
+Lint is your memory's periodic check-up. It runs automatically (monthly by default) and on-demand via `/lint-memory`. Here's what each finding type means + how to act:
 
 | Finding | What it means | Common remediation |
 |---------|---------------|---------------------|
@@ -132,7 +132,7 @@ Lint is your memory's periodic check-up. It runs automatically (weekly biotech /
 | **Missing concept** *(T3+)* | Term mentioned many times without dedicated reference entry | Create a reference entry anchoring the concept's definition; or ignore if term is well-known |
 
 **Severity guide:**
-- 🔴 HIGH/CRITICAL — needs attention; biotech-edition may block new writes until resolved
+- 🔴 HIGH/CRITICAL — needs attention; may block new writes until resolved under strict compliance presets
 - ⚠️ MEDIUM — recommended fix
 - ℹ️ LOW — informational; user judgment
 
@@ -205,7 +205,7 @@ This lets you ask: *"What did we believe about X on date Y?"* — and get the ri
 - Query "what was our DB choice in June 2026?" returns PostgreSQL (still valid then)
 - Query "what was our DB choice in September 2026?" returns SQLite
 
-Most users won't think about bi-temporal explicitly — but biotech-edition uses it for HIPAA forensic audit (knowing what was believed at any historical date).
+Most users won't think about bi-temporal explicitly — but it's useful for forensic/regulated audit (knowing what was believed at any historical date).
 
 ---
 
@@ -227,10 +227,10 @@ If you open your `memory/` directory in Obsidian, wiki-links become clickable + 
 ## Glossary
 
 - **Bi-temporal model:** Facts have both "when recorded" + "when true in the world" dates. Lets you query state at any historical date.
-- **Common-spec:** The universal 95% of the memory stack (schemas, protocol, architecture) shared across both editions.
+- **Common-spec:** The universal 95% of the memory stack (schemas, protocol, architecture) shared across every edition and deployment.
 - **Compaction:** Reducing context window usage by summarizing earlier conversation. Triggered by `/compact`.
 - **DEC-NNN:** Decision entry ID. Every architectural choice has a DEC entry with purpose/rationale/scope.
-- **Edition:** Biotech (HIPAA-active, non-overridable) or General (user-configurable). Pick at install time.
+- **Edition:** A packaging variant of the memory stack, selected at install time, that sets which layers and presets are mandatory vs optional. The general edition (user-configurable presets) ships in this package.
 - **Frontmatter:** YAML block at top of each memory entry with metadata (id, dates, source_agent, status, etc.).
 - **Heartbeat:** Brief update to session_state.md every ~30 minutes documenting current task state.
 - **MEMORY_INDEX.md:** Master registry of memory file counts + categories.

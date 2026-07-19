@@ -52,9 +52,9 @@ Levels 5–8: an active `supersedes` chain wins; point-in-time queries return th
 
 ## 4. During-Session
 
-**Validation-on-read (B8):** every loaded entry — frontmatter parses, `schema_version` ≤ protocol's, refuse+flag `quarantined` status, flag (don't refuse) expired-but-active, verify signature if active; `webfetch` entries with `last_validated < created_at + 1 day` are PRELIMINARY — orchestrator confirms before promotion. Fail → biotech: quarantine+audit (§5); general: warn, need approval.
+**Validation-on-read (B8):** every loaded entry — frontmatter parses, `schema_version` ≤ protocol's, refuse+flag `quarantined` status, flag (don't refuse) expired-but-active, verify signature if active; `webfetch` entries with `last_validated < created_at + 1 day` are PRELIMINARY — orchestrator confirms before promotion. Fail → quarantine + audit (§5).
 
-**Pattern-key promotion (B6):** `recurrence_count` ≥3 (biotech, auto-promote to `.claude/rules/`) / ≥5 (general, suggest to user) → DEC entry with source chain.
+**Pattern-key promotion (B6):** `recurrence_count` ≥5 → suggest to user → DEC entry with source chain.
 
 **Wiki-links:** `[[ID]]` supplements canonical `related`/`supersedes` YAML — populate both. Sync detail: EXTENDED §E2.
 
@@ -66,9 +66,9 @@ Levels 5–8: an active `supersedes` chain wins; point-in-time queries return th
 
 **CAS (B3):** overwriting an entry → hash-compare body against frontmatter `content_sha256` first; mismatch → refuse, ask user. Appends skip this. Hash procedure: EXTENDED §E3.1.
 
-**Audit log (B1):** every write → `security/audit_log.jsonl`, summary only (200 chars, never full content). Biotech: required. General: opt-in (`audit_log: true`). Format: EXTENDED §E3.2.
+**Audit log (B1):** every write → `security/audit_log.jsonl`, summary only (200 chars, never full content). Opt-in (`audit_log: true`), required under strict compliance presets. Format: EXTENDED §E3.2.
 
-**Quarantine (B2):** validation failure → move to `quarantine/<category>/<id>.md`, log `quarantine_log.jsonl`, `status: quarantined`, audit it. Biotech: `/audit-quarantine` review, approval-gated release. General: toast. Detail: EXTENDED §E3.3.
+**Quarantine (B2):** validation failure → move to `quarantine/<category>/<id>.md`, log `quarantine_log.jsonl`, `status: quarantined`, audit it. Review via `/audit-quarantine`, approval-gated release. Detail: EXTENDED §E3.3.
 
 **Bi-temporal supersession (B5):** new entry sets `supersedes:`; old gets `invalid_at`+`status: superseded`+`superseded_by:` — body kept, never deleted. Mechanics: EXTENDED §E3.4.
 
@@ -78,7 +78,7 @@ Levels 5–8: an active `supersedes` chain wins; point-in-time queries return th
 
 Override files (`<edition>/overrides/X.override.md`) replace same-named sections of `common-specs/X.md`; rest inherits. Precedence detail: EXTENDED §E4.1.
 
-Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `healthcare` (biotech-only, non-overridable) / `enterprise` (GDPR+SOC2) / `custom` (via user-authored `overrides/compliance.override.md`). Logged every session. Activation table: EXTENDED §E4.2.
+Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `enterprise` (GDPR+SOC2) / `custom` (via user-authored `overrides/compliance.override.md`). Logged every session. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). Activation table: EXTENDED §E4.2.
 
 ---
 
@@ -109,7 +109,7 @@ Before high-impact tasks (deletes, config changes, restructures, bulk ops): scor
 
 ## 10. Self-Trimming & Lint (every 10 sessions)
 
-**Self-trimming:** suggests (never auto-acts) archiving stale/oversized/low-value files. **Lint:** 11 read-only integrity checks (orphans, broken refs, staleness, contradictions, promotion candidates, naming drift, doc-completeness) via `/lint-memory` or auto-cadence (biotech weekly, general monthly) → `security/lint_runs.jsonl`. Neither ever deletes or auto-fixes. Full detail: EXTENDED §E6/§E7; schema: `SCHEMA_lint.md`.
+**Self-trimming:** suggests (never auto-acts) archiving stale/oversized/low-value files. **Lint:** 11 read-only integrity checks (orphans, broken refs, staleness, contradictions, promotion candidates, naming drift, doc-completeness) via `/lint-memory` or auto-cadence (monthly) → `security/lint_runs.jsonl`. Neither ever deletes or auto-fixes. Full detail: EXTENDED §E6/§E7; schema: `SCHEMA_lint.md`.
 
 ---
 
@@ -136,7 +136,7 @@ Before high-impact tasks (deletes, config changes, restructures, bulk ops): scor
 
 ## 12. Decision Promotion
 
-Promote session_state.md's inline "Active Decisions" to `decisions.md` (DEC-### ID) on **any** trigger (OR logic): **A** >5 related decisions accumulate in session_state.md · **B** pattern `recurrence_count` ≥3 biotech/≥5 general (§4) · **C** `access_count` ≥5 AND `recent_sessions` ≥3 (PageRank signal) · **D** user invokes `/promote-entry`. On promotion: merge duplicates, keep latest FINAL, assign fresh frontmatter. Rationale + signal sourcing: EXTENDED §E9.
+Promote session_state.md's inline "Active Decisions" to `decisions.md` (DEC-### ID) on **any** trigger (OR logic): **A** >5 related decisions accumulate in session_state.md · **B** pattern `recurrence_count` ≥5 (§4) · **C** `access_count` ≥5 AND `recent_sessions` ≥3 (PageRank signal) · **D** user invokes `/promote-entry`. On promotion: merge duplicates, keep latest FINAL, assign fresh frontmatter. Rationale + signal sourcing: EXTENDED §E9.
 
 ---
 
@@ -169,13 +169,9 @@ Every entry capturing a decision/feature/schema/pattern needs: **Purpose · Rati
 
 ---
 
-## 17. Healthcare Compliance (Active When `compliance: healthcare`)
+## 17. Institutional Compliance Preset (Planned)
 
-Mandatory + non-overridable in biotech edition; **not selectable in general-edition** (installer refuses it — use `enterprise`/`custom`).
-
-**Triggers:** patient identifiers (MRN, specimen/accession/hospital IDs) · genomic data (variant calls, gene names tied to patients, sequencing/FASTQ) · clinical data (diagnosis codes, treatment, labs, pathology) · paths containing `PHI`/`patient`/`clinical`/`HIPAA`/`MRN`.
-
-**On activation:** never store detected identifiers, even as examples — redact on sight (`[REDACTED — PHI detected]`), warn the user, log the event (not the data) to `vetting_log.md`, set `compliance_handling: phi-redacted`.
+A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). Its `healthcare` compliance preset is **not selectable in the shipped edition** — the installer refuses it; use `enterprise`/`custom`.
 
 **Always active:** no PII/PHI ever, any edition · when unsure, treat as PHI.
 

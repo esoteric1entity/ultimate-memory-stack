@@ -5,8 +5,8 @@ Covers the PURE / decision logic of the General-Edition setup script:
   - update_profile_extensions  (appends extension list after the compliance line)
   - generate_hmac_secret       (non-empty urlsafe token; two calls differ)
   - detect_tier                (dict with python_version always; node/cryptography keys)
-  - VALID_PRESETS / VALID_EXTENSIONS / BIOTECH_ONLY constants
-  - setup_fresh refusal/guard branches (biotech refusal, invalid preset,
+  - VALID_PRESETS / VALID_EXTENSIONS / UNAVAILABLE_PRESETS constants
+  - setup_fresh refusal/guard branches (healthcare-preset refusal, invalid preset,
     invalid extension, missing common-specs) — all via pytest.raises(SystemExit)
   - verify_environment scaffold-present-but-MEMORY_INDEX-missing branch
   - change_preset refusal / invalid-preset / missing-PROFILE branches
@@ -81,8 +81,8 @@ def test_valid_extensions_exact():
     assert mod.VALID_EXTENSIONS == {"gdpr", "soc2", "pci-dss"}
 
 
-def test_biotech_only_excludes_healthcare_from_general():
-    assert mod.BIOTECH_ONLY == {"healthcare"}
+def test_unavailable_presets_excludes_healthcare_from_general():
+    assert mod.UNAVAILABLE_PRESETS == {"healthcare"}
     # healthcare must NOT be a valid general-edition preset
     assert "healthcare" not in mod.VALID_PRESETS
 
@@ -362,18 +362,18 @@ def test_setup_fresh_refuses_healthcare_preset(tmp_path):
     assert exc.value.code == 1
 
 
-def test_setup_fresh_refuses_biotech_only_extension(tmp_path):
-    # A biotech-only value requested as an extension also triggers refusal.
+def test_setup_fresh_refuses_unavailable_extension(tmp_path):
+    # An unavailable value requested as an extension also triggers refusal.
     with pytest.raises(SystemExit) as exc:
         mod.setup_fresh(tmp_path, "none", ["healthcare"], _args())
     assert exc.value.code == 1
 
 
-def test_setup_fresh_refusal_message_points_to_biotech(tmp_path, capsys):
+def test_setup_fresh_refusal_message_points_to_institutional(tmp_path, capsys):
     with pytest.raises(SystemExit):
         mod.setup_fresh(tmp_path, "healthcare", [], _args())
     out = capsys.readouterr().out
-    assert "biotech-edition" in out
+    assert "institutional edition" in out
 
 
 def test_setup_fresh_invalid_preset_exits_1(tmp_path, capsys):
@@ -467,13 +467,13 @@ def test_setup_fresh_missing_common_specs_exits_1(tmp_path, capsys, monkeypatch)
 
 
 def test_setup_fresh_refusal_precedes_preset_validation(tmp_path, capsys):
-    # healthcare is both biotech-only AND not in VALID_PRESETS. The biotech
-    # refusal branch must fire first, producing the biotech message (not the
-    # generic "Invalid preset" message).
+    # healthcare is both an unavailable preset AND not in VALID_PRESETS. The
+    # unavailable-preset refusal branch must fire first, producing the
+    # unavailable-preset message (not the generic "Invalid preset" message).
     with pytest.raises(SystemExit):
         mod.setup_fresh(tmp_path, "healthcare", [], _args())
     out = capsys.readouterr().out
-    assert "biotech-edition" in out
+    assert "institutional edition" in out
     assert "Invalid preset" not in out
 
 
@@ -486,7 +486,7 @@ def test_change_preset_refuses_healthcare(tmp_path, capsys):
         mod.change_preset(tmp_path, "healthcare")
     assert exc.value.code == 1
     out = capsys.readouterr().out
-    assert "biotech-edition" in out
+    assert "institutional edition" in out
 
 
 def test_change_preset_invalid_exits_1(tmp_path, capsys):

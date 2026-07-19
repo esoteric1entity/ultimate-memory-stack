@@ -29,7 +29,7 @@ override_file_map:
 
 **Purpose:** Declare the general-edition's shipped defaults + override-file map. Loaded by MEMORY_PROTOCOL.md §1.1 (Edition Detection) at every session start, immediately followed by a limited read of `memory/user/USER_OVERRIDES.md` if it exists — those values win on conflict.
 
-**This is the load-bearing file for general-edition.** All behavior divergence from common-spec defaults flows from here or from USER_OVERRIDES.md. Unlike biotech-edition (which has non-overridable defaults), general-edition supports user customization — as of v4.0.0, via USER_OVERRIDES.md rather than by hand-editing this file (this file is now regenerable and hand-edits to it are not preserved across upgrades).
+**This is the load-bearing file for general-edition.** All behavior divergence from common-spec defaults flows from here or from USER_OVERRIDES.md. General-edition supports user customization — as of v4.0.0, via USER_OVERRIDES.md rather than by hand-editing this file (this file is now regenerable and hand-edits to it are not preserved across upgrades).
 
 ---
 
@@ -61,7 +61,6 @@ compliance_preset_change_requires_audit: true  # Preset changes log to audit tra
 audit_log: opt-in                   # User selects ON or OFF at bootstrap (default OFF for `none` preset)
 audit_log_default_when_preset_is:
   none: false
-  healthcare: true   # biotech-edition-reserved; not selectable in general-edition
   enterprise: true
   custom: configured_via_override
 audit_log_format: jsonl-append-only
@@ -70,12 +69,12 @@ audit_log_path: "memory/security/audit_log.jsonl"
 
 # Quarantine UX — non-blocking toast (B2)
 quarantine_ux: toast                # One-line approval toast at session start
-quarantine_blocking_threshold: null # Non-blocking (vs biotech blocking at >5)
+quarantine_blocking_threshold: null # Non-blocking
 quarantine_log_path: "memory/quarantine/quarantine_log.jsonl"
 quarantine_max_defer_days: null     # No automatic defer warning
 
 # Pattern-key recurrence — more conservative (B6)
-pattern_key_threshold: 5            # Suggest promotion at 5 (vs 3 for biotech)
+pattern_key_threshold: 5            # Suggest promotion at 5
 pattern_key_auto_promote: false     # SUGGEST not auto-promote
 pattern_key_promote_target: ".claude/rules/auto_rules.md"
 
@@ -86,8 +85,8 @@ crypto_signatures_key_management: "session-derived-secret"
 crypto_signatures_activates_at_tier: 3  # Code Execution required
 
 # Delete semantics — hard delete with recovery window
-delete_semantics: hard              # Hard delete (vs biotech tombstone)
-delete_recovery_window_days: 7      # 7-day recovery window per GDPR
+delete_semantics: hard              # Hard delete
+delete_recovery_window_days: 7      # 7-day recovery window
 delete_audit_required: false        # Opt-in if audit log enabled
 
 # Bi-temporal annotations — available (B5)
@@ -105,23 +104,22 @@ memory_poisoning_defenses:
 # WebFetch handling — preset-dependent
 webfetch_default_status:
   none: active                      # Trust by default
-  healthcare: preliminary           # biotech-edition-reserved; not selectable in general-edition (requires validation; matches biotech-edition behavior)
   enterprise: logged                # Logged for review
   custom: configured_via_override
 
 # Validation TTL
-expires_at_default_days: 28         # 28 days from last_validated (same as biotech)
+expires_at_default_days: 28         # 28 days from last_validated
 revalidation_alert_threshold_days: 7
 
 # Lint operation (Karpathy LLM Wiki pattern — general: monthly suggested, non-blocking)
 lint:
-  cadence: monthly                  # Auto-suggest frequency (vs biotech weekly)
+  cadence: monthly                  # Auto-suggest frequency
   mode: suggested                   # Surface as toast at session start; user opts in
   blocking_on_critical: false       # Never block in general-edition
-  retention_runs_days: 90           # Lighter default than biotech
+  retention_runs_days: 90           # Lighter default
   output_path: memory/security/lint_runs.jsonl
   thresholds:
-    stale_tentative_sessions: 20    # More lenient than biotech
+    stale_tentative_sessions: 20    # More lenient default
     stale_webfetch_days: 90
     orphan_minimum_age_sessions: 10
   checks_enabled:
@@ -142,7 +140,6 @@ Every value above is a **shipped default**, not your configuration. If `memory/u
 | Active preset | Detection patterns file |
 |---------------|-------------------------|
 | `none` | `../common-specs/detection_patterns_none.md` |
-| `healthcare` _(biotech-edition-reserved; not selectable in general-edition)_ | `../common-specs/detection_patterns_healthcare.md` (Layer 1 universal; Layer 2 institution-specific via custom override if needed) |
 | `enterprise` | `../common-specs/detection_patterns_enterprise.md` |
 | `custom` | User-defined at `overrides/detection_patterns_custom.override.md` (must inherit a base preset) |
 
@@ -183,7 +180,7 @@ By design, the consuming Claude architecture is pluggable. General-edition does 
 
 ## 7. Tier-Gated Features (Designed-In)
 
-What activates at each deployment tier (same architecture as biotech; different defaults):
+What activates at each deployment tier:
 
 | Tier | Infrastructure | General-edition features activated |
 |------|----------------|------------------------------------|
@@ -197,7 +194,7 @@ What activates at each deployment tier (same architecture as biotech; different 
 
 ## 8. Brand-Protected Elements
 
-Same canonical elements as biotech-edition (stack name, layer structure, schemas, protocols, compliance preset system, deployment-tier markers, bi-temporal model, documentation discipline). General-edition does NOT modify these.
+Canonical brand-protected elements (stack name, layer structure, schemas, protocols, compliance preset system, deployment-tier markers, bi-temporal model, documentation discipline). General-edition does NOT modify these.
 
 What general-edition does ALLOW user to choose:
 - Compliance preset (none / enterprise / custom)
@@ -223,7 +220,7 @@ When deploying general-edition, the setup wizard MUST collect:
 
 | Risk | Mitigation |
 |------|------------|
-| User realizes they need HIPAA/PHI coverage later | A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. Preset change between general-edition presets is supported at any time via PROFILE.md edit; audit-log captures preset change; backwards re-validation pass available |
+| User realizes they need HIPAA/PHI coverage later | A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. Preset change between general-edition presets is supported at any time via USER_OVERRIDES.md; audit-log captures preset change; backwards re-validation pass available |
 | User picks `custom` without configuring anything | Bootstrap rejects bare `compliance: custom`; requires ≥1 override file present |
 | Multiple regulatory contexts (e.g., EU + payment-card data) | Extensions compose — user can enable both `gdpr-profile.md` + `pci-dss-profile.md` simultaneously |
 | Audit log opt-in is forgotten by user | Default ON when compliance preset is enterprise; never silent for that preset |
@@ -239,13 +236,13 @@ When deploying general-edition, the setup wizard MUST collect:
 - `MEMORY_PROTOCOL.md` §1.1 (edition detection loads this file)
 - `SCHEMA_compliance_profile.md` §5 (preset definitions)
 - `BOOTSTRAP_PROMPT.md` Step 7 (setup wizard reads this file)
-- `EXTENSIONS/` (3 selectable regulatory profile add-ons: GDPR / SOC2 / PCI-DSS; the healthcare profile is biotech-edition-reserved and not selectable in general-edition)
+- `EXTENSIONS/` (3 selectable regulatory profile add-ons: GDPR / SOC2 / PCI-DSS)
 - `overrides/` (3 override files for general-specific behavior)
 - `B1/B2/B6/B7/B8` (per-edition Tier B configurations)
 - `C4/C9` (HMAC signatures + Transformers.js embeddings designed-in)
 - `PRIVACY_REVIEW.md` (public-release readiness)
 - `DEPLOYMENT.md` (install instructions)
-- `MIGRATION_v2_to_v3.md` (simpler path than biotech)
+- `MIGRATION_v2_to_v3.md` (simpler migration path)
 
 ## 12. Status
 

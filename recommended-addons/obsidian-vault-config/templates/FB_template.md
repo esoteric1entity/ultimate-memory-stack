@@ -27,8 +27,7 @@ _How will this change Claude's behavior in future sessions?_
 
 ### Pattern-key promotion path (per MEMORY_PROTOCOL §4)
 
-- **Biotech edition:** auto-promote to standing rule when `recurrence_count >= 3`
-- **General edition:** suggest promotion when `recurrence_count >= 5`
+- Suggest promotion to a standing rule when `recurrence_count >= 5`
 - **This entry's recurrence_count:** 1 (initial observation)
 
 ### Cross-references

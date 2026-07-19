@@ -13,7 +13,7 @@
 
 This section REPLACES `common-specs/MEMORY_PROTOCOL.md` §3.
 
-When memory files contradict each other, resolve in this order. General-edition's key difference from biotech-edition: **compliance rank is PRESET-DEPENDENT** — `none` preset allows more user flexibility; `enterprise` is moderately strict; `custom` is user-defined.
+When memory files contradict each other, resolve in this order. In general-edition, **compliance rank is PRESET-DEPENDENT** — `none` preset allows more user flexibility; `enterprise` is moderately strict; `custom` is user-defined.
 
 ### USER_OVERRIDES precedence (v4.0.0)
 
@@ -24,7 +24,7 @@ Before the hierarchy below applies, resolve the ACTIVE VALUE of any PROFILE.md-d
 The hierarchy structure is identical to common-spec, but the strictness of rank 1 varies by active preset:
 
 1. **Compliance rules — preset-dependent**
-   - `compliance: none` → Standing rules only (no secrets, no PII/PHI universal block) ranked here; user-instruction can override most other compliance behavior
+   - `compliance: none` → Standing rules only (no secrets, no PII universal block) ranked here; user-instruction can override most other compliance behavior
    - `compliance: enterprise` → GDPR + SOC2 baseline ranked here; user-instruction CANNOT override consent + audit requirements
    - `compliance: custom` → User-defined enforcement level; see `compliance.override.md`
 
@@ -92,15 +92,12 @@ For `none` preset:
 1. Standing rule violations are non-negotiable (secrets, basic PII)
 2. If user genuinely needs to store sensitive data, the memory stack is the wrong tool — they need a different storage system
 
-### Differences from biotech-edition conflict-resolution.override.md
+### General-Edition Conflict-Resolution Posture
 
-| Aspect | Biotech-edition | General-edition |
-|--------|------------------|-----------------|
-| Compliance rank 1 strictness | ABSOLUTE (no exceptions) | PRESET-DEPENDENT (strict for enterprise; lighter for none) |
-| User can change preset | NO (locked to healthcare) | YES (via setup.sh or PROFILE.md edit) |
-| BAA-coverage user reasoning | Never honored | Never honored (same rule, different reason — preset framework doesn't model BAA) |
-| Quarantine UX on detection | Blocking workflow | Non-blocking toast |
-| Standing rules (universal) | Same | Same |
+- **Compliance rank 1 strictness:** PRESET-DEPENDENT (strict for enterprise; lighter for none)
+- **User can change preset:** YES (via `setup.sh --change-preset` or override edit)
+- **Quarantine UX on detection:** Non-blocking toast
+- **Standing rules (universal):** always-on floor, same across presets
 
 ---
 

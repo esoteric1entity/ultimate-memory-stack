@@ -42,7 +42,7 @@ This repo ships **general-edition** only — it is the default and there is no e
 | Edition | Use case | Availability |
 |---|---|---|
 | **General** (`general-edition/`) | Solo dev, research, education, B2B SaaS, enterprise, custom compliance | ✅ This repo (Apache 2.0) |
-| ~~Biotech~~ | HIPAA-regulated healthcare / lab R&D | 🚧 Not available — see note below |
+| _Institutional (planned)_ | HIPAA/PHI-focused compliance deployments | 🚧 Not available — see note below |
 
 A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
@@ -553,7 +553,7 @@ Ask your agent: "Remember that my preferred test framework is jest."
 
 With the `enterprise` preset (or `gdpr` extension) active, say: "Test detection: my fake customer SSN is 123-45-6789 (testing only)."
 
-**Expected:** your agent flags the PII, routes the entry to quarantine (non-blocking toast notification in general-edition), and the audit log captures the attempt.
+**Expected:** your agent flags the PII, routes the entry to quarantine (non-blocking toast notification), and the audit log captures the attempt.
 
 ## Migration v2.0 to v3.x
 
@@ -682,7 +682,7 @@ Edition is a structural choice — not a simple preset change. When a future edi
 
 **This is reversible** — change back with the same command.
 
-**By design, the planned institutional edition would not change preset** — it is locked to `healthcare`. (That edition is planned for a future release, not yet available; see CONTRIBUTING.md.)
+**By design, the planned institutional edition would not use preset switching** — its compliance posture is fixed rather than user-selectable. (That edition is planned for a future release, not yet available; see CONTRIBUTING.md.)
 
 ## Uninstall and cleanup
 
@@ -786,7 +786,7 @@ When Code Execution + the `cryptography` package are available, this method gene
 python3 setup.py --generate-hmac-secret
 ```
 
-**Action required after generation:** store the secret in your password manager. (Ed25519 offline-key entry signing is part of the planned institutional edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.)
+**Action required after generation:** store the secret in your password manager. (Stronger offline-key entry signing is planned for a future institutional edition — not yet available; see CONTRIBUTING.md.)
 
 **Total time for Doors 1b / 1c: ~30 sec setup + ~2-3 min wizard.**
 
@@ -815,7 +815,7 @@ After the base stack install (any door above), the package includes **6 addition
 | 2 | `/install-llmlingua` | Security-reviewed | Exact pin `llmlingua==0.2.2`; planned migration → SecurityLingua in a future release |
 | 3 | `/install-graphiti` | Security-reviewed | Set `GRAPHITI_TELEMETRY_ENABLED=false` BEFORE first import; CVE-2026-32247 patched at 0.28.2 (installer floor-pins ≥0.29.1); Kuzu backend recommended |
 | 4 | `/install-graphify` | Security-reviewed | Pin `graphifyy==0.8.21` (DOUBLE-y); single-y `graphify` is a blocked typosquat — the Python *module* is single-y by upstream design, but the distribution + CLI are double-y; home page: github.com/safishamsi/graphify |
-| 5 | `/audit-quarantine` | n/a (built-in) | Edition-aware: one-line toast (general default); the fuller quarantine review workflow belongs to the planned institutional edition |
+| 5 | `/audit-quarantine` | n/a (built-in) | One-line toast at session start; full review workflow available via the skill |
 | 6 | `/install-openclaw-adapter` | n/a (built-in) | Requires OpenClaw harness installed at target; adapter generates 9 root files |
 
 ### Install order recommendation

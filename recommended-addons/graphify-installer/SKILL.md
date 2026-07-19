@@ -5,7 +5,7 @@ version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["security-first vetting", "ideal-first design", "documentation discipline", "Tier C adjacent tool", "PASS-verdict addon batch"]
 vetting_reference: pre-release security vetting (2026-05-27, verdict PASS with conditions)
-edition: any (general + biotech both supported)
+edition: any
 tier: C (opt-in; not loaded by default)
 license: MIT (Graphify); installer license: Apache-2.0
 upstream_status: active (last release 2026-05-27 v0.8.21 — 116 releases in ~8 weeks)

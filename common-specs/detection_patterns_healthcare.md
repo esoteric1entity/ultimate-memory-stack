@@ -1,4 +1,4 @@
-# Detection Patterns — `healthcare` Preset (HIPAA-Active)
+# Detection Patterns — `healthcare` Preset (Planned Institutional Edition)
 
 > **Status:** The `healthcare` preset is **not selectable in this edition** — the installer
 > refuses it. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet

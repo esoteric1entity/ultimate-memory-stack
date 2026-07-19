@@ -9,7 +9,7 @@
 
 ## Purpose
 
-Procedure for upgrading an existing v2.0 memory stack deployment to v3.0 general-edition. Simpler than biotech-edition migration — fewer HIPAA-specific safeguards required (depending on user's preset choice).
+Procedure for upgrading an existing v2.0 memory stack deployment to v3.0 general-edition. The safeguards required depend on your compliance preset choice.
 
 ---
 
@@ -89,7 +89,7 @@ No script needed — migrate by hand:
 
 > **Older package layouts:** installs made under pre-v4.0 guides may have `common-specs/` and `general-edition/` copied directly at the workspace root instead of vendored as `ultimate-memory-stack/`. Both layouts keep working — use whichever location exists; to match current docs, move the two folders under a new `ultimate-memory-stack/` folder (a pure move — your `memory/` data is not involved).
 
-(General-edition signs with HMAC, not Ed25519, so there is no keypair step.)
+(General-edition signs with HMAC, so there is no keypair step.)
 
 ### Phase C: General-edition-specific setup
 
@@ -106,7 +106,7 @@ No script needed — migrate by hand:
    - For each enabled extension in `EXTENSIONS/`, the corresponding behaviors activate
 
 4. **HMAC secret generation (if at T3+)**
-   - General-edition uses HMAC by default (not Ed25519)
+   - General-edition uses HMAC by default
    - HMAC secret can be session-derived (simpler than keypair management)
    - Or user-provided if they prefer stable HMAC across sessions
    - Setup script generates session-derived secret automatically
@@ -114,7 +114,7 @@ No script needed — migrate by hand:
 5. **Re-scan legacy entries**
    - For `compliance: none`: only universal standing-rule detection (secrets, basic PII)
    - For `compliance: enterprise`: broad PII detection — may flag entries
-   - Flagged entries → quarantine queue (non-blocking for general-edition; user reviews via toast)
+   - Flagged entries → quarantine queue (non-blocking; user reviews via toast)
 
 ### Phase D: Verification
 
@@ -163,18 +163,18 @@ Your v2.0 state is fully recovered — the backup was never modified.
 
 ---
 
-## Differences from Biotech-Edition Migration
+## General-Edition Migration Notes
 
-| Aspect | Biotech-edition | General-edition |
-|--------|------------------|-----------------|
-| Compliance preset | `healthcare` (locked) | User-selectable |
-| Audit log | REQUIRED on migration | Optional (preset-dependent) |
-| Cryptographic signature | Ed25519 strongly recommended | HMAC default (or none if T0/T1/T2) |
-| Quarantine workflow | Blocking when >5 | Non-blocking |
-| HIPAA validation re-scan | Always | Not applicable — PHI detection is biotech-edition-reserved (not selectable in general-edition) |
-| Required IP/Legal review | Institutional review (the planned institutional edition) | Public-release readiness per `PRIVACY_REVIEW.md` |
+| Aspect | General-edition |
+|--------|-----------------|
+| Compliance preset | User-selectable |
+| Audit log | Optional (preset-dependent) |
+| Cryptographic signature | HMAC default (or none if T0/T1/T2) |
+| Quarantine workflow | Non-blocking |
+| PHI/HIPAA re-scan | Not applicable — PHI detection is not selectable in general-edition |
+| Required IP/Legal review | Public-release readiness per `PRIVACY_REVIEW.md` |
 
-> This comparison describes the biotech-edition's locked configuration for reference; this public package ships the general-edition only. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+> This public package ships the general-edition only. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
 
 ---
 

@@ -85,7 +85,7 @@ related: [DEC-019, DEC-021, DEC-023, DEC-024, DEC-028, DEC-029, DEC-030]
 tags: [webapp, active-development]
 ---
 
-**One-line description:** R&D for a memory-stack schema package — biotech + general editions with full documentation discipline.
+**One-line description:** R&D for a memory-stack schema package with full documentation discipline.
 
 **Status:** active
 

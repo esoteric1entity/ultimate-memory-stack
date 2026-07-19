@@ -128,7 +128,7 @@ adapter_version: "1.0"
 **Adapter behavior:**
 - General-edition `compliance: none` → ships the maintainer's basic identity (role, domains, machine inventory) with sensitive fields ([email], [phone]) redacted as placeholders user fills in
 - General-edition `compliance: enterprise` → additional GDPR/SOC2-aligned redaction (e.g., no SSN, no financial account IDs)
-- Healthcare preset → NOT activated for general-edition (would require biotech-edition adapter)
+- Healthcare preset → NOT activated for general-edition (not a shipped preset)
 
 **Sanitization rule:** any field tagged `pii: true` in the source user_profile.md gets replaced with `[REDACTED — user-configurable]` in IDENTITY.md.
 
@@ -270,10 +270,10 @@ OpenClaw root layout vs v3.0/v3.5:
 |---|---|---|
 | `none` | (default) | Standard hygiene only; no regulatory detection |
 | `enterprise` | (supported in general-edition adapter) | GDPR/SOC2 baseline; opt-in audit log; consent tracking |
-| `healthcare` | **NOT ACTIVATED** for general-edition adapter | Requires biotech-edition adapter (B7 compliance review pending) |
+| `healthcare` | **NOT ACTIVATED** for general-edition adapter | Not a shipped preset; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available) |
 | `custom` | (deferred) | Future enhancement |
 
-Per B7: biotech-edition has non-overridable healthcare compliance. General-edition can opt-in to enterprise; healthcare requires biotech adapter.
+The general-edition adapter supports the `none` and `enterprise` presets; the `healthcare` preset is refused (not a shipped preset).
 
 ---
 
@@ -315,8 +315,8 @@ Auto-Dream (C1) is gated on a future Anthropic beta (v4.0 roadmap). DREAMS.md sh
 ### Limitation 3: Multi-Machine Sync not implemented
 Multi-Machine Sync is a Phase 4+ feature. Adapter prepares `sync_log.jsonl` schema (separate v3.5 deliverable) but doesn't activate sync.
 
-### Limitation 4: Biotech-edition not supported
-Per B7 — compliance review required. General-edition only for v3.5.
+### Limitation 4: Healthcare compliance not shipped
+The `healthcare` compliance preset is not available in this edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
 
 ---
 

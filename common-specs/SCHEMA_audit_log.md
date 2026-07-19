@@ -18,7 +18,7 @@ Provide a **tamper-evident, append-only audit trail** of all memory read/write o
 - *Why* was it modified? (action_type + `reason` field — optional)
 - *Was the operation successful?* (`outcome` field)
 
-This is the load-bearing forensic capability for biotech-edition HIPAA §164.312(b) compliance (audit controls) and for general-edition post-incident investigation.
+This is the load-bearing forensic capability for compliance audit controls and for post-incident investigation.
 
 ---
 
@@ -44,10 +44,10 @@ This is the load-bearing forensic capability for biotech-edition HIPAA §164.312
 
 ### Why log summaries, not full content?
 
-Per the B1 design decision: log size manageability + PHI safety.
+Per the B1 design decision: log size manageability + sensitive-data safety.
 
 - **Size:** A 10K-entry memory with full-body logs becomes unwieldy fast. Summaries (first 200 chars) keep the log practical for years.
-- **PHI safety:** Even if Layer 2 (compliance) detects PHI in an entry and redacts the body, logging the full body would re-leak it into the audit trail. Summaries (200 chars max) limit this risk.
+- **Sensitive-data safety:** Even if Layer 2 (compliance) detects sensitive data in an entry and redacts the body, logging the full body would re-leak it into the audit trail. Summaries (200 chars max) limit this risk.
 - **Cryptographic integrity:** Layer 6 signatures (C4 at T3) sign the audit log entries themselves — chain-of-custody at the log level, not entry level.
 
 ---
@@ -56,16 +56,16 @@ Per the B1 design decision: log size manageability + PHI safety.
 
 | Claim | Source | Evidence type |
 |-------|--------|---------------|
-| HIPAA §164.312(b) requires audit controls | HHS regulatory text | Federal regulation |
+| Regulated-data handling requires audit controls | Compliance frameworks (e.g., HIPAA §164.312(b)) | Regulatory standard |
 | Audit log is convergent production pattern | Letta + Copilot + security survey | Multi-vendor convergence |
 | Append-only JSONL is crash-safe | POSIX `O_APPEND` semantics + atomic writes for entries < PIPE_BUF | Operating system primitive |
-| Summary logging avoids PHI re-leakage | Security survey + a real prompt-injection incident during development | Vulnerability research + incident data |
+| Summary logging avoids sensitive-data re-leakage | Security survey + a real prompt-injection incident during development | Vulnerability research + incident data |
 | Letta and 5 production memory systems log audit-style | Letta audit pattern + security survey | Industry pattern |
 | Cryptographic chain-of-custody via Layer 6 (C4) | C4 architecture spec | Architectural choice |
 
 **Caveats:**
 - JSONL append-atomicity guarantee is platform-specific (POSIX vs Windows). Windows NTFS may have weaker guarantees for concurrent appenders; on the maintainer's workstation (single-writer typical), this is not a concern. Multi-writer deployments need to verify atomic-append support on their platform.
-- Summary length (200 chars) is a heuristic. Future versions may refine it based on practical PHI-leak audits.
+- Summary length (200 chars) is a heuristic. Future versions may refine it based on practical sensitive-data-leak audits.
 
 ---
 
@@ -154,14 +154,14 @@ All audit_log.jsonl writes — across Bash `setup.sh`, Python `setup.py`, runtim
 
 | Field | Canonical format | Rationale |
 |---|---|---|
-| **`ts`** | ISO 8601 UTC with `Z` suffix, **second-precision only** (no microseconds). Example: `"2026-05-26T17:40:34Z"` | Sub-second precision is unneeded for HIPAA forensics; eliminates Bash/Python timestamp drift |
+| **`ts`** | ISO 8601 UTC with `Z` suffix, **second-precision only** (no microseconds). Example: `"2026-05-26T17:40:34Z"` | Sub-second precision is unneeded for audit forensics; eliminates Bash/Python timestamp drift |
 | **`entry_id` sentinels** | `<bootstrap>` for install/init events · `<system>` for other system events (non-entry-related) · `<file-only>` for file-level actions · actual entry IDs (e.g., `DEC-024`, `FB-007`) for entry-related events | Per-action semantic clarity; matches Bash canonical |
 | **JSON line format** | **Compact** — no whitespace between key-value pairs. Python: `json.dumps(entry, separators=(",", ":"))`. Bash: emit as compact literal. | Grep-friendly; consistent across automation scripts; reduces storage |
 | **Line terminator** | Single `\n` (LF). No CRLF even on Windows. | POSIX-compatible; matches existing convention |
 
-**Reference implementation:** Bash `setup.sh` (both editions) is the canonical reference. Python `setup.py` aligns via the 3-knob fix: (a) `entry_id` parameter on `log_audit_event`, (b) `datetime.now(timezone.utc).replace(microsecond=0)` for ts, (c) `json.dumps(entry, separators=(",", ":"))` for the emit.
+**Reference implementation:** Bash `setup.sh` is the canonical reference. Python `setup.py` aligns via the 3-knob fix: (a) `entry_id` parameter on `log_audit_event`, (b) `datetime.now(timezone.utc).replace(microsecond=0)` for ts, (c) `json.dumps(entry, separators=(",", ":"))` for the emit.
 
-**Why second-precision (not microsecond):** HIPAA §164.312(b) requires audit controls but does not mandate sub-second granularity. Single-machine writes from the reference deployments will not produce >1 entry per second except in extreme circumstances; if needed, an order-tiebreak via line position or a future `seq` field can be added without breaking existing logs.
+**Why second-precision (not microsecond):** audit controls require a reliable timestamp but do not mandate sub-second granularity. Single-machine writes from the reference deployments will not produce >1 entry per second except in extreme circumstances; if needed, an order-tiebreak via line position or a future `seq` field can be added without breaking existing logs.
 
 **Validation:** Cross-script drift was observed during validation — a Bash writer and a Python writer disagreed on sentinel, spacing, and timestamp precision. The canonical format above resolves it; all writers MUST conform.
 
@@ -173,9 +173,9 @@ A short session of writes producing audit lines:
 
 ```jsonl
 {"ts":"2026-05-14T10:00:01Z","actor":"orchestrator","actor_session":8,"action":"read","entry_id":"session_state","entry_path":"memory/sessions/session_state.md","entry_category":"sessions","entry_summary":"Session 7 — Continued (Post-Compaction)...","outcome":"success","read_context":"tier-1-load"}
-{"ts":"2026-05-14T10:15:30Z","actor":"orchestrator","actor_session":8,"action":"write","entry_id":"DEC-024","entry_path":"memory/decisions/decisions.md","entry_category":"decisions","content_sha256_before":"a1b2c3d4...","content_sha256_after":"e5f6g7h8...","entry_summary":"DEC-024: Tier A — 20 features approved as definite includes...","outcome":"success","reason":"heartbeat-update"}
-{"ts":"2026-05-14T10:30:45Z","actor":"warden","actor_session":8,"action":"quarantine","entry_id":"DEC-099","entry_path":"memory/decisions/decisions.md","entry_category":"decisions","content_sha256_before":"x9y8z7w6...","entry_summary":"DEC-099: Suspicious entry detected — content_sha256 mismatch vs signature...","outcome":"success","quarantine_reason":"signature-mismatch","quarantine_destination":"memory/quarantine/decisions/DEC-099.md"}
-{"ts":"2026-05-14T11:00:00Z","actor":"user","actor_session":8,"action":"release","entry_id":"DEC-098","entry_path":"memory/quarantine/decisions/DEC-098.md","entry_category":"quarantine","content_sha256_after":"k1l2m3n4...","entry_summary":"DEC-098: Tier C — false positive on PHI detector for the word 'genomic'...","outcome":"success","release_approver":"user","release_destination":"memory/decisions/decisions.md","reason":"manual-review-cleared"}
+{"ts":"2026-05-14T10:15:30Z","actor":"orchestrator","actor_session":8,"action":"write","entry_id":"DEC-024","entry_path":"memory/decisions/decisions.md","entry_category":"decisions","content_sha256_before":"a1b2c3d4...","content_sha256_after":"e5f6a7b8...","entry_summary":"DEC-024: Tier A — 20 features approved as definite includes...","outcome":"success","reason":"heartbeat-update"}
+{"ts":"2026-05-14T10:30:45Z","actor":"warden","actor_session":8,"action":"quarantine","entry_id":"DEC-099","entry_path":"memory/decisions/decisions.md","entry_category":"decisions","content_sha256_before":"a9b8c7d6...","entry_summary":"DEC-099: Suspicious entry detected — content_sha256 mismatch vs signature...","outcome":"success","quarantine_reason":"signature-mismatch","quarantine_destination":"memory/quarantine/decisions/DEC-099.md"}
+{"ts":"2026-05-14T11:00:00Z","actor":"user","actor_session":8,"action":"release","entry_id":"DEC-098","entry_path":"memory/quarantine/decisions/DEC-098.md","entry_category":"quarantine","content_sha256_after":"b1c2d3e4...","entry_summary":"DEC-098: Tier C — false positive on signature-mismatch check, manually cleared...","outcome":"success","release_approver":"user","release_destination":"memory/decisions/decisions.md","reason":"manual-review-cleared"}
 ```
 
 A forensic query (using `jq`) — "show all quarantine events in May 2026":
@@ -191,12 +191,12 @@ jq 'select(.action == "quarantine" and (.ts | startswith("2026-05")))' audit_log
 - Provide tamper-evident, append-only audit trail
 - Support forensic queries via grep/jq/Python (no DB required)
 - Track provenance (`actor`, `actor_session`) for every memory operation
-- Enable HIPAA §164.312(b) audit controls compliance for biotech edition
+- Enable audit-controls compliance for regulated-data deployments
 - Enable post-incident investigation across the memory stack
 - Support cryptographic chain-of-custody when Layer 6 (C4) active at T3+
 - Rotate by date (`audit_log_2026-05.jsonl`, `audit_log_2026-06.jsonl`, ...) at 50,000-line threshold
 - Survive concurrent writes (POSIX atomic appends for entries <4 KiB)
-- Co-exist with all editions and compliance presets
+- Co-exist with all compliance presets
 
 ### CANNOT
 - Log full entry content (only summaries — max 200 chars)
@@ -208,8 +208,8 @@ jq 'select(.action == "quarantine" and (.ts | startswith("2026-05")))' audit_log
 
 ### Edition fit
 
-- **Biotech-edition:** REQUIRED on every write. Read events also logged (for forensic completeness). Cryptographic signing (C4 at T3+) strongly recommended. Retention: minimum 1 year for HIPAA forensic requirements.
-- **General-edition:** OPT-IN; default OFF. User enables via `audit_log: true` in compliance profile. Cryptographic signing optional. Retention: configurable, default 90 days.
+- **Compliance-profile deployments:** REQUIRED on every write. Read events also logged (for forensic completeness). Cryptographic signing (C4 at T3+) strongly recommended. Retention: configurable per profile.
+- **Default:** OPT-IN; default OFF. User enables via `audit_log: true` in compliance profile. Cryptographic signing optional. Retention: configurable, default 90 days.
 
 ### Deployment tier
 
@@ -229,7 +229,7 @@ jq 'select(.action == "quarantine" and (.ts | startswith("2026-05")))' audit_log
 At 50,000 lines (or end-of-month, whichever first):
 - Rename to `memory/security/audit_log_<YYYY-MM>.jsonl`
 - Compress to `memory/security/audit_log_<YYYY-MM>.jsonl.gz` after 3 months
-- Move to `memory/archive/audit_log_<YYYY-MM>.jsonl.gz` after 1 year (biotech: indefinite retention; general: configurable)
+- Move to `memory/archive/audit_log_<YYYY-MM>.jsonl.gz` per the configured retention policy
 
 ### Multi-month forensic queries
 ```bash
@@ -256,9 +256,9 @@ This sets the "audit trail begins here" anchor for forensic investigations.
 
 ## 9. Open Questions
 
-1. **Read logging granularity** — biotech logs every read; general defaults off. But: should "Tier 1 auto-load" reads be logged separately from "user-query" reads? Currently distinguished via `read_context` field, but the granularity could be finer (e.g., file-load vs entry-by-entry-read). Defer to operational experience.
-2. **Compaction strategy for the log itself** — at scale, even compressed JSONL grows. Should there be periodic summarization? E.g., monthly summary entries that compress 50K lines to 1 summary line? Probably yes for general edition; probably NO for biotech (lose forensic detail). Defer to a future schema revision.
-3. **Signature scheme integration timing** — C4 (cryptographic signatures) activates at T3. Until T3, log entries are unsigned. Does the **first signed log entry** include a hash of all prior unsigned entries (to chain integrity)? Probably yes for biotech. To be documented in a future revision.
+1. **Read logging granularity** — high-compliance profiles log every read; the default is off. But: should "Tier 1 auto-load" reads be logged separately from "user-query" reads? Currently distinguished via `read_context` field, but the granularity could be finer (e.g., file-load vs entry-by-entry-read). Defer to operational experience.
+2. **Compaction strategy for the log itself** — at scale, even compressed JSONL grows. Should there be periodic summarization? E.g., monthly summary entries that compress 50K lines to 1 summary line? Probably yes for the default profile; probably NO for high-forensic-retention profiles (lose forensic detail). Defer to a future schema revision.
+3. **Signature scheme integration timing** — C4 (cryptographic signatures) activates at T3. Until T3, log entries are unsigned. Does the **first signed log entry** include a hash of all prior unsigned entries (to chain integrity)? Probably yes for high-compliance profiles. To be documented in a future revision.
 4. **Anomaly detection** — should the audit log have a companion daemon that watches for unusual patterns (e.g., 100 reads/min, multiple quarantine events, unsigned entries when signing is required)? Designed-in but probably activates at T2+ (Node.js file-watcher). Cross-ref future work.
 5. **Multi-deployment audit aggregation** — if the user runs the stack on multiple machines, do their audit logs aggregate? Out of scope for v3.0 (single-deployment scope by design), but worth noting.
 
@@ -266,7 +266,7 @@ This sets the "audit trail begins here" anchor for forensic investigations.
 
 ## 10. Cross-References
 
-- **Design basis:** B1 audit log (per-edition policy: required for healthcare-locked editions, opt-in for general)
+- **Design basis:** B1 audit log (per-profile policy: required for high-compliance profiles, opt-in by default)
 - **Protocol integration:** `MEMORY_PROTOCOL_EXTENDED.md` §E3.2 (when to write to audit log) + `MEMORY_PROTOCOL.md` §4 (validation-on-read triggers audit entries)
 - **Quarantine integration:** `SCHEMA_quarantine.md` (quarantine events log to audit log)
 - **Compliance integration:** `SCHEMA_compliance_profile.md` §audit-defaults (preset-specific audit policy)

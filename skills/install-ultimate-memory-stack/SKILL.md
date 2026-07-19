@@ -92,7 +92,6 @@ Where is the Ultimate Memory Stack source package located?
 You need a folder containing:
   - common-specs/ (the universal foundation)
   - general-edition/ (the edition shipped publicly)
-    (biotech-edition/ is the separate institutional package, if you have it)
 
 Common locations (substitute your actual path):
   - A local git clone (Linux/Mac): ~/projects/ultimate-memory-stack
@@ -516,7 +515,7 @@ If any step fails:
 | 1.0 DRAFT | 2026-05-15 | Initial implementation |
 | 1.0 STABLE | 2026-06-10 | Public-readiness fixes (edition-availability detection in Step 2; genericized internal refs); executed end-to-end (fresh install, general-edition, preset=none, T2) — T1–T9 self-test 9/9 PASS → promoted DRAFT → STABLE |
 | 1.1 | 2026-06-15 | **Data-safety fix.** Added Step 0.5 existing-store gate: a re-install over an existing `memory/` now backs it up (`memory.backup.<ts>/`) and preserves it. Steps 7e/8/9 are now create-if-absent — the skill no longer overwrites `session_state.md`, `MEMORY_INDEX.md`, `user_profile.md`, project briefs, or `feedback.md` on an existing store (the prior behavior silently reset accumulated memory to empty templates). Corrected the false "reversible via backup" claim. Brings the skill door in line with `setup-memory-stack.sh` + `INSTALL_AGENT.md`, which already preserved user data. |
-| 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public biotech-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare/biotech with "institutional edition only"). Deleted the dead biotech branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). |
+| 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public institutional-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare with "institutional edition only"). Deleted the dead institutional-edition branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). |
 | 1.3 | 2026-06-16 | **Data-safety hardening + Door-3 alignment (v3.6.1).** Added a Step 0 guard refusing installs into `$HOME` / system directories (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`). Made the Step 0.5 PRESERVE guard explicit in Step 8 (per-file `[ -e ]` existence check before any Write; never overwrite user data) + a Step 7f note to confirm before resetting a user-customized `PROFILE.md`. No behavior change for fresh installs. |
 | 1.4 | 2026-06-16 | **Step-0 guard hardening + harness-agnostic wording (v3.6.2).** Canonicalised the Step-0 unsafe-location guard with `pwd -P` so a path that resolves into `$HOME` / a system directory via a symlink is also refused (previously only the literal `$PWD` was matched). Clarified Step 7e (the initialization entry is appended only when the audit log was created — enterprise/custom; skipped for preset `none`). Reframed the skill as one door among several (script / agent / Claude Code skill / manual). No behavior change for fresh installs. |
 | 1.5 | 2026-07-10 | **Protocol CORE/EXTENDED split (v4.0.0 eager-load fix).** Step 7c now also warns (never auto-edits) if the target's CLAUDE.md still has an old at-sign import of the protocol file — that content already auto-loads via `.claude/rules/`, so the old import double-loads it. Step 7d now additionally installs `MEMORY_PROTOCOL_EXTENDED.md` to the vault root (`memory/`, never `.claude/rules/`) as an on-demand reference. |
@@ -535,9 +534,8 @@ When this skill is updated, bump `version:` in the frontmatter + record changes 
 
 Remaining test scenarios for future versions:
 
-1. **HIPAA install scenario** — empty working directory + the institutional edition (a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available — see CONTRIBUTING.md)
-2. **Edge cases:**
+1. **Edge cases:**
    - SOURCE_PATH doesn't exist (error handling)
    - Custom preset without override file (rejection path)
    - Mid-install interruption (rollback behavior)
-3. **Document bugs found** via GitHub Issues
+2. **Document bugs found** via GitHub Issues

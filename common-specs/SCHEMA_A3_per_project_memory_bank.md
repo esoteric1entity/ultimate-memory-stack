@@ -188,8 +188,7 @@ Memory Bank files participate in the same TTL/validation/audit machinery as othe
 
 ### Edition fit
 
-- **Biotech-edition:** Includes Memory Bank by default. PHI detection (Section 11) applies to ALL memory bank files. Audit log captures every write.
-- **General-edition:** Includes Memory Bank by default. Compliance section in memory bank is opt-in. Audit log is opt-in.
+- Includes Memory Bank by default. The compliance section in a memory bank and audit logging are opt-in, governed by the active compliance profile.
 
 ---
 

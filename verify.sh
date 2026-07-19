@@ -109,7 +109,6 @@ echo "[T3] Edition profile:"
 PROFILE_PATH=""
 for candidate in \
     "$WORKING_DIR/ultimate-memory-stack/general-edition/PROFILE.md" \
-    "$WORKING_DIR/ultimate-memory-stack/biotech-edition/PROFILE.md" \
     "$WORKING_DIR/memory/PROFILE.md"; do
     if [ -f "$candidate" ]; then
         PROFILE_PATH="$candidate"
