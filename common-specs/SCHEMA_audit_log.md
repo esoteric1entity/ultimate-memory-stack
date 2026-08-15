@@ -10,7 +10,9 @@
 
 ## 1. Purpose
 
-Provide a **tamper-evident, append-only audit trail** of all memory read/write operations across the Ultimate Memory Stack. The audit log answers:
+Provide an **append-only audit trail** of all memory read/write operations across the Ultimate Memory Stack. The audit log answers:
+
+> ⚠️ **Tamper-evidence is NOT active in this release.** Cryptographic chain-of-custody and entry signing are Layer 6 (C4) capabilities gated at T3+ — **designed but not yet implemented**: no hash chain is computed, no signature is produced or verified, and there is no `verify` command. The log is append-only and provenance-carrying, which supports forensic reconstruction, but a determined local actor can edit it undetectably. Treat it as an operational record, not as evidence.
 
 - *Who* modified entry X? (`actor` field)
 - *When* did they modify it? (`ts` field)
@@ -188,12 +190,12 @@ jq 'select(.action == "quarantine" and (.ts | startswith("2026-05")))' audit_log
 ## 6. Scope — CAN / CANNOT
 
 ### CAN
-- Provide tamper-evident, append-only audit trail
+- Provide an append-only audit trail (tamper-*evidence* requires C4 signing — not yet implemented, see §1)
 - Support forensic queries via grep/jq/Python (no DB required)
 - Track provenance (`actor`, `actor_session`) for every memory operation
 - Enable audit-controls compliance for regulated-data deployments
 - Enable post-incident investigation across the memory stack
-- Support cryptographic chain-of-custody when Layer 6 (C4) active at T3+
+- *(Designed, NOT YET IMPLEMENTED)* Support cryptographic chain-of-custody when Layer 6 (C4) is active at T3+
 - Rotate by date (`audit_log_2026-05.jsonl`, `audit_log_2026-06.jsonl`, ...) at 50,000-line threshold
 - Survive concurrent writes (POSIX atomic appends for entries <4 KiB)
 - Co-exist with all compliance presets

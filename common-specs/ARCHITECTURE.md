@@ -81,7 +81,7 @@ This is **non-negotiable**. Undocumented features do not ship. If a feature lack
 
 **Worked example** (Layer 2 / Audit Log B1):
 
-> **Purpose**: Provide tamper-evident audit trail of all memory read/write operations for forensic capability and regulatory compliance.
+> **Purpose**: Provide an append-only audit trail of all memory read/write operations for forensic capability and regulatory compliance. (Tamper-*evidence* depends on Layer 6 / C4 signing, which is designed but not yet implemented — see `SCHEMA_audit_log.md` §1.)
 >
 > **Rationale**: Without audit log, post-incident investigation is blind. Letta and production memory systems implement this after vulnerability research. HIPAA §164.312(b) requires audit controls. JSONL chosen over SQLite because grep-friendly, no DB driver needed at T0, append-only crash-safe.
 >
@@ -239,7 +239,7 @@ Regulated-data handling and forensic capability. Audit trail of read/write opera
 
 ### Rationale
 - Regulated-data deployments may require HIPAA §164.312 technical safeguards — audit controls, access controls, integrity controls
-- The compliance layer supports opt-in presets (HIPAA / GDPR / SOC2 / PCI-DSS / custom) for these deployment shapes
+- The compliance layer supports opt-in presets (`none` / `enterprise` / `custom`) plus stackable extensions (`gdpr` / `soc2` / `pci-dss`) for these deployment shapes; `healthcare` is reserved for a planned institutional edition and is not selectable here
 - Without audit log: post-incident investigation is blind. Memory poisoning happens; you need forensic capability.
 - Without quarantine: validated-bad entries either get loaded (and bias future behavior) or silently dropped (and lose evidence)
 - 3-preset hybrid (B7) handles real-world deployment shapes without requiring users to compose compliance from scratch

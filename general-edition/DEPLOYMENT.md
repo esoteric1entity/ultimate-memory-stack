@@ -111,7 +111,7 @@ bash setup.sh --compliance=enterprise --extensions=soc2,gdpr
 4. Registers the protocol for auto-load — `.claude/rules/memory_protocol.md` on Claude Code; per the harness's own rules/bootstrap convention on OpenClaw and others (the installer detects your harness)
 5. Setup wizard (or accepts CLI args for unattended install)
 6. Initializes audit log + quarantine ONLY IF user enables them (audit is OPT-IN)
-7. Generates HMAC secret if Code Execution available (T3+) — stored encrypted
+7. Generates HMAC secret if Code Execution available (T3+) — written to `~/.config/ultimate-memory-stack/keys/` with owner-only permissions (`0600`). Not encrypted at rest; protect it as you would any private key.
 8. Self-test
 9. Status report
 
