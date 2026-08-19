@@ -38,7 +38,7 @@ If no match, add:
 if echo "$COMMAND" | grep -qE '\bpip install graphify(\s|$|=)'; then
   if ! echo "$COMMAND" | grep -qE '\bpip install graphifyy'; then
     echo "BLOCKED: 'pip install graphify' (single-y) — typosquat risk."
-    echo "Use the install-graphify Skill or 'pip install -r requirements.txt'"
+    echo "Use the install-graphify Skill (hash-pinned install from locks/)"
     echo "(installer pinned to graphifyy==0.8.21, double-y)."
     exit 1
   fi
@@ -82,7 +82,12 @@ pip-audit --requirement requirements.txt
 ### Step 5 — Install with exact pin (L4 defense)
 
 ```bash
-pip install -r requirements.txt
+python --version   # pick the lock matching your interpreter (3.10 / 3.11 / 3.12 / 3.13)
+pip install --require-hashes -r locks/requirements-py3.12.lock
+
+# Fallback ONLY if no lock matches your Python version — this installs without
+# hash verification, so the L5/hash-pinned defense does NOT apply:
+# pip install -r requirements.txt
 ```
 
 This installs:

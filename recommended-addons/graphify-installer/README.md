@@ -102,7 +102,8 @@ Per `INSTALL_GRAPHIFY.md`:
 pip install pip-audit
 pip-audit --requirement requirements.txt   # MUST PASS
 
-python preflight.py                        # dependency freshness (informational)
+python ../preflight.py                     # dependency freshness (informational)
+                                           # (installed skills get their own copy: `python preflight.py`)
 pip install --require-hashes -r locks/requirements-py3.12.lock   # match your Python
 pip show graphifyy                         # verify package identity (NOT 'graphify')
 python smoke_test.py                       # verify install works

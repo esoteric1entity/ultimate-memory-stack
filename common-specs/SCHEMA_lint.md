@@ -452,7 +452,7 @@ The exact inverse of `archive-unindexed`, and the severities are deliberately as
 
 The second case is the direct falsification of §E12.2's **"loss-proof by construction"** claim. Before this check, that claim was enforced only by the rotation procedure being followed correctly by hand — and `tests/test_tiering.py`'s round-trip fixture builds both sides with the same helper, so it could never have caught a real vault where they diverged.
 
-Two deliberate design choices, both of which a future contributor should leave alone without new evidence:
+Three deliberate design choices, which a future contributor should leave alone without new evidence:
 
 1. **Anchors are NOT validated.** The one-liner's `→ <file>#<anchor>` tail is navigation; the entry's *presence* is the invariant that proves content survived. Heading-slug derivation is fragile enough to have produced a wrong "fix" in this project's own history, and a gate that mis-slugs would fail correct vaults. Do not upgrade this to anchor matching without a fixture proving the slug rule against real rotated headings.
 2. **Presence is tested conservatively** — an ID counts as present if structured extraction finds it *or* it appears anywhere in the archive file as a literal string. This deliberately admits false negatives and excludes false positives. For something that fails builds, that is the correct direction: a gate that cries wolf gets switched off. The known false negatives, all of the same shape — the ID survives as text while the entry itself does not:

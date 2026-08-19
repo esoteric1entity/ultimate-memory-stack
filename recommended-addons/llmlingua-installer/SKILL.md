@@ -114,7 +114,7 @@ In the chosen INSTALL_ENV, install from the bundled requirements.txt:
 # In INSTALL_ENV (Conda or venv activated). Check your version first:
 python --version
 
-# Then install from the lock matching it (3.10 / 3.12 / 3.13):
+# Then install from the lock matching it (3.10 / 3.11 / 3.12 / 3.13):
 pip install --require-hashes -r <path-to-this-skill>/locks/requirements-py3.12.lock
 ```
 
@@ -130,7 +130,7 @@ Top-level requirements (`requirements.txt`):
 - `torch>=2.0.0` (no ceiling — see the manifest header for why)
 - `accelerate>=0.26.0` (declared runtime dependency of llmlingua 0.2.2)
 
-**Fall back to the manifest only if no lock matches your Python version:**
+**Fall back to the manifest only if no lock matches your Python version (locks ship for 3.10 / 3.11 / 3.12 / 3.13):**
 
 ```bash
 pip install -r <path-to-this-skill>/requirements.txt

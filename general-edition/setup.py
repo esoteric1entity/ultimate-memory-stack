@@ -45,8 +45,7 @@ except OSError:
     STACK_VERSION = "4.0.1"  # fallback for a general-edition dir copied standalone
 
 # Public general-edition presets. healthcare/PHI is intentionally EXCLUDED —
-# not part of this edition ('healthcare' is a reserved preset value that is
-# reserved and not selectable).
+# not part of this edition ('healthcare' is a reserved preset value).
 VALID_PRESETS = {"none", "enterprise", "custom"}
 VALID_EXTENSIONS = {"gdpr", "soc2", "pci-dss"}
 UNAVAILABLE_PRESETS = {"healthcare"}  # reserved value; not selectable in this edition

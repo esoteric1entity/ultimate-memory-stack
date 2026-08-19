@@ -35,7 +35,7 @@ jobs:
       matrix:
         # Floor is the lowest version any addon declares support for
         # (graphifyy and graphiti-core both require_python >= 3.10).
-        python: ["3.10", "3.12", "3.13"]
+        python: ["3.10", "3.11", "3.12", "3.13"]
         # macOS included deliberately: the install jobs below exercise macOS
         # but `verify.sh` never runs pip at all, so without this row no job
         # anywhere would ever resolve an addon manifest on macOS — and wheel
@@ -104,6 +104,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # windows-latest is REQUIRED here, not decorative: the addon payload
+        # parity test exercises setup-memory-stack.ps1, which no other job
+        # inspects (verify.sh only counts skills, it never checks payload).
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4

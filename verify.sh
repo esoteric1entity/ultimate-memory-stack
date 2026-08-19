@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Ultimate Memory Stack v4.0.0 — post-install verification
+# Ultimate Memory Stack v4.0.1 — post-install verification
 # Apache-2.0 © 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #

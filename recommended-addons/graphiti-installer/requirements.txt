@@ -68,10 +68,23 @@ kuzu>=0.11.3,<1.0.0
 # Uncomment this and comment out `kuzu` to use it:
 # falkordblite>=0.5.0; python_version >= "3.12"
 
-# Optional — uncomment ONE if you already operate a graph server:
-#   neo4j exposes the Cypher injection class; you assume app-code parameterization responsibility
-# neo4j>=5.0.0,<6.0.0
+# ⚠️ EDITING THIS FILE ALONE CHANGES NOTHING on the documented install path.
+# The install command uses `locks/requirements-py<VER>.lock`, which is a
+# SELF-CONTAINED closure — it does not read this file. After any change here you
+# MUST regenerate:
+#     python recommended-addons/regenerate-locks.py graphiti
+# Otherwise you will uncomment a line, install, get exit 0, and not have the
+# package.
+#
+# Note on neo4j: the `neo4j` driver is NOT optional and NOT a backend choice you
+# opt into — `graphiti-core` declares it as a hard dependency, so it installs
+# regardless (the lock pins it; check with `grep '^neo4j==' locks/*.lock`).
+# Installing the driver does not make Neo4j your backend; the backend is chosen
+# by which graph engine you configure. Do not add a `neo4j` line below expecting
+# it to enable something.
+#
+# Optional — uncomment if you already operate a FalkorDB SERVER, then regenerate:
 # falkordb>=1.1.2,<2.0.0
 
-# Optional — uncomment if Skill Step 3 chose MCP server:
+# Optional — uncomment if Skill Step 3 chose MCP server, then regenerate:
 # mcp>=1.0.2,<2.0.0

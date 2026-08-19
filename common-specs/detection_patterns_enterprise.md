@@ -5,7 +5,7 @@
 > **Note:** Audit logging (B1) is required in the `enterprise` preset.
 > **Companion:** SCHEMA_compliance_profile.md §5.3 (`enterprise` preset behaviors)
 > **Inherits:** All patterns from `detection_patterns_none.md` (secrets/credentials NEVER allowed regardless of preset)
-> **Does NOT inherit:** PHI/HIPAA detection patterns. Enterprise is PII-focused, NOT PHI-focused; PHI is out of scope for this edition. HIPAA/PHI is out of scope for this edition.
+> **Does NOT inherit:** PHI/HIPAA detection patterns. Enterprise is PII-focused, NOT PHI-focused; PHI is out of scope for this edition.
 
 ---
 
@@ -26,7 +26,7 @@ Broad Personally Identifiable Information (PII) profile + business-identifier pa
 ## What this preset does NOT detect
 
 - PHI (protected health information / clinical data) — out of scope for this edition
-- PHI/HIPAA detection is out of scope for this edition. HIPAA/PHI is out of scope for this edition.
+- PHI/HIPAA detection is out of scope for this edition.
 
 ## Detection rules
 

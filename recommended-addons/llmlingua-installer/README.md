@@ -91,7 +91,8 @@ Per `INSTALL_LLMLINGUA.md`, run:
 # In your conda env or venv:
 pip install pip-audit
 pip-audit --requirement requirements.txt   # MUST PASS before next step
-python preflight.py                        # dependency freshness (informational)
+python ../preflight.py                     # dependency freshness (informational)
+                                           # (installed skills get their own copy: `python preflight.py`)
 pip install --require-hashes -r locks/requirements-py3.12.lock   # match your Python
 python smoke_test.py                       # Verify install
 ```

@@ -115,7 +115,7 @@ specific performance claims and benchmarks are situational and not borrowed.
 - **Repo / website:** https://kafka.apache.org/
 - **License:** Apache 2.0
 - **What we borrowed:** the append-only event log pattern. The Security
-  branch's audit log (`agent_shield/audit/` in the agent-shield repo)
+  branch's audit log (`agent_shield/audit.py` in the agent-shield repo)
   uses SHA-256-chained append-only JSONL — same conceptual model as
   Kafka topics + Kafka Connect sinks.
 - **What we did NOT borrow:** Kafka's distributed-streaming runtime. Our
@@ -296,7 +296,7 @@ team's collective work:
   not its source. Concepts that carried over **directly** from that design into the
   public branches:
   - the **tiered (HOT/WARM/COLD) memory model** and the **9-root-file interface**;
-  - **journaling-as-governance** with traceable provenance → the SHA-256-chained **audit log**;
+  - **journaling-as-governance** with traceable provenance → the append-only **audit log** (JSONL; hash-chaining is designed but not implemented);
   - the **approval-gate / human-in-the-loop** workflow → the **Tribunal** cross-review pattern;
   - **tiered local-vs-paid routing**, **local-first autonomy**, and **component separation** (agent ≠ runtime ≠ UI);
   - the **sandbox / least-privilege** model and **skill-vetting** → agent-shield Layers 1–4;

@@ -231,3 +231,70 @@ def test_installer_copies_every_self_referenced_file(addon_dir, tmp_path):
         f"but the installer did not place them. Installed: "
         f"{sorted(p.name for p in installed.iterdir())}"
     )
+
+
+def _find_powershell():
+    """Locate a PowerShell host — but ONLY on Windows.
+
+    Gating on "is PowerShell installed" is wrong: GitHub's ubuntu-latest and
+    macos-latest runners ship PowerShell Core, so a bare `shutil.which("pwsh")`
+    finds it and the test then runs a Windows installer on Linux (`$env:USERPROFILE`
+    undefined, backslash paths) and fails the unit-tests job on every non-Windows
+    leg. setup-memory-stack.ps1 is the WINDOWS door; the platform is the gate,
+    not the interpreter's presence.
+    """
+    if os.name != "nt":
+        return None
+    for c in ("powershell", "pwsh"):
+        w = shutil.which(c)
+        if w:
+            return w
+    for c in (r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe",):
+        if pathlib.Path(c).exists():
+            return c
+    return None
+
+
+@pytest.mark.parametrize("addon_dir", ADDON_DIRS, ids=lambda p: p.name)
+def test_powershell_installer_copies_the_same_payload(addon_dir, tmp_path):
+    """Parity guard for setup-memory-stack.ps1.
+
+    The bash test above covered only ONE of the two installers. The PowerShell
+    copy block is a hand-written parallel — different filter semantics, different
+    path handling — so 'the bash one works' is not evidence about it. A Windows
+    user taking the PowerShell door is exactly who the original copy-only-SKILL.md
+    bug hurt, and nothing verified that door until this test.
+    """
+    ps = _find_powershell()
+    if ps is None:
+        pytest.skip("not Windows — the PowerShell door is covered on CI windows-latest")
+
+    referenced = _referenced_files(addon_dir / "SKILL.md")
+    if not referenced:
+        pytest.skip(f"{addon_dir.name} cites no bundled files")
+
+    target = tmp_path / "vault"
+    target.mkdir()
+    r = subprocess.run(
+        [ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+         str(PKG / "setup-memory-stack.ps1"),
+         "-SkipWizard", "-Compliance", "none", "-Target", str(target)],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600,
+    )
+    assert r.returncode == 0, r.stdout + r.stderr
+
+    skill_name = re.search(r"^name:\s*(.+)$",
+                           (addon_dir / "SKILL.md").read_text(encoding="utf-8"),
+                           re.MULTILINE).group(1).strip()
+    installed = target / ".claude" / "skills" / skill_name
+    assert installed.is_dir(), f"{skill_name} not installed at {installed}"
+
+    missing = sorted(r_ for r_ in referenced
+                     if not (installed / r_).exists()
+                     and r_ not in INSTALLER_PROVIDED)
+    shared_missing = sorted(r_ for r_ in referenced
+                            if r_ in INSTALLER_PROVIDED and not (installed / r_).exists())
+    assert not missing and not shared_missing, (
+        f"{skill_name} (PowerShell door): missing {missing + shared_missing}. "
+        f"Installed: {sorted(p.name for p in installed.iterdir())}"
+    )

@@ -138,7 +138,7 @@ Lint is your memory's periodic check-up. It runs automatically (monthly by defau
 
 Lint **never auto-fixes**. You always decide what to do. To dismiss a finding: tell Claude "ignore for now" (will resurface next lint run unless resolved).
 
-**New in v4.0.0 — Tiering checks** (all ℹ️ LOW): as `sessions/`, `decisions/`, and `feedback/` grow and rotate old content into `memory/archive/<category>/` (see "Rotation" in the Glossary), lint watches for drift — an archive entry not listed in its `ARCHIVE_INDEX.md`, a hot-side entry count out of sync, a missing index file, an oversized index one-liner, a file nearing its §11 cap, or the live always-loaded set exceeding `eager_set_budget_bytes`. Full check list: `SCHEMA_lint.md` §13.
+**Tiering checks** (mostly ℹ️ LOW; two are 🔴 HIGH and, as of v4.0.1, make `lint_runner.py` exit non-zero — `eager-set-over-budget` and `archive-pointer-dangling`): as `sessions/`, `decisions/`, and `feedback/` grow and rotate old content into `memory/archive/<category>/` (see "Rotation" in the Glossary), lint watches for drift — an archive entry not listed in its `ARCHIVE_INDEX.md`, a hot-side entry count out of sync, a missing index file, an oversized index one-liner, a file nearing its §11 cap, or the live always-loaded set exceeding `eager_set_budget_bytes`. Full check list: `SCHEMA_lint.md` §13.
 
 ---
 

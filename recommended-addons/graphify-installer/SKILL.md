@@ -150,7 +150,7 @@ Log to `audit_log.jsonl` per LLMLingua/Graphiti pattern.
 # In INSTALL_ENV (Conda or venv activated). Check your version first:
 python --version
 
-# Then install from the lock matching it (3.10 / 3.12 / 3.13):
+# Then install from the lock matching it (3.10 / 3.11 / 3.12 / 3.13):
 pip install --require-hashes -r <path-to-this-skill>/locks/requirements-py3.12.lock
 ```
 
@@ -167,7 +167,7 @@ Top-level requirements (`requirements.txt`):
   declared minimum, ceiling is ours — 0.8.21 sets no upper bound, so an
   upstream tree-sitter release could otherwise break a pinned graphifyy)
 
-**Fall back to the manifest only if no lock matches your Python version:**
+**Fall back to the manifest only if no lock matches your Python version (locks ship for 3.10 / 3.11 / 3.12 / 3.13):**
 
 ```bash
 pip install -r <path-to-this-skill>/requirements.txt
@@ -270,7 +270,7 @@ schema_version: "3.0"
 subject: graphifyy==0.8.21 (NOTE: double-y; typosquat defense in place)
 verdict: ACTIVATED
 pipeline: install-graphify Skill v1.0
-defense_layers_active: [L1, L2, L3, L4, L5]
+defense_layers_active: [L1, L2, L3, L4]   # append L5 ONLY if the lock path was used
 ---
 
 - **Date:** <today>
@@ -281,7 +281,7 @@ defense_layers_active: [L1, L2, L3, L4, L5]
 - **L2 installer manifest:** intact (verified Step 2)
 - **L3 README warning:** present
 - **L4 pin discipline:** enforced (==, not >=)
-- **L5 hash-pinned install:** enforced (`--require-hashes` against `locks/`)
+- **L5 hash-pinned install:** [enforced via `locks/` | NOT applied — manifest fallback used]
 - **L6 security subscription:** [enabled | skipped]
 - **Tags:** tier-c, activation, graphify, addon, typosquat-defended
 ```
@@ -294,7 +294,8 @@ Append corresponding DEC-### entry per the documentation discipline.
 
 ```
 ✅ Graphify installed (graphifyy==0.8.21 in <INSTALL_ENV>)
-✅ Defense layers active: L1 (bash-guard) · L2 (manifest) · L3 (README) · L4 (exact pin) · L5 (hash pin)
+✅ Defense layers active: L1 (bash-guard) · L2 (manifest) · L3 (README) · L4 (exact pin)
+   L5 (hash pin): report ONLY if the lock path was used, not the manifest fallback
 
 Operational notes:
   - Active upstream (116 releases in 8 weeks) — re-run Sentinel vetting monthly

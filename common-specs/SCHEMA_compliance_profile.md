@@ -94,7 +94,7 @@ compliance: <preset-name>
 
 Where `<preset-name>` is one of:
 - `none` — no regulatory detection; standard secrets/credentials hygiene only
-- `healthcare` — full HIPAA Section 11 profile (**reserved; not selectable in this release** — enumerated so references resolve and the name is not reused)
+- `healthcare` — **reserved; not selectable in this release.** No behavior is defined for it; the name is enumerated only so references resolve and it is not reused.
 - `enterprise` — GDPR + SOC2 baseline
 - `custom` — fully configured via `<edition>/overrides/compliance.override.md`
 
@@ -104,14 +104,14 @@ Each preset has concrete behaviors across 8 dimensions:
 
 | Dimension | `none` | `healthcare` | `enterprise` | `custom` |
 |-----------|--------|--------------|--------------|----------|
-| **PII detection** | OFF | ON (PHI-focused) | ON (broad PII) | configured |
-| **PHI detection** | OFF | ON (PHI patterns) | OFF (unless custom adds) | configured |
-| **Redaction-on-detection** | N/A | redact + warn + log | warn + log | configured |
-| **Audit log** | OPT-IN default OFF | REQUIRED ON | REQUIRED ON | configured |
-| **Quarantine triggers** | manual + signature-mismatch only | PHI detection + signature-mismatch + frontmatter | PII detection + signature-mismatch + consent-violation | configured |
-| **Delete semantics** | hard delete | tombstone + configurable retention | hard delete with 7-day recovery window | configured |
-| **Consent tracking** | none | implicit via HIPAA | EXPLICIT (consent_at, consent_revoked_at in frontmatter) | configured |
-| **External data flags** | none | webfetch entries quarantined pending validation | webfetch entries logged for review | configured |
+| **PII detection** | OFF | — (reserved) | ON (broad PII) | configured |
+| **PHI detection** | OFF | — (reserved) | OFF (unless custom adds) | configured |
+| **Redaction-on-detection** | N/A | — (reserved) | warn + log | configured |
+| **Audit log** | OPT-IN default OFF | — (reserved) | REQUIRED ON | configured |
+| **Quarantine triggers** | manual + signature-mismatch only | — (reserved) | PII detection + signature-mismatch + consent-violation | configured |
+| **Delete semantics** | hard delete | — (reserved) | hard delete with 7-day recovery window | configured |
+| **Consent tracking** | none | — (reserved) | EXPLICIT (consent_at, consent_revoked_at in frontmatter) | configured |
+| **External data flags** | none | — (reserved) | webfetch entries logged for review | configured |
 
 ### 4.3 Detection pattern definitions
 
@@ -120,7 +120,7 @@ Each preset references a detection pattern file:
 | Preset | Pattern file |
 |--------|-------------|
 | `none` | `common-specs/detection_patterns_none.md` (just secrets/credentials) |
-| `healthcare` | `common-specs/detection_patterns_healthcare.md` (PHI patterns) |
+| `healthcare` | `common-specs/detection_patterns_healthcare.md` (reserved — no patterns defined) |
 | `enterprise` | `common-specs/detection_patterns_enterprise.md` (broad PII patterns) |
 | `custom` | `<edition>/overrides/detection_patterns_custom.md` (user-defined) |
 

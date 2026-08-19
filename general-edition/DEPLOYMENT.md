@@ -33,7 +33,7 @@
 - More disk if audit log enabled (depends on preset + retention policy)
 
 ### Optional (T3+)
-- Code Execution for crypto signatures (HMAC default)
+- Code Execution for crypto signatures (HMAC intended — NOT IMPLEMENTED)
 - LLMLingua for prompt compression (C6)
 - Aider integration for repo-map (C7)
 

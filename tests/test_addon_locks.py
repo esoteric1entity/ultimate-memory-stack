@@ -27,7 +27,7 @@ ADDONS = PKG / "recommended-addons"
 # Must match recommended-addons/regenerate-locks.py PYTHON_VERSIONS and the
 # `addon-manifests` CI matrix. A version tested live but not locked here would
 # install unpinned.
-PYTHON_VERSIONS = ("3.10", "3.12", "3.13")
+PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13")
 
 ADDON_DIRS = sorted(p for p in ADDONS.iterdir()
                     if p.is_dir() and (p / "requirements.txt").is_file())

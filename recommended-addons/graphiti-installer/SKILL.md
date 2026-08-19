@@ -154,7 +154,8 @@ covers every platform.
 This installs:
 - `graphiti-core>=0.29.1` (floor pin — security floor for CVE-2026-32247)
 - `kuzu>=0.11.3` — the embedded backend, in-process, no server
-- `mcp>=1.0.2` (only if INSTALL_MCP = yes — uncomment it in `requirements.txt`)
+- `mcp>=1.0.2` — ONLY if INSTALL_MCP = yes. Uncommenting it in `requirements.txt` is NOT enough: the install reads the LOCK, so you must also run `python recommended-addons/regenerate-locks.py graphiti`, or `mcp` will silently not be installed.
+- `neo4j` arrives as a hard dependency of `graphiti-core` (installed regardless of backend choice — the driver being present does not make Neo4j your backend)
 - `posthog` arrives as a transitive dependency, gated behind the telemetry env var
 
 ⚠️ **Kuzu's last release was 0.11.3 on 2025-10-10, and it is on a removal clock.**

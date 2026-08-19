@@ -470,7 +470,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 ### Rationale
 - A real memory-poisoning incident during development demonstrated need beyond Layer 2 validation-on-read
 - Validation-on-read catches format/structure issues; signatures catch content tampering after the write
-- Shipped signing scheme: HMAC with session-derived secret (symmetric, sufficient for single-user single-deployment)
+- Intended signing scheme: HMAC with session-derived secret (symmetric, sufficient for single-user single-deployment). ⚠️ NOT IMPLEMENTED — no signing or verification code exists; only secret generation ships.
 - Ed25519 with offline key (asymmetric verification, higher integrity assurance) is not implemented in this edition
 
 ### Sound reasoning
@@ -486,7 +486,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 - Detect tampering and route to Layer 2 quarantine (failed verification = automatic quarantine)
 - Rotate signing keys without invalidating old entries (signature scheme includes key-id; verify-only with old keys retained)
 - Attach signatures to audit log entries (chain-of-custody for B1)
-- Operate with an in-memory secret (HMAC, shipped); offline private-key signing (Ed25519) is not implemented in this edition
+- Operate with an in-memory secret (HMAC) — designed, NOT implemented; offline private-key signing (Ed25519) is likewise not implemented
 
 ### Scope — CANNOT
 - Encrypt content (this is signing, not encryption)
@@ -497,7 +497,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 
 ### Active features in the current release
 - **DESIGNED-IN, DORMANT at T0.** Schemes specified; activation gated by Code Exec (T3).
-- Default signing scheme: HMAC-SHA256 with session-derived secret
+- Intended default signing scheme: HMAC-SHA256 with session-derived secret (NOT IMPLEMENTED)
 - Ed25519 with offline key (RFC 8032) is not implemented in this edition
 - Both schemes integrate with `SCHEMA_A18` (`signature` field added to frontmatter when Layer 6 active)
 
@@ -537,7 +537,7 @@ The same Layer 0–6 architecture applies to any edition; `PROFILE.md` selects p
 | Delete semantics | Hard delete |
 | Quarantine UX | One-line approval toast at session start |
 | Pattern-key recurrence (B6) | ≥5 |
-| Cryptographic signatures (C4) | HMAC (session secret), optional |
+| Cryptographic signatures (C4) | NOT IMPLEMENTED (HMAC intended) |
 
 Override-file mechanism: edition-specific overrides at `<edition>/overrides/X.override.md` REPLACE sections of `common-specs/X.md` of the same name.
 
@@ -635,7 +635,7 @@ The Ultimate Memory Stack is a **branded module**; the consuming Claude architec
 | **C1** | **Auto-Dream sleep-time consolidation** (Anthropic `dreaming-2026-04-21` beta) — offline async memory reorganization between sessions; replaces Letta sleep-time framing | T4 | 4 | Code Exec + Anthropic beta access |
 | **C2** | **Graphiti temporal-fact graph (Kuzu embedded)** — bi-temporal facts, point-in-time queries, fact lineage. *Strongest single storage upgrade on the future roadmap.* | T3 | 5 | Code Execution |
 | **C3** | **Graphify structural code graph** — Tree-sitter AST + NetworkX + Leiden community detection. Codebase-adjacent, optional. (See §11.5 — adjacent tool, not a layer.) | T2–T3 | adjacent | Code Exec + likely Node.js |
-| **C4** | **Cryptographic memory signatures** — HMAC with session-derived secret (shipped default); Ed25519 offline-key signing is not implemented. | T3 | 6 | Code Execution |
+| **C4** | **Cryptographic memory signatures** — ⚠️ NOT IMPLEMENTED. HMAC with a session-derived secret is the intended default and Ed25519 offline-key signing the intended upgrade; neither exists in code. Only secret generation ships. | T3 | 6 | Code Execution |
 | **C5** | **DGM-H self-improvement loop** | T4 | — | **DEFERRED to a future evolution layer (see §14)** |
 | **C6** | **LLMLingua / LongLLMLingua prompt compression** on cached prefixes — ~40× compound discount (4× compression × 10× cache savings) | T3 | 4 | Code Exec + Python ML libs |
 | **C7** | **Aider repo-map primitive** (Tree-sitter + PageRank) — only deterministic always-fresh structural primitive in the surveyed cohort. (See §11.5 — adjacent tool, not a layer.) | T3 | adjacent | Code Exec + Aider integration |
@@ -716,7 +716,7 @@ This is why some tools appear simultaneously in **Tier C (included)** and **Tier
 
 1. **Layer 4 caching scope** — should explicit Anthropic prompt-cache integration be designed-in (vs leaving to user discipline)? Likely yes.
 2. ~~**Layer 5 graph backend choice** — Memgraph vs Neo4j vs lightweight in-memory~~ **CLOSED: Graphiti + Kuzu embedded** (zero infra overhead, actively-developed open-source, bi-temporal model is audit/regulatory load-bearing). See §9.
-3. **Layer 6 signature scheme defaults** — HMAC is the shipped default; Ed25519 offline-key signing is not implemented. Key management UX is unresolved.
+3. **Layer 6 signature scheme defaults** — HMAC is the intended default and Ed25519 the intended upgrade; NEITHER is implemented (no signing or verification code exists). Key management UX is unresolved.
 4. **Cross-layer sub-agent integration** — formal "Layer 7" or stay as cross-cutting concern? Currently cross-cutting (memory ≠ orchestration); revisit if real deployments surface integration friction.
 5. ~~**C10 placeholder** — "Anthropic beta features TBD"~~ **CLOSED: C10 is the Skill / template extraction pipeline (extract_skill.py-style).** See §12.
 6. **Wiki-link parser automation** — at T0–T1, inline `[[ID]]` ↔ YAML `related` sync is manual. At T2+ (Node.js), automated parser. Should the parser be a hard requirement at T2, or remain opt-in?

@@ -110,7 +110,7 @@ Per the B1 design decision: log size manageability + sensitive-data safety.
 | `outcome` | enum | YES | `success` / `failure` / `partial` / `blocked` |
 | `failure_reason` | string | If `outcome ∈ {failure, partial, blocked}` | Short reason code; not free-form prose |
 | `reason` | string (optional) | NO | Optional human-readable reason for the action (e.g., "supersession of DEC-001"); free-form |
-| `client_signature` | base64 (optional) | NO | If Layer 6 (C4) active at T3+, Ed25519/HMAC signature of this log entry's content |
+| `client_signature` | base64 (optional) | NO | Reserved. Layer 6 (C4) signing is NOT IMPLEMENTED — nothing writes or verifies this field |
 
 ### Action-specific fields
 

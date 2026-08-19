@@ -95,7 +95,7 @@ Each field has a defensible rationale tied to a specific research finding.
 
 **Caveats:**
 - The exact 28-day TTL number is a heuristic (Copilot's choice), not a measured optimum. We adopt the pattern, not the number — make TTL configurable per profile.
-- Ed25519 vs HMAC for signature is an open question (see §9) — both have merits; the shipped edition uses HMAC, and offline-key Ed25519 is not implemented.
+- Ed25519 vs HMAC for signature is an open question (see §9) — both have merits. NEITHER is implemented: no signing or verification code exists, and the `signature:` field is reserved.
 
 ---
 
@@ -645,7 +645,7 @@ A point-in-time query "what did we believe about Tier A on 2026-06-15?" finds DE
 ### Edition fit
 
 - **Compliance-profile deployments:** All core + validation fields mandatory. Cryptographic signature (HMAC) strongly recommended in Wave 3; Ed25519 offline-key signing is not implemented.
-- **Default:** All core + validation fields default-on. Cryptographic signature optional (HMAC with session-derived secret is simpler default).
+- **Default:** All core + validation fields default-on. Cryptographic signature NOT IMPLEMENTED — the `signature:` field is reserved; HMAC with a session-derived secret is the intended scheme.
 
 ---
 
@@ -678,7 +678,7 @@ A one-time migration adds frontmatter to existing v2.0 entries:
 ### Wave 3 (cryptographic)
 - Signature generation + verification scripts
 - High-assurance profile: Ed25519 with offline-generated keypair (user keeps private key in password manager)
-- Default: HMAC-SHA256 with session-derived secret
+- Intended scheme: HMAC-SHA256 with session-derived secret (NOT IMPLEMENTED)
 
 ### NOT in scope (and why)
 

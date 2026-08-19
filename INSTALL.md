@@ -1,6 +1,6 @@
 ---
 file: INSTALL
-title: "Install Guide (UMS v4.0.0)"
+title: "Install Guide (UMS v4.0.1)"
 license: Apache 2.0
 ---
 
@@ -42,9 +42,8 @@ This repo ships **general-edition** only — it is the default and there is no e
 | Edition | Use case | Availability |
 |---|---|---|
 | **General** (`general-edition/`) | Solo dev, research, education, B2B SaaS, enterprise, custom compliance | ✅ This repo (Apache 2.0) |
-| _Institutional (planned)_ | HIPAA/PHI-focused compliance deployments | 🚧 Not available — see note below |
 
-HIPAA/PHI is out of scope for this edition.
+HIPAA/PHI is out of scope for this edition; the `healthcare` compliance preset is a reserved value the installer refuses.
 
 ## Script — Bash (Linux / macOS / WSL / Git Bash)
 
@@ -371,7 +370,7 @@ The script confirms the install target interactively (auto-detecting an OpenClaw
 ```
 ==========================================
 Ultimate Memory Stack — General-Edition Setup
-Version: 4.0.0
+Version: 4.0.1
 Working directory: <working-dir>
 Compliance preset: none
 Extensions: none
@@ -785,7 +784,7 @@ When Code Execution + the `cryptography` package are available, this method gene
 python3 setup.py --generate-hmac-secret
 ```
 
-**Action required after generation:** store the secret in your password manager. (Stronger offline-key entry signing is not implemented in this release.))
+**Action required after generation:** store the secret in your password manager. (Stronger offline-key entry signing is not implemented in this release.)
 
 **Total time for Doors 1b / 1c: ~30 sec setup + ~2-3 min wizard.**
 

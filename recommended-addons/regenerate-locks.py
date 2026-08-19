@@ -54,7 +54,7 @@ from pathlib import Path
 # graphiti-core both require_python >= 3.10). Keep in step with the
 # `addon-manifests` CI job's matrix — a version tested there but not locked
 # here would install unpinned.
-PYTHON_VERSIONS = ("3.10", "3.12", "3.13")
+PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13")
 
 ADDONS_DIR = Path(__file__).resolve().parent
 

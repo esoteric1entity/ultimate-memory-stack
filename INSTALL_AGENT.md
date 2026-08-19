@@ -99,7 +99,7 @@ by hand, write it yourself:
 ```json
 {
   "package": "ultimate-memory-stack",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "edition": "general",
   "installed_at": "<ISO-8601 UTC>",
   "install_door": "agent",

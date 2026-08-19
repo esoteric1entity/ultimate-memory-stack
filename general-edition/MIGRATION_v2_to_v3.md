@@ -89,7 +89,7 @@ No script needed — migrate by hand:
 
 > **Older package layouts:** installs made under pre-v4.0 guides may have `common-specs/` and `general-edition/` copied directly at the workspace root instead of vendored as `ultimate-memory-stack/`. Both layouts keep working — use whichever location exists; to match current docs, move the two folders under a new `ultimate-memory-stack/` folder (a pure move — your `memory/` data is not involved).
 
-(General-edition signs with HMAC, so there is no keypair step.)
+(Entry signing is not implemented, so there is no keypair step.)
 
 ### Phase C: General-edition-specific setup
 

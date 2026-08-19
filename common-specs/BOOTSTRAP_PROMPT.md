@@ -43,7 +43,7 @@
 - **C1 Auto-Dream sleep-time consolidation** — Anthropic `dreaming-2026-04-21` beta. Offline async memory reorganization. Activates: Code Exec + Anthropic beta (T4).
 - **C2 Graphiti temporal-fact graph (Kuzu embedded) ⭐** — bi-temporal facts, point-in-time queries, fact lineage. Apache 2.0, zero-infra Kuzu backend; the strongest single storage upgrade, especially for regulatory/provenance use cases. Activates: Code Exec (T3).
 - **C3 Graphify structural code graph** — Tree-sitter AST + Leiden community detection for **codebase** structure (not memory entries; adjacent tool, see ARCHITECTURE.md §11.5). Optional. Activates: Code Exec + Node.js (T2–T3).
-- **C4 Cryptographic memory signatures** — HMAC with session-derived secret (optional). Activates: Code Exec (T3).
+- **C4 Cryptographic memory signatures** — ⚠️ NOT IMPLEMENTED. HMAC with a session-derived secret is the intended scheme; no signing or verification code exists. Do not report this layer as active.
 - **C5 Self-improvement loop — deferred to a future evolution layer** (not in this release)
 - **C6 LLMLingua / LongLLMLingua prompt compression** — ~40× compound discount on hot cached prefixes. Activates: Code Exec + Python ML libs (T3).
 - **C7 Aider repo-map primitive** (Tree-sitter + PageRank) — deterministic always-fresh code-structure ranking; adjacent tool (see §11.5). Activates: Code Exec + Aider integration (T3).
@@ -110,7 +110,7 @@ Wait for my answer. Then load `ultimate-memory-stack/general-edition/PROFILE.md`
 
 Ask "Which compliance preset — none, enterprise, or custom?" Save the answer to my user profile.
 
-If `custom`: ask which regulations apply — GDPR, SOC2, PCI-DSS. HIPAA/PHI is not a general-edition option. HIPAA/PHI is out of scope for this edition.
+If `custom`: ask which regulations apply — GDPR, SOC2, PCI-DSS. HIPAA/PHI is out of scope for this edition.
 
 ---
 
@@ -172,7 +172,7 @@ Read `ultimate-memory-stack/general-edition/PROFILE.md`. It declares:
 - Compliance preset (`none` / `enterprise` / `custom`; HIPAA/PHI is out of scope for this edition)
 - Override-file map — each line says "override file X applies override Y" (the B4 override-file convention)
 - Pattern-key recurrence threshold (general ≥5)
-- Cryptographic signature scheme (HMAC, activates at T3)
+- Cryptographic signature scheme (HMAC intended — NOT IMPLEMENTED)
 - Audit log retention policy
 - Quarantine UX pattern (one-line toast)
 
@@ -226,7 +226,7 @@ Ask me these questions in order. Save my answers to the indicated files:
 3. **Compliance** (→ `user/user_profile.md` + active compliance profile)
    - Compliance preset: none / enterprise / custom
    - If `custom`: which regulations apply (GDPR, SOC2, PCI-DSS)?
-   - HIPAA/PHI is not a general-edition option. HIPAA/PHI is out of scope for this edition.
+   - HIPAA/PHI is out of scope for this edition.
 
 4. **Pet Peeves** (→ `feedback/feedback.md` as initial entries — the canonical location)
    - Anything you should NEVER do

@@ -272,7 +272,11 @@ rm -rf ./graphify-out/              # remove generated graphs
 
 ### What it is
 
-Per-entry cryptographic signatures for tamper detection. The shipped edition uses **HMAC** with a session-derived secret. **Ed25519** with an offline private key is planned for a future high-assurance edition (not yet available).
+Per-entry cryptographic signatures for tamper detection.
+
+⚠️ **NOT IMPLEMENTED.** No signing or verification code exists in this package — there is no `hmac` import, no signing function, and nothing that validates a signature on read. What ships is HMAC **secret generation** only (`--generate-hmac-secret`), which writes a key that nothing currently consumes. The schema reserves a `signature:` frontmatter field; populating and checking it is future work. Ed25519 offline-key signing is likewise unimplemented.
+
+Do not describe this layer as active in any deployment.
 
 ### When to activate
 
@@ -281,9 +285,9 @@ Per-entry cryptographic signatures for tamper detection. The shipped edition use
 
 ### Install + key generation
 
-The shipped edition signs with **HMAC**. Ed25519 offline-key signing is planned for a future high-assurance edition (not yet available).
+The command below generates an HMAC secret. It does **not** enable signing — nothing in this package reads that secret yet. It is useful only to pre-provision a key for future use.
 
-**HMAC signing (shipped):**
+**HMAC secret generation (the only part that ships):**
 ```bash
 python3 <package>/general-edition/setup.py --generate-hmac-secret
 # Output: ~/.config/ultimate-memory-stack/keys/general-edition.hmac.secret (256-bit, file mode 0o600)

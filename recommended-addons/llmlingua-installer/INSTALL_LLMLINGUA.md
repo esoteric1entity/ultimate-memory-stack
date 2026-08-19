@@ -63,7 +63,12 @@ pip-audit --requirement requirements.txt
 ### Step 4 — Install pinned packages
 
 ```bash
-pip install -r requirements.txt
+python --version   # pick the lock matching your interpreter (3.10 / 3.11 / 3.12 / 3.13)
+pip install --require-hashes -r locks/requirements-py3.12.lock
+
+# Fallback ONLY if no lock matches your Python version — this installs without
+# hash verification, so the L5/hash-pinned defense does NOT apply:
+# pip install -r requirements.txt
 ```
 
 This installs (with vetted exact + bounded pins):

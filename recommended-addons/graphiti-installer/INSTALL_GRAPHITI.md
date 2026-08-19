@@ -51,15 +51,23 @@ $env:GRAPHITI_TELEMETRY_ENABLED = "false"
 
 ### Step 3 — Edit requirements.txt for backend choice
 
-Uncomment ONE of the optional backend lines in `requirements.txt`:
+⚠️ **Editing `requirements.txt` alone changes nothing.** The install command below
+reads `locks/requirements-py<VER>.lock`, a self-contained closure that does not
+read the manifest. After ANY edit here you must also run
+`python recommended-addons/regenerate-locks.py graphiti`, or your change is a
+silent no-op that still exits 0.
 
-| Backend | Line to uncomment |
+| Backend | What to do |
 |---|---|
-| Kuzu (default — no edit needed) | (none — `kuzu>=0.11.3,<1.0.0` is already active) |
-| Neo4j | `# neo4j>=5.0.0,<6.0.0` |
-| FalkorDB | `# falkordb>=1.0.0,<2.0.0` |
+| Kuzu (default — no edit needed) | none — `kuzu>=0.11.3,<1.0.0` is already active |
+| FalkorDB **server** | uncomment `# falkordb>=1.1.2,<2.0.0`, then regenerate locks |
+| Neo4j **server** | add a `neo4j` line pinned to what you run, then regenerate locks |
 
-If installing MCP server too, also uncomment `# mcp>=1.0.2,<2.0.0`.
+The `neo4j` **driver** installs regardless — `graphiti-core` declares it as a hard
+dependency. Its presence does NOT mean Neo4j is your backend.
+
+If installing the MCP server too, uncomment `# mcp>=1.0.2,<2.0.0` — and regenerate
+the locks, or it will not be installed.
 
 ### Step 4 — Pre-install security audit
 
@@ -77,7 +85,12 @@ pip-audit --requirement requirements.txt
 ### Step 5 — Install
 
 ```bash
-pip install -r requirements.txt
+python --version   # pick the lock matching your interpreter (3.10 / 3.11 / 3.12 / 3.13)
+pip install --require-hashes -r locks/requirements-py3.12.lock
+
+# Fallback ONLY if no lock matches your Python version — this installs without
+# hash verification, so the L5/hash-pinned defense does NOT apply:
+# pip install -r requirements.txt
 ```
 
 ### Step 6 — Persist telemetry-off

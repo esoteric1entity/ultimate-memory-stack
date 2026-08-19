@@ -79,7 +79,7 @@ pattern_key_auto_promote: false     # SUGGEST not auto-promote
 pattern_key_promote_target: ".claude/rules/auto_rules.md"
 
 # Cryptographic signatures — HMAC optional (C4)
-crypto_signatures: hmac-optional    # HMAC default if user enables
+crypto_signatures: hmac-optional    # reserved — signing is NOT implemented; nothing consumes this yet
 crypto_signatures_scheme: "hmac-sha256"
 crypto_signatures_key_management: "session-derived-secret"
 crypto_signatures_activates_at_tier: 3  # Code Execution required
@@ -199,7 +199,7 @@ Canonical brand-protected elements (stack name, layer structure, schemas, protoc
 What general-edition does ALLOW user to choose:
 - Compliance preset (none / enterprise / custom)
 - Audit log on/off
-- Cryptographic signature scheme (HMAC default)
+- Cryptographic signature scheme (HMAC intended; NOT implemented)
 - Optional regulatory extensions
 
 See `../common-specs/MODULARITY.md` for full brand-protection vs modularity distinction.

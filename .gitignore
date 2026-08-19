@@ -145,3 +145,6 @@ openclaw.json
 *.local.json
 *.local.yaml
 *.local.yml
+
+# Local scratch/verification output — never part of the package.
+tmp/
