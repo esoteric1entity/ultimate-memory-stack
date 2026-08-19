@@ -5,7 +5,7 @@
 > **Note:** Audit logging (B1) is required in the `enterprise` preset.
 > **Companion:** SCHEMA_compliance_profile.md §5.3 (`enterprise` preset behaviors)
 > **Inherits:** All patterns from `detection_patterns_none.md` (secrets/credentials NEVER allowed regardless of preset)
-> **Does NOT inherit:** PHI/HIPAA detection patterns. Enterprise is PII-focused, NOT PHI-focused; PHI is out of scope for this edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
+> **Does NOT inherit:** PHI/HIPAA detection patterns. Enterprise is PII-focused, NOT PHI-focused; PHI is out of scope for this edition. HIPAA/PHI is out of scope for this edition.
 
 ---
 
@@ -26,7 +26,7 @@ Broad Personally Identifiable Information (PII) profile + business-identifier pa
 ## What this preset does NOT detect
 
 - PHI (protected health information / clinical data) — out of scope for this edition
-- PHI/HIPAA detection is out of scope for this edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+- PHI/HIPAA detection is out of scope for this edition. HIPAA/PHI is out of scope for this edition.
 
 ## Detection rules
 
@@ -238,5 +238,5 @@ consent_party_pointer: <reference to consent record, NOT the party themselves>
 - `SCHEMA_audit_log.md` (detection + consent events log)
 - `SCHEMA_quarantine.md` §6 (PII detected + consent-violation reason codes)
 - `detection_patterns_none.md` (inherited — secrets/credentials)
-- `detection_patterns_healthcare.md` (PHI detection-pattern stub — a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available)
+- `detection_patterns_healthcare.md` (PHI detection-pattern stub — HIPAA/PHI is out of scope for this edition)
 - **Regulatory:** GDPR Article 32 (security of processing), Article 17 (right to erasure), SOC2 Trust Services Criteria

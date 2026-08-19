@@ -1,4 +1,4 @@
-# Tier C Activation Guide — Ultimate Memory Stack v4.0.0
+# Tier C Activation Guide — Ultimate Memory Stack v4.0.1
 
 > **File:** `common-specs/TIER_C_ACTIVATION.md`
 > **Version:** 1.0 — 2026-05-19
@@ -41,7 +41,8 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 > **Installer Skill:** `recommended-addons/graphiti-installer/`
 > **Vetting:** passed security vetting with conditions (2026-05-27); CVE-2026-32247 patched at v0.28.2 (this installer floor pin `>=0.29.1` covers it)
 > **Telemetry:** DISABLED by default (env var persisted as a standing vetting condition)
-> **Recommended backend:** Kuzu (immune to Cypher injection class — parameterized labels)
+> **Recommended backend:** Kuzu (immune to Cypher injection class — parameterized labels).
+> ⚠️ Kuzu is cold upstream (last release 0.11.3, 2025-10-10) and graphiti-core marks its `[kuzu]` extra deprecated for future removal — see `recommended-addons/graphiti-installer/requirements.txt` before relying on it.
 > **Activation:** invoke `/install-graphiti` (Skill) OR follow `INSTALL_GRAPHITI.md` manually
 
 ### What it is
@@ -138,7 +139,7 @@ Memory stack at Layer 1 is unchanged — graph is a derived index, markdown is t
 > ⚠️ **PACKAGE NAME IS `graphifyy` (DOUBLE-Y).** Single-y `graphify` on PyPI is an UNRELATED package — typosquat risk.
 > **Installer Skill:** `recommended-addons/graphify-installer/`
 > **Vetting:** passed security vetting with conditions (2026-05-27); active upstream (116 releases in ~8 weeks at vetting)
-> **Defense layers active:** L1 bash-guard typosquat pattern + L2 manifest verification + L3 README warning + L4 exact pin `graphifyy==0.8.21`
+> **Defense layers active:** L1 bash-guard typosquat pattern + L2 manifest verification + L3 README warning + L4 exact pin `graphifyy==0.8.21` + L5 hash-pinned install (`--require-hashes` against `locks/`)
 > **Activation:** invoke `/install-graphify` (Skill) OR follow `INSTALL_GRAPHIFY.md` manually
 > **Status:** Skill registration validated — this Skill formalizes that pattern
 
@@ -375,6 +376,7 @@ For the remaining Tier C tools, the design is in spec but activation steps need 
 These are NOT in v3.0 spec yet; reserved for future evaluation:
 
 - ~~**CodeGraph** (`github.com/Abhishek-Aditya-bs/CodeGraph`)~~ — **EVALUATED 2026-05-19, REJECTED.** Tool offers GraphRAG hybrid retrieval pattern but requires Neo4j + Docker + OpenAI infrastructure (conflicts with our Kuzu embedded zero-infra + Ollama-first posture). 13 stars + 14 commits (very early); no AI assistant integration. GraphRAG pattern itself already captured via C2 Graphiti (with Kuzu zero-infra) + the community-summary pattern. NOTHING borrowed.
+  - **RE-CHECKED 2026-08-19 — rejection STANDS.** 22 stars / 17 commits. The three commits added since the first evaluation are documentation and marketing only (`docs: rewrite README and add diagrams, LICENSE, demo queries`; a badges commit; `Add marketing website`). **Last functional change: 2025-06-08** — the codebase has not moved in over a year. The blockers are unchanged and remain in the project's own description (Neo4j + OpenAI embeddings + Docker); its README has zero mentions of Ollama, embedded, local-model, or offline operation. Maturity was never the deciding factor here — the infrastructure requirement is the architecture, not an early-stage shortcut. Do not re-evaluate on star count alone; re-open only if an embedded/local-embeddings path appears.
 - Other code-graph entrants (2026 ecosystem may have evolved — periodic refresh recommended)
 - Obsidian community plugins purpose-built for AI-memory workflows (passive integration; Layer 1 enrichment)
 

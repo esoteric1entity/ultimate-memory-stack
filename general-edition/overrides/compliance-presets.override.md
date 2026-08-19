@@ -11,7 +11,7 @@
 
 ## §5 Preset Definitions — General-Edition Implementation
 
-This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with general-edition-specific implementation details. The presets selectable in general-edition are `none` / `enterprise` / `custom`; this file specifies HOW they work in general-edition. The shared common-spec also defines a `healthcare` preset value, but it is reserved for a planned future institutional edition and **not selectable in general-edition** (the setup wizard refuses it) — see §5.2.
+This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with general-edition-specific implementation details. The presets selectable in general-edition are `none` / `enterprise` / `custom`; this file specifies HOW they work in general-edition. The shared common-spec also defines a `healthcare` preset value, but it is a reserved value and **not selectable** (the setup wizard refuses it) — see §5.2.
 
 > **Where the active preset value comes from (v4.0.0):** the installer writes the bootstrap-selected preset to `memory/user/USER_OVERRIDES.md` (not `PROFILE.md` — that file is now regenerable and holds only the shipped default, `none`). `USER_OVERRIDES.md`, if present, wins. See `PROFILE.md` §2.1.
 
@@ -44,17 +44,17 @@ Your choice [1]: _
   You can change this later by editing `memory/user/USER_OVERRIDES.md`.
 ```
 
-### §5.2 HIPAA / PHI Workloads — Institutional Edition (Planned)
+### §5.2 HIPAA / PHI Workloads — not available
 
 The general-edition does **not** offer a selectable `healthcare` preset. The
 setup wizard accepts `none`, `enterprise`, and `custom` only; selecting a
 HIPAA/healthcare path is refused.
 
-A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+HIPAA/PHI is out of scope for this edition.
 
 The `healthcare` detection-pattern value still lives in the shared
-schema (not selectable in general-edition) so the planned future institutional
-edition can consume it.
+schema as a reserved name (not selectable here) so that references to it
+resolve and the name is not reused.
 
 ### §5.3 `enterprise` Preset (General-Edition Implementation)
 
@@ -155,12 +155,11 @@ Or by editing `memory/user/USER_OVERRIDES.md` directly. On preset change:
 
 If user starts with general-edition (`none` preset) and later realizes they need HIPAA/PHI-grade compliance:
 
-A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+HIPAA/PHI is out of scope for this edition.
 
 Within general-edition today, the strictest available path is the `enterprise`
 preset (broad PII detection + required audit log + consent tracking). Full
-HIPAA-grade, non-overridable defaults are reserved for the planned institutional
-edition above.
+HIPAA-grade, non-overridable defaults are not implemented in this edition.
 
 ---
 

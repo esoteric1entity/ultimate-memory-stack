@@ -142,7 +142,16 @@ This is why the memory stack stays fast to load even after months of daily use �
 
 **Bringing something back:** if an archived entry becomes relevant again — a paused project reactivates, or you just want to reference something old — ask Claude to look it up. It reads the category's `ARCHIVE_INDEX.md`, finds the entry, and can copy it back into the hot file ("rehydration") if it's genuinely active again; the archived copy stays put either way.
 
-**You don't have to do anything for this to work.** Rotation happens as part of normal operation once a file nears its cap. Lint (§6) will nudge you if something drifts — an archive file with an entry not yet indexed, a count mismatch, or a missing index — but these are all informational (severity LOW), never blocking.
+**You don't have to do anything for this to work.** Rotation happens as part of normal operation once a file nears its cap. Lint (§6) will nudge you if something drifts — an archive file with an entry not yet indexed, a count mismatch, or a missing index. Those are informational (severity LOW) and never blocking.
+
+Two lint findings are treated as errors rather than nudges, because both mean memory you think you still have is actually unavailable:
+
+- **`archive-pointer-dangling`** — the archive index lists an entry that isn't in the archive file. The pointer says it's one read away; it isn't there.
+- **`eager-set-over-budget`** — the always-loaded set has outgrown its budget. Anything past the limit is dropped silently at session start, so the first symptom is Claude having quietly forgotten something.
+
+Running lint exits non-zero on either, so a scheduled run or CI job surfaces them instead of burying them in a report.
+
+The dangling-pointer one can only appear once you've actually archived something. The budget one is different — it measures how much gets loaded every session, whether or not anything has ever been archived, so **it can start failing your lint runs on a vault that has never rotated a thing**. That's the point: it means Claude is silently dropping memory at session start. If you'd rather lint never fail, run it with `--fail-on none`.
 
 Full mechanics: `memory/MEMORY_PROTOCOL_EXTENDED.md` §Tiering.
 

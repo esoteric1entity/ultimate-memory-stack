@@ -100,7 +100,8 @@ export GRAPHITI_TELEMETRY_ENABLED=false   # Linux/Mac
 pip install pip-audit
 pip-audit --requirement requirements.txt   # MUST PASS
 
-pip install -r requirements.txt
+python preflight.py                        # dependency freshness (informational)
+pip install --require-hashes -r locks/requirements-py3.12.lock   # match your Python
 python smoke_test.py                       # Verify install + telemetry-off
 ```
 
@@ -160,6 +161,8 @@ Provide bi-temporal knowledge-graph storage to the Ultimate Memory Stack as the 
 | `SKILL.md` | Claude-executable installer manifest (11-step workflow) |
 | `README.md` | This file — addon README with CVE history + vetting summary |
 | `requirements.txt` | Pinned dependency manifest |
+| `locks/` | Hash-pinned closures, one per Python version (`--require-hashes`) |
+| `preflight.py` | Pre-install dependency-freshness report (installer-provided) |
 | `INSTALL_GRAPHITI.md` | Companion manual install guide |
 | `smoke_test.py` | Post-install verification (bi-temporal round-trip + telemetry check) |
 

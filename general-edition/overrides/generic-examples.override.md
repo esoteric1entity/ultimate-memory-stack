@@ -292,7 +292,7 @@ General-edition does not ship PHI/HIPAA compliance. Its presets are `none`, `ent
 - Strict regulatory enforcement (no user override possible)
 - Healthcare provider operations
 
-then note: A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+then note: HIPAA/PHI is out of scope for this edition.
 
 ---
 

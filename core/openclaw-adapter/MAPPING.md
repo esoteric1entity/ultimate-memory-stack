@@ -270,7 +270,7 @@ OpenClaw root layout vs v3.0/v3.5:
 |---|---|---|
 | `none` | (default) | Standard hygiene only; no regulatory detection |
 | `enterprise` | (supported in general-edition adapter) | GDPR/SOC2 baseline; opt-in audit log; consent tracking |
-| `healthcare` | **NOT ACTIVATED** for general-edition adapter | Not a shipped preset; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available) |
+| `healthcare` | **NOT ACTIVATED** for general-edition adapter | Not a shipped preset; HIPAA/PHI is out of scope for this edition |
 | `custom` | (deferred) | Future enhancement |
 
 The general-edition adapter supports the `none` and `enterprise` presets; the `healthcare` preset is refused (not a shipped preset).
@@ -316,7 +316,7 @@ Auto-Dream (C1) is gated on a future Anthropic beta (v4.0 roadmap). DREAMS.md sh
 Multi-Machine Sync is a Phase 4+ feature. Adapter prepares `sync_log.jsonl` schema (separate v3.5 deliverable) but doesn't activate sync.
 
 ### Limitation 4: Healthcare compliance not shipped
-The `healthcare` compliance preset is not available in this edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
+The `healthcare` compliance preset is not available in this edition. HIPAA/PHI is out of scope for this edition.
 
 ---
 

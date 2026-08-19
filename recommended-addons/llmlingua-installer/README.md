@@ -91,7 +91,8 @@ Per `INSTALL_LLMLINGUA.md`, run:
 # In your conda env or venv:
 pip install pip-audit
 pip-audit --requirement requirements.txt   # MUST PASS before next step
-pip install -r requirements.txt
+python preflight.py                        # dependency freshness (informational)
+pip install --require-hashes -r locks/requirements-py3.12.lock   # match your Python
 python smoke_test.py                       # Verify install
 ```
 
@@ -124,7 +125,7 @@ Provide token-level prompt compression to the Ultimate Memory Stack as an opt-in
 ### Scope — CAN
 
 - Install LLMLingua at exact pin `==0.2.2` into a user-chosen Python environment
-- Pin compatible `transformers` + `torch` + `sentencepiece` versions
+- Pin compatible `transformers` + `torch` + `accelerate` versions
 - Run `pip-audit` pre-install and block on HIGH/CRITICAL CVEs
 - Smoke-test the install via `smoke_test.py`
 - Register the addon in `memory/user/USER_OVERRIDES.md` if user opts to wire it into memory protocol
@@ -148,6 +149,8 @@ Provide token-level prompt compression to the Ultimate Memory Stack as an opt-in
 | `SKILL.md` | Claude-executable installer manifest (8-step workflow) |
 | `README.md` | This file — addon README with upstream status + vetting summary |
 | `requirements.txt` | Pinned dependency manifest (used by Step 2 pip-audit + Step 3 install) |
+| `locks/` | Hash-pinned closures, one per Python version (`--require-hashes`) |
+| `preflight.py` | Pre-install dependency-freshness report (installer-provided) |
 | `INSTALL_LLMLINGUA.md` | Companion manual install guide (for environments without Skill support) |
 | `smoke_test.py` | Post-install verification script (used by Step 4) |
 

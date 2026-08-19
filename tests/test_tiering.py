@@ -119,7 +119,10 @@ def test_eager_set_over_budget_fires_when_exceeded(tmp_path):
     findings = mod.check_eager_set_over_budget(tmp_path, "claude_code")
     assert len(findings) == 1
     assert findings[0].check_id == "eager_set_over_budget"
-    assert findings[0].severity == "low"
+    # v4.0.1: raised low -> high. This is the ONE tiering check that gates a
+    # run, because an over-budget always-loaded set means content past the
+    # harness's load limit is dropped silently (SCHEMA_lint.md §14).
+    assert findings[0].severity == "high"
 
 
 def test_eager_set_over_budget_no_fire_under_budget(tmp_path):
@@ -411,7 +414,15 @@ def test_all_six_tiering_checks_are_severity_low(tmp_path):
     )
     assert "archive_count_drift" in [f.check_id for f in findings]  # sanity: it actually fired
     assert len(findings) >= 5
-    assert all(f.severity == "low" for f in findings)
+    # v4.0.1 severity split (SCHEMA_lint.md §14): the five hygiene checks stay
+    # advisory "low"; eager_set_over_budget alone is "high" because it is the
+    # silent-data-loss guard, not a tidiness nit. Asserted per-check rather than
+    # uniformly so a future accidental severity change still gets caught.
+    by_id = {f.check_id: f.severity for f in findings}
+    assert by_id["eager_set_over_budget"] == "high"
+    assert all(
+        sev == "low" for cid, sev in by_id.items() if cid != "eager_set_over_budget"
+    ), by_id
 
 
 LINT_RUNNER = PKG / "core" / "shared-tools" / "lint_runner.py"

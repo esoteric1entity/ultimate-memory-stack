@@ -636,5 +636,326 @@ def test_old_path_shim_still_executes(tmp_path):
     assert "No findings" in r.stdout
 
 
+# --------------------------------------------------------------------------- #
+# Exit-code contract / the eager-set gate (SCHEMA_lint.md §14)
+#
+# These tests exist to prove the gate can FAIL, not merely that a clean vault
+# passes. An over-budget always-loaded set is the silent-truncation risk:
+# content past a harness's load limit is dropped without warning. Before v4.0.1
+# lint_runner.main() returned 0 unconditionally, so this class of defect could
+# never break a build.
+# --------------------------------------------------------------------------- #
+
+def _vault(tmp_path, *, eager_bytes: int, budget: int = 200) -> pathlib.Path:
+    """Build a minimal Claude-Code vault whose always-loaded set is
+    `eager_bytes` big, against an explicit `budget` from PROFILE.md."""
+    _write(tmp_path / ".claude" / "rules" / "memory_protocol.md", "x" * eager_bytes)
+    _write(tmp_path / "memory" / "MEMORY_INDEX.md", "index\n")
+    _write(
+        tmp_path / "ultimate-memory-stack" / "general-edition" / "PROFILE.md",
+        f"---\nedition: general\neager_set_budget_bytes: {budget}\n---\n",
+    )
+    return tmp_path
+
+
+def _run(root, *args):
+    return subprocess.run(
+        [sys.executable, str(PKG / "core" / "shared-tools" / "lint_runner.py"), str(root), *args],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
+    )
+
+
+class TestEagerSetGate:
+    def test_over_budget_vault_exits_nonzero(self, tmp_path):
+        """NEGATIVE CONTROL: the gate must actually bite on bad input."""
+        r = _run(_vault(tmp_path, eager_bytes=5000, budget=200))
+        assert r.returncode == 1, f"gate did not fire:\n{r.stdout}\n{r.stderr}"
+        assert "eager_set_over_budget" in r.stderr
+        assert "FAILED" in r.stderr
+
+    def test_under_budget_vault_exits_zero(self, tmp_path):
+        """Sensitivity check: a compliant vault must NOT fail, or the gate is
+        just noise that teaches people to ignore it."""
+        r = _run(_vault(tmp_path, eager_bytes=50, budget=80000))
+        assert r.returncode == 0, f"clean vault failed:\n{r.stdout}\n{r.stderr}"
+        assert "eager_set_over_budget" not in r.stdout
+
+    def test_fail_on_none_restores_advisory_behavior(self, tmp_path):
+        """Escape hatch for anyone depending on pre-v4.0.1 exit codes."""
+        r = _run(_vault(tmp_path, eager_bytes=5000, budget=200), "--fail-on", "none")
+        assert r.returncode == 0, r.stdout + r.stderr
+
+    def test_severity_filter_cannot_disable_the_gate(self, tmp_path):
+        """--severity is a DISPLAY filter. If it also narrowed the gate, then
+        `--severity critical` would silently switch off the high-severity gate —
+        exactly the kind of foot-gun that makes a gate decorative."""
+        r = _run(_vault(tmp_path, eager_bytes=5000, budget=200), "--severity", "critical")
+        assert r.returncode == 1, f"display filter disabled the gate:\n{r.stdout}\n{r.stderr}"
+
+    def test_over_budget_finding_is_high_severity(self, tmp_path):
+        v = _vault(tmp_path, eager_bytes=5000, budget=200)
+        findings = mod.check_eager_set_over_budget(v, "claude_code")
+        assert len(findings) == 1
+        assert findings[0].severity == "high"
+        assert findings[0].check_id == "eager_set_over_budget"
+
+
+# --------------------------------------------------------------------------- #
+# Silent-recall-failure checks (SCHEMA_lint.md §13).
+#
+# Two ways memory goes missing without anything looking broken:
+#   1. a POINTER that promises content which isn't there (dangling archive
+#      pointer) — gating, because it falsifies EXTENDED §E12.2's "loss-proof
+#      by construction";
+#   2. CONTENT that no pointer reaches (unreachable memory file) — advisory.
+# --------------------------------------------------------------------------- #
+
+def _tiered_vault(tmp_path, *, index_lines: str, archive_body: str | None,
+                  category: str = "decisions") -> pathlib.Path:
+    """Claude-Code vault with one tiered category's cold side populated.
+    `archive_body=None` means the <category>-archive.md file is absent."""
+    _write(tmp_path / ".claude" / "rules" / "memory_protocol.md", "core protocol\n")
+    _write(tmp_path / "memory" / "MEMORY_INDEX.md", "index\n")
+    archive_dir = tmp_path / "memory" / "archive" / category
+    _write(archive_dir / "ARCHIVE_INDEX.md", index_lines)
+    if archive_body is not None:
+        _write(archive_dir / f"{category}-archive.md", archive_body)
+    return tmp_path
+
+
+ONE_LINER = "- DEC-007 (2026-01-01): a rotated decision → decisions-archive.md#dec-007\n"
+
+
+class TestArchivePointerDangling:
+    def test_indexed_entry_missing_from_archive_fires(self, tmp_path):
+        """NEGATIVE CONTROL: the index promises DEC-007; the archive holds only
+        DEC-009. The promised memory is gone."""
+        v = _tiered_vault(tmp_path, index_lines=ONE_LINER,
+                          archive_body="## DEC-009: something else\n\nbody\n")
+        findings = mod.check_archive_pointer_dangling(v, "claude_code")
+        assert len(findings) == 1, [f.message for f in findings]
+        assert findings[0].check_id == "archive_pointer_dangling"
+        assert findings[0].severity == "high"
+        assert "DEC-007" in findings[0].message
+
+    def test_missing_archive_file_fires_for_every_indexed_entry(self, tmp_path):
+        v = _tiered_vault(tmp_path, index_lines=ONE_LINER, archive_body=None)
+        findings = mod.check_archive_pointer_dangling(v, "claude_code")
+        assert len(findings) == 1
+        assert findings[0].severity == "high"
+        assert "does not exist" in findings[0].message
+
+    def test_healthy_archive_does_not_fire(self, tmp_path):
+        """Sensitivity: a correctly rotated entry must stay silent, or the gate
+        is noise that teaches people to ignore it."""
+        v = _tiered_vault(tmp_path, index_lines=ONE_LINER,
+                          archive_body="## DEC-007: a rotated decision\n\nbody\n")
+        assert mod.check_archive_pointer_dangling(v, "claude_code") == []
+
+    def test_entry_found_via_frontmatter_id_does_not_fire(self, tmp_path):
+        """sessions/ entries carry their ID in frontmatter, not the heading
+        (session_state.template.md) — the heading route alone would false-fire
+        on every rotated session."""
+        v = _tiered_vault(
+            tmp_path,
+            index_lines="- SESSION-001 (2026-01-01): first session → sessions-archive.md#session-001\n",
+            archive_body="## Session 1 — Initial Setup (2026-01-01)\n\n---\nid: SESSION-001\n---\n\nbody\n",
+            category="sessions",
+        )
+        assert mod.check_archive_pointer_dangling(v, "sessions") == []
+
+    def test_empty_index_does_not_fire(self, tmp_path):
+        """The fresh-install state: ARCHIVE_INDEX.md exists but lists nothing,
+        so nothing is promised and nothing can dangle."""
+        v = _tiered_vault(tmp_path, index_lines="# Archive Index\n\n## Entries\n",
+                          archive_body=None)
+        assert mod.check_archive_pointer_dangling(v, "claude_code") == []
+
+    def test_id_mentioned_only_in_prose_is_treated_as_present(self, tmp_path):
+        """Documents the DELIBERATE false negative: the literal-substring pass
+        makes this check conservative on purpose. A gate that cries wolf gets
+        switched off, so presence-anywhere counts as present."""
+        v = _tiered_vault(tmp_path, index_lines=ONE_LINER,
+                          archive_body="## DEC-009: other\n\nThis supersedes DEC-007.\n")
+        assert mod.check_archive_pointer_dangling(v, "claude_code") == []
+
+    def test_dangling_pointer_fails_the_run(self, tmp_path):
+        """End-to-end: the finding must actually break a build at the default
+        --fail-on, not merely be printed."""
+        v = _tiered_vault(tmp_path, index_lines=ONE_LINER,
+                          archive_body="## DEC-009: something else\n\nbody\n")
+        r = _run(v)
+        assert r.returncode == 1, f"gate did not fire:\n{r.stdout}\n{r.stderr}"
+        assert "archive_pointer_dangling" in r.stderr
+
+    def test_severity_filter_cannot_disable_this_gate_either(self, tmp_path):
+        v = _tiered_vault(tmp_path, index_lines=ONE_LINER,
+                          archive_body="## DEC-009: something else\n\nbody\n")
+        r = _run(v, "--severity", "critical")
+        assert r.returncode == 1, f"display filter disabled the gate:\n{r.stdout}\n{r.stderr}"
+
+    @pytest.mark.parametrize("category,entry_id,other_id", [
+        ("decisions", "DEC-007", "DEC-009"),
+        ("feedback", "FB-003", "FB-014"),
+        ("sessions", "SESSION-002", "SESSION-005"),
+    ])
+    def test_fires_for_every_tiered_category(self, tmp_path, category, entry_id, other_id):
+        """All three tiered categories must be covered. A mutation that dropped
+        one from TIERED_CATEGORIES would otherwise pass every other test here —
+        neither the return-[] nor the severity-downgrade negative control is
+        category-scoped, so neither could catch it."""
+        v = _tiered_vault(
+            tmp_path,
+            index_lines=f"- {entry_id} (2026-01-01): rotated → {category}-archive.md#x\n",
+            archive_body=f"## {other_id}: something else\n\nbody\n",
+            category=category,
+        )
+        findings = mod.check_archive_pointer_dangling(v, "claude_code")
+        assert len(findings) == 1, [f.message for f in findings]
+        assert entry_id in findings[0].message
+        assert findings[0].severity == "high"
+
+    def test_every_indexed_entry_is_reported_not_just_the_first(self, tmp_path):
+        v = _tiered_vault(
+            tmp_path,
+            index_lines=(
+                "- DEC-007 (2026-01-01): one → decisions-archive.md#dec-007\n"
+                "- DEC-008 (2026-01-02): two → decisions-archive.md#dec-008\n"
+                "- DEC-009 (2026-01-03): three → decisions-archive.md#dec-009\n"
+            ),
+            archive_body=None,
+        )
+        findings = mod.check_archive_pointer_dangling(v, "claude_code")
+        assert len(findings) == 3, [f.message for f in findings]
+        assert {"DEC-007", "DEC-008", "DEC-009"} == {
+            m for f in findings for m in ("DEC-007", "DEC-008", "DEC-009") if m in f.message
+        }
+
+    def test_unreadable_archive_file_fires_instead_of_passing_silently(self, tmp_path):
+        """A gate that goes quiet on unreadable input is worse than no gate: one
+        stray cp1252 byte from a Notepad edit would switch off the very check
+        that catches corruption. Unverifiable != clean."""
+        v = _tiered_vault(tmp_path, index_lines=ONE_LINER, archive_body="placeholder\n")
+        (v / "memory" / "archive" / "decisions" / "decisions-archive.md").write_bytes(
+            b"## DEC-009: smart \x92 quote\n\nbody\n"
+        )
+        findings = mod.check_archive_pointer_dangling(v, "claude_code")
+        assert len(findings) == 1, [f.message for f in findings]
+        assert findings[0].severity == "high"
+        assert "could not be read" in findings[0].message
+        assert _run(v).returncode == 1
+
+    def test_unreadable_archive_index_fires_instead_of_passing_silently(self, tmp_path):
+        """extract_archive_index_ids() returns an empty set on a decode error,
+        which is indistinguishable from 'index lists nothing'. Without an
+        explicit probe an unreadable cold index would sail through the gate."""
+        v = _tiered_vault(tmp_path, index_lines="placeholder\n",
+                          archive_body="## DEC-007: a rotated decision\n\nbody\n")
+        (v / "memory" / "archive" / "decisions" / "ARCHIVE_INDEX.md").write_bytes(
+            b"- DEC-007 (2026-01-01): smart \x92 quote -> decisions-archive.md#dec-007\n"
+        )
+        findings = mod.check_archive_pointer_dangling(v, "claude_code")
+        assert len(findings) == 1, [f.message for f in findings]
+        assert findings[0].severity == "high"
+        assert "could not be read" in findings[0].message
+
+
+class TestUnreachableMemoryFile:
+    def _vault(self, tmp_path, *, index_text: str) -> pathlib.Path:
+        _write(tmp_path / ".claude" / "rules" / "memory_protocol.md", "core protocol\n")
+        _write(tmp_path / "memory" / "MEMORY_INDEX.md", index_text)
+        return tmp_path
+
+    def test_unreferenced_file_with_content_fires(self, tmp_path):
+        """NEGATIVE CONTROL: real content, reachable from nothing."""
+        v = self._vault(tmp_path, index_text="# Memory Index\n\nno rows yet\n")
+        _write(v / "memory" / "projects" / "orphaned.md", "# Notes\n\nA load-bearing fact.\n")
+        findings = mod.check_unreachable_memory_file(v, "claude_code")
+        assert len(findings) == 1, [f.message for f in findings]
+        assert findings[0].check_id == "unreachable_memory_file"
+        assert findings[0].severity == "low"
+        assert "projects/orphaned.md" in findings[0].message
+
+    def test_referenced_file_does_not_fire(self, tmp_path):
+        v = self._vault(tmp_path, index_text="| Projects | `projects/orphaned.md` | 1 |\n")
+        _write(v / "memory" / "projects" / "orphaned.md", "# Notes\n\nA load-bearing fact.\n")
+        assert mod.check_unreachable_memory_file(v, "claude_code") == []
+
+    def test_plain_text_future_row_counts_as_a_reference(self, tmp_path):
+        """MEMORY_INDEX.template.md lists not-yet-created categories as PLAIN
+        text (no backticks) so the T5 self-test ignores them. Those are still
+        references — matching must not require backticks."""
+        v = self._vault(tmp_path, index_text="- Decisions — decisions/decisions.md (created on first DEC entry)\n")
+        _write(v / "memory" / "decisions" / "decisions.md", "# Decisions\n\nA decision.\n")
+        assert mod.check_unreachable_memory_file(v, "claude_code") == []
+
+    def test_no_index_means_no_findings(self, tmp_path):
+        """A fresh install ships NO MEMORY_INDEX.md — the agent writes it on
+        first use. Without an index there is nothing to be reachable from, so
+        inferring one would make every day-zero install fire."""
+        _write(tmp_path / ".claude" / "rules" / "memory_protocol.md", "core protocol\n")
+        _write(tmp_path / "memory" / "user" / "USER_OVERRIDES.md", "# Overrides\n\nsomething\n")
+        assert mod.check_unreachable_memory_file(tmp_path, "claude_code") == []
+
+    def test_archive_and_quarantine_are_exempt(self, tmp_path):
+        """archive/ has its own index (archive_unindexed owns it); quarantine/
+        is excluded from tiering entirely per EXTENDED §E12.1."""
+        v = self._vault(tmp_path, index_text="# Memory Index\n")
+        _write(v / "memory" / "archive" / "decisions" / "decisions-archive.md", "## DEC-001: x\n\nbody\n")
+        _write(v / "memory" / "quarantine" / "held.md", "# Held\n\nsuspect content\n")
+        assert mod.check_unreachable_memory_file(v, "claude_code") == []
+
+    def test_empty_scaffold_does_not_fire(self, tmp_path):
+        """Headings/frontmatter/blockquotes only — a scaffold, not a fact."""
+        v = self._vault(tmp_path, index_text="# Memory Index\n")
+        _write(v / "memory" / "references" / "references.md",
+               "# References\n\n> **Schema Version:** 3.0\n\n---\n\n## Entries\n")
+        assert mod.check_unreachable_memory_file(v, "claude_code") == []
+
+    def test_project_memory_bank_files_are_reachable_via_their_directory(self, tmp_path):
+        """SCHEMA_A3 per-project memory banks are registered in
+        MEMORY_INDEX.template.md as DIRECTORIES (`projects/<slug>/memory-bank/`),
+        and that template says the index summarizes while full state lives in
+        the bank. Exact-path matching would flag all six Cline files for every
+        project on every run."""
+        v = self._vault(tmp_path, index_text="| `myproj` | active | `projects/myproj/memory-bank/` |\n")
+        for name in ("projectbrief.md", "activeContext.md", "progress.md",
+                     "productContext.md", "systemPatterns.md", "techContext.md"):
+            _write(v / "memory" / "projects" / "myproj" / "memory-bank" / name,
+                   f"# {name}\n\nReal project content.\n")
+        assert mod.check_unreachable_memory_file(v, "claude_code") == []
+
+    def test_bare_prefix_from_a_longer_path_does_not_exempt_a_directory(self, tmp_path):
+        """The Category Summary row `projects/project_context.md` contains the
+        substring `projects/`. If that counted as a directory reference, every
+        file anywhere under projects/ would be silently exempted."""
+        v = self._vault(tmp_path, index_text="| Projects | `projects/project_context.md` | 1 |\n")
+        _write(v / "memory" / "projects" / "ghost" / "notes.md", "# Notes\n\nA fact.\n")
+        findings = mod.check_unreachable_memory_file(v, "claude_code")
+        assert len(findings) == 1, [f.message for f in findings]
+        assert "projects/ghost/notes.md" in findings[0].message
+
+    def test_all_unreferenced_files_are_reported(self, tmp_path):
+        v = self._vault(tmp_path, index_text="# Memory Index\n")
+        for name in ("a.md", "b.md", "c.md"):
+            _write(v / "memory" / "references" / name, f"# {name}\n\nA fact.\n")
+        findings = mod.check_unreachable_memory_file(v, "claude_code")
+        assert len(findings) == 3, [f.message for f in findings]
+
+    def test_template_paths_are_exempt(self, tmp_path):
+        v = self._vault(tmp_path, index_text="# Memory Index\n")
+        _write(v / "memory" / "templates" / "some.template.md", "# T\n\nScaffold body.\n")
+        assert mod.check_unreachable_memory_file(v, "claude_code") == []
+
+    def test_advisory_only_does_not_fail_the_run(self, tmp_path):
+        """This one must NOT gate — an unindexed file is hard to find, not
+        lost. §13's advisory checks stay non-blocking."""
+        v = self._vault(tmp_path, index_text="# Memory Index\n")
+        _write(v / "memory" / "projects" / "orphaned.md", "# Notes\n\nA load-bearing fact.\n")
+        r = _run(v)
+        assert r.returncode == 0, f"advisory check gated the run:\n{r.stdout}\n{r.stderr}"
+        assert "unreachable_memory_file" in r.stdout
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

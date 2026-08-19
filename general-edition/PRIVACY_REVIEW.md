@@ -26,7 +26,7 @@ You decide what goes into memory. The installer never invents data; the activati
 
 ## PII / PHI
 
-The general edition is **field-agnostic** and ships **no PHI/HIPAA handling** — a `healthcare` preset is **not selectable** here (the wizard refuses it). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see [`../CONTRIBUTING.md`](../CONTRIBUTING.md)). Optional, user-selected protection:
+The general edition is **field-agnostic** and ships **no PHI/HIPAA handling** — a `healthcare` preset is **not selectable** here (the wizard refuses it). HIPAA/PHI is out of scope for this edition (not yet available — see [`../CONTRIBUTING.md`](../CONTRIBUTING.md)). Optional, user-selected protection:
 
 - **Compliance presets:** `none` (default — no detection), `enterprise` (broad PII detection + audit + quarantine), `custom`.
 - **Extensions:** `gdpr` / `soc2` / `pci-dss` add jurisdiction-specific detection when you enable them.

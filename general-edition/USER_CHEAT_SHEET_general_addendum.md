@@ -61,7 +61,7 @@ General-edition is the lighter-touch, general-purpose edition. Most users start 
 | Your context | Pick |
 |--------------|------|
 | Personal projects, hobby code, learning | `none` |
-| HIPAA / PHI work | Not in general-edition — A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. |
+| HIPAA / PHI work | Not in general-edition — HIPAA/PHI is out of scope for this edition. |
 | You handle business customer PII or you're prepping for SOC2 | `enterprise` |
 | Multiple regulatory regimes simultaneously OR very specific needs | `custom` (advanced) |
 
@@ -77,7 +77,7 @@ If `enterprise` base preset isn't enough, add extensions:
 - **`soc2-profile.md`** — SOC2 audit prep; change management discipline; access controls
 - **`pci-dss-profile.md`** — Payment card data context; aggressive PAN detection
 
-For HIPAA/PHI: A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+For HIPAA/PHI: HIPAA/PHI is out of scope for this edition.
 
 Activate at install:
 ```bash
@@ -151,7 +151,7 @@ General-edition uses HMAC by default for cryptographic signatures:
 - Signatures activate at T3 (when Code Execution is available)
 - Without Code Execution: signatures are dormant; you're protected by validation-on-read
 
-Stronger cryptographic guarantees (e.g. Ed25519) are part of the planned institutional edition. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+Stronger cryptographic guarantees (e.g. Ed25519 offline-key signing) are not implemented.
 
 ---
 
@@ -190,14 +190,14 @@ Stronger cryptographic guarantees (e.g. Ed25519) are part of the planned institu
 
 ---
 
-## HIPAA / PHI Work — Institutional Edition
+## HIPAA / PHI Work — not supported
 
 If your work involves PHI or HIPAA-grade enforcement — for example:
 
 - Work that is PRIMARILY in healthcare/regulated R&D (not occasional)
 - An institution with strict HIPAA enforcement requirements
 
-then note: A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+then note: HIPAA/PHI is out of scope for this edition.
 
 General-edition does not ship PHI/HIPAA compliance; its presets are `none`, `enterprise`, and `custom`.
 
@@ -207,7 +207,7 @@ General-edition does not ship PHI/HIPAA compliance; its presets are `none`, `ent
 
 - **Sub-agent topology:** General-edition doesn't assume any specific sub-agents. Most users have none. Standard slots (`user`, `orchestrator`, `webfetch`, `external-tool-output`) cover everything.
 - **Mirror parity:** Only relevant if you mirror your memory dir to a second location. Most users have a single working directory.
-- **Institutional IP review:** That's the institutional edition's concern. General-edition is the public edition and carries no institution-specific content.
+- **Institution-specific IP review:** out of scope. This is the public edition and carries no institution-specific content.
 - **Multi-machine sync:** Out of scope for v4.0.0. Each deployment is independent.
 
 ---

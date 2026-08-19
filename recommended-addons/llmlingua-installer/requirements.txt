@@ -3,14 +3,42 @@
 # Authority: the project's security-first tool-installation policy.
 #
 # Rationale for each pin:
-#   - llmlingua==0.2.2  → upstream STALE (last release 2024-04-09); exact pin prevents drift; v3.6+ migration to SecurityLingua planned
-#   - transformers       → bounded range; floor avoids known-incompatible older versions; ceiling avoids breaking API changes in 4.40+
-#   - torch              → bounded range; floor matches transformers ABI; ceiling avoids 2.3+ CUDA changes that may not be compatible with v0.2.2 era ecosystem
-#   - sentencepiece     → required transitively; explicit pin documents the dependency
+#   - llmlingua==0.2.2   → upstream STALE (last release 2024-04-09); exact pin prevents drift
+#   - transformers        → bounded range; floor is llmlingua's own declared minimum
+#   - torch               → floor only; see the ceiling note below
+#   - accelerate          → declared runtime dependency of llmlingua 0.2.2
 #
 # Required: run `pip-audit -r requirements.txt` BEFORE install. Recommended: re-run every 30-90 days post-install.
+#
+# ── FIXED 2026-08-19 ─────────────────────────────────────────────────────────
+# The previous bounds made this manifest uninstallable on current interpreters:
+#
+#   - `torch>=2.0.0,<2.3.0` — the oldest torch publishing a cp313 wheel is
+#     2.5.0, so pip failed with "No matching distribution found" on Python
+#     3.13. The ceiling excluded every torch built for 3.13 on any platform.
+#   - `transformers>=4.30.0,<4.40.0` — same class of problem, a ceiling we
+#     invented rather than one upstream asked for.
+#
+# Both ceilings were OURS. llmlingua 0.2.2 declares `transformers>=4.26.0`,
+# `torch`, and `accelerate` with NO upper bounds at all. We had tightened
+# beyond upstream on the theory that a 2024-era package needs a 2024-era
+# ecosystem, then never executed the file to find out. It shipped in v4.0.0
+# broken because no installer, test, or CI job ever ran a requirements.txt.
+#
+# `sentencepiece` was also listed here as "required transitively" — it is NOT
+# in llmlingua 0.2.2's dependency metadata. `accelerate`, which IS declared,
+# was missing. Both corrected. Verified to resolve on 3.10 / 3.12 / 3.13, and
+# a CI resolve gate now holds that.
+#
+# On the torch ceiling: none is set. An exact upper bound cannot be honestly
+# claimed without testing llmlingua against each new torch, which we do not do.
+# A ceiling we have not verified is a guess that breaks users on new
+# interpreters — precisely the failure being fixed here. The reproducibility
+# guarantee comes from the hash-pinned lockfiles instead, which is where it
+# belongs; this file expresses compatibility, the lockfile expresses exactness.
+# ─────────────────────────────────────────────────────────────────────────────
 
 llmlingua==0.2.2
-transformers>=4.30.0,<4.40.0
-torch>=2.0.0,<2.3.0
-sentencepiece>=0.1.99,<0.3.0
+transformers>=4.26.0,<5.0.0
+torch>=2.0.0
+accelerate>=0.26.0

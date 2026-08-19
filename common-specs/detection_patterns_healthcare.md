@@ -1,16 +1,12 @@
-# Detection Patterns — `healthcare` Preset (Planned Institutional Edition)
+# Detection Patterns — `healthcare` Preset (reserved)
 
-> **Status:** The `healthcare` preset is **not selectable in this edition** — the installer
-> refuses it. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet
-> available). See CONTRIBUTING.md.
+> **Status:** `healthcare` is a **reserved preset value**. It is not selectable — the installer
+> refuses it. The shipped presets are `none` / `enterprise` / `custom`.
 
-> **Preset:** `compliance: healthcare`
-> **Purpose:** HIPAA-aligned PHI detection with redact-on-sight, audit logging, and quarantine
-> routing.
+No PHI detection pattern set is defined in this release. This file exists so that
+`healthcare`-preset references resolve and so the name is not reused for something else.
 
-The detailed PHI-detection pattern set (the regex library, severity → action mapping, and
-quarantine integration) is part of the planned institutional edition and is **not included in this
-public release**. This placeholder keeps `healthcare`-preset references resolvable.
+Deployments with regulatory requirements use the `enterprise` or `custom` preset.
 
 ## Standing rules (apply in every edition, regardless of preset)
 
@@ -20,7 +16,7 @@ public release**. This placeholder keeps `healthcare`-preset references resolvab
 
 ## Cross-references
 
-- `SCHEMA_compliance_profile.md` §5.2 (`healthcare` preset behaviors)
-- `MEMORY_PROTOCOL.md` §17 (Healthcare Compliance Profile)
+- `SCHEMA_compliance_profile.md` §5.2 (`healthcare` — reserved value)
+- `MEMORY_PROTOCOL.md` §17 (`healthcare` preset — reserved)
 - `SCHEMA_quarantine.md` §6 (reason code `phi-detected`)
 - `detection_patterns_none.md` (inherited — secrets/credentials always active)

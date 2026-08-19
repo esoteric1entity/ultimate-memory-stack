@@ -11,6 +11,93 @@ permissions:
   contents: read
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Addon manifest resolve gate.
+  #
+  # v4.0.0 shipped two of three addon manifests UNINSTALLABLE — graphify pinned
+  # `tree-sitter<0.22.0` while graphifyy 0.8.21 requires `>=0.23.0`
+  # (ResolutionImpossible on every platform), and llmlingua pinned
+  # `torch<2.3.0`, which has no distribution at all on Python 3.13. Neither was
+  # caught because NOTHING in the repo ever executed a requirements.txt: the
+  # install jobs below only register skills, and the only repo-wide mention of
+  # the file outside the manifests was a print() in a smoke test.
+  #
+  # This job is the fix for the CLASS, not the instances. A manifest that
+  # cannot resolve now fails CI before it can reach a user.
+  #
+  # --dry-run: resolution only. Nothing is installed, no environment mutated.
+  # --------------------------------------------------------------------------
+  addon-manifests:
+    name: addon manifests resolve (py${{ matrix.python }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Floor is the lowest version any addon declares support for
+        # (graphifyy and graphiti-core both require_python >= 3.10).
+        python: ["3.10", "3.12", "3.13"]
+        # macOS included deliberately: the install jobs below exercise macOS
+        # but `verify.sh` never runs pip at all, so without this row no job
+        # anywhere would ever resolve an addon manifest on macOS — and wheel
+        # availability is exactly the kind of thing that differs per platform
+        # (FalkorDB Lite ships macOS wheels but no Windows ones).
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Verify hash-pinned lockfiles install
+        shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -u
+          rc=0
+          PYV="${{ matrix.python }}"
+          for lock in recommended-addons/*/locks/requirements-py${PYV}.lock; do
+            echo "==== $lock ===="
+            # --require-hashes makes pip refuse any artifact whose hash is not
+            # listed, so a substituted or tampered distribution fails closed.
+            if python -m pip install --dry-run --quiet --require-hashes --report - -r "$lock" >/dev/null; then
+              echo "  OK (hash-verified)"
+            else
+              echo "  FAILED: $lock"
+              python -m pip install --dry-run --require-hashes -r "$lock" 2>&1 | tail -20 || true
+              rc=1
+            fi
+          done
+          exit $rc
+
+      - name: Resolve every addon manifest
+        shell: bash
+        env:
+          # PyPI metadata contains non-ASCII (a ⭐ in one summary was enough to
+          # kill a local run with UnicodeEncodeError under cp1252). Windows
+          # runners hit the same path — same defect class the shipped scripts
+          # already guard against.
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -u
+          rc=0
+          for req in recommended-addons/*/requirements.txt; do
+            echo "==== $req ===="
+            if python -m pip install --dry-run --quiet --report - -r "$req" >/dev/null; then
+              echo "  OK"
+            else
+              echo "  FAILED to resolve: $req"
+              python -m pip install --dry-run -r "$req" 2>&1 | tail -20 || true
+              rc=1
+            fi
+          done
+          exit $rc
+
   unit-tests:
     name: unit tests (pytest, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}

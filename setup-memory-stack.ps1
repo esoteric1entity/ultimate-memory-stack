@@ -1,5 +1,5 @@
 # ==============================================================================
-# Ultimate Memory Stack v4.0.0 - top-level installer (Windows / PowerShell)
+# Ultimate Memory Stack v4.0.1 - top-level installer (Windows / PowerShell)
 # Apache-2.0 (C) 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
@@ -41,7 +41,7 @@ $VersionFile = Join-Path $ScriptDir "VERSION"
 if (Test-Path $VersionFile) {
     $StackVersion = (Get-Content $VersionFile -Raw).Trim()
 } else {
-    $StackVersion = "4.0.0"
+    $StackVersion = "4.0.1"
 }
 
 if ($Help) {
@@ -208,7 +208,27 @@ if ($Minimal) {
         $skillDir = Join-Path $SkillsDir $skillName
         New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
         $dest = Join-Path $skillDir "SKILL.md"
-        Copy-Item -Path $src -Destination $dest -Force
+        # Copy the ENTIRE addon payload, not just SKILL.md. (2026-08-19 fix —
+        # parity with setup-memory-stack.sh.) The skills instruct the user to
+        # run `pip install -r <path-to-this-skill>/requirements.txt`,
+        # `pip-audit --requirement ...`, and `python .../smoke_test.py`;
+        # copying only SKILL.md left every one of those paths dangling.
+        # __pycache__ and dotfiles are skipped; nothing is deleted.
+        $srcRoot = (Resolve-Path (Join-Path $ScriptDir $relDir)).Path
+        Get-ChildItem -Path $srcRoot -Recurse -File |
+            Where-Object { $_.FullName -notmatch '\\__pycache__\\' -and $_.Name -notlike '.*' } |
+            ForEach-Object {
+                $rel = $_.FullName.Substring($srcRoot.Length).TrimStart('\')
+                $target = Join-Path $skillDir $rel
+                New-Item -ItemType Directory -Force -Path (Split-Path $target -Parent) | Out-Null
+                Copy-Item -Path $_.FullName -Destination $target -Force
+            }
+        # Shared add-on tool, copied in so the installed skill is self-contained
+        # (parity with setup-memory-stack.sh). preflight.py detects this layout.
+        $preflight = Join-Path $ScriptDir "recommended-addons\preflight.py"
+        if ((Test-Path $preflight) -and (Test-Path (Join-Path $srcRoot "requirements.txt"))) {
+            Copy-Item -Path $preflight -Destination (Join-Path $skillDir "preflight.py") -Force
+        }
         if ($NoTemplater -and $a -eq "memory-vault") {
             # Appended AFTER the body — prepending broke the YAML frontmatter.
             Add-Content -Path $dest -Value "`r`n<!-- Installed with -NoTemplater: skip the Templater community-plugins auto-enable step. -->"

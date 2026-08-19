@@ -42,14 +42,14 @@ COMMON_SPECS_DIR = SCRIPT_DIR.parent / "common-specs"
 try:
     STACK_VERSION = (SCRIPT_DIR.parent / "VERSION").read_text(encoding="utf-8").strip()
 except OSError:
-    STACK_VERSION = "4.0.0"  # fallback for a general-edition dir copied standalone
+    STACK_VERSION = "4.0.1"  # fallback for a general-edition dir copied standalone
 
 # Public general-edition presets. healthcare/PHI is intentionally EXCLUDED —
-# not part of general-edition (a HIPAA/PHI-focused institutional edition is
-# planned for a future release).
+# not part of this edition ('healthcare' is a reserved preset value that is
+# reserved and not selectable).
 VALID_PRESETS = {"none", "enterprise", "custom"}
 VALID_EXTENSIONS = {"gdpr", "soc2", "pci-dss"}
-UNAVAILABLE_PRESETS = {"healthcare"}  # not available in general-edition; planned institutional edition
+UNAVAILABLE_PRESETS = {"healthcare"}  # reserved value; not selectable in this edition
 
 
 def log_audit_event(working_dir: Path, action: str, summary: str,
@@ -572,9 +572,9 @@ def setup_fresh(working_dir: Path, compliance_preset: str, extensions: list, arg
     _refuse_if_installed_copy(working_dir)
     _refuse_if_not_writable(working_dir)
 
-    # PHI/HIPAA is not available in general-edition — refuse it (planned institutional edition)
+    # PHI/HIPAA is not available in this edition — refuse it ('healthcare' is reserved)
     if compliance_preset in UNAVAILABLE_PRESETS or any(e in UNAVAILABLE_PRESETS for e in extensions):
-        print(f"✗ '{compliance_preset}'/PHI handling is not available in the general-edition (a HIPAA/PHI-focused institutional edition is planned for a future release).")
+        print(f"✗ '{compliance_preset}'/PHI handling is not available in this edition; 'healthcare' is a reserved preset value. Use 'enterprise' or 'custom'.")
         print(f"  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md.")
         sys.exit(1)
 
@@ -762,7 +762,7 @@ def change_preset(working_dir: Path, new_preset: str):
     """Change compliance preset on existing deployment. Writes to USER_OVERRIDES.md
     (v4.0.0) — PROFILE.md is regenerable and no longer authoritative for this value."""
     if new_preset in UNAVAILABLE_PRESETS:
-        print(f"✗ '{new_preset}'/PHI handling is not available in the general-edition (planned institutional edition).")
+        print(f"✗ '{new_preset}'/PHI handling is not available in this edition; 'healthcare' is a reserved preset value. Use 'enterprise' or 'custom'.")
         sys.exit(1)
     if new_preset not in VALID_PRESETS:
         print(f"✗ Invalid preset: {new_preset}")

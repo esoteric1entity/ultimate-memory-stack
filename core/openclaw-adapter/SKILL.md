@@ -182,7 +182,7 @@ Compliance preset:
 
 Write `<openclaw-root>/ultimate-memory-stack/general-edition/PROFILE.md` with chosen preset. Per MEMORY_PROTOCOL §6.
 
-If user later wants the `healthcare` preset, a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
+If user later wants the `healthcare` preset, HIPAA/PHI is out of scope for this edition.
 
 ---
 
@@ -347,7 +347,7 @@ For Sentinel-vetted addon installs:
 - **Cannot mutate user's crontab** (security boundary) — presents cron entry; user pastes via `crontab -e`
 - **Cannot install DGM-H** — deferred; reverts to Phase 4+ candidate
 - **Cannot install Auto-Dream** — v4.0 candidate, Anthropic Dreaming beta gated
-- **Cannot enable the healthcare compliance preset** — not shipped in this edition; a HIPAA/PHI-focused institutional edition is planned for a future release
+- **Cannot enable the healthcare compliance preset** — not shipped in this edition; HIPAA/PHI is out of scope for this edition
 - **Cannot sync entries across machines** — Multi-Machine Sync is a Phase 4+ candidate; this adapter prepares the schema (sync_log.jsonl scope) but doesn't implement
 - **Cannot guarantee bootstrap stays under 60K** if user adds large content to root files — heartbeat compactor surfaces violations; user must act
 - **Cannot install addons it doesn't recognize** — only the 4 PASS-vetted ones (LLMLingua / Graphiti / Graphify / Obsidian) have known Skills; new addons require fresh VET-### entries

@@ -26,6 +26,11 @@ Lint checks implemented (Option C extensions + original §10.5):
  10. [Option C] Doc completeness gaps (5-element documentation audit) — IMPLEMENTED
  11. [Option C] Standing-rule candidates — deferred to v3.6+ (LLM-assisted)
 
+Silent-recall-failure checks (SCHEMA_lint.md §13) — a pointer that promises
+content which isn't there, or content nothing points at:
+ 12. Dangling archive pointers (ARCHIVE_INDEX one-liner → missing entry) — GATING
+ 13. Unreachable memory files (content under memory/ that MEMORY_INDEX.md never cites)
+
 Design principles: ideal-first design; Karpathy Lint pattern (surface-only);
 Option C check extensions; v3.5 multi-platform lint patch.
 
@@ -87,6 +92,16 @@ def parse_args() -> argparse.Namespace:
         choices=["stdout", "json", "jsonl"],
         default="stdout",
         help="Output format (default: stdout)",
+    )
+    p.add_argument(
+        "--fail-on",
+        choices=["none", "info", "low", "medium", "high", "critical"],
+        default="high",
+        help=(
+            "Exit non-zero (1) when a finding at or above this severity is present. "
+            "Default: high — an over-budget always-loaded set is a real data-loss risk, "
+            "not an advisory. Use --fail-on none for the pre-v4 advisory-only behavior."
+        ),
     )
     p.add_argument(
         "--seed-file",
@@ -511,11 +526,17 @@ def check_eager_set_over_budget(root: Path, harness: str) -> list[LintFinding]:
         findings.append(
             LintFinding(
                 check_id="eager_set_over_budget",
-                severity="low",
+                # "high", not "low": an over-budget always-loaded set is the
+                # silent-truncation risk — content past a harness's load limit
+                # is dropped without warning on the next session. This is the
+                # one tiering finding that must be able to FAIL a run
+                # (see --fail-on and SCHEMA_lint.md §14).
+                severity="high",
                 message=(
                     f"Live always-loaded set is {total:,} bytes, over the {budget:,}-byte "
-                    "eager_set_budget_bytes advisory — consider rotating sessions/decisions/feedback "
-                    "(EXTENDED §Tiering)"
+                    f"eager_set_budget_bytes ceiling by {total - budget:,} bytes — rotate "
+                    "sessions/decisions/feedback to cold storage before the next session "
+                    "(EXTENDED §Tiering). Content past a harness load limit is dropped silently."
                 ),
             )
         )
@@ -660,6 +681,255 @@ def check_archive_count_drift(root: Path, harness: str) -> list[LintFinding]:
                         file_path=str(memory_index_file.relative_to(root)),
                     )
                 )
+    return findings
+
+
+def check_archive_pointer_dangling(root: Path, harness: str) -> list[LintFinding]:
+    """Tiering check: an ARCHIVE_INDEX.md one-liner names an entry that is NOT
+    present in that category's archive file — the cold index promises a rotated
+    entry is still findable, and it is not.
+
+    Exact inverse of `archive_unindexed`, and the severities are deliberately
+    ASYMMETRIC:
+      - `archive_unindexed` (low): the CONTENT exists, the pointer is missing.
+        A bookkeeping lapse — nothing has been lost.
+      - `archive_pointer_dangling` (high): the POINTER exists, the content is
+        gone. This is precisely the failure EXTENDED §E12.2's "loss-proof by
+        construction" states cannot happen, and the reader is told the memory
+        is one on-demand read away when it no longer exists. Silent recall
+        failure — the same class as `eager_set_over_budget`, so it gates
+        (see --fail-on and SCHEMA_lint.md §14).
+
+    Deliberately conservative — a gating check must not cry wolf. An ID counts
+    as present if EITHER structured extraction finds it OR it appears anywhere
+    in the archive file as a literal string. That admits a false NEGATIVE (an
+    ID mentioned only inside another entry's prose suppresses the finding) and
+    excludes false positives. For a gate, that is the correct direction.
+
+    Anchors (the `→ <file>#<anchor>` tail) are deliberately NOT validated:
+    the entry's PRESENCE is what proves the content survived, while
+    heading-slug derivation is fragile enough to have produced a wrong "fix"
+    in this project's own history. Presence is the invariant; the anchor is
+    navigation. Do not "upgrade" this to anchor matching without a fixture
+    proving the slug rule on real rotated headings.
+    """
+    findings: list[LintFinding] = []
+    for category in TIERED_CATEGORIES:
+        archive_dir = root / "memory" / "archive" / category
+        index_file = archive_dir / "ARCHIVE_INDEX.md"
+        if index_file.exists():
+            # Probe readability FIRST: extract_archive_index_ids() returns an
+            # empty set on a decode/OS error, which is indistinguishable from
+            # "index lists nothing" and would make the gate pass an unreadable
+            # cold index. Same reasoning as the archive-file branch below.
+            try:
+                index_file.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError) as exc:
+                findings.append(
+                    LintFinding(
+                        check_id="archive_pointer_dangling",
+                        severity="high",
+                        message=(
+                            f"ARCHIVE_INDEX.md for {category} could not be read "
+                            f"({type(exc).__name__}) — the cold index cannot be verified, so no "
+                            "claim that rotated entries remain findable can be trusted "
+                            "(re-save as UTF-8)"
+                        ),
+                        file_path=str(index_file.relative_to(root)),
+                    )
+                )
+                continue
+        indexed_ids = extract_archive_index_ids(index_file)
+        if not indexed_ids:
+            # No index, or an empty one (the fresh-install state) — nothing is
+            # being promised, so nothing can dangle.
+            continue
+
+        archive_file = archive_dir / f"{category}-archive.md"
+        if not archive_file.exists():
+            for missing_id in sorted(indexed_ids):
+                findings.append(
+                    LintFinding(
+                        check_id="archive_pointer_dangling",
+                        severity="high",
+                        message=(
+                            f"ARCHIVE_INDEX.md lists {missing_id} but {category}-archive.md "
+                            "does not exist — the indexed entry is unrecoverable from this "
+                            "vault (EXTENDED §E12.2 rotation is CUT-then-APPEND; the archive "
+                            "file must exist before the one-liner is written)"
+                        ),
+                        file_path=str(index_file.relative_to(root)),
+                    )
+                )
+            continue
+
+        try:
+            raw = archive_file.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError) as exc:
+            # Do NOT `continue` here. Every other check treats an unreadable
+            # file as "nothing to report", which is right for an advisory. For
+            # a GATE it is the worst possible behavior: one stray cp1252 byte
+            # from a Notepad edit would silently switch off the check that
+            # exists to catch corruption, precisely when the vault is already
+            # damaged. Unverifiable is not the same as clean.
+            findings.append(
+                LintFinding(
+                    check_id="archive_pointer_dangling",
+                    severity="high",
+                    message=(
+                        f"{category}-archive.md could not be read ({type(exc).__name__}), so the "
+                        f"{len(indexed_ids)} entr{'y' if len(indexed_ids) == 1 else 'ies'} promised by "
+                        "ARCHIVE_INDEX.md cannot be verified — treat as unrecoverable until the file "
+                        "is readable (re-save as UTF-8)"
+                    ),
+                    file_path=str(archive_file.relative_to(root)),
+                )
+            )
+            continue
+        present_ids = extract_entry_ids(raw)
+        for missing_id in sorted(indexed_ids):
+            if missing_id in present_ids or missing_id in raw:
+                continue
+            findings.append(
+                LintFinding(
+                    check_id="archive_pointer_dangling",
+                    severity="high",
+                    message=(
+                        f"ARCHIVE_INDEX.md lists {missing_id} but no such entry exists in "
+                        f"{category}-archive.md — the index promises a rotated entry that is "
+                        "gone (EXTENDED §E12.2 'loss-proof by construction')"
+                    ),
+                    file_path=str(index_file.relative_to(root)),
+                )
+            )
+    return findings
+
+
+# Paths under memory/ that are NOT memory entries and so are never expected to
+# appear in MEMORY_INDEX.md (see check_unreachable_memory_file).
+UNREACHABLE_EXEMPT_DIRS = ("archive", "quarantine")
+UNREACHABLE_EXEMPT_RELPATHS = {
+    "MEMORY_INDEX.md",              # the index itself
+    "MEMORY_PROTOCOL_EXTENDED.md",  # on-demand protocol doc installed at the vault root
+    "user/USER_OVERRIDES.md",       # user configuration, created once (E4.3) — not an entry
+}
+
+
+def _index_references(index_text: str, rel_posix: str) -> bool:
+    """True if MEMORY_INDEX.md reaches `rel_posix` (a memory/-relative POSIX
+    path) either directly or via any ANCESTOR DIRECTORY it points at.
+
+    Directory-level reachability is required, not a nicety: SCHEMA_A3
+    per-project memory banks are registered in MEMORY_INDEX.template.md as
+    directories (`projects/<slug>/memory-bank/`), and that template states
+    outright that the index summarizes while full state lives in the bank. An
+    exact-path-only test would flag all six Cline convention files for every
+    project on every run — noise from day one, on the most common real layout.
+
+    An ancestor counts only when the index names the DIRECTORY itself: the
+    match must be followed by a character that cannot continue a path segment.
+    Otherwise the Category Summary's `projects/project_context.md` row would
+    make the bare prefix `projects/` match and silently exempt everything
+    beneath it.
+    """
+    if rel_posix in index_text:
+        return True
+    segments = rel_posix.split("/")[:-1]
+    for depth in range(len(segments), 0, -1):
+        prefix = "/".join(segments[:depth]) + "/"
+        start = 0
+        while True:
+            hit = index_text.find(prefix, start)
+            if hit == -1:
+                break
+            after = hit + len(prefix)
+            if after >= len(index_text) or not (
+                index_text[after].isalnum() or index_text[after] in "-_."
+            ):
+                return True
+            start = hit + 1
+    return False
+
+
+def _has_body_content(text: str) -> bool:
+    """True if `text` has at least one line of actual content — i.e. a line
+    that is not blank, a heading, a horizontal rule, a blockquote header, or a
+    YAML frontmatter delimiter. Distinguishes a written-in file from a bare
+    scaffold so `check_unreachable_memory_file` doesn't flag empty stubs."""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith(("#", ">", "---", "***", "___", "```")):
+            continue
+        return True
+    return False
+
+
+def check_unreachable_memory_file(root: Path, harness: str) -> list[LintFinding]:
+    """Tiering check: a fact-bearing file under memory/ that MEMORY_INDEX.md
+    never references — content that is present on disk but unreachable through
+    the index an agent actually reads.
+
+    The complement of the archive-side checks: `archive_unindexed` covers the
+    cold tier, this covers the hot tier. MEMORY_INDEX.md is the master registry
+    (core §1.3); a file no row points at is effectively invisible at recall
+    time even though nothing was deleted.
+
+    NO-OPS when MEMORY_INDEX.md is absent. A fresh install ships no index at
+    all (it is written by the agent on first use), and "unreachable" is
+    meaningless without something to be reachable FROM — inferring one would
+    make every fresh install fire on day zero.
+
+    Severity `low`, non-blocking: an unindexed file is hard to find, not lost,
+    and legitimate reasons to keep a file out of the index exist. Matching is a
+    plain substring test on the memory/-relative POSIX path, so it is
+    insensitive to whether the row backticks the path (MEMORY_INDEX.template.md
+    distinguishes backticked "Active" rows from plain-text "Future" rows — both
+    count as a reference here).
+    """
+    findings: list[LintFinding] = []
+    memory_dir = root / "memory"
+    index_file = memory_dir / "MEMORY_INDEX.md"
+    if not index_file.is_file():
+        return findings
+    try:
+        index_text = index_file.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return findings
+
+    for md_path in sorted(memory_dir.rglob("*.md")):
+        rel = md_path.relative_to(memory_dir)
+        parts = rel.parts
+        if any(p.startswith(".") for p in parts):
+            continue
+        if any(p in UNREACHABLE_EXEMPT_DIRS for p in parts[:-1]):
+            continue
+        if "template" in str(rel).lower():
+            continue
+        rel_posix = rel.as_posix()
+        if rel_posix in UNREACHABLE_EXEMPT_RELPATHS:
+            continue
+        if _index_references(index_text, rel_posix):
+            continue
+        try:
+            content = md_path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        if not _has_body_content(content):
+            continue
+        findings.append(
+            LintFinding(
+                check_id="unreachable_memory_file",
+                severity="low",
+                message=(
+                    f"{rel_posix} has content but is referenced nowhere in MEMORY_INDEX.md "
+                    "— it is on disk but unreachable through the master index at recall time; "
+                    "add a Category Summary row or a Quick Access pointer"
+                ),
+                file_path=str(md_path.relative_to(root)),
+            )
+        )
     return findings
 
 
@@ -835,8 +1105,16 @@ def main() -> int:
     findings.extend(check_archive_count_drift(root, harness))
     findings.extend(check_archive_index_missing(root, harness))
     findings.extend(check_entry_over_cap(root, harness))
+    findings.extend(check_archive_pointer_dangling(root, harness))
+    findings.extend(check_unreachable_memory_file(root, harness))
 
-    # Filter by severity
+    # The --fail-on gate is evaluated against the UNFILTERED findings on purpose:
+    # --severity is a display filter, and letting it narrow the gate would mean
+    # `--severity critical` silently disables the high-severity gate. A gate that
+    # can be turned off by a display option is not a gate.
+    gating_findings = list(findings)
+
+    # Filter by severity (display only)
     if args.severity != "all":
         keep_levels = SEVERITY_LEVELS[SEVERITY_LEVELS.index(args.severity):]
         findings = [f for f in findings if f.severity in keep_levels]
@@ -857,6 +1135,22 @@ def main() -> int:
         log_path.parent.mkdir(parents=True, exist_ok=True)
         emit_jsonl(findings, log_path, harness)
         print(f"[lint_runner] harness={harness}; {len(findings)} finding(s) appended to {log_path}")
+
+    # Exit-code contract (SCHEMA_lint.md §14): 0 = clean/advisory-only,
+    # 1 = a finding at or above --fail-on, 2 = usage/detection error.
+    if args.fail_on != "none":
+        gate_levels = SEVERITY_LEVELS[SEVERITY_LEVELS.index(args.fail_on):]
+        blocking = [f for f in gating_findings if f.severity in gate_levels]
+        if blocking:
+            print(
+                f"[lint_runner] FAILED: {len(blocking)} finding(s) at or above "
+                f"severity '{args.fail_on}':",
+                file=sys.stderr,
+            )
+            for f in blocking:
+                loc = f" ({f.file_path})" if f.file_path else ""
+                print(f"    [{f.severity}] {f.check_id}: {f.message}{loc}", file=sys.stderr)
+            return 1
 
     return 0
 

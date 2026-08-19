@@ -37,7 +37,7 @@ $VersionFile = Join-Path $ScriptDir "..\VERSION"
 if (Test-Path $VersionFile) {
     $StackVersion = (Get-Content $VersionFile -Raw).Trim()
 } else {
-    $StackVersion = "4.0.0"
+    $StackVersion = "4.0.1"
 }
 $CommonSpecsDir = Join-Path $ScriptDir "..\common-specs"
 $WorkingDir = if ($env:WORKING_DIR) { $env:WORKING_DIR } else { Get-Location }
@@ -57,7 +57,7 @@ if ($Help) {
     Write-Host "  .\setup.ps1 -Status                                        # Show state"
     Write-Host "  .\setup.ps1 -GenerateHmacSecret                            # Generate HMAC secret (T3+)"
     Write-Host ""
-    Write-Host "Compliance presets: none | enterprise | custom   (PHI/healthcare = planned for a future release, not available in general-edition)"
+    Write-Host "Compliance presets: none | enterprise | custom   (PHI/healthcare = reserved value, not available)"
     Write-Host "Extensions: gdpr | soc2 | pci-dss (comma-separated)"
     Write-Host ""
     Write-Host "Note: Delegates to setup.py for most operations."
@@ -67,11 +67,11 @@ if ($Help) {
     exit 0
 }
 
-# PHI/healthcare is planned for a future release — refuse it in the general-edition
+# PHI/healthcare is a reserved value — refuse it
 # BEFORE delegating to setup.py, so the Windows path fails fast with a clear message
 # instead of a confusing downstream exit. Mirrors setup.sh.
 if ($Compliance -in @("healthcare")) {
-    Write-Host "X ERROR: PHI/healthcare compliance is not available in the general-edition (a HIPAA/PHI-focused institutional edition is planned for a future release)." -ForegroundColor Red
+    Write-Host "X ERROR: PHI/healthcare compliance is not available in this edition; 'healthcare' is a reserved preset value. Use 'enterprise' or 'custom'." -ForegroundColor Red
     Write-Host "  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md."
     exit 1
 }

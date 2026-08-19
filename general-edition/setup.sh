@@ -18,7 +18,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -f "${SCRIPT_DIR}/../VERSION" ]; then
     STACK_VERSION="$(tr -d ' \r\n' < "${SCRIPT_DIR}/../VERSION")"
 else
-    STACK_VERSION="4.0.0"
+    STACK_VERSION="4.0.1"
 fi
 COMMON_SPECS_DIR="${SCRIPT_DIR}/../common-specs"
 WORKING_DIR="${WORKING_DIR:-$(pwd)}"
@@ -102,7 +102,7 @@ done
 # Validate compliance preset (PHI/healthcare is not available in general-edition — refuse here)
 case "$COMPLIANCE_PRESET" in
     healthcare)
-        echo "✗ ERROR: PHI/healthcare compliance is not available in the general-edition (a HIPAA/PHI-focused institutional edition is planned for a future release)."
+        echo "✗ ERROR: PHI/healthcare compliance is not available in this edition; 'healthcare' is a reserved preset value. Use 'enterprise' or 'custom'."
         echo "  The general-edition does not ship PHI/HIPAA compliance. See CONTRIBUTING.md."
         exit 1
         ;;
@@ -123,7 +123,7 @@ if [ -n "$EXTENSIONS" ]; then
             gdpr|soc2|pci-dss)
                 ;;
             healthcare)
-                echo "✗ ERROR: the 'healthcare' extension (PHI) is not available in the general-edition (planned institutional edition)."
+                echo "✗ ERROR: the 'healthcare' extension (PHI) is not available in this edition; it is a reserved value."
                 exit 1
                 ;;
             *)

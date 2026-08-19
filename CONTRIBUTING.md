@@ -142,15 +142,15 @@ Contributors are listed in [`AUTHORS.md`](./AUTHORS.md) in alphabetical order. Y
 ## What NOT to do
 
 - **Don't commit secrets.** Even if your PR is private at first, git history is permanent. If you accidentally commit a secret, follow `git filter-repo` + rotate the secret + LEARN entry.
-- **Don't include employer names** in the public code.
+- **Don't include personal or organizational identifying information** — names, employers, internal hostnames, ticket IDs, or internal URLs — in code, comments, tests, or fixtures. Use neutral placeholders.
 - **Don't rewrite the LICENSE** in a PR. The project is Apache 2.0; relicensing is governed by the contributor-vote safeguard in CLA.md (and is not on the roadmap).
 - **Don't merge your own PR** without an approving review.
 
 ## Institutional adoption
 
-This public repository is the general-purpose stack. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). It is not selectable in the installer today.
+This repository is the general-purpose stack. HIPAA/PHI handling is out of scope for it, and the `healthcare` compliance preset is a reserved value the installer refuses.
 
-Interested in institutional adoption? Open a GitHub Issue describing your use case (or use GitHub Security Advisories for private/sensitive inquiries) so we can gauge demand. Licensing terms for any future institutional deployments will be defined when that edition becomes available.
+If you have an institutional use case, open a GitHub Issue — or a GitHub Security Advisory for anything private.
 
 ## Questions?
 

@@ -2,7 +2,7 @@
 
 > **Status:** stable — ships with UMS v4.0.0
 > **Tier:** A (CORE deliverable — required for memory hygiene completeness; not opt-in)
-> **Edition:** general (a HIPAA/PHI-focused institutional edition is planned for a future release — not yet available)
+> **Edition:** general (HIPAA/PHI is out of scope for this edition)
 > **Last updated:** 2026-07-11
 
 ---
@@ -61,7 +61,7 @@ core/audit-quarantine-skill/
 - AT SESSION START: optional toast — "X entries quarantined since last session — review?"
 - DEFER allowed without comment (lower-friction default)
 
-> A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available); it may layer stricter quarantine requirements (e.g. mandatory DEFER reasons, PHI re-scan on approval). Not selectable in this edition.
+> Stricter quarantine requirements are not implemented (e.g. mandatory DEFER reasons, PHI re-scan on approval). Not selectable in this edition.
 
 ---
 

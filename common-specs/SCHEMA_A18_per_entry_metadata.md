@@ -95,7 +95,7 @@ Each field has a defensible rationale tied to a specific research finding.
 
 **Caveats:**
 - The exact 28-day TTL number is a heuristic (Copilot's choice), not a measured optimum. We adopt the pattern, not the number — make TTL configurable per profile.
-- Ed25519 vs HMAC for signature is an open question (see §9) — both have merits; the shipped edition uses HMAC, and offline-key Ed25519 is planned for a future high-assurance institutional edition.
+- Ed25519 vs HMAC for signature is an open question (see §9) — both have merits; the shipped edition uses HMAC, and offline-key Ed25519 is not implemented.
 
 ---
 
@@ -311,7 +311,7 @@ validation_status: valid | stale | invalidated  # Set by validator
 
 ```yaml
 content_sha256: <hex>               # Hash of entry body for CAS (see normalization below)
-signature:                          # Optional (HMAC shipped; Ed25519 offline-key in the planned institutional edition)
+signature:                          # Optional (HMAC shipped; Ed25519 offline-key not implemented)
   algorithm: ed25519 | hmac-sha256
   signature: <base64>
   signer: <public-key-id-or-session-id>
@@ -644,7 +644,7 @@ A point-in-time query "what did we believe about Tier A on 2026-06-15?" finds DE
 
 ### Edition fit
 
-- **Compliance-profile deployments:** All core + validation fields mandatory. Cryptographic signature (HMAC) strongly recommended in Wave 3; Ed25519 offline-key signing is planned for a future institutional edition.
+- **Compliance-profile deployments:** All core + validation fields mandatory. Cryptographic signature (HMAC) strongly recommended in Wave 3; Ed25519 offline-key signing is not implemented.
 - **Default:** All core + validation fields default-on. Cryptographic signature optional (HMAC with session-derived secret is simpler default).
 
 ---

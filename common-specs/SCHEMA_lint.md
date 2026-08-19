@@ -392,7 +392,7 @@ Same as standard v2.0 → v3.0 migration. Lint becomes active after edition PROF
 
 ## 12. Status
 
-**SHIPPED — stable.** Lint runs today via `core/shared-tools/lint_runner.py`; §13 below documents the 6 tiering checks added in v4.0.0. The phased plan below is retained as design history — Phase A deterministic checks are live; Phases B and C remain future enhancements.
+**SHIPPED — stable.** Lint runs today via `core/shared-tools/lint_runner.py`; §13 below documents the 8 tiering checks (6 added in v4.0.0, 2 in v4.0.1) and §14 the exit-code contract. The phased plan below is retained as design history — Phase A deterministic checks are live; Phases B and C remain future enhancements.
 
 Implementation phases (original plan):
 - **Phase A (T0 deterministic checks):** Implement 4 checks (orphan, broken-ref, stale-tentative, stale-webfetch). Can ship immediately at T0.
@@ -405,18 +405,30 @@ Lint Phase A can be tested alongside the Skill installer.
 
 ## 13. Tiering Checks (v4.0.0 — Hot/Cold Backport)
 
-6 new checks supporting `MEMORY_PROTOCOL_EXTENDED.md` §Tiering (E12) — the `sessions/`/`decisions/`/`feedback/` rotation-and-archive-index mechanism. All fire at severity **`low`** (the runner's actual enum is `["info","low","medium","high","critical"]` — no `"warning"` level exists; using one crashes the `--severity` CLI filter). Non-blocking by design: an aged pre-4.0.0 vault with no `ARCHIVE_INDEX.md` files yet just gets advisories with a migration pointer, never a hard failure.
+8 checks supporting `MEMORY_PROTOCOL_EXTENDED.md` §Tiering (E12) — the `sessions/`/`decisions/`/`feedback/` rotation-and-archive-index mechanism. The runner's severity enum is `["info","low","medium","high","critical"]` — no `"warning"` level exists; using one crashes the `--severity` CLI filter.
+
+**Most are advisory (`low`); two are gates (`high`).** The split is not arbitrary — it tracks whether the finding means *information can be silently lost*:
+
+- **Advisory (`low`)** — drift, untidiness, and aging signals. An aged pre-4.0.0 vault with no `ARCHIVE_INDEX.md` files yet just gets advisories with a migration pointer, never a hard failure.
+- **Gating (`high`)** — `eager-set-over-budget` and `archive-pointer-dangling`. Both mean memory the reader believes is available is not: one because content past a harness load limit is dropped without warning, the other because the cold index promises a rotated entry that is absent. See §14 for the exit-code contract and the standing test obligation.
+
+⚠️ The two gates have **different** exposure on an un-migrated vault, and conflating them is a mistake worth naming:
+
+- `archive-pointer-dangling` requires a **non-empty `ARCHIVE_INDEX.md`**, so it genuinely cannot fire on a vault that has never rotated anything.
+- `eager-set-over-budget` measures the live always-loaded set and is **independent of rotation** — it can and will fire on a vault with no `memory/archive/` directories at all. That is intentional (the budget is about load cost, not tiering state), but it means **upgrading to v4.0.1 can newly fail a lint run on a vault that has never tiered**. §E12.5 notes that pre-split, the rules copy alone approaches the budget. Anyone who needs the old behaviour has `--fail-on none`.
 
 **Ownership split:** `verify.sh` owns EXISTENCE-only checks post-fresh-install (the 3 tiered categories' `ARCHIVE_INDEX.md` files present at the standard `memory/archive/<category>/` locations). Lint owns all behavioral/aging checks below. No duplicated logic between the two.
 
 | Check ID | Fires when | Severity |
 |---|---|---|
-| `eager-set-over-budget` | Summed bytes of the live always-loaded set (`.claude/rules/memory_protocol.md` + `sessions/session_state.md` + `user/user_profile.md` + `MEMORY_INDEX.md`) exceeds `eager_set_budget_bytes` (default 80,000 — reads `PROFILE.md`/`USER_OVERRIDES.md` frontmatter, defaulting on any parse failure) | low |
+| `eager-set-over-budget` | Summed bytes of the live always-loaded set (`.claude/rules/memory_protocol.md` + `sessions/session_state.md` + `user/user_profile.md` + `MEMORY_INDEX.md`) exceeds `eager_set_budget_bytes` (default 80,000 — reads `PROFILE.md`/`USER_OVERRIDES.md` frontmatter, defaulting on any parse failure) | **high** (gates) |
 | `file-nearing-cap` | A §11-capped file (`sessions/`, `decisions/`, `feedback/`) exceeds ~80% of its line cap | low |
 | `archive-unindexed` | `memory/archive/<category>/<category>-archive.md` contains an entry section not represented in that category's `ARCHIVE_INDEX.md` | low |
 | `archive-count-drift` | A hot-side "Older entries: ... (N entries)" pointer, or a `MEMORY_INDEX.md` Archived column, doesn't match the actual `ARCHIVE_INDEX.md` entry count | low |
 | `archive-index-missing` | `memory/archive/<category>/` (one of the 3 tiered categories) contains an archive file but no `ARCHIVE_INDEX.md` | low |
 | `entry-over-cap` | An `ARCHIVE_INDEX.md` one-liner, or a `MEMORY_INDEX.md` row description, exceeds its R5 cap class (~300B) | low |
+| `archive-pointer-dangling` | An `ARCHIVE_INDEX.md` one-liner names an entry that is **not present** in that category's `<category>-archive.md` (or the archive file is missing entirely) | **high** (gates) |
+| `unreachable-memory-file` | A file under `memory/` has body content but is referenced **nowhere** in `MEMORY_INDEX.md` | low |
 
 **Implementation notes (pre-decided, not open to Stage-2 improvisation):**
 1. §11 caps are hardcoded as a dict in `lint_runner.py`, comment-cross-referenced to §11's table, pinned by a unit test — parsing §11's free-text markdown table would be more fragile than this documented drift risk. A future §11 cap change must touch both places.
@@ -424,3 +436,79 @@ Lint Phase A can be tested alongside the Skill installer.
 3. `eager-set-over-budget` needed net-new scope: the runner had zero PROFILE/overrides-reading infrastructure before v4.0.0 (CLI args only). A small, self-contained, defensive frontmatter loader (limited reads, defaults on any failure) was added for this one check.
 
 **Not covered here:** the fresh-install release-gate eager-load budget (a template-snapshot check at install time, ~10K-token target) — that is a different quantity from `eager-set-over-budget`'s live-vault measurement; see `MEMORY_PROTOCOL_EXTENDED.md` §E12.5 for the distinction.
+
+### 13.1 The two silent-recall-failure checks
+
+Rotation has two sides, and each can fail without anything looking broken. Both checks below exist because the invariant they enforce was previously stated in prose only.
+
+**`archive-pointer-dangling` (high, gates) — a pointer promising content that is gone.**
+
+The exact inverse of `archive-unindexed`, and the severities are deliberately asymmetric:
+
+| | Content | Pointer | Meaning | Severity |
+|---|---|---|---|---|
+| `archive-unindexed` | present | missing | bookkeeping lapse — nothing lost, just harder to find | low |
+| `archive-pointer-dangling` | **missing** | present | the index says a rotated entry is one on-demand read away, and it is not | **high** |
+
+The second case is the direct falsification of §E12.2's **"loss-proof by construction"** claim. Before this check, that claim was enforced only by the rotation procedure being followed correctly by hand — and `tests/test_tiering.py`'s round-trip fixture builds both sides with the same helper, so it could never have caught a real vault where they diverged.
+
+Two deliberate design choices, both of which a future contributor should leave alone without new evidence:
+
+1. **Anchors are NOT validated.** The one-liner's `→ <file>#<anchor>` tail is navigation; the entry's *presence* is the invariant that proves content survived. Heading-slug derivation is fragile enough to have produced a wrong "fix" in this project's own history, and a gate that mis-slugs would fail correct vaults. Do not upgrade this to anchor matching without a fixture proving the slug rule against real rotated headings.
+2. **Presence is tested conservatively** — an ID counts as present if structured extraction finds it *or* it appears anywhere in the archive file as a literal string. This deliberately admits false negatives and excludes false positives. For something that fails builds, that is the correct direction: a gate that cries wolf gets switched off. The known false negatives, all of the same shape — the ID survives as text while the entry itself does not:
+   - the ID mentioned inside another entry's prose (`"supersedes DEC-007"`);
+   - a stale table-of-contents or rehydration note listing an entry whose section was later removed;
+   - any header or summary block that enumerates IDs.
+
+   `archive-unindexed` and `archive-count-drift` catch most of these from the other direction. Tightening to heading-only matching would trade these for false positives on a *gate*, which is the worse error.
+
+3. **Unreadable input is a finding, not a pass.** If `<category>-archive.md` or the `ARCHIVE_INDEX.md` itself cannot be decoded, the check emits a `high` finding rather than skipping the category. Every other check treats an unreadable file as "nothing to report", which is right for an advisory and wrong for a gate: a single stray cp1252 byte from a Notepad save would otherwise silently switch off the check that exists to catch corruption, exactly when the vault is already damaged. **Unverifiable is not the same as clean.**
+
+**`unreachable-memory-file` (low, advisory) — content no pointer reaches.**
+
+The hot-tier complement: `archive-unindexed` covers the cold side, this covers the hot side. `MEMORY_INDEX.md` is the master registry (core §1.3); a file no row points at is effectively invisible at recall time even though nothing was deleted.
+
+- **No-ops when `MEMORY_INDEX.md` is absent.** A fresh install ships no index — it is written by the agent on first use — and "unreachable" is meaningless without something to be reachable *from*. Inferring one would make every day-zero install fire.
+- **Matching is a substring test** on the `memory/`-relative POSIX path, so it is insensitive to backticks: `MEMORY_INDEX.template.md` deliberately lists not-yet-created categories as plain text (so the T5 self-test ignores them) and active ones backticked. Both count as references.
+- **Reachability includes ancestor directories.** SCHEMA_A3 per-project memory banks are registered in `MEMORY_INDEX.template.md` as directories (`projects/<slug>/memory-bank/`), and that template states the index summarizes while full state lives in the bank. Exact-path-only matching would flag all six Cline convention files for every project on every run — noise from day one on the most common real layout. An ancestor counts only when the index names the **directory itself**: the match must be followed by a character that cannot continue a path segment, so the Category Summary's `projects/project_context.md` row does not make the bare prefix `projects/` exempt everything beneath it.
+- **Exempt:** `archive/` (owns its own index), `quarantine/` (excluded from tiering entirely per §E12.1), templates, hidden paths, `MEMORY_INDEX.md` itself, the vault-root `MEMORY_PROTOCOL_EXTENDED.md`, and `user/USER_OVERRIDES.md` (user configuration per §E4.3, not an entry).
+- **Advisory, not gating** — an unindexed file is hard to find, not lost, and there are legitimate reasons to keep a file out of the index.
+
+---
+
+## 14. Exit-Code Contract (v4.0.1)
+
+`lint_runner.py` returns:
+
+| Code | Meaning |
+|---|---|
+| `0` | No finding at or above the `--fail-on` threshold. |
+| `1` | At least one finding at or above `--fail-on`. The blocking findings are printed to **stderr** with severity, check-id, message, and path. |
+| `2` | Usage/detection error (workspace not found, harness undetectable). Unchanged from earlier versions. |
+
+**`--fail-on {none,info,low,medium,high,critical}` — default `high`.**
+
+### Why this exists
+
+Before v4.0.1 `main()` returned `0` unconditionally, so **no lint finding could ever fail a build**. Every check was advisory by construction, including `eager_set_over_budget` — the guard against an always-loaded set outgrowing its budget. That is a silent-data-loss risk, not a style nit: content past a harness's load limit is dropped **without warning** on the next session load, so the first symptom is an agent that has quietly forgotten something.
+
+`eager_set_over_budget` is therefore severity **`high`** (raised from `low` in v4.0.1) and, at the default threshold, fails the run. `archive_pointer_dangling` (new in v4.0.1) gates for the same reason: both mean memory the reader believes is available is not. Every other check remains advisory.
+
+### The `--severity` interaction (deliberate)
+
+`--severity` is a **display** filter; `--fail-on` is the **gate**. The gate is evaluated against the *unfiltered* finding set, so `--severity critical` cannot silently switch off the high-severity gate. A gate that a display option can disable is not a gate.
+
+### Compatibility
+
+`--fail-on none` restores the pre-v4.0.1 advisory-only behavior for anyone whose pipeline depends on the old exit code.
+
+### Test obligation
+
+Any check promoted to a gating severity must ship with a test proving it **rejects bad input** — not merely that a compliant vault passes. Each gate therefore ships three things: a negative control on bad input, a sensitivity check that a compliant vault still exits `0`, and a guard that `--severity` cannot disable it.
+
+| Gate | Tests |
+|---|---|
+| `eager_set_over_budget` | `tests/test_lint_runner.py::TestEagerSetGate` |
+| `archive_pointer_dangling` | `tests/test_lint_runner.py::TestArchivePointerDangling` |
+
+A negative control is only meaningful if it has been *observed failing*. Both classes above were verified by reverting the check (and, for `archive_pointer_dangling`, separately by downgrading its severity) and confirming the "must fire" tests fail while the "must not fire" tests keep passing. **A gate never observed failing is not a gate.**

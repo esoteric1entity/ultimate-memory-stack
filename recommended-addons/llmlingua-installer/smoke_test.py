@@ -11,7 +11,8 @@ Verifies the LLMLingua install works end-to-end:
 
 Authority: SKILL.md Step 4 + INSTALL_LLMLINGUA.md Step 5
 Vetting: Sentinel security vetting PASS
-Pin contract: llmlingua==0.2.2 + bounded transformers/torch/sentencepiece
+Pin contract: llmlingua==0.2.2 + transformers>=4.26.0,<5.0.0 + torch>=2.0.0 + accelerate
+              (hash-pinned closures in locks/requirements-py<VER>.lock)
 
 Usage:
   python smoke_test.py              # Full smoke (all 4 steps; first-run downloads ~500 MB model — can exceed 5 min)

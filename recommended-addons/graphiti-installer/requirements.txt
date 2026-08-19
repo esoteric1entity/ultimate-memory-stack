@@ -6,24 +6,72 @@
 #   - graphiti-core>=0.29.1  → FLOOR pin (not exact) — security floor for CVE-2026-32247 patch (Cypher Injection, fixed at 0.28.2)
 #                              upstream is actively maintained with coordinated CVE disclosure track record
 #                              floor pin allows security patches to flow in via standard pip upgrade
-#   - kuzu>=0.4.0             → embedded backend; parameterized labels prevent Cypher injection class
-#                              RECOMMENDED backend per project security vetting
-#   - mcp>=1.0.2              → ONLY install if user chose MCP server option (Step 3)
-#                              uncomment line below if applicable
-#
-# Optional alternative backends (uncomment ONE if user chose non-Kuzu):
-#   - neo4j>=5.0.0            → server-based; exposes Cypher injection class; user assumes app-code parameterization responsibility
-#   - falkordb>=1.0.0         → Redis-based alternative for advanced users
+#   - kuzu>=0.11.3            → EMBEDDED backend (in-process, no server, no admin privilege)
+#                              parameterized labels prevent the Cypher injection class
+#                              floor raised to graphiti-core's own declared minimum
 #
 # Required: subscribe to upstream security advisories at github.com/getzep/graphiti/security/advisories
 # Required: set GRAPHITI_TELEMETRY_ENABLED=false in environment BEFORE first import
+#
+# ── ⚠️ BACKEND MAINTENANCE STATUS (reviewed 2026-08-19) ──────────────────────
+# Kuzu's last release was 0.11.3 on 2025-10-10. Upstream has been cold for
+# roughly ten months, and it is NOT merely quiet — graphiti-core's own
+# pyproject.toml marks its `[kuzu]` extra:
+#
+#     # Deprecated: the upstream Kuzu project is unmaintained;
+#     # this extra will be removed in a future release.
+#
+# So the consuming package has put this backend on a removal clock. The add-on
+# installs and runs today, and because we depend on `kuzu` DIRECTLY (not via
+# the extra) plus a hash-pinned lock, removing the extra alone cannot break an
+# existing install. What WOULD break it is graphiti-core dropping Kuzu DRIVER
+# support — and `graphiti-core>=0.29.1` is a floor pin with no ceiling, so that
+# release would be adopted automatically on a fresh install.
+#
+# ⚠️ MAINTAINER ACTION REQUIRED before the next release after this one: either
+# put a tested ceiling on graphiti-core, or move the default backend. This is a
+# disclosed, dated risk, not a settled position.
+#
+# Kuzu remains the DEFAULT anyway, for one reason: it is the only EMBEDDED
+# backend that works everywhere this package does. Embeddedness is the whole
+# basis for recommending a graph add-on at all — in-process, no server, no
+# admin privilege ("comparable to SQLite for graphs"). A default that abandons
+# it would break the zero-infrastructure posture for a large share of users.
+#
+# The maintained embedded alternative is FalkorDB Lite ("FalkorDB embedded in a
+# Python package", 0.10.0 / 2026-05-02). It is NOT the default because it does
+# not cover our support matrix:
+#   - Python 3.12+ ONLY (graphiti-core marks it `python_version >= "3.12"`)
+#   - macOS and manylinux wheels ONLY — there are NO Windows wheels published,
+#     so a Windows install would have to build from source.
+# This package ships a PowerShell installer and tests on Windows, so an
+# unavailable-on-Windows default is not an option. Verify the wheel list
+# yourself before proposing a swap.
+#
+# ▶ If you are on macOS or Linux with Python 3.12+, prefer FalkorDB Lite:
+#     pip install "graphiti-core[falkordblite]>=0.29.1"
+#   and comment out the kuzu line below.
+#
+# Do NOT substitute plain `falkordb` for `falkordblite` — that is a CLIENT for a
+# FalkorDB SERVER, not an embedded engine. Same vendor, different shape.
+#
+# Backends are not interchangeable at rest: graph data written by one engine is
+# not readable by another. Choose once, at install time.
+#
+# Verified by resolution on 3.10 / 3.12 / 3.13; a CI resolve gate holds it.
+# ─────────────────────────────────────────────────────────────────────────────
 
 graphiti-core>=0.29.1
-kuzu>=0.4.0,<1.0.0
+kuzu>=0.11.3,<1.0.0
 
-# Optional — uncomment ONE based on Skill Step 1 backend selection:
+# Maintained embedded alternative — macOS/Linux, Python 3.12+ (see note above).
+# Uncomment this and comment out `kuzu` to use it:
+# falkordblite>=0.5.0; python_version >= "3.12"
+
+# Optional — uncomment ONE if you already operate a graph server:
+#   neo4j exposes the Cypher injection class; you assume app-code parameterization responsibility
 # neo4j>=5.0.0,<6.0.0
-# falkordb>=1.0.0,<2.0.0
+# falkordb>=1.1.2,<2.0.0
 
 # Optional — uncomment if Skill Step 3 chose MCP server:
 # mcp>=1.0.2,<2.0.0

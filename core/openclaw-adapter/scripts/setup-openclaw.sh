@@ -59,7 +59,7 @@ done
 
 if [[ "$COMPLIANCE" != "none" && "$COMPLIANCE" != "enterprise" ]]; then
     echo "ERROR: --compliance must be 'none' or 'enterprise' (got: $COMPLIANCE)" >&2
-    echo "Note: 'healthcare' preset is not supported in this edition (a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available)" >&2
+    echo "Note: 'healthcare' is a reserved preset value and is not supported in this edition; use 'enterprise' or 'custom'" >&2
     exit 1
 fi
 

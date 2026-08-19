@@ -79,6 +79,21 @@ pip install pip-audit  # if not already present
 pip-audit --requirement <path-to-this-skill>/requirements.txt
 ```
 
+### Dependency freshness check (informational)
+
+Before installing, see what upstream looks like today versus what this add-on pins:
+
+```bash
+python <path-to-this-skill>/preflight.py
+```
+
+It prints, per dependency, the constraint this package ships against the latest
+version on PyPI and when that version was published — so an abandoned
+dependency is visible BEFORE you install rather than months later. It never
+blocks the install and never edits anything; being offline is not a finding.
+Advancing a pin is a security-vetting decision, not a mechanical refresh.
+
+
 **Outcomes:**
 - **No vulnerabilities found** → proceed to Step 3
 - **HIGH or CRITICAL CVE found** → STOP. Surface the CVE to user. Do NOT proceed without explicit user override + DEC entry logging the override.
@@ -96,17 +111,33 @@ Log the pip-audit result to `<working-dir>/memory/security/audit_log.jsonl`:
 In the chosen INSTALL_ENV, install from the bundled requirements.txt:
 
 ```bash
-# In INSTALL_ENV (Conda or venv activated):
+# In INSTALL_ENV (Conda or venv activated). Check your version first:
+python --version
+
+# Then install from the lock matching it (3.10 / 3.12 / 3.13):
+pip install --require-hashes -r <path-to-this-skill>/locks/requirements-py3.12.lock
+```
+
+`requirements.txt` states what versions are ACCEPTABLE; the lock states exactly
+what you GET, verified by hash. `--require-hashes` makes pip refuse any artifact
+whose hash is not listed, so a substituted or tampered distribution fails closed
+instead of installing quietly. The locks are universal — one file per Python
+version covers every platform.
+
+Top-level requirements (`requirements.txt`):
+- `llmlingua==0.2.2` (exact pin — upstream stale since 2024-04-09)
+- `transformers>=4.26.0,<5.0.0` (floor is llmlingua's own declared minimum)
+- `torch>=2.0.0` (no ceiling — see the manifest header for why)
+- `accelerate>=0.26.0` (declared runtime dependency of llmlingua 0.2.2)
+
+**Fall back to the manifest only if no lock matches your Python version:**
+
+```bash
 pip install -r <path-to-this-skill>/requirements.txt
 ```
 
-This installs:
-- `llmlingua==0.2.2` (exact pin)
-- `transformers>=4.30.0,<4.40.0` (compatible range; tighter than upstream)
-- `torch>=2.0.0,<2.3.0` (compatible range)
-- `sentencepiece>=0.1.99` (tokenizer dependency)
-
-**Do NOT use `pip install llmlingua` without the requirements.txt** — that allows transitive drift.
+**Do NOT use a bare `pip install llmlingua`** — that pins nothing and allows
+transitive drift.
 
 ---
 

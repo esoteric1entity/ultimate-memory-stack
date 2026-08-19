@@ -22,7 +22,7 @@ The general edition takes the common Ultimate Memory Stack spec and **applies a 
 
 The general edition ships three selectable compliance presets — **`none` / `enterprise` / `custom`** — plus optional `gdpr` / `soc2` / `pci-dss` extensions (see `overrides/compliance-presets.override.md`). Concretely, the general profile:
 
-1. Has **no PHI/HIPAA profile active or selectable** — the setup wizard refuses a `healthcare` preset with an "institutional edition only" message. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see [`../CONTRIBUTING.md`](../CONTRIBUTING.md)).
+1. Has **no PHI/HIPAA profile active or selectable** — the setup wizard refuses a `healthcare` preset, which is a reserved value. HIPAA/PHI is out of scope for this edition.
 2. Uses **generic PII detection** (SSN, credit card, email) rather than PHI patterns.
 3. Treats compliance rules as **configurable** (`gdpr` / `soc2` / `pci-dss` / `none` — user picks).
 4. Runs the self-test PII check (T7) **only when** a compliance profile is active.
@@ -47,7 +47,7 @@ general-edition/
 │   ├── gdpr-profile.md             ← EU jurisdiction + consent tracking
 │   ├── soc2-profile.md             ← SOC2 Trust Services Criteria
 │   ├── pci-dss-profile.md          ← Payment-card data context
-│   └── healthcare-profile.md       ← reserved for the future institutional edition (not selectable here)
+│   └── healthcare-profile.md       ← reserved value (not selectable)
 └── PRIVACY_REVIEW.md               ← Public-release readiness check
 ```
 

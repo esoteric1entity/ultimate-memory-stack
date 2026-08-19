@@ -26,7 +26,7 @@ The Ultimate Memory Stack uses a **7-layer architecture (Layer 0 through Layer 6
 - **Markdown as source of truth** — every layer must defer to Layer 1 (markdown vault) as authoritative. Higher layers are indexes, caches, or signatures — never primary storage.
 - **Per-entry metadata over inline tags** — YAML frontmatter (SCHEMA_A18) is the convergent pattern. Avoid inline tags ([FINAL], [TENTATIVE]) that don't survive consolidation.
 
-> **Editions note:** the public release ships the **general edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See [`CONTRIBUTING.md`](../CONTRIBUTING.md). The defaults referenced throughout this document describe the shipped general edition's configuration.
+> **Editions note:** the public release ships the **general edition**. HIPAA/PHI is out of scope for this edition. See [`CONTRIBUTING.md`](../CONTRIBUTING.md). The defaults referenced throughout this document describe the shipped general edition's configuration.
 
 ---
 
@@ -235,11 +235,11 @@ This backports a field-proven pattern from the maintainer's own production Claud
 ## 6. Layer 2 — Compliance & Audit
 
 ### Purpose
-Regulated-data handling and forensic capability. Audit trail of read/write operations. Quarantine workflow for suspicious entries. Compliance preset selection (none / enterprise / custom; `healthcare` is reserved for a planned institutional edition, not yet available).
+Regulated-data handling and forensic capability. Audit trail of read/write operations. Quarantine workflow for suspicious entries. Compliance preset selection (none / enterprise / custom; `healthcare` is not available in this edition).
 
 ### Rationale
 - Regulated-data deployments may require HIPAA §164.312 technical safeguards — audit controls, access controls, integrity controls
-- The compliance layer supports opt-in presets (`none` / `enterprise` / `custom`) plus stackable extensions (`gdpr` / `soc2` / `pci-dss`) for these deployment shapes; `healthcare` is reserved for a planned institutional edition and is not selectable here
+- The compliance layer supports opt-in presets (`none` / `enterprise` / `custom`) plus stackable extensions (`gdpr` / `soc2` / `pci-dss`) for these deployment shapes; `healthcare` is not selectable in this edition
 - Without audit log: post-incident investigation is blind. Memory poisoning happens; you need forensic capability.
 - Without quarantine: validated-bad entries either get loaded (and bias future behavior) or silently dropped (and lose evidence)
 - 3-preset hybrid (B7) handles real-world deployment shapes without requiring users to compose compliance from scratch
@@ -254,7 +254,7 @@ Regulated-data handling and forensic capability. Audit trail of read/write opera
 - Log every memory read/write to JSONL audit trail (B1; opt-in / configurable)
 - Quarantine entries failing validation-on-read (B2)
 - Enforce active compliance preset (B7): `none` / `enterprise` / `custom`
-- Detect PII/PHI per the active compliance preset and route to quarantine (redaction is part of the planned institutional edition)
+- Detect PII/PHI per the active compliance preset and route to quarantine (redaction is not included in this edition)
 - Detect memory poisoning patterns and route to quarantine
 - Provide the `/audit-quarantine` review workflow (surfaced via a one-line approval toast at session start)
 - Track quarantine release decisions back to audit log
@@ -271,7 +271,7 @@ Regulated-data handling and forensic capability. Audit trail of read/write opera
 - Quarantine queue + workflow (B2)
 - 3-preset compliance hybrid (B7) + custom override
 - Memory poisoning defenses (B8): provenance + validation-on-read + quarantine + (T3) signatures
-- PII detection-pattern framework (enterprise/custom presets); PHI patterns are reserved for the planned institutional edition
+- PII detection-pattern framework (enterprise/custom presets); PHI patterns are not included in this edition
 
 ### Deployment tier
 - **T0** base: markdown JSONL audit log + quarantine queue (works anywhere)
@@ -471,7 +471,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 - A real memory-poisoning incident during development demonstrated need beyond Layer 2 validation-on-read
 - Validation-on-read catches format/structure issues; signatures catch content tampering after the write
 - Shipped signing scheme: HMAC with session-derived secret (symmetric, sufficient for single-user single-deployment)
-- Ed25519 with offline key (asymmetric verification, higher integrity assurance) is planned for a future institutional edition (not yet available)
+- Ed25519 with offline key (asymmetric verification, higher integrity assurance) is not implemented in this edition
 
 ### Sound reasoning
 - Production memory systems with audit trails commonly use HMAC at minimum
@@ -486,7 +486,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 - Detect tampering and route to Layer 2 quarantine (failed verification = automatic quarantine)
 - Rotate signing keys without invalidating old entries (signature scheme includes key-id; verify-only with old keys retained)
 - Attach signatures to audit log entries (chain-of-custody for B1)
-- Operate with an in-memory secret (HMAC, shipped); offline private-key signing (Ed25519) is planned for a future institutional edition
+- Operate with an in-memory secret (HMAC, shipped); offline private-key signing (Ed25519) is not implemented in this edition
 
 ### Scope — CANNOT
 - Encrypt content (this is signing, not encryption)
@@ -498,7 +498,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 ### Active features in the current release
 - **DESIGNED-IN, DORMANT at T0.** Schemes specified; activation gated by Code Exec (T3).
 - Default signing scheme: HMAC-SHA256 with session-derived secret
-- Ed25519 with offline key (RFC 8032) is planned for a future institutional edition (not yet available)
+- Ed25519 with offline key (RFC 8032) is not implemented in this edition
 - Both schemes integrate with `SCHEMA_A18` (`signature` field added to frontmatter when Layer 6 active)
 
 ### Deployment tier
@@ -635,7 +635,7 @@ The Ultimate Memory Stack is a **branded module**; the consuming Claude architec
 | **C1** | **Auto-Dream sleep-time consolidation** (Anthropic `dreaming-2026-04-21` beta) — offline async memory reorganization between sessions; replaces Letta sleep-time framing | T4 | 4 | Code Exec + Anthropic beta access |
 | **C2** | **Graphiti temporal-fact graph (Kuzu embedded)** — bi-temporal facts, point-in-time queries, fact lineage. *Strongest single storage upgrade on the future roadmap.* | T3 | 5 | Code Execution |
 | **C3** | **Graphify structural code graph** — Tree-sitter AST + NetworkX + Leiden community detection. Codebase-adjacent, optional. (See §11.5 — adjacent tool, not a layer.) | T2–T3 | adjacent | Code Exec + likely Node.js |
-| **C4** | **Cryptographic memory signatures** — HMAC with session-derived secret (shipped default); Ed25519 offline-key signing planned for a future institutional edition. | T3 | 6 | Code Execution |
+| **C4** | **Cryptographic memory signatures** — HMAC with session-derived secret (shipped default); Ed25519 offline-key signing is not implemented. | T3 | 6 | Code Execution |
 | **C5** | **DGM-H self-improvement loop** | T4 | — | **DEFERRED to a future evolution layer (see §14)** |
 | **C6** | **LLMLingua / LongLLMLingua prompt compression** on cached prefixes — ~40× compound discount (4× compression × 10× cache savings) | T3 | 4 | Code Exec + Python ML libs |
 | **C7** | **Aider repo-map primitive** (Tree-sitter + PageRank) — only deterministic always-fresh structural primitive in the surveyed cohort. (See §11.5 — adjacent tool, not a layer.) | T3 | adjacent | Code Exec + Aider integration |
@@ -716,7 +716,7 @@ This is why some tools appear simultaneously in **Tier C (included)** and **Tier
 
 1. **Layer 4 caching scope** — should explicit Anthropic prompt-cache integration be designed-in (vs leaving to user discipline)? Likely yes.
 2. ~~**Layer 5 graph backend choice** — Memgraph vs Neo4j vs lightweight in-memory~~ **CLOSED: Graphiti + Kuzu embedded** (zero infra overhead, actively-developed open-source, bi-temporal model is audit/regulatory load-bearing). See §9.
-3. **Layer 6 signature scheme defaults** — HMAC is the shipped default; Ed25519 offline-key signing is planned for a future institutional edition. Key management UX is unresolved.
+3. **Layer 6 signature scheme defaults** — HMAC is the shipped default; Ed25519 offline-key signing is not implemented. Key management UX is unresolved.
 4. **Cross-layer sub-agent integration** — formal "Layer 7" or stay as cross-cutting concern? Currently cross-cutting (memory ≠ orchestration); revisit if real deployments surface integration friction.
 5. ~~**C10 placeholder** — "Anthropic beta features TBD"~~ **CLOSED: C10 is the Skill / template extraction pipeline (extract_skill.py-style).** See §12.
 6. **Wiki-link parser automation** — at T0–T1, inline `[[ID]]` ↔ YAML `related` sync is manual. At T2+ (Node.js), automated parser. Should the parser be a hard requirement at T2, or remain opt-in?

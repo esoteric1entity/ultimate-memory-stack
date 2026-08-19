@@ -66,7 +66,7 @@ Same as common-spec — entries with `invalid_at` set deprioritize unless point-
 **Example:** User adds an SSN to a note ("My test SSN is 123-45-6789")
 **Response:** REFUSE — even at `none`, the universal standing rule (no secrets / no PII) blocks SSN format. This is the universal floor; not preset-dependent.
 
-> A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+> HIPAA/PHI is out of scope for this edition.
 
 #### `enterprise` preset
 
@@ -107,5 +107,4 @@ For `none` preset:
 - `./compliance-presets.override.md` (preset implementation details)
 - `../PROFILE.md` (user-selectable defaults)
 - `../../common-specs/SCHEMA_compliance_profile.md` §5 (preset definitions)
-- The institutional edition applies a stricter conflict-resolution posture (planned for a future release; not shipped publicly)
 - Design notes: B7 3-preset hybrid; modular consumer architecture

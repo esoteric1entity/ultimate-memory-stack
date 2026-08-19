@@ -88,7 +88,7 @@ extensions:
 ## Standing Rules (Universal Floor)
 
 - NEVER store: passwords, API keys, credit cards (universal)
-- NEVER store: PHI — PHI/HIPAA handling is reserved for a future institutional edition, not part of general-edition
+- NEVER store: PHI — PHI/HIPAA handling is out of scope for this edition
 
 ## Risks + Mitigations
 

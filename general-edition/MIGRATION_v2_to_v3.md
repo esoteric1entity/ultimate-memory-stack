@@ -174,7 +174,7 @@ Your v2.0 state is fully recovered — the backup was never modified.
 | PHI/HIPAA re-scan | Not applicable — PHI detection is not selectable in general-edition |
 | Required IP/Legal review | Public-release readiness per `PRIVACY_REVIEW.md` |
 
-> This public package ships the general-edition only. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+> This public package ships the general-edition only. HIPAA/PHI is out of scope for this edition.
 
 ---
 
@@ -221,4 +221,4 @@ Next steps:
 - `EXTENSIONS/` (optional extensions)
 - `setup.sh` / `setup.ps1` / `setup.py`
 - `../common-specs/MEMORY_PROTOCOL.md` §13 (general migration procedure)
-- The institutional edition's migration guide (planned for a future release; not shipped publicly)
+- (no institutional migration guide is published)

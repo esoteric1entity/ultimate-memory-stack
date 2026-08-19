@@ -41,7 +41,7 @@ edition_version: "1.0"
 schema_version: "3.0"
 parent_spec: "../common-specs/"
 parent_spec_version: "3.0"
-target_audience: "Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts without strict regulatory requirements (or those wanting opt-in GDPR/SOC2/PCI-DSS). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md."
+target_audience: "Solo developers, software dev, research, writing, education, B2B SaaS, enterprise contexts without strict regulatory requirements (or those wanting opt-in GDPR/SOC2/PCI-DSS). HIPAA/PHI is out of scope for this edition."
 license_posture: "Public release — Apache-2.0"
 ```
 
@@ -220,7 +220,7 @@ When deploying general-edition, the setup wizard MUST collect:
 
 | Risk | Mitigation |
 |------|------------|
-| User realizes they need HIPAA/PHI coverage later | A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. Preset change between general-edition presets is supported at any time via USER_OVERRIDES.md; audit-log captures preset change; backwards re-validation pass available |
+| User realizes they need HIPAA/PHI coverage later | HIPAA/PHI is out of scope for this edition. Preset change between general-edition presets is supported at any time via USER_OVERRIDES.md; audit-log captures preset change; backwards re-validation pass available |
 | User picks `custom` without configuring anything | Bootstrap rejects bare `compliance: custom`; requires ≥1 override file present |
 | Multiple regulatory contexts (e.g., EU + payment-card data) | Extensions compose — user can enable both `gdpr-profile.md` + `pci-dss-profile.md` simultaneously |
 | Audit log opt-in is forgotten by user | Default ON when compliance preset is enterprise; never silent for that preset |

@@ -44,7 +44,7 @@ This repo ships **general-edition** only — it is the default and there is no e
 | **General** (`general-edition/`) | Solo dev, research, education, B2B SaaS, enterprise, custom compliance | ✅ This repo (Apache 2.0) |
 | _Institutional (planned)_ | HIPAA/PHI-focused compliance deployments | 🚧 Not available — see note below |
 
-A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+HIPAA/PHI is out of scope for this edition.
 
 ## Script — Bash (Linux / macOS / WSL / Git Bash)
 
@@ -215,7 +215,7 @@ Before ANY install method, decide:
 
 ### Decision 1: Edition
 
-This package ships the **general-edition** — suited to software dev, research, writing, education, B2B SaaS, and enterprise contexts, with compliance preset flexibility (see Decision 2). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+This package ships the **general-edition** — suited to software dev, research, writing, education, B2B SaaS, and enterprise contexts, with compliance preset flexibility (see Decision 2). HIPAA/PHI is out of scope for this edition.
 
 (Every install method places `common-specs/` and `general-edition/` under `ultimate-memory-stack/` in your working directory — see your chosen method above for exact steps.)
 
@@ -413,7 +413,7 @@ Same as Door 4 Step 4.
 /path/to/ultimate-memory-stack/verify.sh    # run from the working directory; or pass it as an argument
 ```
 
-Expected: ends with `✅ All checks passed — Ultimate Memory Stack v4.0.0 install is valid.` If anything fails, see [Troubleshooting](#troubleshooting).
+Expected: ends with `✅ All checks passed — Ultimate Memory Stack v4.0.1 install is valid.` If anything fails, see [Troubleshooting](#troubleshooting).
 
 **Total time: ~30 sec for script + ~2-3 min for wizard.**
 
@@ -528,7 +528,7 @@ After ANY install method, verify these:
 
 **Expected output (verify.sh, preset `none`):** sectioned `[T1]`–`[T7]` checks (memory dirs, edition profile, audit logs per preset, common-specs, registered skills, bootstrap prompt), ending with:
 ```
-✅ All checks passed — Ultimate Memory Stack v4.0.0 install is valid.
+✅ All checks passed — Ultimate Memory Stack v4.0.1 install is valid.
 ```
 
 (The edition-level alternative `general-edition/setup.sh --verify` prints a shorter check: T1/T2 lines, an audit-log status line, and a "Deployment tier:" section.)
@@ -648,7 +648,7 @@ If you have an existing v2.0 memory stack:
 
 ## Edition switching
 
-This package ships the **general-edition** only. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md. For day-to-day regulatory tuning within the general-edition, use compliance-preset switching (next section) rather than an edition change.
+This package ships the **general-edition** only. HIPAA/PHI is out of scope for this edition. For day-to-day regulatory tuning within the general-edition, use compliance-preset switching (next section) rather than an edition change.
 
 Edition is a structural choice — not a simple preset change. When a future edition becomes available, the recommended path between editions would be:
 1. Backup current deployment: copy `memory/` to `memory.backup.<date>/` via drag-and-drop
@@ -682,7 +682,6 @@ Edition is a structural choice — not a simple preset change. When a future edi
 
 **This is reversible** — change back with the same command.
 
-**By design, the planned institutional edition would not use preset switching** — its compliance posture is fixed rather than user-selectable. (That edition is planned for a future release, not yet available; see CONTRIBUTING.md.)
 
 ## Uninstall and cleanup
 
@@ -786,7 +785,7 @@ When Code Execution + the `cryptography` package are available, this method gene
 python3 setup.py --generate-hmac-secret
 ```
 
-**Action required after generation:** store the secret in your password manager. (Stronger offline-key entry signing is planned for a future institutional edition — not yet available; see CONTRIBUTING.md.)
+**Action required after generation:** store the secret in your password manager. (Stronger offline-key entry signing is not implemented in this release.))
 
 **Total time for Doors 1b / 1c: ~30 sec setup + ~2-3 min wizard.**
 

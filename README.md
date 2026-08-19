@@ -179,7 +179,7 @@ To set expectations:
 - ❌ NOT a replacement for your existing memory — integrates with, doesn't replace
 - ❌ NOT specific to any business or compliance regime — general-purpose by default
 
-> **Compliance note:** A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+> **Compliance note:** HIPAA/PHI is out of scope for this edition.
 
 ---
 

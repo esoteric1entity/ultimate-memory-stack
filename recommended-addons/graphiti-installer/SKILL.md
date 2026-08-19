@@ -107,6 +107,21 @@ pip install pip-audit
 pip-audit --requirement <path-to-this-skill>/requirements.txt
 ```
 
+### Dependency freshness check (informational)
+
+Before installing, see what upstream looks like today versus what this add-on pins:
+
+```bash
+python <path-to-this-skill>/preflight.py
+```
+
+It prints, per dependency, the constraint this package ships against the latest
+version on PyPI and when that version was published — so an abandoned
+dependency is visible BEFORE you install rather than months later. It never
+blocks the install and never edits anything; being offline is not a finding.
+Advancing a pin is a security-vetting decision, not a mechanical refresh.
+
+
 **Outcomes:**
 - **No vulnerabilities** → proceed to Step 5
 - **HIGH or CRITICAL CVE** → STOP. Surface CVE. Capture DEC entry before any override.
@@ -126,16 +141,45 @@ export GRAPHITI_TELEMETRY_ENABLED=false   # Linux/Mac
 # OR on Windows PowerShell:
 # $env:GRAPHITI_TELEMETRY_ENABLED = "false"
 
-pip install -r <path-to-this-skill>/requirements.txt
+# Check your Python version, then install from the matching lock:
+python --version
+pip install --require-hashes -r <path-to-this-skill>/locks/requirements-py3.12.lock
 ```
+
+`requirements.txt` states what versions are ACCEPTABLE; the lock states exactly
+what you GET, verified by hash. `--require-hashes` makes pip refuse any artifact
+whose hash is not listed. The locks are universal — one file per Python version
+covers every platform.
 
 This installs:
 - `graphiti-core>=0.29.1` (floor pin — security floor for CVE-2026-32247)
-- `kuzu>=0.4.0` (if BACKEND = Kuzu)
-- `neo4j>=5.0.0` (only if BACKEND = Neo4j; otherwise NOT installed)
-- `falkordb>=1.0.0` (only if BACKEND = FalkorDB; otherwise NOT installed)
-- `mcp>=1.0.2` (only if INSTALL_MCP = yes)
-- `posthog` is a transitive dependency but gated behind the telemetry env var
+- `kuzu>=0.11.3` — the embedded backend, in-process, no server
+- `mcp>=1.0.2` (only if INSTALL_MCP = yes — uncomment it in `requirements.txt`)
+- `posthog` arrives as a transitive dependency, gated behind the telemetry env var
+
+⚠️ **Kuzu's last release was 0.11.3 on 2025-10-10, and it is on a removal clock.**
+Upstream has been cold for roughly ten months, and `graphiti-core`'s own
+`pyproject.toml` marks its `[kuzu]` extra *"Deprecated: the upstream Kuzu project
+is unmaintained; this extra will be removed in a future release."*
+
+It still installs and runs — this add-on depends on `kuzu` directly rather than
+through the extra, and the hash-pinned lock fixes the resolution — but you are
+adopting a backend that is not receiving security patches and that the library
+above it intends to drop. It remains the default only because it is the sole
+embedded backend covering every platform this package supports.
+
+On **macOS or Linux with Python 3.12+**, prefer the maintained embedded
+alternative — edit `requirements.txt` to swap `kuzu` for
+`falkordblite>=0.5.0; python_version >= "3.12"`, then regenerate the locks
+(`python recommended-addons/regenerate-locks.py graphiti`). FalkorDB Lite
+publishes no Windows wheels, which is why it is not the default.
+
+Server-based backends (`neo4j`, plain `falkordb`) are commented out in
+`requirements.txt` — uncomment one only if you already operate that server.
+Note that plain `falkordb` is a **client**, not an embedded engine.
+
+Backends are not interchangeable at rest: graph data written by one engine is
+not readable by another. Choose once, at install time.
 
 ---
 

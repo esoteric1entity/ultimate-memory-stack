@@ -1,14 +1,14 @@
 ---
 name: install-ultimate-memory-stack
 version: "1.9"
-description: Interactive installer for the Ultimate Memory Stack v4.0.0. The public package ships general-edition only; a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), creates memory/user/USER_OVERRIDES.md (create-once, never rewritten — see PROFILE.md §2.1) with the chosen preset/extensions, and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
+description: Interactive installer for the Ultimate Memory Stack v4.0.1. The public package ships general-edition only; HIPAA/PHI is out of scope for this edition (not yet available — see CONTRIBUTING.md). Confirms general-edition, then walks the user through compliance preset (none/enterprise/custom), optional extensions (gdpr/soc2/pci-dss), consumer agent topology registration, and deployment-tier detection. Then copies common-specs + general-edition into ultimate-memory-stack/ in the working directory, installs memory_protocol.md to .claude/rules/, initializes the memory/ structure (+ audit log + quarantine per preset), creates memory/user/USER_OVERRIDES.md (create-once, never rewritten — see PROFILE.md §2.1) with the chosen preset/extensions, and runs the verify self-test. Use when the user asks to install, deploy, set up, or activate the Ultimate Memory Stack.
 authors: ["see /AUTHORS.md"]
 decision_authority: ["ideal-first design", "documentation discipline", "compliance presets", "Tier C designed-in", "modular consumer architecture"]
 edition: any
 license: Apache-2.0
 ---
 
-# Install Ultimate Memory Stack v4.0.0 — Skill Workflow
+# Install Ultimate Memory Stack v4.0.1 — Skill Workflow
 
 When this skill is invoked (typically via `/install-ultimate-memory-stack` slash command or when the user asks Claude to install/deploy/activate the memory stack), execute the workflow below **IN ORDER**. Treat each step as required unless the user explicitly opts to skip.
 
@@ -40,7 +40,7 @@ Do not proceed until the working directory is a project directory (not `$HOME` o
 Then greet the user briefly and confirm intent:
 
 ```
-👋 You're about to install the Ultimate Memory Stack v4.0.0 in:
+👋 You're about to install the Ultimate Memory Stack v4.0.1 in:
     <current working directory>
 
 This will:
@@ -116,7 +116,7 @@ Save this as `SOURCE_PATH` for use in subsequent steps.
 
 ## Step 2 — Confirm Edition
 
-First check which edition directories actually exist at `SOURCE_PATH` and confirm — do not present a choice. The public package ships `general-edition/` only (a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available — see CONTRIBUTING.md), so skip any menu and confirm general-edition. `EDITION` is always `general`.
+First check which edition directories actually exist at `SOURCE_PATH` and confirm — do not present a choice. The public package ships `general-edition/` only (HIPAA/PHI is out of scope for this edition — see CONTRIBUTING.md), so skip any menu and confirm general-edition. `EDITION` is always `general`.
 
 ```
 Installing the general-edition (the public package).
@@ -308,7 +308,7 @@ touch "<MEMORY_DIR>/quarantine/quarantine_log.jsonl"
 
 Append the initialization entry **only if the audit log was created above** (enterprise/custom presets; skip for preset `none`):
 ```json
-{"ts":"<ISO-8601-UTC>","actor":"install-skill","actor_session":0,"action":"initialize","entry_id":"<bootstrap>","entry_path":"memory/","entry_category":"system","entry_summary":"Ultimate Memory Stack v4.0.0 deployment initialized via Skill installer; edition=<EDITION>; preset=<COMPLIANCE_PRESET>; extensions=<EXTENSIONS>","outcome":"success"}
+{"ts":"<ISO-8601-UTC>","actor":"install-skill","actor_session":0,"action":"initialize","entry_id":"<bootstrap>","entry_path":"memory/","entry_category":"system","entry_summary":"Ultimate Memory Stack v4.0.1 deployment initialized via Skill installer; edition=<EDITION>; preset=<COMPLIANCE_PRESET>; extensions=<EXTENSIONS>","outcome":"success"}
 ```
 
 Report appropriately based on what was initialized.
@@ -404,7 +404,7 @@ schema_version: "3.0"
 ---
 
 ### Session Summary
-Initial setup via Skill installer. Ultimate Memory Stack v4.0.0 deployed:
+Initial setup via Skill installer. Ultimate Memory Stack v4.0.1 deployed:
 - Edition: <EDITION>
 - Compliance preset: <COMPLIANCE_PRESET>
 - Extensions: <EXTENSIONS>
@@ -445,7 +445,7 @@ Final summary:
 
 ```
 ========================================
-✅ Ultimate Memory Stack v4.0.0 — INSTALLED
+✅ Ultimate Memory Stack v4.0.1 — INSTALLED
 ========================================
 
 Edition: <EDITION>
@@ -515,7 +515,7 @@ If any step fails:
 | 1.0 DRAFT | 2026-05-15 | Initial implementation |
 | 1.0 STABLE | 2026-06-10 | Public-readiness fixes (edition-availability detection in Step 2; genericized internal refs); executed end-to-end (fresh install, general-edition, preset=none, T2) — T1–T9 self-test 9/9 PASS → promoted DRAFT → STABLE |
 | 1.1 | 2026-06-15 | **Data-safety fix.** Added Step 0.5 existing-store gate: a re-install over an existing `memory/` now backs it up (`memory.backup.<ts>/`) and preserves it. Steps 7e/8/9 are now create-if-absent — the skill no longer overwrites `session_state.md`, `MEMORY_INDEX.md`, `user_profile.md`, project briefs, or `feedback.md` on an existing store (the prior behavior silently reset accumulated memory to empty templates). Corrected the false "reversible via backup" claim. Brings the skill door in line with `setup-memory-stack.sh` + `INSTALL_AGENT.md`, which already preserved user data. |
-| 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public institutional-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare with "institutional edition only"). Deleted the dead institutional-edition branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available — see CONTRIBUTING.md). |
+| 1.2 | 2026-06-15 | **Public-offer alignment.** Removed the public institutional-edition offer (Step 2 edition menu → confirm general-edition; `EDITION` always `general`) and the healthcare compliance-preset + healthcare extension offers, all of which the installer refuses (general-edition install rejects healthcare with "institutional edition only"). Deleted the dead institutional-edition branches in Steps 3, 4, 7e, 7f, Error Handling, and Skill Constraints. General-edition now offers `none/enterprise/custom` presets + `gdpr/soc2/pci-dss` extensions only. Honest disclosures kept and de-overpromised: HIPAA/PHI is out of scope for this edition. |
 | 1.3 | 2026-06-16 | **Data-safety hardening + Door-3 alignment (v3.6.1).** Added a Step 0 guard refusing installs into `$HOME` / system directories (`/`, `/etc`, `/usr`, `/var`, `/root`, `/tmp`). Made the Step 0.5 PRESERVE guard explicit in Step 8 (per-file `[ -e ]` existence check before any Write; never overwrite user data) + a Step 7f note to confirm before resetting a user-customized `PROFILE.md`. No behavior change for fresh installs. |
 | 1.4 | 2026-06-16 | **Step-0 guard hardening + harness-agnostic wording (v3.6.2).** Canonicalised the Step-0 unsafe-location guard with `pwd -P` so a path that resolves into `$HOME` / a system directory via a symlink is also refused (previously only the literal `$PWD` was matched). Clarified Step 7e (the initialization entry is appended only when the audit log was created — enterprise/custom; skipped for preset `none`). Reframed the skill as one door among several (script / agent / Claude Code skill / manual). No behavior change for fresh installs. |
 | 1.5 | 2026-07-10 | **Protocol CORE/EXTENDED split (v4.0.0 eager-load fix).** Step 7c now also warns (never auto-edits) if the target's CLAUDE.md still has an old at-sign import of the protocol file — that content already auto-loads via `.claude/rules/`, so the old import double-loads it. Step 7d now additionally installs `MEMORY_PROTOCOL_EXTENDED.md` to the vault root (`memory/`, never `.claude/rules/`) as an on-demand reference. |

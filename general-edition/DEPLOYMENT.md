@@ -155,7 +155,7 @@ Choose preset based on your context:
 - Memory entries are dev decisions, methodology, domain knowledge, project state
 - → Pick this
 
-> **PHI / HIPAA context?** A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+> **PHI / HIPAA context?** HIPAA/PHI is out of scope for this edition.
 
 ### `enterprise` — Business / Regulated
 - You handle business-customer PII (names, emails, business identifiers)

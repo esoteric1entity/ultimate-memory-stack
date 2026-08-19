@@ -1,6 +1,6 @@
 ---
 name: install-graphify
-description: Installer for Graphify codebase symbol graph addon (Tier C C3, adjacent tool). Installs graphifyy==0.8.21 EXACTLY (note double-y — single-y "graphify" is an UNRELATED package and a typosquat risk; this Skill enforces the correct package). Includes L1-L4 typosquat defense per security-vetting conditions. Use when the user asks to install, deploy, activate, or enable Graphify / Tree-sitter symbol graph for their memory stack deployment.
+description: Installer for Graphify codebase symbol graph addon (Tier C C3, adjacent tool). Installs graphifyy==0.8.21 EXACTLY (note double-y — single-y "graphify" is an UNRELATED package and a typosquat risk; this Skill enforces the correct package). Includes L1-L5 typosquat defense (security-vetting conditions plus hash-pinned install). Use when the user asks to install, deploy, activate, or enable Graphify / Tree-sitter symbol graph for their memory stack deployment.
 version: "1.0"
 authors: ["esoteric1entity"]
 decision_authority: ["security-first vetting", "ideal-first design", "documentation discipline", "Tier C adjacent tool", "PASS-verdict addon batch"]
@@ -11,14 +11,14 @@ license: MIT (Graphify); installer license: Apache-2.0
 upstream_status: active (last release 2026-05-27 v0.8.21 — 116 releases in ~8 weeks)
 maintainer: PyPI account `captainturbo` / GitHub account `safishamsi` (Safi Shamsi, MSc Data Science, University of Birmingham — same human; two account names)
 key_risk: TYPOSQUAT — `pip install graphify` (single-y) installs UNRELATED package; correct is `graphifyy` (double-y)
-defense_layers: L1 bash-guard typosquat pattern + L2 installer name verification + L3 README warning + L4 exact version pin
+defense_layers: L1 bash-guard typosquat pattern + L2 installer name verification + L3 README warning + L4 exact version pin + L5 hash-pinned install (--require-hashes)
 ---
 
 # Install Graphify Codebase Symbol Graph — Skill Workflow
 
 When this Skill is invoked (typically via `/install-graphify` slash command or when the user asks Claude to install/deploy/activate Graphify), execute the workflow below **IN ORDER**.
 
-⚠️ **CRITICAL: This installer ONLY uses `graphifyy` (DOUBLE-y) on PyPI.** Single-y `graphify` is an UNRELATED package and a typosquat risk. The Skill enforces this at multiple layers (L1-L4 defense per security-vetting conditions).
+⚠️ **CRITICAL: This installer ONLY uses `graphifyy` (DOUBLE-y) on PyPI.** Single-y `graphify` is an UNRELATED package and a typosquat risk. The Skill enforces this at multiple layers (L1-L5 defense per security-vetting conditions plus hash pinning).
 
 ---
 
@@ -36,7 +36,7 @@ What Graphify does:
 ⚠️  TYPOSQUAT WARNING — PACKAGE NAME IS DOUBLE-Y:
   - CORRECT:    pip install graphifyy==0.8.21    ← DOUBLE-y
   - INCORRECT:  pip install graphify             ← SINGLE-y (UNRELATED package, typosquat risk)
-  - This Skill enforces the correct name at 4 defense layers (L1-L4)
+  - This Skill enforces the correct name at 5 defense layers (L1-L5)
 
 Vetting: pre-release security review 2026-05-27 (verdict PASS with conditions)
 License: MIT (permissive)
@@ -120,6 +120,21 @@ pip install pip-audit
 pip-audit --requirement <path-to-this-skill>/requirements.txt
 ```
 
+### Dependency freshness check (informational)
+
+Before installing, see what upstream looks like today versus what this add-on pins:
+
+```bash
+python <path-to-this-skill>/preflight.py
+```
+
+It prints, per dependency, the constraint this package ships against the latest
+version on PyPI and when that version was published — so an abandoned
+dependency is visible BEFORE you install rather than months later. It never
+blocks the install and never edits anything; being offline is not a finding.
+Advancing a pin is a security-vetting decision, not a mechanical refresh.
+
+
 **Outcomes:**
 - **No vulnerabilities** → proceed to Step 6
 - **HIGH or CRITICAL CVE** → STOP. Surface CVE. Capture DEC entry before any override.
@@ -132,16 +147,34 @@ Log to `audit_log.jsonl` per LLMLingua/Graphiti pattern.
 ## Step 6 — Install Graphify with Exact Pin
 
 ```bash
-# In INSTALL_ENV (Conda or venv activated):
+# In INSTALL_ENV (Conda or venv activated). Check your version first:
+python --version
+
+# Then install from the lock matching it (3.10 / 3.12 / 3.13):
+pip install --require-hashes -r <path-to-this-skill>/locks/requirements-py3.12.lock
+```
+
+`requirements.txt` states what versions are ACCEPTABLE; the lock states exactly
+what you GET, verified by hash. For a package whose headline risk is a
+**typosquat**, this matters more than usual: `--require-hashes` makes pip refuse
+any artifact whose hash is not listed, so a substituted distribution fails
+closed. That is an L5 defense on top of the exact pin (L4). The locks are
+universal — one file per Python version covers every platform.
+
+Top-level requirements (`requirements.txt`):
+- `graphifyy==0.8.21` (EXACT — typosquat defense)
+- `tree-sitter>=0.23.0,<0.26` (parser engine; floor is graphifyy 0.8.21's own
+  declared minimum, ceiling is ours — 0.8.21 sets no upper bound, so an
+  upstream tree-sitter release could otherwise break a pinned graphifyy)
+
+**Fall back to the manifest only if no lock matches your Python version:**
+
+```bash
 pip install -r <path-to-this-skill>/requirements.txt
 ```
 
-This installs:
-- `graphifyy==0.8.21` (EXACT — typosquat defense)
-- `tree-sitter>=0.20.0` (parser engine; bounded range)
-
 **Do NOT use `pip install graphify`** — that installs an UNRELATED single-y package.
-**Do NOT use `pip install graphifyy`** without the requirements.txt — that allows version drift.
+**Do NOT use a bare `pip install graphifyy`** — that pins nothing and allows version drift.
 
 ---
 
@@ -204,9 +237,9 @@ addons:
 
 ---
 
-## Step 10 — Subscribe to Security Advisories (L5 Optional)
+## Step 10 — Subscribe to Security Advisories (L6 Optional)
 
-**Per security-vetting condition #4 (monthly review cadence) + optional L5 Sigstore monitoring:**
+**Per security-vetting condition #4 (monthly review cadence) + optional L6 Sigstore monitoring:**
 
 ```bash
 # Watch the repo for security advisories:
@@ -237,7 +270,7 @@ schema_version: "3.0"
 subject: graphifyy==0.8.21 (NOTE: double-y; typosquat defense in place)
 verdict: ACTIVATED
 pipeline: install-graphify Skill v1.0
-defense_layers_active: [L1, L2, L3, L4]
+defense_layers_active: [L1, L2, L3, L4, L5]
 ---
 
 - **Date:** <today>
@@ -248,7 +281,8 @@ defense_layers_active: [L1, L2, L3, L4]
 - **L2 installer manifest:** intact (verified Step 2)
 - **L3 README warning:** present
 - **L4 pin discipline:** enforced (==, not >=)
-- **L5 security subscription:** [enabled | skipped]
+- **L5 hash-pinned install:** enforced (`--require-hashes` against `locks/`)
+- **L6 security subscription:** [enabled | skipped]
 - **Tags:** tier-c, activation, graphify, addon, typosquat-defended
 ```
 
@@ -260,7 +294,7 @@ Append corresponding DEC-### entry per the documentation discipline.
 
 ```
 ✅ Graphify installed (graphifyy==0.8.21 in <INSTALL_ENV>)
-✅ Defense layers active: L1 (bash-guard) · L2 (manifest) · L3 (README) · L4 (exact pin)
+✅ Defense layers active: L1 (bash-guard) · L2 (manifest) · L3 (README) · L4 (exact pin) · L5 (hash pin)
 
 Operational notes:
   - Active upstream (116 releases in 8 weeks) — re-run Sentinel vetting monthly
@@ -280,6 +314,7 @@ Operational notes:
 | 2 | L2 manifest verification | defense in depth |
 | 3 | L3 README warning | documentation discipline |
 | 4 | L4 exact pin | vetting condition #1 |
+| 5 | L5 hash-pinned closure (`--require-hashes`) | supply-chain integrity |
 | 5 | pip-audit | security-first vetting |
 | 6 | Install with exact pin | vetting condition #1 |
 | 7 | Verify package identity | vetting condition #2 |

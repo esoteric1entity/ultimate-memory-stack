@@ -11,7 +11,8 @@ Verifies the Graphify install works end-to-end with L2 defense check:
 
 Authority: SKILL.md Step 8 + INSTALL_GRAPHIFY.md Step 7
 Vetting: passed Sentinel security vetting
-Pin contract: graphifyy==0.8.21 (EXACT) + tree-sitter>=0.20.0,<0.22.0
+Pin contract: graphifyy==0.8.21 (EXACT) + tree-sitter>=0.23.0,<0.26
+              (hash-pinned closures in locks/requirements-py<VER>.lock)
 
 Exit codes:
   0 = all checks passed
@@ -173,6 +174,7 @@ def main() -> int:
     print("[smoke_test] Defense layers verified:")
     print("  - L2 identity: package is graphifyy (double-y), Version 0.8.21, MIT license")
     print("  - L4 exact pin: enforced by requirements.txt")
+    print("  - L5 hash pin: enforced by locks/requirements-py<VER>.lock (--require-hashes)")
     print("  - L1 bash-guard + L3 README warnings: out-of-band (verified by SKILL.md Step 1 + 3)")
     print("=" * 60)
     return 0

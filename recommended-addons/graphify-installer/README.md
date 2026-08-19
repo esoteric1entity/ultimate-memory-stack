@@ -17,7 +17,7 @@
 | ❌ `pip install graphify` | Installs an UNRELATED package — DO NOT USE |
 | ❌ `pip install graphifyy` (no pin) | Installs latest version (uncalibrated; needs fresh Sentinel vetting) |
 
-**This installer enforces the correct name at 4 defense layers (L1-L4, per the Sentinel vetting conditions).**
+**This installer enforces the correct name at 5 defense layers (L1-L5, per the Sentinel vetting conditions plus hash pinning).**
 
 ---
 
@@ -38,7 +38,7 @@
 
 ---
 
-## Defense Layers (L1-L4)
+## Defense Layers (L1-L5)
 
 | Layer | What it is | Where it lives | Enforced by |
 |---|---|---|---|
@@ -46,13 +46,15 @@
 | **L2** | Installer manifest with double-y exact pin | `requirements.txt` (this folder) | This installer |
 | **L3** | README user-facing warning | `README.md` (this file) | Documentation |
 | **L4** | Exact version pin `==0.8.21` (not floor) | `requirements.txt` | This installer |
-| L5 (optional) | Sigstore signature verification | Future enhancement | Not yet implemented |
+| **L5** | Hash-pinned closure — `pip` refuses any artifact whose hash is not listed, so a substituted distribution fails closed | `locks/requirements-py<VER>.lock` | `pip install --require-hashes` |
+| L6 (optional) | Sigstore signature verification | Future enhancement | Not yet implemented |
 
 **Defense in depth.** Each layer independently catches the typosquat at a different point in the install flow:
 - L1 catches direct CLI typos (`pip install graphify`) at the OS level
 - L2 catches manifest tampering (`requirements.txt` edited to use single-y)
 - L3 alerts the user before invoking the Skill
 - L4 prevents inadvertent version drift via floor pin
+- L5 fails the install closed if the downloaded artifact does not match the recorded hash
 
 ---
 
@@ -91,7 +93,7 @@
 The Skill walks through the 12-step workflow defined in `SKILL.md`:
 intent + typosquat warning → L1 bash-guard check → L2 manifest check → L3 README acknowledged → L4 exact pin → pip-audit → install → identity verification → smoke test → optional integration → security subscription → activation logging → operational briefing
 
-### Fallback: manual install (with all 4 defense layers asserted by user)
+### Fallback: manual install (with all defense layers asserted by user)
 
 Per `INSTALL_GRAPHIFY.md`:
 
@@ -100,7 +102,8 @@ Per `INSTALL_GRAPHIFY.md`:
 pip install pip-audit
 pip-audit --requirement requirements.txt   # MUST PASS
 
-pip install -r requirements.txt            # uses graphifyy==0.8.21
+python preflight.py                        # dependency freshness (informational)
+pip install --require-hashes -r locks/requirements-py3.12.lock   # match your Python
 pip show graphifyy                         # verify package identity (NOT 'graphify')
 python smoke_test.py                       # verify install works
 ```
@@ -111,7 +114,7 @@ python smoke_test.py                       # verify install works
 
 ### Purpose
 
-Provide codebase symbol-graph capability to the Ultimate Memory Stack via Graphify (Tree-sitter, 31 languages), as an opt-in Tier C adjacent tool with full L1-L4 typosquat defense per the Sentinel vetting conditions.
+Provide codebase symbol-graph capability to the Ultimate Memory Stack via Graphify (Tree-sitter, 31 languages), as an opt-in Tier C adjacent tool with full L1-L5 typosquat defense per the Sentinel vetting conditions plus hash pinning.
 
 ### Rationale
 
@@ -120,12 +123,12 @@ Provide codebase symbol-graph capability to the Ultimate Memory Stack via Graphi
 - The C3 capability was designed-in to v3.0 as an adjacent tool
 - The Skill registration pattern is validated
 - This addon is one of 3 PASS-verdict addons proceeding in v3.5
-- Typosquat defense at 4 independent layers — defense in depth — is appropriate for active upstream + similar-name-on-PyPI conditions
+- Typosquat defense at 5 independent layers — defense in depth — is appropriate for active upstream + similar-name-on-PyPI conditions
 
 ### Sound reasoning
 
 1. Per the security-first standing rule: Graphify PASSED Sentinel vetting; installer enforces all 5 conditions
-2. Per the ideal-first design principle: 4-layer typosquat defense is the cleanest topology for active-upstream + similar-name conditions
+2. Per the ideal-first design principle: layered typosquat defense is the cleanest topology for active-upstream + similar-name conditions
 3. Per the documentation discipline: this README + SKILL.md capture purpose/rationale/scope (CAN/CANNOT) + typosquat warning surfaces in 3 distinct places (frontmatter, Step 0, this README)
 4. Per the C3 Tier C designation: capability is opt-in (not auto-loaded); installer enforces opt-in via Step 9 user prompt
 5. The registration pattern is battle-tested; this Skill formalizes it
@@ -137,7 +140,7 @@ Provide codebase symbol-graph capability to the Ultimate Memory Stack via Graphi
 - Recommend L1 bash-guard pattern (user applies manually)
 - Verify L2 manifest integrity at install time
 - Surface L3 README warning at Skill invocation
-- Enforce L4 exact pin (not floor)
+- Enforce L4 exact pin (not floor) and L5 hash-pinned install (`--require-hashes`)
 - Run `pip-audit` pre-install and block on HIGH/CRITICAL CVEs
 - Verify installed package identity via `pip show` (catches L2 bypass)
 - Smoke-test the install via `smoke_test.py`
@@ -152,7 +155,7 @@ Provide codebase symbol-graph capability to the Ultimate Memory Stack via Graphi
 - Auto-bump pin beyond `==0.8.21` without fresh Sentinel vetting + DEC override
 - Manage Tree-sitter language pack installs beyond defaults (user runs `graphifyy install <lang>`)
 - Auto-subscribe to security advisories without `gh` CLI or browser access
-- Validate Sigstore signatures (L5 not yet implemented; future enhancement)
+- Validate Sigstore signatures (L6 not yet implemented; future enhancement)
 - Catch typosquat if the L2 manifest itself is tampered (other defense layers must catch)
 
 ---
@@ -161,9 +164,11 @@ Provide codebase symbol-graph capability to the Ultimate Memory Stack via Graphi
 
 | File | Purpose |
 |---|---|
-| `SKILL.md` | Claude-executable installer manifest (12-step workflow with L1-L4 defense) |
+| `SKILL.md` | Claude-executable installer manifest (12-step workflow with L1-L5 defense) |
 | `README.md` | This file — addon README with typosquat warning + vetting summary |
 | `requirements.txt` | Pinned manifest (L2 defense layer) |
+| `locks/` | Hash-pinned closures, one per Python version (`--require-hashes`) |
+| `preflight.py` | Pre-install dependency-freshness report (installer-provided) |
 | `INSTALL_GRAPHIFY.md` | Companion manual install guide |
 | `smoke_test.py` | Post-install verification (includes L2 package identity check) |
 

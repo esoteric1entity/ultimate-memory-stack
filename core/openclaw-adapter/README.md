@@ -2,7 +2,7 @@
 
 > **Status:** stable — ships with UMS v4.0.0 (design + Skill artifact complete; cross-machine deployment validated)
 > **Tier:** A (CORE deliverable — required for OpenClaw deployment; not opt-in)
-> **Edition:** general-edition (the public edition; a HIPAA/PHI institutional edition is planned for a future release)
+> **Edition:** general-edition (the public edition; HIPAA/PHI is out of scope)
 > **Last updated:** 2026-07-11
 
 ---

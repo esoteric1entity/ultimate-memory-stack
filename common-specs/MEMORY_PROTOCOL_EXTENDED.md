@@ -588,7 +588,7 @@ Triggers A/B/C/D are accepted identically. Trigger B's Pattern-Key promotion thr
 3. **Audit log retention defaults** — longer retention (e.g., 1 year) under stricter compliance presets vs 90 days by default? PROFILE.md decides; the core protocol defines the rotation mechanism (§11).
 4. **Pattern-key promotion target** — auto-promote where? `.claude/rules/auto_rules.md`? Or DEC entries? Lean toward DEC entries with `source_agent: auto-promoted-from-pattern` and full provenance.
 5. **Compaction trigger threshold** — protocol says "near context limit"; should it be deterministic (e.g., ~85%)? Community-derived guidance suggests ~95%.
-6. **`healthcare` preset (not available)** — the `healthcare` preset is **NOT selectable**: the installer refuses it (the shipped presets are `none` / `enterprise` / `custom` only). Deployments with regulatory needs use the `enterprise` or `custom` preset. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+6. **`healthcare` preset (not available)** — the `healthcare` preset is **NOT selectable**: the installer refuses it (the shipped presets are `none` / `enterprise` / `custom` only). Deployments with regulatory needs use the `enterprise` or `custom` preset. HIPAA/PHI is out of scope for this edition.
 
 ---
 
@@ -619,6 +619,8 @@ When a category file exceeds its §11 line cap:
 
 **Loss-proof by construction:** nothing is ever deleted. A rotation is CUT-then-APPEND, not delete — every rotated entry stays fully readable in the archive file, findable by ID via its ARCHIVE_INDEX one-liner, without opening the archive file itself.
 
+*Enforced, not merely asserted:* lint's `archive-pointer-dangling` check fails the run (severity `high`) if an ARCHIVE_INDEX one-liner ever names an entry the archive file does not contain — an interrupted or hand-edited rotation that wrote the pointer but lost the content. Without it, this paragraph would be a claim the tooling could not distinguish from its own violation.
+
 **Worked example** (`feedback/feedback.md` at 250/300 lines): consolidation merges FB-003/FB-009/FB-014 into one standing rule (§11's existing remedy); the three now-superseded originals rotate — their full `## FB-NNN:` sections move to `memory/archive/feedback/feedback-archive.md`; three one-liners append to `memory/archive/feedback/ARCHIVE_INDEX.md`; the header pointer and MEMORY_INDEX row update. Zero loss: every FB-NNN stays findable by ID.
 
 ### E12.3 Rehydration (R7)
@@ -633,7 +635,7 @@ When a paused topic reactivates, or an archived entry is explicitly requested: r
 
 ### E12.5 Eager-set budget (advisory, live-vault)
 
-`eager_set_budget_bytes` (default **80,000**; ships in `<edition>/PROFILE.md` frontmatter, user-tunable via `memory/user/USER_OVERRIDES.md` — §E4.3) — the summed bytes of the LIVE always-loaded set: `.claude/rules/memory_protocol.md` + `sessions/session_state.md` + `user/user_profile.md` (core §1.2) + `MEMORY_INDEX.md` (core §1.3). This is a DIFFERENT quantity from the fresh-install release gate (a template snapshot, ~10K-token target) — this measurement is ongoing and grows with use, meaningful only after the eager-load split ships (pre-split, the rules copy alone approaches the budget). The 80,000B default ≈ 2× the post-split fresh-install footprint — past that point, rotation is worth doing. Lint check `eager-set-over-budget` fires at severity low when the live sum exceeds the configured value; advisory only, never blocking.
+`eager_set_budget_bytes` (default **80,000**; ships in `<edition>/PROFILE.md` frontmatter, user-tunable via `memory/user/USER_OVERRIDES.md` — §E4.3) — the summed bytes of the LIVE always-loaded set: `.claude/rules/memory_protocol.md` + `sessions/session_state.md` + `user/user_profile.md` (core §1.2) + `MEMORY_INDEX.md` (core §1.3). This is a DIFFERENT quantity from the fresh-install release gate (a template snapshot, ~10K-token target) — this measurement is ongoing and grows with use, meaningful only after the eager-load split ships (pre-split, the rules copy alone approaches the budget). The 80,000B default ≈ 2× the post-split fresh-install footprint — past that point, rotation is worth doing. Lint check `eager-set-over-budget` fires at severity **high** when the live sum exceeds the configured value, and **fails the lint run** at the default `--fail-on high` (`SCHEMA_lint.md` §14). It gates rather than advises because content past a harness's load limit is dropped *without warning* on the next session load — the first symptom is an agent that has quietly forgotten something. Use `--fail-on none` for the pre-v4.0.1 advisory-only behavior.
 
 ### E12.6 Sharding (R9 — deferred, not implemented)
 
@@ -641,4 +643,6 @@ A single `ARCHIVE_INDEX.md` is expected to stay small for a long time (one-liner
 
 ### E12.7 Lint checks
 
-Full check list + severities: `SCHEMA_lint.md` §13. Ownership split: `verify.sh` owns EXISTENCE-only checks post-fresh-install (ARCHIVE_INDEX files present at the standard locations); lint owns all behavioral/aging checks (over-budget, nearing-cap, unindexed, count-drift, index-missing, entry-over-cap) — no duplicated logic between them.
+Full check list + severities: `SCHEMA_lint.md` §13. Ownership split: `verify.sh` owns EXISTENCE-only checks post-fresh-install (ARCHIVE_INDEX files present at the standard locations); lint owns all behavioral/aging checks (over-budget, nearing-cap, unindexed, count-drift, index-missing, entry-over-cap, pointer-dangling, unreachable-file) — no duplicated logic between them.
+
+Most are advisory (`low`). Two **gate** the run at severity `high` — `eager-set-over-budget` and `archive-pointer-dangling` — because each means memory the reader believes is available is not. `archive-pointer-dangling` requires a non-empty `ARCHIVE_INDEX.md`, so it cannot fire on a vault that has never rotated; `eager-set-over-budget` measures the live always-loaded set and is independent of rotation, so it CAN fire on an un-tiered vault (see §E12.5 — pre-split, the rules copy alone approaches the budget). `--fail-on none` restores advisory-only behaviour. Details + the standing test obligation: `SCHEMA_lint.md` §13.1 and §14.

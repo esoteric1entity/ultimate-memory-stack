@@ -55,7 +55,7 @@ Uncomment ONE of the optional backend lines in `requirements.txt`:
 
 | Backend | Line to uncomment |
 |---|---|
-| Kuzu (default — no edit needed) | (none — `kuzu>=0.4.0,<1.0.0` is already active) |
+| Kuzu (default — no edit needed) | (none — `kuzu>=0.11.3,<1.0.0` is already active) |
 | Neo4j | `# neo4j>=5.0.0,<6.0.0` |
 | FalkorDB | `# falkordb>=1.0.0,<2.0.0` |
 

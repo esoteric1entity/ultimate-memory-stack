@@ -32,7 +32,7 @@
 - **B4 Override-file convention** — `.override.md` shadow-files (engine behind edition profiles)
 - **B5 Bi-temporal annotations** — `valid_at` / `invalid_at` in SCHEMA_A18. Available (may be enforced by compliance preset). Enables point-in-time queries ("what did we believe on date X?"). Markdown-now, Graphiti-backed-later.
 - **B6 Pattern-key recurrence** — ≥5 (suggest to user)
-- **B7 Compliance preset hybrid ⭐** — presets: `none` / `enterprise` + `custom` override (GDPR/SOC2/PCI-DSS). A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available).
+- **B7 Compliance preset hybrid ⭐** — presets: `none` / `enterprise` + `custom` override (GDPR/SOC2/PCI-DSS). HIPAA/PHI is out of scope for this edition.
 - **B8 Memory poisoning defenses** — provenance, validation-on-read, quarantine, optional signatures
 - **B9 Local semantic search via Ollama** — opt-in; privacy-friendly; T1+
 - **B10 Embedding-cache as derived index** — required architecture (`memory/.index/`, gitignored, regenerable)
@@ -66,7 +66,7 @@
 - Self-trimming protocol (every 10 sessions, suggestions-only)
 - Decision promotion pattern (inline → decisions.md at >5)
 - Heartbeat checkpoint (~30 min)
-- Compliance preset system (B7: `none` / `enterprise` / `custom`) — a HIPAA/PHI-focused institutional edition is planned for a future release (not yet available)
+- Compliance preset system (B7: `none` / `enterprise` / `custom`) — HIPAA/PHI is out of scope for this edition
 - Schema versioning
 
 ---
@@ -76,12 +76,12 @@
 ### Prerequisites
 - A capable agent harness — Claude Code is the reference example; OpenClaw and any 9-root-file harness also work (see `INSTALL_AGENT.md`). The script and manual doors need no agent at all.
 - Working directory selected (where the memory system will live)
-- This package ships the **general-edition**. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+- This package ships the **general-edition**. HIPAA/PHI is out of scope for this edition.
 
 ### Steps
 1. **Copy the stack package** into your working directory as `ultimate-memory-stack/`, containing:
    - `common-specs/` — universal files (this is the shared 95%)
-   - `general-edition/` — the edition shipped in this package. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+   - `general-edition/` — the edition shipped in this package. HIPAA/PHI is out of scope for this edition.
 2. **Open your agent harness** in your working directory (e.g. Claude Code, OpenClaw, or any 9-root-file agent)
 3. **Paste the activation prompt** below
 4. **Answer the setup-wizard questions** (general-edition confirmation, user profile, project list, compliance preset)
@@ -96,7 +96,7 @@
 ## The Activation Prompt
 
 ```
-You are deploying the Ultimate Memory Stack v4.0.0 in this working directory.
+You are deploying the Ultimate Memory Stack v4.0.1 in this working directory.
 
 The complete spec lives in `ultimate-memory-stack/common-specs/` plus the general-edition profile in `ultimate-memory-stack/general-edition/`. Read those files for full detail. This prompt is the activation entry point — it doesn't duplicate the schemas, it activates them.
 
@@ -110,7 +110,7 @@ Wait for my answer. Then load `ultimate-memory-stack/general-edition/PROFILE.md`
 
 Ask "Which compliance preset — none, enterprise, or custom?" Save the answer to my user profile.
 
-If `custom`: ask which regulations apply — GDPR, SOC2, PCI-DSS. HIPAA/PHI is not a general-edition option. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+If `custom`: ask which regulations apply — GDPR, SOC2, PCI-DSS. HIPAA/PHI is not a general-edition option. HIPAA/PHI is out of scope for this edition.
 
 ---
 
@@ -169,7 +169,7 @@ Copy `MEMORY_PROTOCOL.md` to `.claude/rules/memory_protocol.md` so Claude Code a
 
 Read `ultimate-memory-stack/general-edition/PROFILE.md`. It declares:
 - Which common-spec features are active (e.g., audit log: required vs opt-in)
-- Compliance preset (`none` / `enterprise` / `custom`; a HIPAA/PHI-focused institutional edition is planned for a future release, not yet available)
+- Compliance preset (`none` / `enterprise` / `custom`; HIPAA/PHI is out of scope for this edition)
 - Override-file map — each line says "override file X applies override Y" (the B4 override-file convention)
 - Pattern-key recurrence threshold (general ≥5)
 - Cryptographic signature scheme (HMAC, activates at T3)
@@ -226,7 +226,7 @@ Ask me these questions in order. Save my answers to the indicated files:
 3. **Compliance** (→ `user/user_profile.md` + active compliance profile)
    - Compliance preset: none / enterprise / custom
    - If `custom`: which regulations apply (GDPR, SOC2, PCI-DSS)?
-   - HIPAA/PHI is not a general-edition option. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). See CONTRIBUTING.md.
+   - HIPAA/PHI is not a general-edition option. HIPAA/PHI is out of scope for this edition.
 
 4. **Pet Peeves** (→ `feedback/feedback.md` as initial entries — the canonical location)
    - Anything you should NEVER do

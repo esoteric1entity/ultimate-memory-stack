@@ -68,9 +68,9 @@ pip install -r requirements.txt
 
 This installs (with vetted exact + bounded pins):
 - `llmlingua==0.2.2`
-- `transformers>=4.30.0,<4.40.0`
-- `torch>=2.0.0,<2.3.0`
-- `sentencepiece>=0.1.99,<0.3.0`
+- `transformers>=4.26.0,<5.0.0`
+- `torch>=2.0.0`
+- `accelerate>=0.26.0`
 
 **Do NOT use `pip install llmlingua` (without `-r requirements.txt`)** — that allows transitive drift outside the vetted pin range.
 
@@ -93,7 +93,7 @@ Expected output (approximate):
 **On failure:** uninstall and surface error:
 
 ```bash
-pip uninstall -y llmlingua transformers torch sentencepiece
+pip uninstall -y llmlingua transformers torch accelerate
 ```
 
 Do not proceed with half-installed state.

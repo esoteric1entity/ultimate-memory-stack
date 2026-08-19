@@ -13,6 +13,27 @@
 #                            need fresh security vetting before pin advancement
 #                            (defense-in-depth against typosquat/supply-chain risk)
 #   - tree-sitter           → bounded range; parser engine; required by graphifyy
+#
+# ── FIXED 2026-08-19 ─────────────────────────────────────────────────────────
+# The previous `tree-sitter>=0.20.0,<0.22.0` bound made this manifest
+# UNSATISFIABLE: graphifyy 0.8.21 declares `tree-sitter>=0.23.0`, so the ceiling
+# excluded every version the package accepts. `pip install -r` failed with
+# ResolutionImpossible on every platform and every Python version — the add-on
+# could never have installed from this file. It shipped in v4.0.0 undetected
+# because no installer, test, or CI job ever executed a requirements.txt.
+# A CI resolve gate now runs this manifest on 3.10/3.12/3.13 so an
+# unsatisfiable pin set cannot ship again.
+#
+# The corrected range is graphifyy 0.8.21's own floor plus OUR ceiling.
+# The ceiling is deliberate: 0.8.21 declares no upper bound on tree-sitter (nor
+# on its ~26 grammar packages), so an upstream tree-sitter release could break
+# a pinned graphifyy at any time. Bounding it here is what makes "upstream
+# moving does not break our users" true rather than aspirational.
+#
+# Version currency: 0.8.21 remains the VETTED version. Upstream is well ahead
+# (0.9.x). Advancing the pin is a deliberate, separately-vetted decision — not
+# something to do incidentally while fixing a resolution bug.
+# ─────────────────────────────────────────────────────────────────────────────
 
 graphifyy==0.8.21
-tree-sitter>=0.20.0,<0.22.0
+tree-sitter>=0.23.0,<0.26

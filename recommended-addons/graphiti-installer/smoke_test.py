@@ -12,7 +12,8 @@ Verifies the Graphiti install works end-to-end:
 
 Authority: SKILL.md Step 7 + INSTALL_GRAPHITI.md Step 7
 Vetting: Sentinel security review — PASS
-Pin contract: graphiti-core>=0.29.1 + kuzu>=0.4.0
+Pin contract: graphiti-core>=0.29.1 + kuzu>=0.11.3
+              (hash-pinned closures in locks/requirements-py<VER>.lock)
 
 Exit codes:
   0 = all checks passed

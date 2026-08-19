@@ -203,7 +203,7 @@ The orchestrator:
 | `frontmatter-invalid` | YAML parse failure, missing required fields, schema_version mismatch |
 | `signature-mismatch` | Layer 6 (C4) signature verification fails (T3+ only) |
 | `content_sha256-mismatch` | Frontmatter declares X, body computes Y (per SCHEMA_A18 CAS / B3) |
-| `phi-detected` | PHI detector fired (PHI detection is reserved for the planned institutional edition) |
+| `phi-detected` | PHI detector fired (PHI detection is not implemented) |
 | `pii-detected` | Compliance preset `enterprise` or `custom` PII detector fired |
 | `consistency-failure` | Cross-entry consistency check failed (e.g., supersedes references a non-existent entry) |
 | `provenance-suspicious` | source_agent: webfetch + last_validated absent (suspicious external entry) |

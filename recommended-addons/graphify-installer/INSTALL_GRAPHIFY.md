@@ -87,7 +87,7 @@ pip install -r requirements.txt
 
 This installs:
 - `graphifyy==0.8.21` (EXACT)
-- `tree-sitter>=0.20.0,<0.22.0`
+- `tree-sitter>=0.23.0,<0.26`
 
 **Do NOT use `pip install graphify`** — installs UNRELATED package.
 **Do NOT use `pip install graphifyy`** (no pin) — installs latest, uncalibrated.

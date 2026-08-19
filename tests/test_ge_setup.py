@@ -369,11 +369,12 @@ def test_setup_fresh_refuses_unavailable_extension(tmp_path):
     assert exc.value.code == 1
 
 
-def test_setup_fresh_refusal_message_points_to_institutional(tmp_path, capsys):
+def test_setup_fresh_refusal_message_names_the_alternative(tmp_path, capsys):
     with pytest.raises(SystemExit):
         mod.setup_fresh(tmp_path, "healthcare", [], _args())
     out = capsys.readouterr().out
-    assert "institutional edition" in out
+    assert "reserved preset value" in out
+    assert "enterprise" in out
 
 
 def test_setup_fresh_invalid_preset_exits_1(tmp_path, capsys):
@@ -473,7 +474,8 @@ def test_setup_fresh_refusal_precedes_preset_validation(tmp_path, capsys):
     with pytest.raises(SystemExit):
         mod.setup_fresh(tmp_path, "healthcare", [], _args())
     out = capsys.readouterr().out
-    assert "institutional edition" in out
+    assert "reserved preset value" in out
+    assert "enterprise" in out
     assert "Invalid preset" not in out
 
 
@@ -486,7 +488,8 @@ def test_change_preset_refuses_healthcare(tmp_path, capsys):
         mod.change_preset(tmp_path, "healthcare")
     assert exc.value.code == 1
     out = capsys.readouterr().out
-    assert "institutional edition" in out
+    assert "reserved preset value" in out
+    assert "enterprise" in out
 
 
 def test_change_preset_invalid_exits_1(tmp_path, capsys):

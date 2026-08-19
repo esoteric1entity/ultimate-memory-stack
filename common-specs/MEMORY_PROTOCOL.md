@@ -78,7 +78,7 @@ Levels 5–8: an active `supersedes` chain wins; point-in-time queries return th
 
 Override files (`<edition>/overrides/X.override.md`) replace same-named sections of `common-specs/X.md`; rest inherits. Precedence detail: EXTENDED §E4.1.
 
-Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `enterprise` (GDPR+SOC2) / `custom` (via user-authored `overrides/compliance.override.md`). Logged every session. A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). Activation table: EXTENDED §E4.2.
+Compliance preset (PROFILE.md) sets detection/redaction/audit defaults: `none` (hygiene only) / `enterprise` (GDPR+SOC2) / `custom` (via user-authored `overrides/compliance.override.md`). Logged every session. HIPAA/PHI is out of scope for this edition. Activation table: EXTENDED §E4.2.
 
 ---
 
@@ -169,9 +169,9 @@ Every entry capturing a decision/feature/schema/pattern needs: **Purpose · Rati
 
 ---
 
-## 17. Institutional Compliance Preset (Planned)
+## 17. `healthcare` Preset (reserved)
 
-A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available). Its `healthcare` compliance preset is **not selectable in the shipped edition** — the installer refuses it; use `enterprise`/`custom`.
+HIPAA/PHI is out of scope for this edition. `healthcare` is a reserved preset value and is **not selectable** — the installer refuses it; use `enterprise`/`custom`.
 
 **Always active:** no PII/PHI ever, any edition · when unsure, treat as PHI.
 

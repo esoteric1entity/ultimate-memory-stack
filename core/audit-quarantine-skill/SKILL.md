@@ -229,7 +229,7 @@ If yes, draft a DEC-### entry with full documentation discipline (all 5 elements
 - User can choose: review now (full workflow) or defer (toast persists next session)
 - DEFER allowed without comment
 
-> A HIPAA/PHI-focused institutional edition is planned for a future release (not yet available); it may layer stricter quarantine requirements (mandatory DEFER reasons, PHI re-scan on approval). Not selectable in this edition.
+> Stricter quarantine requirements are not implemented (mandatory DEFER reasons, PHI re-scan on approval). Not selectable in this edition.
 
 ---
 

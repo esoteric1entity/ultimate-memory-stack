@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Ultimate Memory Stack v4.0.0 — top-level installer (Linux / macOS / WSL)
+# Ultimate Memory Stack v4.0.1 — top-level installer (Linux / macOS / WSL)
 # Apache-2.0 © 2026 esoteric1entity. A PDuk Brainworks project.
 # ==============================================================================
 #
@@ -36,7 +36,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -f "$SCRIPT_DIR/VERSION" ]; then
     STACK_VERSION="$(tr -d ' \r\n' < "$SCRIPT_DIR/VERSION")"
 else
-    STACK_VERSION="4.0.0"
+    STACK_VERSION="4.0.1"
 fi
 
 # ---------- arg parsing ----------
@@ -232,7 +232,40 @@ else
             continue
         fi
         mkdir -p "$SKILLS_DIR/$SKILL_NAME"
-        cp "$SRC" "$SKILLS_DIR/$SKILL_NAME/SKILL.md"
+        # Copy the ENTIRE addon payload, not just SKILL.md. (2026-08-19 fix.)
+        # The skills instruct the user to run, verbatim:
+        #     pip-audit --requirement <path-to-this-skill>/requirements.txt
+        #     pip install -r        <path-to-this-skill>/requirements.txt
+        #     python                <path-to-this-skill>/smoke_test.py
+        # Copying only SKILL.md left every one of those paths dangling, so the
+        # documented install procedure could not be followed at all — and the
+        # llmlingua skill explicitly forbids the unpinned fallback that would
+        # otherwise work. Shipped that way in v4.0.0 because no test ever
+        # inspected an INSTALLED addon skill for the files its own text cites.
+        # Regression-locked by tests/test_skill_install_guard.py.
+        # __pycache__ is skipped; no deletion is performed anywhere.
+        (
+            cd "$SCRIPT_DIR/$DIR" || exit 1
+            find . -type d -name '__pycache__' -prune -o -type f -print
+        ) | while IFS= read -r rel; do
+            rel="${rel#./}"
+            # Skip dotfiles at ANY depth, matching the PowerShell installer's
+            # basename test. Matching only the leading path segment (`.*`)
+            # excluded `.hidden` but copied `locks/.hidden` straight through —
+            # a real bash/PowerShell divergence.
+            case "/$rel" in
+                */.*) continue ;;
+            esac
+            mkdir -p "$SKILLS_DIR/$SKILL_NAME/$(dirname "$rel")"
+            cp "$SCRIPT_DIR/$DIR/$rel" "$SKILLS_DIR/$SKILL_NAME/$rel"
+        done
+        # Shared add-on tool, copied in so the installed skill is self-contained
+        # (the user may no longer have the package tree when they invoke it).
+        # preflight.py detects this layout: requirements.txt as a sibling.
+        if [ -f "$SCRIPT_DIR/recommended-addons/preflight.py" ] && \
+           [ -f "$SCRIPT_DIR/$DIR/requirements.txt" ]; then
+            cp "$SCRIPT_DIR/recommended-addons/preflight.py" "$SKILLS_DIR/$SKILL_NAME/preflight.py"
+        fi
         if [ "$SKIP_TEMPLATER" = true ] && [ "$addon" = "memory-vault" ]; then
             # Appended AFTER the file body — prepending broke the YAML
             # frontmatter (file no longer started with ---).
