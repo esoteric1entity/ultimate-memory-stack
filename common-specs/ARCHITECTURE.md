@@ -40,7 +40,7 @@ The Ultimate Memory Stack uses a **7-layer architecture (Layer 0 through Layer 6
 | **3** | Hybrid Search | T1 | Optional | Designed-in, dormant at T0 |
 | **4** | Caching & Compression | T0 base / T3 advanced / T4 Dreaming | Optional | Active at T0; expands at T3/T4 |
 | **5** | Graph Backends | T2 | Optional | Designed-in, dormant at T0 |
-| **6** | Cryptographic Signatures | T3 | Optional | Designed-in, dormant at T0 |
+| **6** | Cryptographic Signatures | T3 | — | **NOT IMPLEMENTED** (designed only; no code) |
 
 **Tier glossary:**
 - **T0** — Anywhere (current Claude Code default install, no infrastructure)
@@ -270,12 +270,12 @@ Regulated-data handling and forensic capability. Audit trail of read/write opera
 - Audit log JSONL (B1, opt-in / configurable)
 - Quarantine queue + workflow (B2)
 - 3-preset compliance hybrid (B7) + custom override
-- Memory poisoning defenses (B8): provenance + validation-on-read + quarantine + (T3) signatures
+- Memory poisoning defenses (B8): provenance + validation-on-read + quarantine (signatures NOT IMPLEMENTED)
 - PII detection-pattern framework (enterprise/custom presets); PHI patterns are not included in this edition
 
 ### Deployment tier
 - **T0** base: markdown JSONL audit log + quarantine queue (works anywhere)
-- **T3** enhanced: cryptographic signatures (Layer 6) attach to audit log entries for chain-of-custody
+- **T3** enhanced: *intended* — cryptographic signatures (Layer 6) would attach to audit-log entries for chain-of-custody. NOT IMPLEMENTED; do not rely on it.
 
 ### Cross-references
 - `SCHEMA_audit_log.md` (JSONL format spec)
@@ -482,7 +482,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 
 ### Scope — CAN
 - Sign every memory entry on write (entry body + frontmatter `content_sha256`)
-- Verify signature on every read (Layer 0 invokes Layer 6 if profile enables)
+- Verify signature on every read (intended; Layer 6 is NOT IMPLEMENTED, so no verification occurs)
 - Detect tampering and route to Layer 2 quarantine (failed verification = automatic quarantine)
 - Rotate signing keys without invalidating old entries (signature scheme includes key-id; verify-only with old keys retained)
 - Attach signatures to audit log entries (chain-of-custody for B1)
@@ -499,7 +499,7 @@ Tamper-evidence for memory entries. Detect when entries have been modified outsi
 - **DESIGNED-IN, DORMANT at T0.** Schemes specified; activation gated by Code Exec (T3).
 - Intended default signing scheme: HMAC-SHA256 with session-derived secret (NOT IMPLEMENTED)
 - Ed25519 with offline key (RFC 8032) is not implemented in this edition
-- Both schemes integrate with `SCHEMA_A18` (`signature` field added to frontmatter when Layer 6 active)
+- Both schemes would integrate with `SCHEMA_A18` (`signature` field is RESERVED; nothing writes it)
 
 ### Deployment tier
 - **T3** minimum (Code Exec for crypto libraries)
@@ -550,7 +550,7 @@ Every feature carries a tier marker. Features auto-activate when tier unblocks �
 | **T0** | None (Claude Code default) | All Tier A (20) + most Tier B (~10) = ~30 features |
 | **T1** | + Ollama (local embeddings) | + Hybrid search (B9), pattern-key embeddings ≈ 32 features |
 | **T2** | + Node.js | + Hook automation (B12), file-watcher, C9 Transformers.js embeddings ≈ 34 features |
-| **T3** | + Code Execution unblocked | + Crypto signatures (C4), Python analytics, sandboxed jobs ≈ 38 features |
+| **T3** | + Code Execution unblocked | + Python analytics, sandboxed jobs (crypto signatures C4 are NOT IMPLEMENTED) |
 | **T4** | + Skills + Anthropic Dreaming beta | + Dreaming (C1), skill-packaged artifacts (C10) ≈ 42 features (full ideal state) |
 
 
@@ -560,7 +560,7 @@ Every feature carries a tier marker. Features auto-activate when tier unblocks �
 
 - Layer 3 (hybrid search) — index, not store. Rebuild from Layer 1.
 - Layer 5 (graph backend) — index, not store. Rebuild from Layer 1.
-- Layer 6 (signatures) — attestation, not store. Signs Layer 1 entries.
+- Layer 6 (signatures) — attestation, not store. Would sign Layer 1 entries; NOT IMPLEMENTED.
 - Layer 4 (caching) — accelerator, not store. Cache misses fall back to Layer 1.
 
 If any higher layer is wiped, the system reconstructs from Layer 1. **Layer 1 loss is unrecoverable; everything else is rebuildable.** This is what makes the architecture portable.

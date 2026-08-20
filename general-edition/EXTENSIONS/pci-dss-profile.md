@@ -41,7 +41,7 @@ Common use cases:
 | Sensitive Authentication Data (SAD: CVV, PIN, full track) | Off | **ABSOLUTE REFUSAL — never store, never even in redacted form** |
 | Audit log | Per base | MANDATORY for security-tagged entries + minimum 1 year retention |
 | Tokenization awareness | N/A | Flag entries with `tokenization_pointer` (NOT the token itself) |
-| Cryptographic signatures | Per base | STRONGLY RECOMMEND at T3 for entries with `pci_relevant: true` |
+| Cryptographic signatures | Per base | ⚠️ NOT IMPLEMENTED — no signing or verification code exists. Do not count it toward any PCI-DSS control; plan compensating measures. |
 
 ### Frontmatter fields added
 

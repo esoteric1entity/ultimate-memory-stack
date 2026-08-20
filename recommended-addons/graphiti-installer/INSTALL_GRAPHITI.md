@@ -61,7 +61,7 @@ silent no-op that still exits 0.
 |---|---|
 | Kuzu (default — no edit needed) | none — `kuzu>=0.11.3,<1.0.0` is already active |
 | FalkorDB **server** | uncomment `# falkordb>=1.1.2,<2.0.0`, then regenerate locks |
-| Neo4j **server** | add a `neo4j` line pinned to what you run, then regenerate locks |
+| Neo4j **server** | no manifest edit needed — the `neo4j` driver already installs as a `graphiti-core` dependency; just point Graphiti at your server |
 
 The `neo4j` **driver** installs regardless — `graphiti-core` declares it as a hard
 dependency. Its presence does NOT mean Neo4j is your backend.

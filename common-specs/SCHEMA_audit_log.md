@@ -210,8 +210,8 @@ jq 'select(.action == "quarantine" and (.ts | startswith("2026-05")))' audit_log
 
 ### Edition fit
 
-- **Compliance-profile deployments:** REQUIRED on every write. Read events also logged (for forensic completeness). Cryptographic signing (C4 at T3+) strongly recommended. Retention: configurable per profile.
-- **Default:** OPT-IN; default OFF. User enables via `audit_log: true` in compliance profile. Cryptographic signing optional. Retention: configurable, default 90 days.
+- **Compliance-profile deployments:** REQUIRED on every write. Read events also logged (for forensic completeness). Cryptographic signing (C4) is NOT IMPLEMENTED — do not count it toward chain-of-custody. Retention: configurable per profile.
+- **Default:** OPT-IN; default OFF. User enables via `audit_log: true` in compliance profile. Cryptographic signing is NOT IMPLEMENTED. Retention: configurable, default 90 days.
 
 ### Deployment tier
 
@@ -260,7 +260,7 @@ This sets the "audit trail begins here" anchor for forensic investigations.
 
 1. **Read logging granularity** — high-compliance profiles log every read; the default is off. But: should "Tier 1 auto-load" reads be logged separately from "user-query" reads? Currently distinguished via `read_context` field, but the granularity could be finer (e.g., file-load vs entry-by-entry-read). Defer to operational experience.
 2. **Compaction strategy for the log itself** — at scale, even compressed JSONL grows. Should there be periodic summarization? E.g., monthly summary entries that compress 50K lines to 1 summary line? Probably yes for the default profile; probably NO for high-forensic-retention profiles (lose forensic detail). Defer to a future schema revision.
-3. **Signature scheme integration timing** — C4 (cryptographic signatures) activates at T3. Until T3, log entries are unsigned. Does the **first signed log entry** include a hash of all prior unsigned entries (to chain integrity)? Probably yes for high-compliance profiles. To be documented in a future revision.
+3. **Signature scheme integration timing** — C4 (cryptographic signatures) is NOT IMPLEMENTED, so all log entries are unsigned. If it is ever built, Does the **first signed log entry** include a hash of all prior unsigned entries (to chain integrity)? Probably yes for high-compliance profiles. To be documented in a future revision.
 4. **Anomaly detection** — should the audit log have a companion daemon that watches for unusual patterns (e.g., 100 reads/min, multiple quarantine events, unsigned entries when signing is required)? Designed-in but probably activates at T2+ (Node.js file-watcher). Cross-ref future work.
 5. **Multi-deployment audit aggregation** — if the user runs the stack on multiple machines, do their audit logs aggregate? Out of scope for v3.0 (single-deployment scope by design), but worth noting.
 
@@ -272,4 +272,4 @@ This sets the "audit trail begins here" anchor for forensic investigations.
 - **Protocol integration:** `MEMORY_PROTOCOL_EXTENDED.md` §E3.2 (when to write to audit log) + `MEMORY_PROTOCOL.md` §4 (validation-on-read triggers audit entries)
 - **Quarantine integration:** `SCHEMA_quarantine.md` (quarantine events log to audit log)
 - **Compliance integration:** `SCHEMA_compliance_profile.md` §audit-defaults (preset-specific audit policy)
-- **Cryptographic integration:** C4 (Layer 6 signatures sign audit entries when active at T3)
+- **Cryptographic integration:** intended — C4 (Layer 6) would sign audit entries. NOT IMPLEMENTED.

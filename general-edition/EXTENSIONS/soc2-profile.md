@@ -29,7 +29,7 @@ Common use cases:
 | Audit log retention | Per base (90 days general default) | **MINIMUM 1 year** (SOC2 audit window) |
 | Change management | N/A | All DEC entries require approver + change-reason metadata |
 | Access control tracking | Per base | Log access events for entries tagged `access-controlled` |
-| Cryptographic signatures | Per base | RECOMMEND active at T3 for audit chain-of-custody |
+| Cryptographic signatures | Per base | ⚠️ NOT IMPLEMENTED — do not count toward chain-of-custody |
 | Quarantine workflow | Per base | ADD `soc2-violation` reason_code |
 
 ### Frontmatter fields added (for entries tagged `access-controlled` or `change-managed`)
@@ -95,7 +95,7 @@ extensions:
 |------|------------|
 | User forgets to set `change_approver` on solo deployment | Setup wizard offers `<self>` as default approver for solo contexts; auditable as self-approved |
 | Audit log retention exceeds local disk capacity | Rotation policy per SCHEMA_audit_log.md §7; compress + archive monthly |
-| Audit chain-of-custody breaks if signatures inactive | Layer 6 (C4) signatures recommended at T3+; without, audit log integrity is filesystem-only |
+| Audit chain-of-custody breaks if signatures inactive | Layer 6 (C4) signing is NOT IMPLEMENTED, so audit-log integrity is filesystem-only today. Plan compensating controls; do not represent entries as cryptographically signed. |
 | SOC2 auditor requests evidence query | Audit log structure supports `jq` queries; auditor receives structured exports |
 
 ## SOC2 Audit Preparation

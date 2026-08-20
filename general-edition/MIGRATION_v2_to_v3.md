@@ -105,11 +105,11 @@ No script needed — migrate by hand:
 3. **Activate optional extensions** (if user enabled)
    - For each enabled extension in `EXTENSIONS/`, the corresponding behaviors activate
 
-4. **HMAC secret generation (if at T3+)**
-   - General-edition uses HMAC by default
-   - HMAC secret can be session-derived (simpler than keypair management)
-   - Or user-provided if they prefer stable HMAC across sessions
-   - Setup script generates session-derived secret automatically
+4. **HMAC secret generation (optional; signing itself is NOT IMPLEMENTED)**
+   - Entry signing does not exist in this release — nothing signs or verifies
+   - `setup.py --generate-hmac-secret` writes a secret only when you pass that flag
+     explicitly; a default install generates nothing
+   - The secret is currently unused; it only pre-provisions a key for a future release
 
 5. **Re-scan legacy entries**
    - For `compliance: none`: only universal standing-rule detection (secrets, basic PII)
@@ -169,7 +169,7 @@ Your v2.0 state is fully recovered — the backup was never modified.
 |--------|-----------------|
 | Compliance preset | User-selectable |
 | Audit log | Optional (preset-dependent) |
-| Cryptographic signature | HMAC default (or none if T0/T1/T2) |
+| Cryptographic signature | NOT IMPLEMENTED (HMAC intended) |
 | Quarantine workflow | Non-blocking |
 | PHI/HIPAA re-scan | Not applicable — PHI detection is not selectable in general-edition |
 | Required IP/Legal review | Public-release readiness per `PRIVACY_REVIEW.md` |

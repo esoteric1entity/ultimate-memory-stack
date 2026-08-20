@@ -27,7 +27,7 @@
 #
 # `sentencepiece` was also listed here as "required transitively" — it is NOT
 # in llmlingua 0.2.2's dependency metadata. `accelerate`, which IS declared,
-# was missing. Both corrected. Verified to resolve on 3.10 / 3.12 / 3.13, and
+# was missing. Both corrected. Verified to resolve on 3.10 / 3.11 / 3.12 / 3.13, and
 # a CI resolve gate now holds that.
 #
 # On the torch ceiling: none is set. An exact upper bound cannot be honestly

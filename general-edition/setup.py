@@ -205,7 +205,8 @@ def archive_edited_profile(working_dir: Path, installed_profile: Path) -> Path:
 
 
 def generate_hmac_secret() -> str:
-    """Generate HMAC secret (general-edition default for cryptographic signatures)."""
+    """Generate an HMAC secret. NOTE: entry signing is NOT IMPLEMENTED — nothing reads
+    this secret yet; it only pre-provisions a key for a future release."""
     return secrets.token_urlsafe(32)
 
 

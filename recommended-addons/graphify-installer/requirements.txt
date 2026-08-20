@@ -21,7 +21,7 @@
 # ResolutionImpossible on every platform and every Python version — the add-on
 # could never have installed from this file. It shipped in v4.0.0 undetected
 # because no installer, test, or CI job ever executed a requirements.txt.
-# A CI resolve gate now runs this manifest on 3.10/3.12/3.13 so an
+# A CI resolve gate now runs this manifest on 3.10/3.11/3.12/3.13 so an
 # unsatisfiable pin set cannot ship again.
 #
 # The corrected range is graphifyy 0.8.21's own floor plus OUR ceiling.

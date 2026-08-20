@@ -163,7 +163,7 @@ Common mistakes that erode value:
 
 ## Memory Poisoning — User-Side Defenses
 
-The memory stack has defenses (provenance tracking, validation-on-read, quarantine, optional cryptographic signatures). YOUR contribution:
+The memory stack has defenses (provenance tracking, validation-on-read, quarantine). Cryptographic signatures are NOT IMPLEMENTED. YOUR contribution:
 
 ### Spot-check WebFetch-sourced entries
 

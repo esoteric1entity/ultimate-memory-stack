@@ -777,7 +777,7 @@ echo "✓ memory/archive/{sessions,decisions,feedback}/ARCHIVE_INDEX.md ready"
 
 if python3 -c "import cryptography" 2>/dev/null; then
     echo "→ Code Execution detected"
-    echo "→ HMAC secret generation: defer to Python script if signatures activated"
+    echo "→ HMAC secret generation: available via setup.py --generate-hmac-secret (signing itself NOT IMPLEMENTED)"
     echo "  Run 'python3 setup.py --generate-hmac-secret' if needed"
 fi
 
@@ -809,7 +809,7 @@ echo ""
 # Effective tier summary at install completion
 echo "Effective tier detection:"
 command -v node &> /dev/null && echo "  Node.js:      available  (T2 features active)" || echo "  Node.js:      NOT installed  (T2 features dormant)"
-python3 -c "import cryptography" 2>/dev/null && echo "  cryptography: available  (T3 HMAC ready)" || echo "  cryptography: NOT installed  (T3 signatures dormant)"
+python3 -c "import cryptography" 2>/dev/null && echo "  cryptography: available  (entry signing NOT IMPLEMENTED; secret generation only)" || echo "  cryptography: NOT installed"
 command -v ollama &> /dev/null && echo "  Ollama:       available  (T1 semantic search ready)" || echo "  Ollama:       NOT installed  (T1 semantic dormant)"
 echo ""
 echo "Active feature surface: 20 Tier A + 12 Tier B (edition-configured)"

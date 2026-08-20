@@ -111,7 +111,7 @@ bash setup.sh --compliance=enterprise --extensions=soc2,gdpr
 4. Registers the protocol for auto-load — `.claude/rules/memory_protocol.md` on Claude Code; per the harness's own rules/bootstrap convention on OpenClaw and others (the installer detects your harness)
 5. Setup wizard (or accepts CLI args for unattended install)
 6. Initializes audit log + quarantine ONLY IF user enables them (audit is OPT-IN)
-7. Generates HMAC secret if Code Execution available (T3+) — written to `~/.config/ultimate-memory-stack/keys/` with owner-only permissions (`0600`). Not encrypted at rest; protect it as you would any private key.
+7. Generates an HMAC secret ONLY when `--generate-hmac-secret` is passed (never automatically), and only at T3+ with the `cryptography` package present. Entry signing is NOT IMPLEMENTED, so nothing reads it — written to `~/.config/ultimate-memory-stack/keys/` with owner-only permissions (`0600`). Not encrypted at rest; protect it as you would any private key.
 8. Self-test
 9. Status report
 
@@ -134,7 +134,7 @@ Active features:
              B8 poisoning defenses (always-on)
   ⏸️ Tier B opt-in — B1 audit log (currently OFF), B2 quarantine workflow,
                      B9 semantic search, B11 hybrid retrieval
-  ✓ Tier C at this tier — C4 HMAC signatures (optional), C6 LLMLingua compression
+  ✓ Tier C at this tier — C4 signatures NOT IMPLEMENTED (secret generation only), C6 LLMLingua compression
 
 Inactive (preset = none, so don't fire):
   ⏸️ Enterprise PII detection (would activate if preset changes to enterprise)

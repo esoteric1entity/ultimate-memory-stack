@@ -17,7 +17,7 @@
 | **Audit log (EXTENDED §E3.2)** | OPT-IN (default OFF) — set `audit_log: true` in PROFILE.md to enable | B1 |
 | **Quarantine UX (EXTENDED §E3.3)** | Toast at session start: "X entries quarantined — review?"; full workflow Skill available | Skill at `core/audit-quarantine-skill/` |
 | **Pattern-key recurrence (§4)** | Threshold = 5 | B6 |
-| **Cryptographic signatures (C4)** | HMAC available (T3+, opt-in) | C4 |
+| **Cryptographic signatures (C4)** | NOT IMPLEMENTED (HMAC intended) | C4 |
 | **Lint findings (EXTENDED §E7)** | Surface as suggestions; non-blocking | EXTENDED §E7 |
 | **Doc completeness check (Lint #10)** | MEDIUM severity | EXTENDED §E7 |
 
@@ -142,16 +142,21 @@ If you're considering `custom`, read `overrides/compliance-presets.override.md` 
 
 ---
 
-## HMAC Signatures (T3+ only)
+## Cryptographic Signatures — NOT IMPLEMENTED
 
-General-edition uses HMAC by default for cryptographic signatures:
+⚠️ **Entry signing does not exist in this release.** There is no signing code and no
+verification code — nothing signs a memory entry and nothing checks a signature. Do not
+rely on it, and do not describe your deployment as having tamper-evident entries.
 
-- Generate secret at install: `python3 setup.py --generate-hmac-secret`
-- Secret derives from your session OR stored in `~/.config/keys/`
-- Signatures activate at T3 (when Code Execution is available)
-- Without Code Execution: signatures are dormant; you're protected by validation-on-read
+What DOES ship is secret *generation*, and only when you ask for it explicitly:
+`python3 setup.py --generate-hmac-secret` writes a random secret to
+`~/.config/ultimate-memory-stack/keys/` (mode 0600). It requires T3 (Code Execution) with
+the `cryptography` package present, and a default install never generates one. Nothing
+currently reads that secret — it only pre-provisions a key for a future release.
 
-Stronger cryptographic guarantees (e.g. Ed25519 offline-key signing) are not implemented.
+HMAC is the intended scheme and Ed25519 offline-key signing the intended upgrade; neither
+is implemented. Your actual protection today is validation-on-read plus the quarantine
+workflow.
 
 ---
 

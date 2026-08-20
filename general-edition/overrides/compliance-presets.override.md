@@ -26,7 +26,7 @@ This section REPLACES `common-specs/SCHEMA_compliance_profile.md` §5 with gener
 - Detection patterns: `../common-specs/detection_patterns_none.md` only (secrets, credentials, basic identifiers)
 - Audit log: OFF by default (user can opt-in via `audit_log: true` in `memory/user/USER_OVERRIDES.md`)
 - Quarantine UX: one-line toast at session start
-- Quarantine triggers: manual flag + signature-mismatch (if Layer 6 active at T3+)
+- Quarantine triggers: manual flag (signature-mismatch is intended but Layer 6 is NOT IMPLEMENTED)
 - Delete semantics: hard delete + 7-day recovery window
 - Consent tracking: none (not relevant for non-regulated context)
 - WebFetch entries: ingested normally, no quarantine

@@ -58,7 +58,7 @@
 # Backends are not interchangeable at rest: graph data written by one engine is
 # not readable by another. Choose once, at install time.
 #
-# Verified by resolution on 3.10 / 3.12 / 3.13; a CI resolve gate holds it.
+# Verified by resolution on 3.10 / 3.11 / 3.12 / 3.13; a CI resolve gate holds it.
 # ─────────────────────────────────────────────────────────────────────────────
 
 graphiti-core>=0.29.1

@@ -9,7 +9,7 @@ version was published — so an abandoned dependency is visible BEFORE install
 rather than discovered months later.
 
 This exists because `kuzu` went cold for ten months while our manifest still
-presented it as the vetted recommendation, and because `graphifyy` drifted 25
+presented it as the vetted recommendation, and because `graphifyy` drifted 77
 releases past our pin without anything surfacing it.
 
 INFORMATIONAL BY DEFAULT. It never blocks an install and never edits anything.

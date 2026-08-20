@@ -311,7 +311,7 @@ validation_status: valid | stale | invalidated  # Set by validator
 
 ```yaml
 content_sha256: <hex>               # Hash of entry body for CAS (see normalization below)
-signature:                          # Optional (HMAC shipped; Ed25519 offline-key not implemented)
+signature:                          # RESERVED — signing is NOT IMPLEMENTED; nothing writes or verifies this
   algorithm: ed25519 | hmac-sha256
   signature: <base64>
   signer: <public-key-id-or-session-id>

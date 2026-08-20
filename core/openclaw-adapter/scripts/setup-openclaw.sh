@@ -234,7 +234,7 @@ adapter_installed_at: "$TIMESTAMP"
 - **Audit log:** opt-in (default OFF)
 - **Quarantine UX:** toast (one-line at session start)
 - **Pattern-key recurrence threshold:** 5 (per MEMORY_PROTOCOL §4.2 B6)
-- **Cryptographic signatures:** none (Tier C opt-in)
+- **Cryptographic signatures:** none (NOT IMPLEMENTED in this release)
 
 ## Addon registry
 

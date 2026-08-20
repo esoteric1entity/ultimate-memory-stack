@@ -141,7 +141,8 @@ export GRAPHITI_TELEMETRY_ENABLED=false   # Linux/Mac
 # OR on Windows PowerShell:
 # $env:GRAPHITI_TELEMETRY_ENABLED = "false"
 
-# Check your Python version, then install from the matching lock:
+# Check your Python version, then install from the matching lock
+# (locks ship for 3.10 / 3.11 / 3.12 / 3.13):
 python --version
 pip install --require-hashes -r <path-to-this-skill>/locks/requirements-py3.12.lock
 ```

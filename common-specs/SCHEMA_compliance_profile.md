@@ -108,7 +108,7 @@ Each preset has concrete behaviors across 8 dimensions:
 | **PHI detection** | OFF | — (reserved) | OFF (unless custom adds) | configured |
 | **Redaction-on-detection** | N/A | — (reserved) | warn + log | configured |
 | **Audit log** | OPT-IN default OFF | — (reserved) | REQUIRED ON | configured |
-| **Quarantine triggers** | manual + signature-mismatch only | — (reserved) | PII detection + signature-mismatch + consent-violation | configured |
+| **Quarantine triggers** | manual only | — (reserved) | PII detection + consent-violation | configured |  *(signature-mismatch is intended but NOT IMPLEMENTED)*
 | **Delete semantics** | hard delete | — (reserved) | hard delete with 7-day recovery window | configured |
 | **Consent tracking** | none | — (reserved) | EXPLICIT (consent_at, consent_revoked_at in frontmatter) | configured |
 | **External data flags** | none | — (reserved) | webfetch entries logged for review | configured |
@@ -175,7 +175,7 @@ The `custom` preset is a thin layer on top of one of the 3 base presets — `non
 - Secrets/credentials hygiene only (passwords, API keys, tokens, cert files — NEVER stored regardless of preset)
 - No PII/PHI detection
 - Audit log: OPT-IN, default OFF (user enables manually in PROFILE.md if desired)
-- Quarantine triggers: manual flag + signature-mismatch (if Layer 6 active at T3+)
+- Quarantine triggers: manual flag (signature-mismatch is intended but Layer 6 is NOT IMPLEMENTED)
 - Delete = hard delete (no tombstone)
 - No consent tracking
 - WebFetch entries: ingested normally, no automatic quarantine

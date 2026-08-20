@@ -767,7 +767,8 @@ python3 /path/to/ultimate-memory-stack/general-edition/setup.py
 # With options
 python3 /path/to/ultimate-memory-stack/general-edition/setup.py --compliance=enterprise --extensions=soc2,gdpr
 
-# Generate HMAC signing secret (T3+)
+# Generate an HMAC secret (T3+). NOTE: signing itself is NOT IMPLEMENTED —
+# nothing reads this secret yet; it only pre-provisions a key.
 python3 /path/to/ultimate-memory-stack/general-edition/setup.py --generate-hmac-secret
 
 # Other flags
@@ -778,7 +779,9 @@ python3 /path/to/ultimate-memory-stack/general-edition/setup.py --change-preset=
 
 **T3+ crypto key generation path:**
 
-When Code Execution + the `cryptography` package are available, this method generates an HMAC signing secret at install:
+⚠️ Entry signing is **NOT IMPLEMENTED** in this release — nothing signs a memory entry and nothing verifies a signature. The command below only generates and stores a secret for future use.
+
+When Code Execution + the `cryptography` package are available, this method generates an HMAC secret at install:
 
 ```bash
 python3 setup.py --generate-hmac-secret

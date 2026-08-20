@@ -298,3 +298,43 @@ def test_powershell_installer_copies_the_same_payload(addon_dir, tmp_path):
         f"{skill_name} (PowerShell door): missing {missing + shared_missing}. "
         f"Installed: {sorted(p.name for p in installed.iterdir())}"
     )
+
+
+def test_powershell_installer_reports_the_real_target(tmp_path):
+    """Regression: the addon copy loop must not clobber the script's own $Target.
+
+    PowerShell variables are CASE-INSENSITIVE and a ForEach-Object script block
+    runs in the CALLER's scope, so a loop variable named `$target` silently
+    overwrote `$Target` (the install directory) with the last copied file's path.
+    Everything after the loop then used a lockfile path as the workspace: the
+    post-install protocol copy, the "Workspace:" summary, and the verify.sh
+    command printed for the user — which would fail if they ran it.
+
+    Nothing caught this. The payload test passes either way (the payload is
+    copied BEFORE the corruption matters) and verify.sh passes because the
+    install itself is driven by $env:WORKING_DIR, set before the loop. Only the
+    user-facing output was wrong, which is exactly why it needs a test.
+    """
+    ps = _find_powershell()
+    if ps is None:
+        pytest.skip("not Windows — the PowerShell door is covered on CI windows-latest")
+
+    target = tmp_path / "vault"
+    target.mkdir()
+    r = subprocess.run(
+        [ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+         str(PKG / "setup-memory-stack.ps1"),
+         "-SkipWizard", "-Compliance", "none", "-Target", str(target)],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600,
+    )
+    assert r.returncode == 0, r.stdout + r.stderr
+
+    workspace_lines = [ln for ln in r.stdout.splitlines() if "Workspace:" in ln]
+    assert workspace_lines, f"no Workspace: line in installer output:\n{r.stdout}"
+    reported = workspace_lines[0].split("Workspace:", 1)[1].strip()
+    assert pathlib.Path(reported).resolve() == target.resolve(), (
+        f"installer reported workspace {reported!r}, expected {str(target)!r} — "
+        "a loop variable has clobbered $Target"
+    )
+    # The path it tells the user to validate must be the vault, not a file.
+    assert ".lock" not in reported and pathlib.Path(reported).is_dir()

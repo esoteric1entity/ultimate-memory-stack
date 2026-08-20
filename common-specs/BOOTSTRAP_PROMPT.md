@@ -315,7 +315,7 @@ The stack is designed for the **ideal state**. Features are tagged with the depl
 | **T0** | Anywhere (current Claude Code default) | All Tier A (20) + most Tier B (~10) — ~30 features |
 | **T1** | + Ollama (local embedding model) | + Hybrid search (B9), pattern-key embeddings — ~32 features |
 | **T2** | + Node.js | + Hook-based automation (B12), file-watcher patterns — ~34 features |
-| **T3** | + Code Execution unblocked | + Cryptographic signatures (C4), Python-backed indexing, sandboxed analytics — ~38 features |
+| **T3** | + Code Execution unblocked | + Python-backed indexing, sandboxed analytics (cryptographic signatures C4 are NOT IMPLEMENTED) |
 | **T4** | + Skills + Anthropic Dreaming beta | + Dreaming (C1), skill-based memory artifacts — ~42 features (full ideal state) |
 
 **Worked example:** a locked-down workstation with Code Execution / Skills / Node.js all blocked lands at T0 — and still runs ~30 features.

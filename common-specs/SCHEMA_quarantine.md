@@ -216,7 +216,7 @@ The orchestrator:
 
 **Setup:** WebFetch returns a markdown blob that gets ingested as a memory entry. The blob contains a hidden prompt injection that the orchestrator's validation-on-read catches.
 
-**T+0:** Orchestrator reads entry; signature verification fails (Layer 6 active at T3+)
+**T+0:** Orchestrator reads entry; signature verification fails. *(Illustrative only — Layer 6 signing is NOT IMPLEMENTED, so this trigger cannot fire today.)*
 ```jsonl
 // audit_log.jsonl
 {"ts":"2026-05-14T10:30:45Z","actor":"orchestrator","actor_session":8,"action":"read","entry_id":"WEB-007","entry_path":"memory/references/web_articles.md","entry_category":"references","entry_summary":"WEB-007: Article on memory architecture by ... [TRUNCATED]","outcome":"failure","failure_reason":"signature-mismatch","read_context":"tier-3-on-demand"}
@@ -271,20 +271,20 @@ Returns both the original quarantine event AND the discard disposition. Full for
 ### CANNOT
 - Automatically classify suspicious vs benign (validation rules detect; user decides disposition)
 - Auto-release entries without user approval (trust boundary; explicit approval required)
-- Encrypt quarantined content (still plain markdown; Layer 6 signatures detect tampering if active)
+- Encrypt quarantined content (still plain markdown; Layer 6 signatures are NOT IMPLEMENTED, so no tamper detection)
 - Replace the validation layers (this catches what they flag; doesn't catch what they miss)
 - Prevent a privileged user from manually editing quarantine files (filesystem access bypasses application controls; Layer 6 detects tampering when active)
 - Operate without `memory/quarantine/` directory existing (created during bootstrap or first quarantine event)
 
 ### Edition fit
 
-- Quarantine queue is NON-BLOCKING by default (optionally configured to block once unreviewed entries exceed a threshold); `/audit-quarantine` is the canonical review path; one-line toast at session start; user can defer; cryptographic signatures optional (C4 at T3)
+- Quarantine queue is NON-BLOCKING by default (optionally configured to block once unreviewed entries exceed a threshold); `/audit-quarantine` is the canonical review path; one-line toast at session start; user can defer; cryptographic signatures (C4) are NOT IMPLEMENTED
 
 ### Deployment tier
 
 - **T0** base: directory structure + JSONL log + frontmatter mutation works on any filesystem
 - **T2** enhanced: file-watcher detects quarantine directory growth; alerts when queue size exceeds threshold
-- **T3** enhanced: signature verification (C4) provides the most reliable trigger for quarantine
+- **T3** intended: signature verification (C4) would be the most reliable trigger. NOT IMPLEMENTED.
 
 ---
 

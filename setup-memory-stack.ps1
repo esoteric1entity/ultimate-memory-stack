@@ -218,10 +218,16 @@ if ($Minimal) {
         Get-ChildItem -Path $srcRoot -Recurse -File |
             Where-Object { $_.FullName -notmatch '\\__pycache__\\' -and $_.Name -notlike '.*' } |
             ForEach-Object {
-                $rel = $_.FullName.Substring($srcRoot.Length).TrimStart('\')
-                $target = Join-Path $skillDir $rel
-                New-Item -ItemType Directory -Force -Path (Split-Path $target -Parent) | Out-Null
-                Copy-Item -Path $_.FullName -Destination $target -Force
+                # NOTE: PowerShell variables are CASE-INSENSITIVE and a ForEach-Object
+                # script block runs in the CALLER's scope — so naming these `$target`
+                # or `$rel` would overwrite the script's own `$Target` (the install
+                # directory) and corrupt everything after this loop: the post-install
+                # protocol copy, the "Workspace:" summary, and the verify.sh command
+                # printed for the user. Deliberately distinct names.
+                $addonRelPath = $_.FullName.Substring($srcRoot.Length).TrimStart('\')
+                $addonDestFile = Join-Path $skillDir $addonRelPath
+                New-Item -ItemType Directory -Force -Path (Split-Path $addonDestFile -Parent) | Out-Null
+                Copy-Item -Path $_.FullName -Destination $addonDestFile -Force
             }
         # Shared add-on tool, copied in so the installed skill is self-contained
         # (parity with setup-memory-stack.sh). preflight.py detects this layout.

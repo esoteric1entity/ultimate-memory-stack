@@ -82,7 +82,7 @@ pattern_key_promote_target: ".claude/rules/auto_rules.md"
 crypto_signatures: hmac-optional    # reserved — signing is NOT implemented; nothing consumes this yet
 crypto_signatures_scheme: "hmac-sha256"
 crypto_signatures_key_management: "session-derived-secret"
-crypto_signatures_activates_at_tier: 3  # Code Execution required
+crypto_signatures_activates_at_tier: 3  # reserved — signing is NOT IMPLEMENTED; this gate is inert
 
 # Delete semantics — hard delete with recovery window
 delete_semantics: hard              # Hard delete
