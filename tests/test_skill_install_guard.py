@@ -16,6 +16,7 @@ a clean bash; the symlink case additionally needs OS symlink support (CI ubuntu)
 and skips where unavailable (e.g. Git Bash on Windows without developer mode).
 """
 
+import json
 import os
 import pathlib
 import re
@@ -300,37 +301,59 @@ def test_powershell_installer_copies_the_same_payload(addon_dir, tmp_path):
     )
 
 
-def test_powershell_installer_reports_the_real_target(tmp_path):
-    """Regression: the addon copy loop must not clobber the script's own $Target.
+@pytest.fixture(scope="session")
+def ps_install(tmp_path_factory):
+    """One real PowerShell install, shared by the post-install output tests.
 
-    PowerShell variables are CASE-INSENSITIVE and a ForEach-Object script block
-    runs in the CALLER's scope, so a loop variable named `$target` silently
-    overwrote `$Target` (the install directory) with the last copied file's path.
-    Everything after the loop then used a lockfile path as the workspace: the
-    post-install protocol copy, the "Workspace:" summary, and the verify.sh
-    command printed for the user — which would fail if they ran it.
-
-    Nothing caught this. The payload test passes either way (the payload is
-    copied BEFORE the corruption matters) and verify.sh passes because the
-    install itself is driven by $env:WORKING_DIR, set before the loop. Only the
-    user-facing output was wrong, which is exactly why it needs a test.
+    These tests all interrogate the SAME artifacts (stdout summary, manifest,
+    printed verify command) of one run, and a full install is the expensive part
+    — so they share a session-scoped run rather than paying for it four times.
+    An addon is requested explicitly because the addon copy loop is where the
+    historical $Target clobber lived; without an addon that loop never executes
+    and the regression below cannot reproduce.
     """
     ps = _find_powershell()
     if ps is None:
         pytest.skip("not Windows — the PowerShell door is covered on CI windows-latest")
 
-    target = tmp_path / "vault"
+    target = tmp_path_factory.mktemp("ps-install") / "vault"
     target.mkdir()
     r = subprocess.run(
         [ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
          str(PKG / "setup-memory-stack.ps1"),
-         "-SkipWizard", "-Compliance", "none", "-Target", str(target)],
+         "-SkipWizard", "-Compliance", "none", "-Yes",
+         "-Addon", "memory-graphiti", "-Target", str(target)],
         capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600,
     )
     assert r.returncode == 0, r.stdout + r.stderr
+    return target, r.stdout
 
-    workspace_lines = [ln for ln in r.stdout.splitlines() if "Workspace:" in ln]
-    assert workspace_lines, f"no Workspace: line in installer output:\n{r.stdout}"
+
+def test_powershell_installer_reports_the_real_target(ps_install):
+    """Regression: the addon copy loop must not clobber the script's own $Target.
+
+    PowerShell variables are CASE-INSENSITIVE and a ForEach-Object script block
+    runs in the CALLER's scope, so a loop variable named `$target` silently
+    overwrote `$Target` (the install directory) with the last copied file's path.
+
+    Blast radius, measured by reintroducing the bug and diffing the two installs
+    (2026-08-20) — it is NOT display-only, which an earlier version of this
+    docstring wrongly implied:
+      - "Workspace:" summary reports a lockfile path            (display)
+      - the printed verify.sh command targets that lockfile     (user-visible break)
+      - the post-install registration block silently no-ops, so the manifest
+        records `"registered": "none"`                          (WRONG DATA on disk)
+    The registered *file* still lands, because the edition setup writes it too —
+    that redundancy is the only reason this was not catastrophic.
+
+    Nothing caught it: the payload test passes either way (the payload is copied
+    BEFORE the corruption matters) and verify.sh passes because the install is
+    driven by $env:WORKING_DIR, set before the loop.
+    """
+    target, stdout = ps_install
+
+    workspace_lines = [ln for ln in stdout.splitlines() if "Workspace:" in ln]
+    assert workspace_lines, f"no Workspace: line in installer output:\n{stdout}"
     reported = workspace_lines[0].split("Workspace:", 1)[1].strip()
     assert pathlib.Path(reported).resolve() == target.resolve(), (
         f"installer reported workspace {reported!r}, expected {str(target)!r} — "
@@ -338,3 +361,140 @@ def test_powershell_installer_reports_the_real_target(tmp_path):
     )
     # The path it tells the user to validate must be the vault, not a file.
     assert ".lock" not in reported and pathlib.Path(reported).is_dir()
+
+    # The stronger lock: $Target corruption is observable as WRONG DATA in the
+    # manifest, not merely as wrong console text.
+    manifest = json.loads(
+        (target / ".ums-manifest.json").read_bytes().decode("utf-8-sig"))
+    assert manifest["registered"] != "none", (
+        "manifest records registered=none — the post-install registration block "
+        "was skipped, which is what a clobbered $Target does to it"
+    )
+
+
+def test_powershell_manifest_is_utf8_without_bom(ps_install):
+    """Regression: the PowerShell door must not BOM the install manifest.
+
+    `Set-Content -Encoding UTF8` on Windows PowerShell 5.1 writes a UTF-8 BOM,
+    and a leading BOM makes `json.loads()` fail outright ("Unexpected UTF-8
+    BOM"). The bash door produced a parseable manifest and this door did not —
+    a silent cross-door divergence in a file we tell people is machine-readable.
+
+    It went unnoticed because the only in-repo consumer is a BOM-tolerant
+    `grep -o` in setup-memory-stack.sh. Any real JSON parser trips on it.
+
+    Note this test decodes as strict utf-8, NOT utf-8-sig: utf-8-sig would strip
+    the BOM and pass on the broken file, which is exactly the vacuous test to
+    avoid here.
+    """
+    target, _ = ps_install
+    raw = (target / ".ums-manifest.json").read_bytes()
+    assert not raw.startswith(b"\xef\xbb\xbf"), (
+        "manifest starts with a UTF-8 BOM — use "
+        "[System.IO.File]::WriteAllText(..., UTF8Encoding($false)), not "
+        "Set-Content -Encoding UTF8 (PS 5.1 has no utf8NoBOM)"
+    )
+    json.loads(raw.decode("utf-8"))  # raises if the BOM is back
+
+    # Set-Content appended a trailing newline; WriteAllText does not, and a
+    # PowerShell here-string has none after its last line. Without an explicit
+    # one this door would emit a file with no final newline while the bash door
+    # emits one — a gratuitous divergence in a file documented as machine
+    # readable, and malformed to POSIX text tools.
+    assert raw.endswith(b"\n"), (
+        "manifest has no trailing newline — the bash door writes one; append it "
+        "explicitly, WriteAllText will not"
+    )
+
+
+def test_powershell_prints_a_verify_command_bash_can_actually_run(ps_install):
+    """Regression: the printed verify.sh command is copied into BASH, not PowerShell.
+
+    It used to print `bash C:\\pkg\\verify.sh C:\\vault` — unusable twice over:
+    bash treats each backslash as an escape and silently eats it (yielding
+    `C:pkgverify.sh`), and an unquoted path splits on spaces. Every Windows user
+    hit it; nothing tested the one command the installer tells them to run.
+
+    This does not merely pattern-match the string — it runs it.
+    """
+    target, stdout = ps_install
+    lines = [ln for ln in stdout.splitlines() if "verify.sh" in ln]
+    assert lines, f"installer printed no verify.sh command:\n{stdout}"
+    printed = lines[0]
+
+    cmd = printed.split("bash", 1)[1].split("(Git Bash")[0].strip()
+    args = re.findall(r'"([^"]+)"', cmd)
+    assert len(args) == 2, (
+        f"expected two QUOTED path arguments in {cmd!r} — unquoted paths split "
+        "on spaces in bash"
+    )
+    assert "\\" not in cmd, (
+        f"verify command contains backslashes ({cmd!r}); bash eats them as escapes"
+    )
+
+    bash = _find_bash()
+    if bash is None:
+        pytest.skip("no usable bash to execute the printed command")
+    r = subprocess.run([bash, args[0], args[1]],
+                       capture_output=True, text=True, encoding="utf-8",
+                       errors="replace", timeout=300)
+    assert r.returncode == 0, (
+        f"the command the installer told the user to run FAILED:\n"
+        f"  {printed}\n{r.stdout}\n{r.stderr}"
+    )
+
+
+def test_powershell_skips_addon_with_no_name_frontmatter_without_crashing(tmp_path):
+    """Regression: a SKILL.md with no `name:` must skip cleanly, not stack-trace.
+
+    The extraction chained straight through the match:
+        (Select-String ...).Matches.Groups[1].Value.Trim()
+    On a SKILL.md with no `name:` line, Select-String returns $null, `.Matches`
+    quietly yields $null, and the chain dies at the `[1]` INDEX — Windows
+    PowerShell 5.1 raises `NullArray`, "Cannot index into a null array" (measured
+    2026-08-20; it never reaches `.Trim()`). Because $ErrorActionPreference is
+    Stop, the installer ABORTS — so the `if (-not $skillName)` guard right below
+    it was unreachable dead code, and the operator got a PowerShell stack trace
+    where the bash door prints a one-line skip.
+
+    Exercised against a COPY of the package with one SKILL.md deliberately
+    broken; the canonical tree is never mutated.
+    """
+    ps = _find_powershell()
+    if ps is None:
+        pytest.skip("not Windows — the PowerShell door is covered on CI windows-latest")
+
+    pkg = tmp_path / "pkg"
+    shutil.copytree(
+        PKG, pkg,
+        ignore=shutil.ignore_patterns(".git", "tmp", "__pycache__", "*.pyc", ".venv"),
+    )
+    broken = pkg / "recommended-addons" / "graphiti-installer" / "SKILL.md"
+    broken.write_text(
+        re.sub(r"^name:.*$", "# name: removed by test", broken.read_text(encoding="utf-8"),
+               count=1, flags=re.MULTILINE),
+        encoding="utf-8",
+    )
+
+    target = tmp_path / "vault"
+    target.mkdir()
+    r = subprocess.run(
+        [ps, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+         str(pkg / "setup-memory-stack.ps1"),
+         "-SkipWizard", "-Compliance", "none", "-Yes",
+         "-Addon", "memory-graphiti", "-Target", str(target)],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=600,
+    )
+    combined = r.stdout + r.stderr
+    # Match on the failure CLASS, not one wording: PS 5.1 raises NullArray at the
+    # `[1]` index, PS 7 may surface the null-method form instead, and both mean
+    # "the chain was dereferenced without checking the match".
+    for symptom in ("null array", "null-valued expression", "NullArray"):
+        assert symptom.lower() not in combined.lower(), (
+            f"installer threw ({symptom!r}) on a SKILL.md with no name: "
+            f"frontmatter instead of skipping it:\n{combined}"
+        )
+    assert r.returncode == 0, combined
+    assert "no name: frontmatter (skipping)" in combined, (
+        f"expected the documented skip message, got:\n{combined}"
+    )

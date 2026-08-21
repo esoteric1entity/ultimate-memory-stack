@@ -405,11 +405,12 @@ Reduce token cost via Anthropic prompt cache + context compression. At T4, inclu
 - **Bi-temporal fact model** (Graphiti pattern) enables point-in-time queries: *"What did we believe on date X?"* — load-bearing for regulatory/audit forensics
 - At T0, wiki-links work as fallback; graph adds speed AND temporal query capability
 - **Kuzu embedded backend** = in-process graph DB, comparable to SQLite for graphs. **Zero infrastructure overhead.** No separate server, no admin privilege. Critical for single-workstation deployments.
+  - ⚠️ **Kuzu upstream is ARCHIVED** (read-only since 2025-10-10; Kùzu Inc. acquired by Apple). 0.11.3 is final and still ships Windows wheels, and it remains our default because no maintained embedded alternative covers Windows — FalkorDB Lite cannot even build there. This is a *frozen* dependency, deliberately accepted; see `recommended-addons/graphiti-installer/requirements.txt` for the full position. *(Verified 2026-08-20.)*
 
 ### Sound reasoning
 - Research synthesis (graph-augmented memory, 14 sources): hybrid pattern (markdown source-of-truth + graph index) is convergent across 5+ production systems
-- **Graphiti** (`arXiv:2501.13956`, Chalef et al.) is the actively-developed open-source layer since Zep Community Edition deprecation (Feb 2026); Apache 2.0 license; **26.3k stars** as of May 2026
-- Graphiti supports multiple backends (Neo4j 5.26+, FalkorDB 1.1.2+, Kuzu 0.11.2+ embedded, **Amazon Neptune**). **Kuzu embedded is the most plausible production target for single-workstation, no-admin environments** — *"comparable to SQLite for graphs."*
+- **Graphiti** (`arXiv:2501.13956`, Chalef et al.) is the actively-developed open-source layer since Zep Community Edition deprecation (Feb 2026); Apache 2.0 license; **30.1k stars**, latest 0.29.3 (2026-07-27), pushed daily — healthy, not winding down *(verified 2026-08-20)*
+- Graphiti supports multiple backends (Neo4j 5.26+, FalkorDB 1.1.2+, FalkorDB Lite, Kuzu 0.11.2+ embedded, **Amazon Neptune**). **Kuzu embedded remains the most plausible target for single-workstation, no-admin environments** — *"comparable to SQLite for graphs"* — and is the ONLY embedded option that installs on Windows, which is why an archived upstream has not displaced it.
 - **As of Graphiti v0.29.0 (April 2026):**
   - **MCP Server included** — Graphiti now ships an MCP (Model Context Protocol) server. Direct integration with Claude Code, Cursor, and other MCP-compatible assistants. **Changes the activation path: instead of a custom Python bridge, wire Graphiti via MCP.**
   - **REST Service** — FastAPI-based server in `server/` directory for multi-process deployments
@@ -447,7 +448,7 @@ Reduce token cost via Anthropic prompt cache + context compression. At T4, inclu
 - **T1+** (Ollama present): Graphiti can activate using Ollama as the LLM for ingestion (per v0.29.0 Ollama support); zero cloud LLM dependency for the graph layer
 - **T3** (Code Execution): full feature set including Anthropic/OpenAI/Gemini LLM ingestion options
 - **T3+** recommended (file-watcher daemon for automatic index refresh + MCP server for Claude Code integration)
-- **Install (refreshed):** `pip install graphiti-core[kuzu]` (core + embedded Kuzu backend); add `[anthropic]` for Claude API ingestion or use Ollama config (no extras needed for Ollama since it's OpenAI-compatible)
+- **Install:** the add-on's hash-pinned lock — `pip install --require-hashes -r <path-to-install-graphiti-skill>/locks/requirements-py<VER>.lock`. ⛔ **Not** `pip install graphiti-core[kuzu]`: that extra is deprecated upstream, and pip installs a package *silently and successfully* — exit 0, no warning — without an extra it no longer provides. For Claude API ingestion, uncomment the `anthropic` line in the add-on's `requirements.txt` and regenerate the lock — which requires a clone of the **source package**, since the regenerator is a maintainer tool and is not copied into an installed skill (see `TIER_C_ACTIVATION.md` §C2). Ollama needs nothing extra (it is OpenAI-compatible — set `OPENAI_BASE_URL`).
 
 ### Implementation choice — closed
 This resolves Open Question #2 from the initial draft (*"Memgraph vs Neo4j vs lightweight in-memory"*). Selected: **Graphiti + Kuzu embedded backend** at T3. Reasoning:
@@ -715,7 +716,7 @@ This is why some tools appear simultaneously in **Tier C (included)** and **Tier
 **This architecture is stable.** The companion specs (`MEMORY_PROTOCOL.md`, `MEMORY_PROTOCOL_EXTENDED.md`, `SCHEMA_*.md`) and templates all ship alongside it. Remaining open questions are tracked here for future versions:
 
 1. **Layer 4 caching scope** — should explicit Anthropic prompt-cache integration be designed-in (vs leaving to user discipline)? Likely yes.
-2. ~~**Layer 5 graph backend choice** — Memgraph vs Neo4j vs lightweight in-memory~~ **CLOSED: Graphiti + Kuzu embedded** (zero infra overhead, actively-developed open-source, bi-temporal model is audit/regulatory load-bearing). See §9.
+2. ~~**Layer 5 graph backend choice** — Memgraph vs Neo4j vs lightweight in-memory~~ **CLOSED: Graphiti + Kuzu embedded** (zero infra overhead, bi-temporal model is audit/regulatory load-bearing). Graphiti is actively developed; **Kuzu is not — it is archived and frozen at 0.11.3**, retained because it is the only embedded backend that installs on every platform we support. Re-opened only if graphiti-core withdraws the driver. See §9.
 3. **Layer 6 signature scheme defaults** — HMAC is the intended default and Ed25519 the intended upgrade; NEITHER is implemented (no signing or verification code exists). Key management UX is unresolved.
 4. **Cross-layer sub-agent integration** — formal "Layer 7" or stay as cross-cutting concern? Currently cross-cutting (memory ≠ orchestration); revisit if real deployments surface integration friction.
 5. ~~**C10 placeholder** — "Anthropic beta features TBD"~~ **CLOSED: C10 is the Skill / template extraction pipeline (extract_skill.py-style).** See §12.

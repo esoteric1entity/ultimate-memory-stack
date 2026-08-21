@@ -155,26 +155,50 @@ covers every platform.
 This installs:
 - `graphiti-core>=0.29.1` (floor pin — security floor for CVE-2026-32247)
 - `kuzu>=0.11.3` — the embedded backend, in-process, no server
-- `mcp>=1.0.2` — ONLY if INSTALL_MCP = yes. Uncommenting it in `requirements.txt` is NOT enough: the install reads the LOCK, so you must also run `python recommended-addons/regenerate-locks.py graphiti`, or `mcp` will silently not be installed.
+- `mcp>=1.0.2` — ONLY if INSTALL_MCP = yes. Uncommenting it in `requirements.txt` is NOT enough: the install reads the LOCK, so you must also run `python recommended-addons/regenerate-locks.py graphiti` **from a clone of the source package** — that script is a maintainer tool and is not copied into an installed skill. Without regenerating, `mcp` will silently not be installed.
 - `neo4j` arrives as a hard dependency of `graphiti-core` (installed regardless of backend choice — the driver being present does not make Neo4j your backend)
 - `posthog` arrives as a transitive dependency, gated behind the telemetry env var
 
-⚠️ **Kuzu's last release was 0.11.3 on 2025-10-10, and it is on a removal clock.**
-Upstream has been cold for roughly ten months, and `graphiti-core`'s own
-`pyproject.toml` marks its `[kuzu]` extra *"Deprecated: the upstream Kuzu project
-is unmaintained; this extra will be removed in a future release."*
+⚠️ **Kuzu upstream is ARCHIVED. 0.11.3 (2025-10-10) is the last release there will ever be.**
+`github.com/kuzudb/kuzu` was archived read-only on 2025-10-10 — the same day it
+shipped 0.11.3 — after Kùzu Inc. was acquired by Apple (disclosed via an EU DMA
+filing, February 2026). It is finished, not drifting. `graphiti-core`'s
+`pyproject.toml` correspondingly marks its `[kuzu]` extra *"Deprecated: the
+upstream Kuzu project is unmaintained; this extra will be removed in a future
+release."* *(Verified against the GitHub API and PyPI, 2026-08-20.)*
 
-It still installs and runs — this add-on depends on `kuzu` directly rather than
-through the extra, and the hash-pinned lock fixes the resolution — but you are
-adopting a backend that is not receiving security patches and that the library
-above it intends to drop. It remains the default only because it is the sole
-embedded backend covering every platform this package supports.
+Be clear about what you are accepting: a **frozen** backend that will receive no
+further security patches. What you are NOT accepting is an imminent break — the
+deprecation is on the *extra*, `graphiti_core/driver/kuzu_driver.py` still ships
+in the current release, and no removal is scheduled (no target version, no
+milestone, no merged PR). This add-on depends on `kuzu` directly rather than
+through the extra, and installs from a hash-pinned lock, so neither the extra's
+removal nor any upstream change can alter what you get.
+
+⚠️ **If the user is on Windows, tell them this before they build a graph.**
+graphiti-core issue **#1469** (OPEN, filed 2026-05-06, last activity 2026-08-14)
+reports `add_episode` crashing the host process with an access violation raised
+inside Kuzu's C extension on Windows 11, at roughly 50 episodes. Reads are
+unaffected; only writes crash. State it accurately: it is **one** report with a
+faulthandler trace, **no maintainer has responded**, and we have not reproduced
+it — credible and specific, not confirmed. Our smoke test would not catch it
+(it opens a connection; it never writes at volume). Because upstream Kuzu is
+archived, an engine-level fault would never be fixed, so a Windows user planning
+a large graph should treat a server backend (Neo4j / FalkorDB) as their fallback.
+
+It remains the default because it is the sole embedded backend covering every
+platform this package supports. The MIT license permits a fork, and an active
+successor exists (**LadybugDB**), but `graphiti-core` has no LadybugDB driver
+today — a swap PR was closed unmerged.
 
 On **macOS or Linux with Python 3.12+**, prefer the maintained embedded
 alternative — edit `requirements.txt` to swap `kuzu` for
 `falkordblite>=0.5.0; python_version >= "3.12"`, then regenerate the locks
-(`python recommended-addons/regenerate-locks.py graphiti`). FalkorDB Lite
-publishes no Windows wheels, which is why it is not the default.
+(`python recommended-addons/regenerate-locks.py graphiti`, **from a clone of the
+source package** — that script is not copied into an installed skill; see
+`INSTALL_GRAPHITI.md` Step 3). FalkorDB Lite publishes no Windows wheels and its
+`setup.py` raises on any non-darwin/linux platform, which is why it is not the
+default.
 
 Server-based backends (`neo4j`, plain `falkordb`) are commented out in
 `requirements.txt` — uncomment one only if you already operate that server.

@@ -200,7 +200,16 @@ if ($Minimal) {
             Write-Host "  [!] Skill file not found for $a at $src (skipping)" -ForegroundColor Yellow
             continue
         }
-        $skillName = (Select-String -Path $src -Pattern '^name:\s*(.+)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
+        # Capture the match BEFORE dereferencing it. Chaining
+        # `(Select-String ...).Matches.Groups[1].Value.Trim()` on a SKILL.md with no
+        # `name:` line dies at the `[1]` INDEX — Select-String returns nothing,
+        # `.Matches` yields $null, and PS 5.1 raises NullArray, "Cannot index into a
+        # null array" (measured; it never reaches .Trim()). With
+        # $ErrorActionPreference = Stop that ABORTS the installer, so the guard below
+        # was unreachable dead code and the operator got a PowerShell stack trace
+        # instead of the one-line skip the bash door prints.
+        $nameMatch = Select-String -Path $src -Pattern '^name:\s*(.+)$' | Select-Object -First 1
+        $skillName = if ($nameMatch) { $nameMatch.Matches.Groups[1].Value.Trim() } else { "" }
         if (-not $skillName) {
             Write-Host "  [!] ${a}: SKILL.md has no name: frontmatter (skipping)" -ForegroundColor Yellow
             continue
@@ -268,7 +277,7 @@ $installedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 $addonJson = ($Registered | ForEach-Object { '"' + $_ + '"' }) -join ", "
 $minimalJson = if ($Minimal) { "true" } else { "false" }
 $sourceJson = $ScriptDir -replace '\\', '/'
-@"
+$manifestJson = @"
 {
   "package": "ultimate-memory-stack",
   "version": "$StackVersion",
@@ -281,7 +290,21 @@ $sourceJson = $ScriptDir -replace '\\', '/'
   "source_package": "$sourceJson",
   "registered": "$RegNote"
 }
-"@ | Set-Content -Path $manifestPath -Encoding UTF8
+"@
+# NOTE: written via .NET, NOT `Set-Content -Encoding UTF8`. On Windows PowerShell
+# 5.1 that switch emits a UTF-8 BOM, and a leading BOM makes `json.loads()` fail
+# outright with "Expecting value: line 1 column 1" — so the bash door produced a
+# parseable manifest and this door did not. PS 5.1 has no `utf8NoBOM` encoding, so
+# the portable fix is UTF8Encoding($false). `$manifestPath` is absolute (`$Target`
+# is Resolve-Path'd above), which matters because .NET resolves relative paths
+# against the process working directory, not PowerShell's current location.
+#
+# The trailing newline is explicit: `Set-Content` appended one and WriteAllText
+# does not, and a here-string does not include one after its last line. Dropping
+# it would leave this door emitting a file with no final newline while the bash
+# door emits one — a gratuitous cross-door difference in a file we tell people is
+# machine-readable, and a file POSIX tools consider malformed.
+[System.IO.File]::WriteAllText($manifestPath, $manifestJson + "`r`n", (New-Object System.Text.UTF8Encoding $false))
 
 # ---------- summary ----------
 Write-Host ""
@@ -304,7 +327,13 @@ if ($RegisteredSkills.Count -gt 0) {
         Write-Host "       /$s"
     }
 }
-Write-Host "  $step. Validate the install:  bash $ScriptDir\verify.sh $Target   (Git Bash / WSL)"
+# Forward slashes + quotes, because this command is copied into BASH, not PowerShell.
+# `bash C:\pkg\verify.sh C:\my ws` is unusable there twice over: bash treats each
+# backslash as an escape and silently eats it (`C:pkgverify.sh`), and an unquoted
+# path splits on spaces. Git Bash accepts drive-letter paths with forward slashes.
+$verifyScriptArg = ($ScriptDir -replace '\\', '/').TrimEnd('/') + "/verify.sh"
+$verifyTargetArg = ($Target -replace '\\', '/').TrimEnd('/')
+Write-Host "  $step. Validate the install:  bash `"$verifyScriptArg`" `"$verifyTargetArg`"   (Git Bash / WSL)"
 if ($Harness -eq "openclaw") {
     Write-Host ""
     Write-Host "  OpenClaw workspace detected - for deep integration (9 root files), run the"

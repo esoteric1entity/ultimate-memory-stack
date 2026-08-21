@@ -57,6 +57,15 @@ read the manifest. After ANY edit here you must also run
 `python recommended-addons/regenerate-locks.py graphiti`, or your change is a
 silent no-op that still exits 0.
 
+⚠️ **And regenerating needs the SOURCE PACKAGE.** `regenerate-locks.py` is a
+maintainer tool; it is not copied into an installed skill, so if you are looking
+at this file inside `.claude/skills/install-graphiti/` you have the manifest and
+the locks but nothing to rebuild them with. Clone the package
+(`git clone https://github.com/esoteric1entity/ultimate-memory-stack`), make the
+change there with [`uv`](https://docs.astral.sh/uv/) installed, then install from
+the regenerated lock. If you do not need a different backend or provider, skip
+this step entirely — the shipped locks are ready to install as-is.
+
 | Backend | What to do |
 |---|---|
 | Kuzu (default — no edit needed) | none — `kuzu>=0.11.3,<1.0.0` is already active |

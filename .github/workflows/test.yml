@@ -75,6 +75,32 @@ jobs:
           done
           exit $rc
 
+      # Backend integrity. Resolving a manifest proves it INSTALLS; it does not
+      # prove the result can still do its job. `uv pip compile` succeeds happily
+      # on a manifest whose backend has quietly dropped out, and pip installs a
+      # package without an extra it no longer provides — exit 0, no warning.
+      #
+      # So this asks two questions resolution cannot: does every lock still pin
+      # the backends its add-on exists to install, and does the pinned
+      # graphiti-core release still declare the `kuzu` extra? The second is the
+      # machine-readable signal that Kuzu driver support is being withdrawn —
+      # Kuzu upstream is archived (see graphiti-installer/requirements.txt), and
+      # we deliberately do NOT ceiling graphiti-core, so this is the tripwire.
+      #
+      # --probe-upstream needs the network, which this job already requires. An
+      # unreachable PyPI reports UNVERIFIED and does NOT fail: a blocked host is
+      # not evidence that upstream removed anything.
+      #
+      # Runs on ubuntu/py3.13 only — it inspects committed lockfiles, so it is
+      # platform- and interpreter-independent, and one probe is enough. Running
+      # it on all 12 matrix legs would be 12 identical PyPI queries.
+      - name: Backend integrity (locks pin their backends; upstream still offers them)
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.13'
+        shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python recommended-addons/regenerate-locks.py --check --probe-upstream
+
       - name: Resolve every addon manifest
         shell: bash
         env:

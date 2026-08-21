@@ -172,3 +172,297 @@ def test_locked_version_satisfies_the_manifest_constraint(addon):
         f"{addon.name}: lockfile(s) out of step with requirements.txt — "
         f"{violations}. Run `python recommended-addons/regenerate-locks.py`."
     )
+
+
+# ---------------------------------------------------------------------------
+# Backend-integrity guards (regenerate-locks.py)
+#
+# A lock that compiles is not a lock that works. `uv pip compile` succeeds
+# happily on a manifest whose backend has silently dropped out, so these guard
+# the thing the guards guard: that the enforcement in regenerate-locks.py is
+# real and fires.
+#
+# These tests are OFFLINE by design — the network path is monkeypatched, so a
+# passing suite says nothing about upstream's current state. The LIVE probe runs
+# in CI instead: the `addon-manifests` job executes
+# `regenerate-locks.py --check --probe-upstream` (ubuntu/py3.13 leg). Keep that
+# step and these tests in step; neither substitutes for the other.
+# ---------------------------------------------------------------------------
+
+def _load_regen():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "regenerate_locks", ADDONS / "regenerate-locks.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_required_pins_table_covers_every_addon():
+    """Every add-on must declare which packages define it.
+
+    An add-on missing from REQUIRED_PINS gets NO backend guard at all, silently.
+    A new add-on should fail this test until someone states what it must pin.
+    """
+    regen = _load_regen()
+    declared = set(regen.REQUIRED_PINS)
+    actual = {p.name for p in ADDON_DIRS}
+    assert actual <= declared, (
+        f"add-on(s) with no REQUIRED_PINS entry: {sorted(actual - declared)} — "
+        "add them to regenerate-locks.py or they ship unguarded"
+    )
+    assert declared <= actual, (
+        f"REQUIRED_PINS names a non-existent add-on: {sorted(declared - actual)}"
+    )
+
+
+@pytest.mark.parametrize("addon", ADDON_DIRS, ids=lambda p: p.name)
+def test_shipped_locks_pin_their_required_backends(addon):
+    """The locks we actually ship contain the backends they promise."""
+    regen = _load_regen()
+    errors = regen.check_required_pins(addon)
+    assert not errors, f"{addon.name}: {errors}"
+
+
+def test_required_pin_guard_fires_when_a_backend_vanishes(tmp_path):
+    """Negative control — the guard above must not be vacuous.
+
+    Strip the backend out of every lock for an add-on and the guard has to
+    notice. Without this, `check_required_pins` returning [] proves nothing:
+    it returns [] for an add-on it has no entry for, too.
+    """
+    import shutil
+    regen = _load_regen()
+    name = "graphiti-installer"
+    backend = "kuzu"
+
+    broken = tmp_path / name
+    shutil.copytree(ADDONS / name, broken)
+    for version in PYTHON_VERSIONS:
+        lock = broken / "locks" / f"requirements-py{version}.lock"
+        if not lock.is_file():
+            continue
+        kept = [ln for ln in lock.read_text(encoding="utf-8").splitlines()
+                if not ln.startswith(f"{backend}==")]
+        lock.write_text("\n".join(kept), encoding="utf-8")
+
+    regen.ADDONS_DIR = tmp_path  # keep the error message's relative_to() working
+    errors = regen.check_required_pins(broken)
+    assert len(errors) == len(PYTHON_VERSIONS), (
+        f"expected one error per lock, got {len(errors)}: {errors}"
+    )
+    assert all(backend in e for e in errors)
+
+
+def test_upstream_probe_treats_unreachable_pypi_as_unverified(monkeypatch):
+    """A blocked network is NOT evidence that upstream removed a capability.
+
+    This machine's work network fails blocked hosts as certificate errors, and
+    CI can run offline. If the probe failed closed on a network error it would
+    manufacture a false "upstream dropped the extra" alarm — the exact mistake
+    of reporting an unreachable site as a dead one.
+    """
+    regen = _load_regen()
+
+    def boom(*a, **k):
+        raise OSError("simulated network failure")
+
+    monkeypatch.setattr(regen.urllib.request, "urlopen", boom)
+    assert regen.probe_upstream_extra(ADDONS / "graphiti-installer") == []
+
+
+def test_upstream_probe_fails_when_the_extra_is_gone(monkeypatch):
+    """Negative control for the probe: a missing extra must be reported."""
+    import io
+    import json as _json
+    regen = _load_regen()
+
+    class FakeResponse(io.StringIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    def fake_urlopen(url, timeout=None):
+        # graphiti-core, but with every backend extra withdrawn
+        return FakeResponse(_json.dumps(
+            {"info": {"provides_extra": ["anthropic", "dev", "neo4j-opensearch"]}}))
+
+    monkeypatch.setattr(regen.urllib.request, "urlopen", fake_urlopen)
+    errors = regen.probe_upstream_extra(ADDONS / "graphiti-installer")
+    assert len(errors) == 1, errors
+    assert "kuzu" in errors[0] and "NO LONGER" in errors[0]
+
+
+def test_the_upstream_probe_is_actually_wired_into_ci():
+    """No-listener assertion: a guard nobody calls is decoration.
+
+    An adversarial review caught exactly this — `probe_upstream_extra` existed,
+    was tested, and was described in requirements.txt as enforced, while nothing
+    in CI ever invoked it. The function passing its unit tests said nothing about
+    whether it would ever run. This test asserts the WIRING, not the function.
+
+    It is deliberately coarse (a substring check on the workflow file): its job
+    is to fail loudly if someone deletes or renames the step, not to validate
+    YAML semantics. Pair with test_probe_upstream_flag_exists below — the step
+    is worthless if the flag it passes has been removed.
+    """
+    workflow = (PKG / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+    assert "regenerate-locks.py --check --probe-upstream" in workflow, (
+        "the live upstream backend probe is not invoked anywhere in CI — either "
+        "restore the `addon-manifests` step that runs it, or withdraw the "
+        "enforcement claims in graphiti-installer/requirements.txt and in this file"
+    )
+
+
+def test_probe_upstream_flag_exists_and_is_off_by_default():
+    """The flag CI passes must exist, and must not make the default path networked.
+
+    `--check` is documented as an offline verification and is what a maintainer
+    reaches for first; silently adding a live PyPI call to it would make the
+    common path fail on a plane or behind a proxy.
+    """
+    import subprocess
+    import sys
+    r = subprocess.run(
+        [sys.executable, str(ADDONS / "regenerate-locks.py"), "--help"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60,
+    )
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "--probe-upstream" in r.stdout, (
+        f"--probe-upstream is gone but CI still passes it:\n{r.stdout}"
+    )
+
+    regen = _load_regen()
+    import inspect
+    src = inspect.getsource(regen.main)
+    check_block = src.split("if args.check:", 1)[1].split("uv = _uv_command()", 1)[0]
+    assert "args.probe_upstream" in check_block, (
+        "--check no longer honors --probe-upstream; the CI step would be a no-op"
+    )
+
+
+def test_upstream_probe_reports_a_404_as_a_real_finding_not_as_unverified(monkeypatch):
+    """A 404 means the server ANSWERED. That is evidence, not an outage.
+
+    `HTTPError` subclasses `URLError` subclasses `OSError`, so one broad `except`
+    files "this pinned release does not exist on PyPI" under the same excuse as
+    "the network is down" — and the CI probe exits 0 on a lock nobody can
+    install. Round-2 review caught this; the fail-open rule is about UNREACHABLE
+    hosts, and over-applying it turns a guard into a rubber stamp.
+    """
+    import urllib.error
+    regen = _load_regen()
+
+    def fake_urlopen(url, timeout=None):
+        raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
+
+    # monkeypatch, not hand-assignment: `regen.urllib` IS the process-wide
+    # urllib module (the script does `import urllib.request`), so patching it is
+    # global. pytest restores it even if an assertion below raises.
+    monkeypatch.setattr(regen.urllib.request, "urlopen", fake_urlopen)
+    errors = regen.probe_upstream_extra(ADDONS / "graphiti-installer")
+
+    assert len(errors) == 1, f"a 404 must be reported, got: {errors}"
+    assert "DOES NOT EXIST" in errors[0] and "404" in errors[0]
+
+
+@pytest.mark.parametrize("label,exc_factory", [
+    ("HTTP 503", lambda url: __import__("urllib.error", fromlist=["error"])
+     .HTTPError(url, 503, "Service Unavailable", {}, None)),
+    ("HTTP 429", lambda url: __import__("urllib.error", fromlist=["error"])
+     .HTTPError(url, 429, "Too Many Requests", {}, None)),
+    ("URLError", lambda url: __import__("urllib.error", fromlist=["error"])
+     .URLError("dns failure")),
+    ("OSError", lambda url: OSError("cert error")),
+])
+def test_upstream_probe_still_fails_open_on_server_errors_and_outages(
+        monkeypatch, label, exc_factory):
+    """The complement: 5xx/429 and true connection failures stay UNVERIFIED.
+
+    Without this, the 404 fix could be "corrected" into failing closed on any
+    HTTPError, which would break CI every time PyPI rate-limits us. Paired with
+    the 404 test above, the two pin the behavior from both sides — neither
+    over- nor under-correcting can pass.
+    """
+    regen = _load_regen()
+
+    def fake_urlopen(url, timeout=None):
+        raise exc_factory(url)
+
+    monkeypatch.setattr(regen.urllib.request, "urlopen", fake_urlopen)
+    errors = regen.probe_upstream_extra(ADDONS / "graphiti-installer")
+    assert errors == [], f"{label} must be UNVERIFIED, not a finding: {errors}"
+
+
+def test_no_probe_flag_exists_so_regeneration_can_run_offline():
+    """Regeneration probes PyPI by default; there must be a documented way out.
+
+    A maintainer offline would otherwise eat a 30s timeout per add-on with no
+    opt-out, and --help must say which path each flag governs — the round-2
+    review found the original --help implied probing was opt-in everywhere when
+    the write path always probed.
+    """
+    import subprocess
+    import sys
+    r = subprocess.run(
+        [sys.executable, str(ADDONS / "regenerate-locks.py"), "--help"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60,
+    )
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "--no-probe" in r.stdout, f"no offline escape hatch documented:\n{r.stdout}"
+    assert "regeneration ALWAYS probes" in r.stdout or "always probes" in r.stdout, (
+        f"--help does not disclose that the write path probes unconditionally:\n{r.stdout}"
+    )
+
+
+# Files that a USER can end up reading — either vendored into their workspace by
+# the installer (common-specs/*) or copied into an installed skill (the add-on's
+# own docs). Maintainer-only files are excluded deliberately.
+USER_FACING_DOCS = [
+    PKG / "common-specs" / "TIER_C_ACTIVATION.md",
+    PKG / "common-specs" / "ARCHITECTURE.md",
+    ADDONS / "graphiti-installer" / "SKILL.md",
+    ADDONS / "graphiti-installer" / "INSTALL_GRAPHITI.md",
+    ADDONS / "graphiti-installer" / "requirements.txt",
+]
+
+
+def test_regenerate_locks_is_not_shipped_into_an_installed_skill():
+    """Pins the PREMISE of the test below. If this ever stops being true, the
+    caveats that test enforces become wrong and should be removed, not kept.
+
+    The installer copies the add-on payload plus preflight.py into
+    `.claude/skills/<name>/`. regenerate-locks.py lives one level up in
+    recommended-addons/ and is deliberately not part of that payload — it needs
+    `uv`, the network, and the sibling add-on directories to do anything.
+    """
+    regen = ADDONS / "regenerate-locks.py"
+    assert regen.is_file(), "regenerate-locks.py moved; update these tests"
+    assert regen.parent == ADDONS, (
+        "regenerate-locks.py now lives inside an add-on directory, so it WOULD be "
+        "copied into installed skills — the source-package caveats are now wrong"
+    )
+
+
+@pytest.mark.parametrize("doc", USER_FACING_DOCS, ids=lambda p: p.name)
+def test_docs_that_say_regenerate_also_say_you_need_the_source_package(doc):
+    """A doc that tells a user to run a tool they do not have is a dead end.
+
+    Round-3 review found TIER_C_ACTIVATION.md telling users to run
+    `python recommended-addons/regenerate-locks.py graphiti` — a path that does
+    not exist in any install, in a file the installer vendors verbatim into every
+    workspace. The same dead end was already present for the `mcp` and
+    `falkordb` options; it was inherited, not introduced.
+
+    This is the general form: mention the regenerator, mention the prerequisite.
+    """
+    text = doc.read_text(encoding="utf-8")
+    if "regenerate-locks.py" not in text:
+        pytest.skip(f"{doc.name} does not mention the regenerator")
+    assert "source package" in text.lower(), (
+        f"{doc.relative_to(PKG)} tells the reader to run regenerate-locks.py but "
+        "never says it requires a clone of the source package — that script is "
+        "not copied into an installed skill, so the instruction is a dead end"
+    )

@@ -9,6 +9,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **The Windows installer printed a `verify.sh` command that bash could not run.** It emitted
+  `bash C:\pkg\verify.sh C:\vault` — unusable twice over, since bash eats each backslash as an
+  escape and an unquoted path splits on spaces. Now forward-slashed and quoted, and a test runs
+  the printed command rather than pattern-matching it.
+- **`.ums-manifest.json` was written with a UTF-8 BOM by the PowerShell door only.** `json.loads()`
+  fails outright on it, so the two installers disagreed about whether a file we document as
+  machine-readable actually was. It went unnoticed because the only in-repo consumer is a
+  BOM-tolerant `grep -o`. Windows PowerShell 5.1 has no `utf8NoBOM`, so the manifest is now written
+  via `[System.IO.File]::WriteAllText` with `UTF8Encoding($false)` — plus an explicit trailing
+  newline, which `Set-Content` used to supply and `WriteAllText` does not, so the two doors do not
+  disagree about whether the file ends properly.
+- **A `SKILL.md` with no `name:` frontmatter aborted the PowerShell installer** with a raw
+  PowerShell error instead of the one-line skip the bash door prints. The extraction dereferenced
+  the `Select-String` result without checking it, which made the guard immediately below it
+  unreachable dead code.
+- **`TIER_C_ACTIVATION.md`'s C4 "Deactivation" section still described rotating a signing key so
+  that "existing signatures become unverifiable".** There are no signatures — 4.0.1 withdrew the
+  signing claims because no signing or verification code exists, and this instance survived that
+  sweep. `--generate-hmac-secret` does generate a secret; nothing consumes it, so rotating it
+  invalidates nothing.
+- **`verify.sh` claimed `.ums-manifest.json` was "written only by the setup-memory-stack.sh
+  wrapper".** Both top-level installers write it; the comment had been wrong since the PowerShell
+  door gained one.
+
+### Changed
+- **The Graphiti add-on's Kuzu disclosure is now accurate, and enforced by a mechanism.** 4.0.1
+  described Kuzu as "cold upstream" with an unresolved maintenance decision. Verified against
+  primary sources: `kuzudb/kuzu` was **archived read-only on 2025-10-10** — the day it shipped its
+  final release — after Kùzu Inc. was acquired by Apple. It is finished, not drifting. The
+  position is now settled rather than deferred: **keep Kuzu, do not ceiling `graphiti-core`.**
+  Users were never exposed — every documented install path uses the hash-pinned lockfiles, which
+  pin `graphiti-core` and `kuzu` exactly — and the floor pin is how CVE patches reach people. The
+  real exposure is at lock *regeneration*, so `regenerate-locks.py` now fails there if a lock stops
+  pinning a required backend, or if the pinned `graphiti-core` release stops declaring the `kuzu`
+  extra. Also corrected: FalkorDB Lite cannot be used on Windows *at all* — not merely missing
+  wheels, its `setup.py` raises on any non-darwin/linux platform — and graphiti-core is healthy
+  (0.29.3, 2026-07-27), with the Kuzu driver still shipping and no removal scheduled.
+- **An open Windows write-crash report against Kuzu is now disclosed at every decision point.**
+  graphiti-core issue #1469 (OPEN, filed 2026-05-06, last activity 2026-08-14) reports
+  `add_episode` crashing the host process with an access violation inside Kuzu's C extension on
+  Windows 11 at ~50 episodes; reads are unaffected. It is a single report with a faulthandler
+  trace, no maintainer has responded, and we have not reproduced it — so it is documented as
+  credible-not-confirmed, not as a known defect. It matters because an archived upstream cannot
+  ship an engine fix, and because our smoke test could never catch it: it opens a connection and
+  never writes at volume. Previously the docs said only that 0.11.3 "works" — true of installation,
+  and doing far too much work as a claim about reliability.
+- **Those backend guards run in CI, not just on a maintainer's machine.** The `addon-manifests` job
+  now runs `regenerate-locks.py --check --probe-upstream` (one leg, one PyPI call). Without that
+  step the guard existed, was unit-tested, and was described in `requirements.txt` as enforced —
+  while nothing ever invoked it. `test_the_upstream_probe_is_actually_wired_into_ci` now asserts
+  the wiring itself, because a passing unit test says nothing about whether a function runs.
+- **The upstream probe distinguishes "unreachable" from "answered, and the answer was no".**
+  `HTTPError` subclasses `URLError` subclasses `OSError`, so one broad `except` filed a genuine
+  PyPI **404** — a pinned release that does not exist, from a typo'd or deleted pin — under the
+  same "network unreachable, not a failure" excuse, and CI exited `0` on a lock nobody could
+  install. A 404 is now a real finding; `429`/`5xx` and true connection failures remain UNVERIFIED
+  and still do not fail. Paired tests pin both directions so neither over- nor under-correcting
+  passes.
+- **`regenerate-locks.py` gained `--no-probe`, and `--help` now says which path each flag governs.**
+  Regeneration always probes PyPI — that is the moment the risk is real — while `--check` stays
+  fully offline unless given `--probe-upstream`. The help text previously implied probing was
+  opt-in everywhere, so an offline maintainer had no way to avoid a 30-second timeout per add-on.
+- **An `anthropic` provider line was added to the Graphiti add-on's `requirements.txt`** (commented
+  out, alongside the existing `mcp` and `falkordb` options). `ARCHITECTURE.md` had been pointing at
+  a procedure for enabling Claude API ingestion that did not exist. It names `anthropic>=0.49.0`
+  directly rather than via `graphiti-core[anthropic]`, for the same reason `kuzu` is named
+  directly: an extra can be withdrawn upstream and pip will install without it, silently.
+- **Every "then regenerate the locks" instruction now says you need the source package.**
+  `regenerate-locks.py` is a maintainer tool and is not copied into an installed skill, so a user
+  reading their vendored `TIER_C_ACTIVATION.md` — or the `SKILL.md` inside
+  `.claude/skills/install-graphiti/` — was told to run a script that exists nowhere in their
+  install. The dead end already applied to the `mcp` and `falkordb` options and was inherited, not
+  introduced. All five places now state the prerequisite, and a test enforces the pairing for the
+  four that name the script — `ARCHITECTURE.md` describes the step in prose without naming it, so
+  its case skips rather than asserting.
+- **`TIER_C_ACTIVATION.md` no longer tells users to run `pip install graphiti-core[kuzu]`.** That
+  command is unpinned *and* uses the deprecated extra — and that second failure is silent: pip
+  exits `0` and installs the package without an extra the distribution no longer provides, with no
+  warning at all on pip 25.3. Once upstream removes it, the command would install graphiti-core
+  with no graph backend and report success. It now points at the hash-pinned lock the installer
+  uses, which names `kuzu` directly rather than through the extra.
+
 ## [4.0.1] — 2026-08-19
 
 A correctness release. Every pip add-on now installs — two of the three manifests were unresolvable in 4.0.0 — and the machinery that let that ship undetected is closed: CI now resolves and hash-verifies every manifest, and the installers place the files their own instructions tell users to run. Lint gains a real exit-code contract so a finding can fail a build instead of being printed and ignored.

@@ -13,24 +13,83 @@
 # Required: subscribe to upstream security advisories at github.com/getzep/graphiti/security/advisories
 # Required: set GRAPHITI_TELEMETRY_ENABLED=false in environment BEFORE first import
 #
-# ── ⚠️ BACKEND MAINTENANCE STATUS (reviewed 2026-08-19) ──────────────────────
-# Kuzu's last release was 0.11.3 on 2025-10-10. Upstream has been cold for
-# roughly ten months, and it is NOT merely quiet — graphiti-core's own
-# pyproject.toml marks its `[kuzu]` extra:
+# ── ⚠️ BACKEND MAINTENANCE STATUS (re-verified 2026-08-20, primary sources) ──
+# Kuzu is FINISHED, not drifting. `github.com/kuzudb/kuzu` was archived read-only
+# on 2025-10-10 — the same day it shipped its final release, 0.11.3 — and Kùzu
+# Inc. was acquired by Apple (disclosed via an EU DMA filing, February 2026).
+# There will be no 0.11.4. The reason upstream is going away has nothing to do
+# with the engine's quality; the company was bought.
+#
+# What that does and does NOT mean for this add-on:
+#   - 0.11.3 installs everywhere we support and still publishes win_amd64 wheels
+#     (cp310-cp313). "Installs" is NOT "is known-good" — see the Windows note.
+#
+#   ⚠️ WINDOWS WRITE-CRASH REPORT, UNRESOLVED (checked 2026-08-20).
+#     graphiti-core issue #1469 (OPEN, filed 2026-05-06, last activity
+#     2026-08-14) reports that `add_episode` reliably crashes the host process
+#     with an access violation raised inside Kuzu's C extension
+#     (kuzu/connection.py -> the C++ engine) on Windows 11, at roughly 50
+#     episodes / a ~100 MB database. Reads are unaffected; only writes crash.
+#     The report includes a faulthandler trace.
+#     Calibrate this correctly before repeating it:
+#       - It is ONE report. No maintainer has responded. The only comment is
+#         from a non-maintainer and is partly self-promotional.
+#       - We have NOT reproduced it, and it is not in our smoke test (which
+#         only opens a connection; it never writes at volume).
+#       - So: credible and specific, not confirmed.
+#     Why it matters anyway: if the fault is in Kuzu's engine, an ARCHIVED
+#     upstream means no fix will ever ship. A Windows user planning to write a
+#     large graph should know this BEFORE investing in one, and should treat a
+#     server backend (Neo4j / FalkorDB) as the fallback.
+#   - MIT-licensed, so a fork is permitted outright. An active successor already
+#     exists — LadybugDB (github.com/LadybugDB/ladybug, MIT) — BUT graphiti-core
+#     has no LadybugDB driver: a swap PR was closed unmerged and the driver
+#     request is open with no maintainer commitment. It is not a drop-in today.
+#   - graphiti-core itself is HEALTHY: 0.29.3 shipped 2026-07-27, ~monthly
+#     cadence, 30k stars, pushed to daily. This is not a dying dependency chain.
+#
+# The deprecation is narrower than it reads. graphiti-core's pyproject.toml says:
 #
 #     # Deprecated: the upstream Kuzu project is unmaintained;
 #     # this extra will be removed in a future release.
 #
-# So the consuming package has put this backend on a removal clock. The add-on
-# installs and runs today, and because we depend on `kuzu` DIRECTLY (not via
-# the extra) plus a hash-pinned lock, removing the extra alone cannot break an
-# existing install. What WOULD break it is graphiti-core dropping Kuzu DRIVER
-# support — and `graphiti-core>=0.29.1` is a floor pin with no ceiling, so that
-# release would be adopted automatically on a fresh install.
+# That is the EXTRA. `graphiti_core/driver/kuzu_driver.py` still ships on the
+# default branch and in 0.29.3, and there is NO scheduled removal — no target
+# version, no milestone, no merged PR. Treat "a future release" as open-ended.
 #
-# ⚠️ MAINTAINER ACTION REQUIRED before the next release after this one: either
-# put a tested ceiling on graphiti-core, or move the default backend. This is a
-# disclosed, dated risk, not a settled position.
+# ▶ MAINTENANCE POSITION (decided 2026-08-20): keep Kuzu, and DO NOT ceiling
+#   graphiti-core. Reasons, in order:
+#     1. Users are not exposed. Every documented install path uses
+#        `locks/requirements-py<VER>.lock`, which pins graphiti-core AND kuzu
+#        exactly, by hash. An upstream release that drops the driver cannot
+#        reach anyone through a documented path. The exposure is at LOCK
+#        REGENERATION — a deliberate maintainer action.
+#     2. A ceiling would cost more than it buys. The floor pin exists so CVE
+#        patches flow (CVE-2026-32247, Cypher injection, fixed 0.28.2). Trading
+#        a live security channel for an unscheduled, hypothetical removal is a
+#        bad trade — and an unverified ceiling is exactly the bug we fixed in
+#        the llmlingua manifest.
+#     3. There is nowhere to move. See the FalkorDB Lite note below.
+#   Enforced, not merely written down. `regenerate-locks.py` fails if either
+#   (a) a regenerated lock stops pinning `kuzu`, or (b) the pinned graphiti-core
+#   release no longer declares the `kuzu` extra in its PyPI metadata — the
+#   machine-readable signal that the driver is being withdrawn.
+#
+#   Where each check actually runs — stated precisely, because "there is a
+#   function for it" is not the same as "something runs it":
+#     (a) every push. Two ways: the `addon-manifests` CI job runs
+#         `regenerate-locks.py --check --probe-upstream`, and the unit-test job
+#         asserts it directly against the shipped locks
+#         (tests/test_addon_locks.py::test_shipped_locks_pin_their_required_backends).
+#     (b) every push, via that same `--probe-upstream` CI step, and again
+#         locally whenever a maintainer regenerates locks.
+#   An unreachable PyPI reports UNVERIFIED and does NOT fail — a blocked host is
+#   not evidence that upstream removed anything.
+#
+#   Known limit of (b): it probes the EXTRA, which is a proxy. Upstream could in
+#   principle keep the extra and gut the driver, and this would not notice. It is
+#   the strongest check available without downloading and introspecting the
+#   wheel, and it catches the removal path upstream has actually announced.
 #
 # Kuzu remains the DEFAULT anyway, for one reason: it is the only EMBEDDED
 # backend that works everywhere this package does. Embeddedness is the whole
@@ -40,13 +99,17 @@
 #
 # The maintained embedded alternative is FalkorDB Lite ("FalkorDB embedded in a
 # Python package", 0.10.0 / 2026-05-02). It is NOT the default because it does
-# not cover our support matrix:
+# not cover our support matrix — and the gap is worse than "no wheel yet":
 #   - Python 3.12+ ONLY (graphiti-core marks it `python_version >= "3.12"`)
-#   - macOS and manylinux wheels ONLY — there are NO Windows wheels published,
-#     so a Windows install would have to build from source.
+#   - 0.10.0 publishes 10 files and ZERO of them are win_amd64/win32 (verified
+#     against the PyPI JSON API, 2026-08-20). macOS + manylinux only.
+#   - Falling back to the sdist does NOT rescue Windows: falkordblite's own
+#     setup.py branches on darwin/linux and `raise`s on anything else, and its
+#     CI matrix never attempts a Windows build. Its README directs Windows users
+#     to WSL. So it cannot be built from source on native Windows either.
 # This package ships a PowerShell installer and tests on Windows, so an
-# unavailable-on-Windows default is not an option. Verify the wheel list
-# yourself before proposing a swap.
+# unavailable-on-Windows default is not an option. Re-verify the wheel list and
+# that setup.py branch yourself before proposing a swap.
 #
 # ▶ If you are on macOS or Linux with Python 3.12+, prefer FalkorDB Lite:
 #     pip install "graphiti-core[falkordblite]>=0.29.1"
@@ -76,6 +139,13 @@ kuzu>=0.11.3,<1.0.0
 # Otherwise you will uncomment a line, install, get exit 0, and not have the
 # package.
 #
+# ⚠️ AND THAT COMMAND NEEDS THE SOURCE PACKAGE. `regenerate-locks.py` is a
+# maintainer tool and is NOT copied into an installed skill — if this file is
+# sitting in `.claude/skills/install-graphiti/`, you have the manifest and the
+# locks but nothing to rebuild them with. Clone the package
+# (github.com/esoteric1entity/ultimate-memory-stack), make the change and
+# regenerate there with `uv` installed, then install from the new lock.
+#
 # Note on neo4j: the `neo4j` driver is NOT optional and NOT a backend choice you
 # opt into — `graphiti-core` declares it as a hard dependency, so it installs
 # regardless (the lock pins it; check with `grep '^neo4j==' locks/*.lock`).
@@ -88,3 +158,11 @@ kuzu>=0.11.3,<1.0.0
 
 # Optional — uncomment if Skill Step 3 chose MCP server, then regenerate:
 # mcp>=1.0.2,<2.0.0
+
+# Optional — LLM provider for ingestion. Uncomment if Skill Step 3 chose the
+# Anthropic API path, then regenerate. This is the direct dependency that
+# graphiti-core's `anthropic` extra would have pulled in (it declares
+# `anthropic>=0.49.0; extra == "anthropic"`), named directly for the same reason
+# `kuzu` is: an extra can be withdrawn upstream and pip will not tell you.
+# Ollama needs NOTHING here — it is OpenAI-compatible; set OPENAI_BASE_URL.
+# anthropic>=0.49.0

@@ -23,7 +23,7 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 | Tool | What it is | Activates at | Install effort | Status |
 |---|---|---|---|---|
 | **C1 Auto-Dream** | Anthropic `dreaming-2026-04-21` beta — offline async consolidation | T4 (Code Exec + Anthropic beta) | High — requires beta access | Dormant; design spec only |
-| **C2 Graphiti + Kuzu** | Bi-temporal knowledge graph (Layer 5) | **T1 (Ollama) or T3 (Anthropic API)** | Medium — `pip install graphiti-core[kuzu]` + MCP wiring | Refreshed 2026-05-19 |
+| **C2 Graphiti + Kuzu** | Bi-temporal knowledge graph (Layer 5) | **T1 (Ollama) or T3 (Anthropic API)** | Medium — install from the add-on's hash-pinned lock (§C2), + MCP wiring | Refreshed 2026-08-20 |
 | **C3 Graphify** | Codebase structural knowledge graph (adjacent tool, §11.5) | **T3 (Python) or T4 (Skill install)** | Low — `uv tool install graphifyy && graphify install` | Refreshed 2026-05-19 |
 | **C4 Cryptographic signatures** | HMAC memory-entry signing (Ed25519 offline-key variant planned) | T3 (Code Execution) | Low — `cryptography` package + key gen via setup.py | Designed-in; signing pipeline not yet implemented |
 | **C6 LLMLingua / LongLLMLingua** | Prompt compression on cached prefixes (~40× compound discount) | T3 (Code Exec + Python ML libs) | Medium | Designed-in; further research needed |
@@ -42,12 +42,27 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 > **Vetting:** passed security vetting with conditions (2026-05-27); CVE-2026-32247 patched at v0.28.2 (this installer floor pin `>=0.29.1` covers it)
 > **Telemetry:** DISABLED by default (env var persisted as a standing vetting condition)
 > **Recommended backend:** Kuzu (immune to Cypher injection class — parameterized labels).
-> ⚠️ Kuzu is cold upstream (last release 0.11.3, 2025-10-10) and graphiti-core marks its `[kuzu]` extra deprecated for future removal — see `recommended-addons/graphiti-installer/requirements.txt` before relying on it.
+> ⚠️ **Kuzu upstream is ARCHIVED, not merely quiet.** `github.com/kuzudb/kuzu` was archived
+> read-only on **2025-10-10**, the same day it shipped its final release (0.11.3); Kùzu Inc.
+> was acquired by Apple, disclosed via an EU DMA filing in February 2026. It is finished, not
+> abandoned mid-flight — 0.11.3 installs everywhere we support and still publishes Windows wheels.
+> MIT, so a fork is permitted; an active community successor exists (**LadybugDB**), but
+> graphiti-core has no LadybugDB driver.
+>
+> ⚠️ **Windows users, read this before building a graph.** graphiti-core issue **#1469** (OPEN,
+> filed 2026-05-06, last activity 2026-08-14) reports `add_episode` crashing the host process with
+> an access violation inside Kuzu's C extension on Windows 11, at ~50 episodes. Reads are fine;
+> only writes crash. It is a single report with a faulthandler trace, **no maintainer response, and
+> we have not reproduced it** — credible, not confirmed. But an archived upstream means an engine
+> bug would never be fixed, so plan for a server backend (Neo4j / FalkorDB) as your fallback.
+>
+> See `recommended-addons/graphiti-installer/requirements.txt` for the full disclosure and the
+> maintenance position. *(Verified against PyPI + the GitHub API, 2026-08-20.)*
 > **Activation:** invoke `/install-graphiti` (Skill) OR follow `INSTALL_GRAPHITI.md` manually
 
 ### What it is
 
-Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.0 (April 27, 2026). 26.3k stars. arXiv:2501.13956. Per ARCHITECTURE.md §9, this is the **designed-in storage upgrade** for temporal provenance / point-in-time audit.
+Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.3 (July 27, 2026). 30.1k stars. arXiv:2501.13956. Per ARCHITECTURE.md §9, this is the **designed-in storage upgrade** for temporal provenance / point-in-time audit.
 
 ### When to activate
 
@@ -61,26 +76,48 @@ In the worked example above:
 
 ### Install commands
 
-**Core + embedded Kuzu (zero infrastructure):**
+**Use the add-on's hash-pinned lockfile. This is the only supported path:**
 ```bash
-pip install graphiti-core[kuzu]
-# or via uv:
-uv add 'graphiti-core[kuzu]'
+pip install --require-hashes -r <path-to-install-graphiti-skill>/locks/requirements-py3.12.lock
 ```
+Match the lock to your Python (3.10 / 3.11 / 3.12 / 3.13). This is what `/install-graphiti`
+runs, and it pins `graphiti-core==0.29.3` + `kuzu==0.11.3` by hash.
 
-**With Anthropic LLM provider:**
-```bash
-pip install 'graphiti-core[kuzu,anthropic]'
-```
+> ⚠️ **Do NOT `pip install graphiti-core[kuzu]`.** This document previously recommended it. Two
+> problems: it is unpinned (you get whatever is latest, unverified against this stack), and
+> graphiti-core has **deprecated the `[kuzu]` extra**. The second one fails *silently*: pip does
+> not error on an extra a distribution no longer provides — it exits `0` and installs the package
+> without it. On pip 25.3 there is not even a warning (measured 2026-08-20:
+> `pip install --dry-run --no-deps "requests[does-not-exist]"` → `Would install requests-2.34.2`,
+> exit 0, no diagnostic). So once upstream removes the extra, that command installs graphiti-core
+> **with no graph backend** and reports success. The hash-pinned lock is immune to both: it names
+> `kuzu` directly, not via the extra.
+>
+> The deprecation is on the EXTRA only. `graphiti_core/driver/kuzu_driver.py` still ships on the
+> default branch and in 0.29.3, and no removal is scheduled — no target version, no milestone, no
+> merged removal PR. *(Verified 2026-08-20.)*
 
-**With Ollama (local LLM via OpenAI-compatible endpoint):**
-```bash
-pip install 'graphiti-core[kuzu]'
-# No extra needed — Ollama uses OpenAI-compatible API
-# Configure Graphiti to point at local Ollama:
-# OPENAI_BASE_URL=http://localhost:11434/v1
-# OPENAI_API_KEY=ollama  (any non-empty string)
-```
+**Choosing an LLM provider for ingestion** — do this by editing the add-on's `requirements.txt`
+and regenerating the lock, never by installing ad-hoc:
+
+> ⚠️ **Changing the dependency set needs the SOURCE PACKAGE, not just an installed skill.**
+> `regenerate-locks.py` is a maintainer tool and is deliberately not copied into an installed
+> skill — an installed skill has `requirements.txt` and `locks/`, but nothing to rebuild them
+> with. To make any change below, clone the package
+> (`git clone https://github.com/esoteric1entity/ultimate-memory-stack`), edit and regenerate
+> there, then re-run the add-on install against the new lock. You also need
+> [`uv`](https://docs.astral.sh/uv/) and network access. Paths below are relative to the
+> package root.
+
+- **Anthropic API:** uncomment the `anthropic>=0.49.0` line in
+  `recommended-addons/graphiti-installer/requirements.txt`, then run
+  `python recommended-addons/regenerate-locks.py graphiti`.
+  ⚠️ Do **not** write `graphiti-core[anthropic]` instead. The dependency is named directly for the
+  same reason `kuzu` is — an extra can be withdrawn upstream and pip will install without it,
+  silently and successfully. Uncommenting alone does nothing: the install reads the **lock**, so
+  you must regenerate.
+- **Ollama:** nothing to install — it speaks the OpenAI-compatible API. Point Graphiti at it with
+  `OPENAI_BASE_URL=http://localhost:11434/v1` and `OPENAI_API_KEY=ollama` (any non-empty string).
 
 ### Verification
 
@@ -321,7 +358,15 @@ The signing pipeline is designed-in but not yet implemented in the protocol. Fut
 
 ### Deactivation
 
-Rotate the signing key (HMAC secret) referenced in `PROFILE.md` — regenerate via `setup.py --generate-hmac-secret`. Existing signatures become unverifiable (which is the security-correct behavior — key compromise = rotate).
+⛔ **There is nothing to deactivate, because nothing signs.** This section previously read
+*"Existing signatures become unverifiable"* — a leftover from the withdrawn signing claims. No
+signing or verification code exists anywhere in this package; **there are no existing signatures**,
+so nothing becomes unverifiable and no key rotation invalidates anything.
+
+`setup.py --generate-hmac-secret` does exist and does generate a secret. That is *all* it does —
+the secret is written and never used, because no code consumes it. Re-running it replaces the
+secret with no effect on any stored entry. If a future version implements `memory.sign()` /
+`memory.verify()`, rotation semantics get written **then**, against code that exists.
 
 ---
 

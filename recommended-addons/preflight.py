@@ -8,9 +8,12 @@ the constraint this package ships, the latest version on PyPI, and when that
 version was published — so an abandoned dependency is visible BEFORE install
 rather than discovered months later.
 
-This exists because `kuzu` went cold for ten months while our manifest still
-presented it as the vetted recommendation, and because `graphifyy` drifted 77
-releases past our pin without anything surfacing it.
+This exists because `kuzu` went ten months without a release while our manifest
+still presented it as the vetted recommendation, and because `graphifyy` drifted
+77 releases past our pin without anything surfacing it. The kuzu case shows the
+limit of a staleness signal as well as its value: the reason for the silence was
+that the repo had been ARCHIVED and the company acquired, which no release-date
+heuristic can tell you. Read a flag here as "go look", never as a diagnosis.
 
 INFORMATIONAL BY DEFAULT. It never blocks an install and never edits anything.
 Advancing a pin is a security-vetting decision (see each `requirements.txt`
