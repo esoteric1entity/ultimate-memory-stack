@@ -9,7 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **A citation registry with a gate behind it — `common-specs/CITATIONS.md` + `tests/test_citations.py`.**
+  Every arXiv ID cited in a tracked document must have a registry entry recording its real title,
+  authors, publication date, venue status, what we cite it for, and when a human last checked it.
+  The test fails on an unregistered citation, on a registry entry missing any required field, on a
+  registry entry nobody cites any more, and on any line that claims peer review for a paper
+  identified only by an arXiv ID. It is deliberately offline — a suite that needs the network to
+  pass is a suite that gets skipped. It cannot prove a citation is *used* correctly; it makes
+  registration mandatory and dated, which is the checkable part.
+
 ### Fixed
+- **Two wrong citations in shipped documentation.** `ARCHITECTURE.md` attributed `arXiv:2501.13956`
+  to "Chalef et al." — Daniel Chalef is the **last of five** authors; the first is Rasmussen. The
+  same line also called it "the Graphiti paper" without noting it is titled *"Zep: A Temporal
+  Knowledge Graph Architecture for Agent Memory"*, Graphiti being the open-source engine beneath
+  Zep. Separately, **two** evidence tables (`SCHEMA_quarantine.md` §3 and `SCHEMA_A18`) labelled
+  `arXiv:2503.03704` a "peer-reviewed paper"; its arXiv metadata records no `journal_ref` and no
+  DOI, so it is a preprint — the same overclaim these specs explicitly refuse to grant vendor
+  preprints two files away. The papers themselves are real and support what they are cited for;
+  only the attribution and the evidence-strength labels were wrong.
 - **The Windows installer printed a `verify.sh` command that bash could not run.** It emitted
   `bash C:\pkg\verify.sh C:\vault` — unusable twice over, since bash eats each backslash as an
   escape and an unquoted path splits on spaces. Now forward-slashed and quoted, and a test runs

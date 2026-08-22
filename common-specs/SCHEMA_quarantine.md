@@ -46,7 +46,7 @@ Quarantined entries surface at session start (a one-line toast: *"X entries quar
 
 | Claim | Source | Evidence type |
 |-------|--------|---------------|
-| Memory poisoning is a real attack class | OWASP `[OWASP-ASI06]`, arXiv:2503.03704 (MINJA) | OWASP standard + peer-reviewed paper |
+| Memory poisoning is a real attack class | OWASP `[OWASP-ASI06]`, arXiv:2503.03704 (MINJA) | OWASP standard + **arXiv preprint** (checked 2026-08-20: no `journal_ref` or DOI in its arXiv metadata, so we do not claim peer review — this entry previously said "peer-reviewed paper", which was the same overclaim we refuse to accept from vendor preprints elsewhere in these specs) |
 | Quarantine + user approval is convergent production pattern | Security/compliance survey | Multi-system pattern observation |
 | Validation-on-read fires false positives on PHI detectors | Coding-agent research + clinical NLP literature | Domain knowledge |
 | A real prompt-injection incident during development validated the need | internal incident record | First-hand operational event |
