@@ -31,6 +31,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   registration mandatory and dated, which is the checkable part.
 
 ### Fixed
+- **Four stale siblings the earlier licence revert missed, plus CI job timeouts.** Reverting the
+  wrong Graphify licence across four documents did not touch everything that repeated it:
+  `graphify-installer/SKILL.md` Step 7 still told the reader to expect a flat `License: MIT` and to
+  treat an unexpected `Author:` as a red flag (that field is **empty** on 0.8.21, so the check was
+  unusable), its pre-install banner stated the licence without the per-version qualifier, and
+  `ARCHITECTURE.md` §11.5 still carried `49.6k stars, MIT license` — a star count stale by more than
+  half. Worst of all, `tests/test_addon_locks.py`'s own rationale comment still asserted Apache-2.0
+  was "the real licence", so the test guarding the corrected files argued for re-introducing the
+  defect. All corrected, with the per-version rule stated at each site.
+  Separately: `addon-manifests` and `addon-smoke` now carry `timeout-minutes` (15 / 20). Both talk
+  to PyPI, and GitHub's default job timeout is **six hours** — one hung index call would hold a
+  runner for an afternoon. And the `SecurityLingua` call site now matches what `CITATIONS.md`
+  prescribes: a successor *line of work* sharing authors, not a Microsoft-designated successor.
 - **The Graphify smoke test's core check could never pass, and CI was about to trust it.** Symbol
   extraction guessed three top-level entry points (`graphify.parse`, `graphify.extract_symbols`,
   `graphify.Graphify`) and printed WARN while exiting **0** when none matched.

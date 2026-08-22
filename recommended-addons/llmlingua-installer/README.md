@@ -30,7 +30,7 @@
 | Last upstream release | **2024-04-09 (v0.2.2)** — ~2 years stale |
 | GitHub repo | github.com/microsoft/LLMLingua |
 | License | MIT |
-| Microsoft's successor project | **SecurityLingua** (arXiv:2506.12707, June 2025) |
+| Successor line of work | **SecurityLingua** (arXiv:2506.12707, June 2025) — shares authors with the LLMLingua line. ⚠️ Microsoft has **not** designated it a successor or deprecated LLMLingua; the continuity is authorship and subject matter. See `common-specs/CITATIONS.md`. |
 | CVE history (LLMLingua itself) | None published on GitHub Security Advisories |
 | CVE risk (transitive deps) | **Accumulates over time** — pinned `transformers`/`torch` versions don't get security patches automatically |
 

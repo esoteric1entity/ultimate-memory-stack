@@ -472,13 +472,25 @@ def test_docs_that_say_regenerate_also_say_you_need_the_source_package(doc):
 # ---------------------------------------------------------------------------
 # Upstream-licence consistency.
 #
-# On 2026-08-22 the graphify add-on stated THREE different things about its
-# upstream's licence: SKILL.md frontmatter said MIT, smoke_test.py printed "MIT
-# license" as a verified defence-layer fact, and TIER_C_ACTIVATION.md said MIT
-# while noting it had "corrected" an earlier Apache-2.0 — the correction was the
-# error. The real licence, read from the repo's own LICENSE file, is Apache-2.0.
+# ⛔ THE LICENCE IS PER VERSION. The pinned graphifyy **0.8.21 is MIT**. Upstream
+# relicensed later: 0.9.0 is still MIT, current 0.9.48 is Apache-2.0.
 #
-# A test cannot know what upstream's licence IS. It can refuse to let our own
+# On 2026-08-22 that fact was learned the expensive way. The docs said MIT and
+# were RIGHT. A review "corrected" them to Apache-2.0 across four files after
+# reading the current LICENSE file, the GitHub API and PyPI's
+# license_expression — three sources that agreed with each other and were all
+# irrelevant, because all three describe 0.9.48. The correction was the defect,
+# and it was caught only when a smoke test installed the PINNED version and
+# printed 1,068 characters of MIT licence text.
+#
+# (An earlier version of this very comment asserted the opposite — that
+# Apache-2.0 was "the real licence". It survived the revert because reverting
+# the four doc files did not touch the test that guards them. Left recorded
+# rather than silently rewritten: a stale rationale in a test is how a corrected
+# defect gets re-introduced by someone who trusts the comment.)
+#
+# A test cannot know what upstream's licence IS, and must not try — that is the
+# question that produced the wrong answer twice. It can refuse to let our own
 # files disagree with each other, which is what allowed one wrong value to sit
 # next to two right ones without anything noticing.
 # ---------------------------------------------------------------------------

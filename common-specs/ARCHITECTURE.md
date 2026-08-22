@@ -572,7 +572,7 @@ Two Tier C items are **designed-in but NOT part of the 7-layer memory architectu
 
 #### C3 — Graphify (codebase structural knowledge graph)
 
-**What it is:** Tree-sitter (**31 languages** as of v0.8.13 / May 18, 2026) AST extraction + NetworkX graph + Leiden community detection (via graspologic) + vis.js for visualization. Three-pass process: AST extraction (local, no LLM) → optional Claude subagents for docs/papers/images/videos (LLM API) → Leiden community detection (local). Produces `graph.html` (interactive visualization), `GRAPH_REPORT.md` (key concepts, surprising connections, suggested queries), `graph.json` (queryable, persistent). Optional exports: `.svg`, `.graphml` (Gephi/yEd), Obsidian vault, markdown wiki, Neo4j Cypher. **49.6k stars, MIT license** . **Multi-modal:** code + SQL + R + shell + docs + papers + images + videos (faster-whisper for audio/video transcription, audio never leaves machine). Operates on **codebase files**, not memory entries.
+**What it is:** Tree-sitter (**31 languages**, counted at v0.8.13 / May 18, 2026 — this add-on pins 0.8.21) AST extraction + NetworkX graph + Leiden community detection (via graspologic) + vis.js for visualization. Three-pass process: AST extraction (local, no LLM) → optional Claude subagents for docs/papers/images/videos (LLM API) → Leiden community detection (local). Produces `graph.html` (interactive visualization), `GRAPH_REPORT.md` (key concepts, surprising connections, suggested queries), `graph.json` (queryable, persistent). Optional exports: `.svg`, `.graphml` (Gephi/yEd), Obsidian vault, markdown wiki, Neo4j Cypher. **Licence is per version** — the pinned **0.8.21 is MIT**; upstream relicensed and current 0.9.48 is Apache-2.0 (see `TIER_C_ACTIVATION.md` §C3). Star count deliberately not restated here: it rots. *(~109k as of 2026-08-22; the figure previously given, 49.6k, was stale by more than half.)* **Multi-modal:** code + SQL + R + shell + docs + papers + images + videos (faster-whisper for audio/video transcription, audio never leaves machine). Operates on **codebase files**, not memory entries.
 
 **Why adjacent and not a Layer:** Graphify analyzes **codebase structure**; our memory stack stores **agent memory facts**. Different scope. Graphify's output can be **ingested by Layer 1** as a source artifact (e.g., `memory/references/codebase_graph_2026-05-14.md`) — but Graphify is not a memory backend.
 
@@ -591,7 +591,7 @@ Two Tier C items are **designed-in but NOT part of the 7-layer memory architectu
 
 **Forks:** Active fork at `krshna-ai/graphify-codebase` (v6 branch) — same functionality, fork of safishamsi/graphify upstream.
 
-**Source repo:** https://github.com/safishamsi/graphify (latest v8 branch, v0.8.13 PyPI tag).
+**Source repo:** https://github.com/safishamsi/graphify — this add-on pins **0.8.21** (a security-vetting decision); latest is 0.9.48 as of 2026-08-22.
 
 #### C7 — Aider repo-map primitive
 

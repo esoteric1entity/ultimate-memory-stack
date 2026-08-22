@@ -39,8 +39,8 @@ What Graphify does:
   - This Skill enforces the correct name at 5 defense layers (L1-L5)
 
 Vetting: pre-release security review 2026-05-27 (verdict PASS with conditions)
-License: MIT (permissive)
-Upstream: active (116 releases in ~8 weeks; SECURITY.md with 48h response SLA)
+License: MIT (permissive) — for the pinned 0.8.21; upstream relicensed to Apache-2.0 by 0.9.48
+Upstream: active
 Tier: C (opt-in, not loaded by default)
 
 Continue with install? [Y/n]:
@@ -186,13 +186,21 @@ After install, verify the package metadata to confirm L2 defense held:
 pip show graphifyy
 ```
 
-Expected output should include:
+Expected output (verified against the real 0.8.21 wheel, 2026-08-22):
 - `Name: graphifyy`
-- `Author: Safi Shamsi` (or `captainturbo`)
-- `License: MIT`
 - `Version: 0.8.21`
+- `Home-page: https://github.com/safishamsi/graphify`
+- `License:` whose **first line** is `MIT License` — the field holds the FULL ~1,068-character
+  licence text, not the token `MIT`, so it spills across the following lines
+- ⚠️ `Author:` is **EMPTY** on this release. Do NOT treat a blank author as a red flag; there is
+  nothing there to compare against. Authorship appears on the PyPI project page and in the licence
+  copyright line, not in `pip show`.
 
-If `Name` is `graphify` (single-y) OR the maintainer is unexpected, the install failed L2 defense. STOP and surface the issue.
+⚠️ The licence is **per version**: 0.8.21 is MIT; upstream relicensed, and current 0.9.48 is
+Apache-2.0. Verify against the version you pinned, never the repo's default branch.
+
+If `Name` is `graphify` (single-y), or `Version` is not `0.8.21`, or the first line of `License:`
+is not `MIT License`, the install failed L2 defense. STOP and surface the issue.
 
 ---
 

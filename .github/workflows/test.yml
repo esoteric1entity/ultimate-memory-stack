@@ -43,6 +43,11 @@ jobs:
   addon-manifests:
     name: addon manifests resolve (py${{ matrix.python }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    # This job talks to PyPI on every leg. GitHub's default job timeout is 6
+    # HOURS, so one hung index call would burn a runner for a whole afternoon
+    # and hold the queue. Nothing here legitimately takes more than a couple of
+    # minutes: a resolve that runs 15 is stuck, not slow.
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -271,6 +276,10 @@ jobs:
   addon-smoke:
     name: addon smoke tests (install + run)
     runs-on: ubuntu-latest
+    # Two real installs (~60 packages) plus two smoke tests. Locally the whole
+    # job is well under 5 minutes; 20 is generous headroom over a cold cache,
+    # and far better than the 6-hour default if a download stalls.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
