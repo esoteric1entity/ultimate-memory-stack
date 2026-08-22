@@ -127,7 +127,7 @@ python smoke_test.py
 Expected output:
 ```
 [smoke_test] Graphify module import:    OK (single-y module name; L2 defense in next step verifies distribution name)
-[smoke_test] L2 identity check:            OK (Name=graphifyy, Version=0.8.21, License=MIT)
+[smoke_test] L2 identity check:            OK (Name=graphifyy, Version=0.8.21, License=Apache-2.0)
 [smoke_test] Tree-sitter language pack:    OK
 [smoke_test] Symbol extraction (parse): OK (extracted N symbols)
 [smoke_test] All checks PASSED

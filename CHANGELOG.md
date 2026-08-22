@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`RELEASE.md` — a release checklist where every line is paid for.** Each item cites the specific
+  defect this project shipped that put it there: manifests nothing ever executed, ~20 capability
+  claims with no implementing code, a guard documented as CI-gated that CI never invoked, a printed
+  verify command bash could not run, a dependency licence stated wrong in three places where the
+  "correction" was the error. Items with no such history were deliberately left out. Includes the
+  R2 external-user gate, marked honestly as **not started**.
+- **A weekly CI schedule (`cron: 17 6 * * 0`).** The failures most likely to break this package do
+  not happen when we push — a pinned release gets yanked, a backend stops declaring the extra its
+  driver needs — and push-triggered CI structurally cannot see any of it. A test validates the cron
+  is well-formed, because GitHub never fires a malformed schedule and says nothing, and this project
+  has previously shipped an invalid cron across four surfaces.
 - **A citation registry with a gate behind it — `common-specs/CITATIONS.md` + `tests/test_citations.py`.**
   Every arXiv ID cited in a tracked document must have a registry entry recording its real title,
   authors, publication date, venue status, what we cite it for, and when a human last checked it.
@@ -20,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   registration mandatory and dated, which is the checkable part.
 
 ### Fixed
+- **We stated the wrong licence for the Graphify add-on's upstream, in three places.** `SKILL.md`
+  frontmatter, `TIER_C_ACTIVATION.md`, and `smoke_test.py` all said **MIT**. `Graphify-Labs/graphify`
+  ships **Apache-2.0** — confirmed three ways: its `LICENSE` file read directly, the GitHub API, and
+  PyPI's `license_expression`. Worse, `TIER_C_ACTIVATION.md` recorded this as a 2026-05-19
+  *correction* of an earlier "Apache 2.0" — **the original was right and the correction introduced
+  the error.** A new test refuses to let `SKILL.md` and `smoke_test.py` disagree about a licence,
+  which is what let one wrong value sit unnoticed beside two right ones.
+- **`smoke_test.py` could never actually read the licence it printed.** It read the legacy
+  `License:` metadata field, but graphifyy declares **PEP 639 `License-Expression`** and leaves the
+  legacy field empty — so the check printed `License=<unknown>` while the summary line below it
+  asserted a specific licence as a verified "defense layer". It now tries `License-Expression`,
+  then `License`, then trove classifiers.
 - **Two wrong citations in shipped documentation.** `ARCHITECTURE.md` attributed `arXiv:2501.13956`
   to "Chalef et al." — Daniel Chalef is the **last of five** authors; the first is Rasmussen. The
   same line also called it "the Graphiti paper" without noting it is titled *"Zep: A Temporal

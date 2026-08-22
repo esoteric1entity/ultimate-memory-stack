@@ -74,7 +74,22 @@ def check_l2_identity() -> None:
 
     name = dist.metadata.get("Name", "<unknown>")
     version = dist.metadata.get("Version", "<unknown>")
-    license_str = dist.metadata.get("License", "<unknown>")
+    # PEP 639: modern wheels declare `License-Expression` and leave the legacy
+    # `License` field EMPTY. graphifyy is one of them, so reading only `License`
+    # printed "<unknown>" for the licence while the line below it asserted a
+    # specific licence — the check reported nothing and the summary asserted
+    # everything. Try the modern field, then the legacy one, then classifiers.
+    license_str = (
+        dist.metadata.get("License-Expression")
+        or dist.metadata.get("License")
+        or next(
+            (c.split("::")[-1].strip()
+             for c in dist.metadata.get_all("Classifier") or []
+             if c.startswith("License ::")),
+            None,
+        )
+        or "<unknown>"
+    )
 
     # Hard checks — must match the security-vetted values
     if name.lower() != "graphifyy":
@@ -172,7 +187,7 @@ def main() -> int:
     print("=" * 60)
     print("[smoke_test] All checks PASSED")
     print("[smoke_test] Defense layers verified:")
-    print("  - L2 identity: package is graphifyy (double-y), Version 0.8.21, MIT license")
+    print("  - L2 identity: package is graphifyy (double-y), Version 0.8.21, Apache-2.0 license")
     print("  - L4 exact pin: enforced by requirements.txt")
     print("  - L5 hash pin: enforced by locks/requirements-py<VER>.lock (--require-hashes)")
     print("  - L1 bash-guard + L3 README warnings: out-of-band (verified by SKILL.md Step 1 + 3)")

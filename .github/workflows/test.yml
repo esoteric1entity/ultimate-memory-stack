@@ -6,6 +6,19 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  # Weekly, because the things most likely to break this package do not happen
+  # when we push — they happen upstream while we are not looking. A pinned
+  # release gets yanked, a backend stops declaring the extra its driver needs,
+  # a dependency goes a year without a release. Push-triggered CI cannot see any
+  # of that; it only re-runs when WE change something.
+  #
+  # The upstream probe fails open on an unreachable PyPI, so a weekly run cannot
+  # turn a network blip into a red repo — it can only surface a real change.
+  #
+  # Sunday 06:17 UTC: deliberately off the hour. GitHub's scheduler queues a
+  # thundering herd at :00 and drops runs under load.
+  schedule:
+    - cron: "17 6 * * 0"
 
 permissions:
   contents: read

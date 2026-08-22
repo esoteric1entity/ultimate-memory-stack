@@ -62,7 +62,7 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 
 ### What it is
 
-Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.3 (July 27, 2026). 30.1k stars. arXiv:2501.13956. Per ARCHITECTURE.md §9, this is the **designed-in storage upgrade** for temporal provenance / point-in-time audit.
+Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.3 (July 27, 2026). ~30.1k stars *(as of 2026-08-20 — a star count with no as-of date is a claim that rots silently)*. Architecture paper: `arXiv:2501.13956` — see `CITATIONS.md` for what that paper actually is and which of its numbers we refuse to cite. Per ARCHITECTURE.md §9, this is the **designed-in storage upgrade** for temporal provenance / point-in-time audit.
 
 ### When to activate
 
@@ -182,7 +182,19 @@ Memory stack at Layer 1 is unchanged — graph is a derived index, markdown is t
 
 ### What it is
 
-Tree-sitter (31 languages) AST + NetworkX + Leiden community detection (via graspologic) + vis.js. MIT license (refresh 2026-05-19 — prior spec said Apache 2.0; corrected). v0.8.13 / v8 branch (May 18, 2026). 49.6k stars. Multi-modal: code + SQL + R + shell + docs + papers + images + videos.
+Tree-sitter (31 languages) AST + NetworkX + Leiden community detection (via graspologic) + vis.js. **Apache-2.0** license. Multi-modal: code + SQL + R + shell + docs + papers + images + videos.
+
+> ⚠️ **Corrected 2026-08-20 — the previous "correction" here was the error.** This line read
+> *"MIT license (refresh 2026-05-19 — prior spec said Apache 2.0; corrected)"*. The **original
+> spec was right**: `Graphify-Labs/graphify` ships an **Apache License 2.0** — confirmed three
+> ways (the repo's `LICENSE` file read directly, the GitHub API, and PyPI's `license_expression`).
+> Per the project rule, a licence is read from the LICENSE file, never from a badge or a summary.
+> The same wrong "MIT" had also propagated into the add-on's `SKILL.md` frontmatter and into
+> `smoke_test.py`, which printed it as verified fact.
+>
+> Version and star figures were also stale and are deliberately **not restated here** — they rot.
+> As of 2026-08-20: latest release **0.9.48**, ~**109k** stars; this add-on pins **0.8.21**, which
+> is a security-vetting decision, not a staleness bug. Check the current numbers at the source.
 
 **Important:** Graphify operates on **codebase files**, NOT memory entries. Its output is ingested by Layer 1 as a source artifact (`memory/references/codebase_graph_*.md`), but Graphify is not a memory backend.
 

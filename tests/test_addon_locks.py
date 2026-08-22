@@ -466,3 +466,104 @@ def test_docs_that_say_regenerate_also_say_you_need_the_source_package(doc):
         "never says it requires a clone of the source package — that script is "
         "not copied into an installed skill, so the instruction is a dead end"
     )
+
+
+# ---------------------------------------------------------------------------
+# Upstream-licence consistency.
+#
+# On 2026-08-20 the graphify add-on stated THREE different things about its
+# upstream's licence: SKILL.md frontmatter said MIT, smoke_test.py printed "MIT
+# license" as a verified defence-layer fact, and TIER_C_ACTIVATION.md said MIT
+# while noting it had "corrected" an earlier Apache-2.0 — the correction was the
+# error. The real licence, read from the repo's own LICENSE file, is Apache-2.0.
+#
+# A test cannot know what upstream's licence IS. It can refuse to let our own
+# files disagree with each other, which is what allowed one wrong value to sit
+# next to two right ones without anything noticing.
+# ---------------------------------------------------------------------------
+
+LICENCE_TOKEN = re.compile(r"\b(Apache[- ]?2\.0|MIT|BSD-3-Clause|GPL-3\.0|LGPL-3\.0|MPL-2\.0)\b")
+
+
+def _normalise_licence(tok: str) -> str:
+    t = tok.upper().replace(" ", "-")
+    return "APACHE-2.0" if t.startswith("APACHE") else t
+
+
+@pytest.mark.parametrize("addon", ADDON_DIRS, ids=lambda p: p.name)
+def test_addon_states_one_upstream_licence_consistently(addon):
+    """SKILL.md frontmatter and smoke_test.py must not disagree about the licence."""
+    skill = addon / "SKILL.md"
+    smoke = addon / "smoke_test.py"
+    if not skill.is_file() or not smoke.is_file():
+        pytest.skip(f"{addon.name} has no SKILL.md + smoke_test.py pair")
+
+    # Frontmatter `license:` line — the add-on's declared upstream licence.
+    m = re.search(r"^license:\s*(.+)$", skill.read_text(encoding="utf-8"), re.MULTILINE)
+    if not m:
+        pytest.skip(f"{addon.name}/SKILL.md declares no license: field")
+    declared = LICENCE_TOKEN.search(m.group(1))
+    if not declared:
+        pytest.skip(f"{addon.name}: license: line names no recognised licence")
+    declared_norm = _normalise_licence(declared.group(1))
+
+    # Any licence token smoke_test.py PRINTS as fact (string literals only).
+    printed = {
+        _normalise_licence(t)
+        for line in smoke.read_text(encoding="utf-8").splitlines()
+        if "license" in line.lower() and line.lstrip().startswith("print(")
+        for t in LICENCE_TOKEN.findall(line)
+    }
+    conflicting = printed - {declared_norm}
+    assert not conflicting, (
+        f"{addon.name}: SKILL.md declares {declared_norm} but smoke_test.py prints "
+        f"{sorted(conflicting)} as verified fact. One of them is telling users "
+        f"something false — check the upstream LICENSE file, not a badge."
+    )
+
+
+def test_ci_has_a_weekly_schedule_with_a_valid_cron():
+    """The weekly trigger must exist AND its cron must be well-formed.
+
+    Two separate failure modes, both real here:
+      - No schedule at all. Push-triggered CI only re-runs when WE change
+        something, so it structurally cannot notice an upstream release being
+        yanked or a backend dropping the extra its driver needs — exactly what
+        the upstream probe was built to catch.
+      - A malformed cron. GitHub does not reject a bad schedule loudly; the
+        workflow simply never fires. This project has previously shipped an
+        invalid cron across four surfaces, so "it's in the file" is not enough.
+
+    PyYAML parses a bare `on:` key as the boolean True (the Norway problem's
+    cousin) — hence the two-key lookup below, which is a YAML quirk rather than
+    a bug in the workflow.
+    """
+    yaml = pytest.importorskip("yaml")
+    wf = yaml.safe_load(
+        (PKG / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8"))
+    triggers = wf.get("on") or wf.get(True) or {}
+    assert "schedule" in triggers, (
+        "no `schedule:` trigger in test.yml — the upstream backend probe then "
+        "only ever runs when someone pushes, which is not when upstream breaks"
+    )
+    entries = triggers["schedule"]
+    assert entries and isinstance(entries, list), f"malformed schedule: {entries!r}"
+
+    for entry in entries:
+        cron = entry.get("cron", "")
+        fields = cron.split()
+        assert len(fields) == 5, (
+            f"cron {cron!r} has {len(fields)} fields, POSIX cron takes 5 — "
+            "GitHub silently never fires a malformed schedule"
+        )
+        minute, hour, dom, month, dow = fields
+        for value, lo, hi, label in (
+            (minute, 0, 59, "minute"), (hour, 0, 23, "hour"),
+            (dom, 1, 31, "day-of-month"), (month, 1, 12, "month"),
+            (dow, 0, 6, "day-of-week"),
+        ):
+            if value == "*" or not re.fullmatch(r"\d+", value):
+                continue  # ranges/steps/lists are legal; only bare ints are range-checked
+            assert lo <= int(value) <= hi, (
+                f"cron {cron!r}: {label}={value} is outside {lo}-{hi}"
+            )
