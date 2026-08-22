@@ -24,7 +24,7 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 |---|---|---|---|---|
 | **C1 Auto-Dream** | Anthropic `dreaming-2026-04-21` beta — offline async consolidation | T4 (Code Exec + Anthropic beta) | High — requires beta access | Dormant; design spec only |
 | **C2 Graphiti + Kuzu** | Bi-temporal knowledge graph (Layer 5) | **T1 (Ollama) or T3 (Anthropic API)** | Medium — install from the add-on's hash-pinned lock (§C2), + MCP wiring | Refreshed 2026-08-20 |
-| **C3 Graphify** | Codebase structural knowledge graph (adjacent tool, §11.5) | **T3 (Python) or T4 (Skill install)** | Low — `uv tool install graphifyy && graphify install` | Refreshed 2026-05-19 |
+| **C3 Graphify** | Codebase structural knowledge graph (adjacent tool, §11.5) | **T3 (Python) or T4 (Skill install)** | Low — install from the add-on's hash-pinned lock (§C3) | Refreshed 2026-08-22 (licence-per-version corrected) |
 | **C4 Cryptographic signatures** | HMAC memory-entry signing (Ed25519 offline-key variant planned) | T3 (Code Execution) | Low — `cryptography` package + key gen via setup.py | Designed-in; signing pipeline not yet implemented |
 | **C6 LLMLingua / LongLLMLingua** | Prompt compression on cached prefixes (~40× compound discount) | T3 (Code Exec + Python ML libs) | Medium | Designed-in; further research needed |
 | **C7 Aider repo-map** | Tree-sitter + PageRank code-structure primitive (adjacent tool, §11.5) | T3 (Code Execution + Aider integration) | Medium | Designed-in; further research needed |
@@ -62,7 +62,7 @@ The v3.0 spec **designs in** 9 Tier C features (C1–C10, minus C5 which is defe
 
 ### What it is
 
-Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.3 (July 27, 2026). ~30.1k stars *(as of 2026-08-20 — a star count with no as-of date is a claim that rots silently)*. Architecture paper: `arXiv:2501.13956` — see `CITATIONS.md` for what that paper actually is and which of its numbers we refuse to cite. Per ARCHITECTURE.md §9, this is the **designed-in storage upgrade** for temporal provenance / point-in-time audit.
+Temporal-fact knowledge graph of memory entries. Apache 2.0. v0.29.3 (July 27, 2026). ~30.1k stars *(as of 2026-08-22 — a star count with no as-of date is a claim that rots silently)*. Architecture paper: `arXiv:2501.13956` — see `CITATIONS.md` for what that paper actually is and which of its numbers we refuse to cite. Per ARCHITECTURE.md §9, this is the **designed-in storage upgrade** for temporal provenance / point-in-time audit.
 
 ### When to activate
 
@@ -182,19 +182,30 @@ Memory stack at Layer 1 is unchanged — graph is a derived index, markdown is t
 
 ### What it is
 
-Tree-sitter (31 languages) AST + NetworkX + Leiden community detection (via graspologic) + vis.js. **Apache-2.0** license. Multi-modal: code + SQL + R + shell + docs + papers + images + videos.
+Tree-sitter (31 languages) AST + NetworkX + Leiden community detection (via graspologic) + vis.js. Multi-modal: code + SQL + R + shell + docs + papers + images + videos.
 
-> ⚠️ **Corrected 2026-08-20 — the previous "correction" here was the error.** This line read
-> *"MIT license (refresh 2026-05-19 — prior spec said Apache 2.0; corrected)"*. The **original
-> spec was right**: `Graphify-Labs/graphify` ships an **Apache License 2.0** — confirmed three
-> ways (the repo's `LICENSE` file read directly, the GitHub API, and PyPI's `license_expression`).
-> Per the project rule, a licence is read from the LICENSE file, never from a badge or a summary.
-> The same wrong "MIT" had also propagated into the add-on's `SKILL.md` frontmatter and into
-> `smoke_test.py`, which printed it as verified fact.
+> ⚠️ **UPSTREAM RELICENSED MID-STREAM — the licence depends on which version you mean.**
+> *(Established 2026-08-22 by reading each release's own metadata.)*
 >
-> Version and star figures were also stale and are deliberately **not restated here** — they rot.
-> As of 2026-08-20: latest release **0.9.48**, ~**109k** stars; this add-on pins **0.8.21**, which
-> is a security-vetting decision, not a staleness bug. Check the current numbers at the source.
+> | Version | Licence |
+> |---|---|
+> | **0.8.21 — what this add-on pins and ships** | **MIT** |
+> | 0.9.0 | MIT |
+> | 0.9.48 (current) | **Apache-2.0** |
+>
+> So "the licence of Graphify" has no single answer, and a check of *current* upstream gives the
+> wrong answer for what we actually ship. This is not hypothetical: on 2026-08-22 this line was
+> "corrected" from MIT to Apache-2.0 after reading the current `LICENSE` file, the GitHub API, and
+> PyPI's `license_expression` — three sources that agreed with each other and were all irrelevant,
+> because they all describe 0.9.48. **The earlier MIT text was right, and the correction broke it.**
+> It was caught only because a smoke test installed the *pinned* version and printed 1,068
+> characters of MIT licence text.
+>
+> ▶ **Anyone advancing the pin must re-check the licence for the target version.** It does not
+> carry over. Read the metadata of *that release*, not the repo's default branch.
+>
+> Version and star figures are deliberately **not restated here** — they rot. As of 2026-08-22:
+> latest **0.9.48**, ~**109k** stars. Pinning 0.8.21 is a security-vetting decision, not staleness.
 
 **Important:** Graphify operates on **codebase files**, NOT memory entries. Its output is ingested by Layer 1 as a source artifact (`memory/references/codebase_graph_*.md`), but Graphify is not a memory backend.
 

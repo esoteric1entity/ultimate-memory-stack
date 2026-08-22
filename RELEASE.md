@@ -22,22 +22,26 @@ this claim to be false, and did I check that?"**
 
 - [ ] **`pytest tests/test_citations.py` passes.** Every cited arXiv ID is registered in
       `common-specs/CITATIONS.md` with a verification date.
-      <sub>*Shipped 2026-08-20: `arXiv:2501.13956` attributed to "Chalef et al." — he is the last of
+      <sub>*Shipped 2026-08-22: `arXiv:2501.13956` attributed to "Chalef et al." — he is the last of
       five authors; and `arXiv:2503.03704`, an arXiv preprint, called "peer-reviewed" in **two**
       evidence tables.*</sub>
 - [ ] **Every NEW factual claim in this release has been checked against a primary source** — not
       recalled, not inherited from an earlier doc. Read the paper, the LICENSE file, the API
       response. Quote it.
-      <sub>*Four of four load-bearing roadmap justifications audited on 2026-08-20 were wrong or
+      <sub>*Four of four load-bearing roadmap justifications audited on 2026-08-22 were wrong or
       unsourced. Three of them had been copied forward, unchecked, by later documents.*</sub>
 - [ ] **No capability is described that no code performs.** For each capability claim, name the
       file and function. If you cannot, delete the claim or ship the code.
       <sub>*v4.0.1 withdrew ~20 HMAC-signing claims — including in SOC2 and PCI-DSS compliance
       profiles and an installer runtime banner — with no `import hmac` anywhere in the package.*</sub>
-- [ ] **Dependency licences read from the upstream LICENSE file**, never a badge, a summary, or a
-      previous version of our own docs.
-      <sub>*Shipped: Graphify's licence stated as MIT in three places. It is Apache-2.0 — and our
-      doc recorded the wrong value as a "correction" of the right one.*</sub>
+- [ ] **Dependency licences read from the LICENSE of the VERSION YOU PIN** — never a badge, never a
+      summary, and never the repo's default branch.
+      <sub>*2026-08-22, a two-stage failure. Graphify's licence was "corrected" from MIT to
+      Apache-2.0 after reading the current LICENSE file, the GitHub API, and PyPI's
+      `license_expression` — three sources that agreed with each other and were all irrelevant,
+      because all three describe 0.9.48. **Upstream relicensed mid-stream**: the pinned 0.8.21 is
+      MIT, so the docs had been right and the "fix" broke them. Caught only when a smoke test
+      installed the pinned version and printed 1,068 characters of MIT licence text.*</sub>
 - [ ] **Volatile figures carry an as-of date, or are removed.** Star counts, version numbers,
       "latest release" claims.
       <sub>*Shipped: "49.6k stars" when the real count was ~109k; "v0.8.13" when latest was 0.9.48.*</sub>
@@ -99,12 +103,17 @@ this claim to be false, and did I check that?"**
 
 ## 6. Before an EXTERNAL user (R2 gate — not required for an internal release)
 
-⚠️ **The roadmap's stated gate is "no external user before this clears." None of it is done.**
+⚠️ **The roadmap's stated gate is "no external user before this clears."** One of four items is
+now done; the three that actually protect an external user are not.
 
 - [ ] Weak-model red-team (Test E) — can a small model be talked past the protocol?
 - [ ] Compliance-content liability review — we ship SOC2/GDPR/PCI-DSS preset language.
 - [ ] External cold-install validation — someone who has never seen this repo installs from scratch.
-- [ ] Add-on smoke tests running in CI, not just present in the tree.
+- [x] ~~Add-on smoke tests running in CI, not just present in the tree.~~ **Done** — the
+      `addon-smoke` job installs graphify and graphiti from their hash-pinned locks and runs
+      each `smoke_test.py`. ⚠️ **llmlingua is excluded on purpose**, not overlooked: its
+      closure pulls torch's full CUDA stack for a test that only checks imports. Wiring this
+      up is what surfaced the graphiti lock producing a non-importable install.
 
 ## 7. Cutting the release
 

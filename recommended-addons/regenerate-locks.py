@@ -269,10 +269,21 @@ def main() -> int:
         for version in PYTHON_VERSIONS:
             lock = addon / "locks" / f"requirements-py{version}.lock"
             print(f"{addon.name:24} py{version} ... ", end="", flush=True)
+            # Paths passed REPO-RELATIVE, with cwd at the repo root — never
+            # absolute. uv writes the invoking command verbatim into each lock's
+            # header, so absolute paths bake the regenerating developer's local
+            # directory layout and username into a file that ships in a public
+            # repo. It also destroys the locks' minimal-diff property: the next
+            # maintainer regenerating from a different checkout path produces a
+            # header-only diff even when no dependency changed, burying the
+            # signal these hash-pinned files exist to provide.
+            repo_root = ADDONS_DIR.parent
             proc = subprocess.run(
                 uv + ["pip", "compile", "--quiet", "--generate-hashes", "--universal",
                       "--python-version", version,
-                      "--output-file", str(lock), str(addon / "requirements.txt")],
+                      "--output-file", lock.relative_to(repo_root).as_posix(),
+                      (addon / "requirements.txt").relative_to(repo_root).as_posix()],
+                cwd=repo_root,
                 capture_output=True, text=True, encoding="utf-8", errors="replace",
             )
             if proc.returncode == 0:

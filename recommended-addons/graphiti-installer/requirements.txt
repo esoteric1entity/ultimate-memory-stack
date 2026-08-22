@@ -127,6 +127,37 @@
 graphiti-core>=0.29.1
 kuzu>=0.11.3,<1.0.0
 
+# ── ⚠️ openai CEILING — verified incompatibility, NOT a precaution ────────────
+# Added 2026-08-22 after the graphiti smoke test failed against a freshly
+# regenerated lock with: ModuleNotFoundError: No module named 'httpx'.
+#
+# What happens: graphiti-core does NOT declare httpx. It gets it transitively
+# from openai, and imports it directly at
+# graphiti_core/llm_client/client.py:23, where it catches
+# `httpx.HTTPStatusError` to drive its retry-on-5xx logic.
+#   - openai 2.54.0 requires `httpx<1,>=0.23.0`  -> httpx present, works.
+#   - openai 3.0.0  requires `httpx2<3,>=2.7.0`  -> httpx GONE.
+# So with openai >= 3, `import graphiti_core` fails outright. The add-on's own
+# hash-pinned lock installed cleanly (pip exit 0) and produced a package that
+# could not be imported at all — the exact "resolution is not installation, and
+# installation is not working" failure this project shipped in v4.0.0.
+#
+# Why a CEILING and not just adding `httpx` back: adding httpx would fix the
+# ImportError and leave a SILENT one. openai 3.x raises httpx2 exception types,
+# which `except httpx.HTTPStatusError` can never match — graphiti's 5xx retry
+# would stop retrying and nothing would say so. A green import would hide a
+# dead safety net.
+#
+# This ceiling is evidence-based: the exact breaking version is known (3.0.0),
+# the mechanism is known (httpx -> httpx2), and the failure is reproducible.
+# That is the standard this project requires — contrast the llmlingua manifest,
+# where invented ceilings made the package uninstallable and were removed.
+#
+# ▶ REMOVE THIS CEILING when graphiti-core declares httpx itself or migrates to
+#   httpx2. Check `graphiti_core/llm_client/client.py` for the import, and its
+#   requires_dist for an httpx entry. Do not raise it on faith.
+openai>=1.91.0,<3
+
 # Maintained embedded alternative — macOS/Linux, Python 3.12+ (see note above).
 # Uncomment this and comment out `kuzu` to use it:
 # falkordblite>=0.5.0; python_version >= "3.12"

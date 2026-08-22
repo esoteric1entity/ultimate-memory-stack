@@ -87,7 +87,7 @@ Each field has a defensible rationale tied to a specific research finding.
 | Claim | Source | Evidence type |
 |-------|--------|---------------|
 | Validation-on-read > time-based TTL | `[GitHubCopilot-MemoryDocs]` | First-party docs |
-| Memory poisoning requires provenance + read-time validation | `[OWASP-ASI06]` + `[arXiv-2503.03704]` | OWASP standard + **arXiv preprint** (no `journal_ref`/DOI in its arXiv metadata as of 2026-08-20 — not claimed as peer-reviewed; see `SCHEMA_quarantine.md` §3) |
+| Memory poisoning requires provenance + read-time validation | `[OWASP-ASI06]` + `[arXiv-2503.03704]` | OWASP standard + **arXiv preprint** (no `journal_ref`/DOI in its arXiv metadata as of 2026-08-22 — not claimed as peer-reviewed; see `SCHEMA_quarantine.md` §3) |
 | Pattern-Key / Recurrence-Count as auto-promotion gate | PDuk predecessor stack (operational evidence) | Operational artifact |
 | CAS-style concurrency via content_sha256 | `[Anthropic2026-ManagedAgentsMemory]` + Letta `memory_replace` | Two-vendor convergence |
 | YAML frontmatter is the dominant markdown convention | Obsidian / Jekyll / Hugo / MkDocs ecosystem | De facto standard |

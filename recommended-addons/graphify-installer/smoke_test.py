@@ -24,7 +24,9 @@ Exit codes:
 
 from __future__ import annotations
 
+import pathlib
 import sys
+import tempfile
 import textwrap
 
 # Legacy consoles (Windows cp1252, non-UTF-8 locales elsewhere) can't encode
@@ -74,12 +76,16 @@ def check_l2_identity() -> None:
 
     name = dist.metadata.get("Name", "<unknown>")
     version = dist.metadata.get("Version", "<unknown>")
-    # PEP 639: modern wheels declare `License-Expression` and leave the legacy
-    # `License` field EMPTY. graphifyy is one of them, so reading only `License`
-    # printed "<unknown>" for the licence while the line below it asserted a
-    # specific licence — the check reported nothing and the summary asserted
-    # everything. Try the modern field, then the legacy one, then classifiers.
-    license_str = (
+    # Licence metadata lives in three different places depending on the wheel's
+    # age, and reading only one of them is how this check went blind:
+    #   - PEP 639 `License-Expression` ("Apache-2.0") — modern wheels
+    #   - legacy `License` — which may hold a SHORT NAME *or* the entire licence
+    #     text. graphifyy 0.8.21 puts 1,068 characters of MIT text here, so
+    #     printing it raw dumps the whole licence into the smoke-test output.
+    #   - trove classifiers
+    # Take the first that yields something, then reduce it to its first line so
+    # a full-text field prints as "MIT License" rather than a wall of text.
+    _raw_license = (
         dist.metadata.get("License-Expression")
         or dist.metadata.get("License")
         or next(
@@ -90,6 +96,7 @@ def check_l2_identity() -> None:
         )
         or "<unknown>"
     )
+    license_str = _raw_license.strip().splitlines()[0].strip() if _raw_license.strip() else "<unknown>"
 
     # Hard checks — must match the security-vetted values
     if name.lower() != "graphifyy":
@@ -123,10 +130,26 @@ def check_symbol_extraction() -> None:
     DISTRIBUTION name `graphifyy` via importlib.metadata; the module name in import statements is
     `graphify`. The import + API call sites here use the single-y module name accordingly.
     """
+    # Calls the REAL documented API and FAILS if it does not work.
+    #
+    # This previously guessed three top-level entry points — `graphify.parse`,
+    # `graphify.extract_symbols`, `graphify.Graphify` — and printed a WARN while
+    # exiting 0 when none matched. `graphify/__init__.py` exports NOTHING
+    # (`[n for n in dir(graphify) if not n.startswith("_")]` is empty), so all
+    # three could never have resolved: the WARN branch was the only reachable
+    # outcome, and the check verified nothing while reporting success. Once this
+    # smoke test runs in CI, that made the job green on an install whose core
+    # function was entirely unexercised.
+    #
+    # The real surface is `graphify.extract.extract_python(path: Path) -> dict`
+    # returning {"nodes", "edges", "raw_calls"}. It takes a PATH, not source
+    # text, which is why every string-passing guess would have failed anyway.
     try:
-        import graphify
+        from graphify.extract import extract_python
     except ImportError as exc:
         print(f"[smoke_test] Symbol extraction:            FAIL import ({exc})")
+        print("[smoke_test] Hint: graphify.extract.extract_python is the documented entry point;")
+        print("[smoke_test]       if it moved, upstream's API changed — re-vet before trusting this pin.")
         sys.exit(4)
 
     sample_code = textwrap.dedent("""\
@@ -141,36 +164,42 @@ def check_symbol_extraction() -> None:
                 return alpha_func(42)
     """)
 
-    # Graphify's exact API surface varies by version; try a few common entry points
-    extracted_count = None
-    api_attempts = [
-        ("parse", lambda: graphify.parse(sample_code, language="python")),
-        ("extract_symbols", lambda: graphify.extract_symbols(sample_code, "python")),
-        ("Graphify", lambda: graphify.Graphify(language="python").parse(sample_code)),
-    ]
-
-    for api_name, attempt in api_attempts:
+    with tempfile.TemporaryDirectory(prefix="graphify_smoke_") as tmpdir:
+        sample_path = pathlib.Path(tmpdir) / "sample.py"
+        sample_path.write_text(sample_code, encoding="utf-8")
         try:
-            result = attempt()
-            # Try to count symbols regardless of return shape
-            if hasattr(result, "__len__"):
-                extracted_count = len(result)
-            elif hasattr(result, "symbols"):
-                extracted_count = len(result.symbols)
-            elif isinstance(result, dict) and "symbols" in result:
-                extracted_count = len(result["symbols"])
-            if extracted_count is not None and extracted_count > 0:
-                print(f"[smoke_test] Symbol extraction ({api_name}): OK (extracted {extracted_count} symbols)")
-                return
-        except (AttributeError, TypeError):
-            continue
+            result = extract_python(sample_path)
         except Exception as exc:
-            print(f"[smoke_test] Symbol extraction ({api_name}): FAIL ({exc})")
+            print(f"[smoke_test] Symbol extraction:            FAIL ({type(exc).__name__}: {exc})")
             sys.exit(4)
 
-    # If all API attempts failed silently, mark as WARN — install probably OK but smoke test couldn't verify
-    print("[smoke_test] Symbol extraction:            WARN (no compatible API entry-point found; package may have different API surface than expected)")
-    print("[smoke_test] Install is likely valid but smoke test couldn't auto-verify extraction.")
+    nodes = result.get("nodes") if isinstance(result, dict) else None
+    if not nodes:
+        print(f"[smoke_test] Symbol extraction:            FAIL (no nodes returned; got keys "
+              f"{sorted(result) if isinstance(result, dict) else type(result).__name__})")
+        sys.exit(4)
+
+    # The sample declares alpha_func, BetaClass and gamma_method; all three must
+    # appear, or the parse silently produced something unrelated to the input.
+    #
+    # Labels are decorated by kind — a function is "alpha_func()", a method is
+    # ".gamma_method()", a class is bare "BetaClass" — so compare on the bare
+    # name. (Written first as an exact match against "alpha_func", which failed:
+    # the shape had been read off a console line truncated at 60 characters that
+    # cut the "()" clean off. Normalising here is matching the real API, not
+    # loosening the check — it lets us additionally require gamma_method.)
+    labels = {
+        str(n.get("label", "")).lstrip(".").removesuffix("()")
+        for n in nodes if isinstance(n, dict)
+    }
+    missing = [s for s in ("alpha_func", "BetaClass", "gamma_method") if s not in labels]
+    if missing:
+        print(f"[smoke_test] Symbol extraction:            FAIL (extracted {len(nodes)} nodes "
+              f"but {missing} missing — parse did not see the sample's symbols)")
+        sys.exit(4)
+
+    print(f"[smoke_test] Symbol extraction:            OK ({len(nodes)} nodes; "
+          f"alpha_func + BetaClass + gamma_method all found)")
 
 
 def main() -> int:
@@ -187,7 +216,9 @@ def main() -> int:
     print("=" * 60)
     print("[smoke_test] All checks PASSED")
     print("[smoke_test] Defense layers verified:")
-    print("  - L2 identity: package is graphifyy (double-y), Version 0.8.21, Apache-2.0 license")
+    # MIT is correct FOR 0.8.21. Upstream relicensed to Apache-2.0 by 0.9.48 —
+    # whoever advances this pin must re-check the licence, not assume it carried over.
+    print("  - L2 identity: package is graphifyy (double-y), Version 0.8.21, MIT license")
     print("  - L4 exact pin: enforced by requirements.txt")
     print("  - L5 hash pin: enforced by locks/requirements-py<VER>.lock (--require-hashes)")
     print("  - L1 bash-guard + L3 README warnings: out-of-band (verified by SKILL.md Step 1 + 3)")

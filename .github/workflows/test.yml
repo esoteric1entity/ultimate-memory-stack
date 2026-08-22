@@ -247,3 +247,59 @@ jobs:
           WORKING_DIR: ${{ runner.temp }}\ums-test-win
         run: |
           bash "${{ github.workspace }}/verify.sh" "$WORKING_DIR"
+
+  # --------------------------------------------------------------------------
+  # Add-on smoke tests — actually INSTALL the add-on and run its own smoke test.
+  #
+  # `addon-manifests` proves a manifest RESOLVES (--dry-run). Resolution is not
+  # installation, and installation is not working: v4.0.0 shipped add-ons whose
+  # documented procedure was impossible to follow even though every pin was
+  # satisfiable. This job runs the smoke_test.py each SKILL.md tells the user to
+  # run, against a real install from the hash-pinned lock.
+  #
+  # ⚠️ llmlingua is DELIBERATELY EXCLUDED, not overlooked. Its lock closure pulls
+  # torch's full CUDA stack (nvidia-cublas, nvidia-cuda-*, ~53 packages, GBs) for
+  # a test that only checks imports. `addon-manifests` already proves it resolves
+  # and hash-verifies on all 12 legs, which is the property that broke in v4.0.0.
+  # If llmlingua ever gains a runtime defect that resolution cannot catch, revisit
+  # this with a CPU-only torch index rather than quietly widening the matrix.
+  #
+  # One leg only (ubuntu/3.13): these smoke tests assert package identity and
+  # backend initialisation, neither of which is OS- or interpreter-specific.
+  # Platform-specific wheel availability is already covered by addon-manifests.
+  # --------------------------------------------------------------------------
+  addon-smoke:
+    name: addon smoke tests (install + run)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: graphify — install from lock and smoke test
+        shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --require-hashes \
+            -r recommended-addons/graphify-installer/locks/requirements-py3.13.lock
+          python recommended-addons/graphify-installer/smoke_test.py
+
+      - name: graphiti — install from lock and smoke test
+        shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
+          # Standing vetting condition: telemetry OFF before first import.
+          GRAPHITI_TELEMETRY_ENABLED: "false"
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --require-hashes \
+            -r recommended-addons/graphiti-installer/locks/requirements-py3.13.lock
+          python recommended-addons/graphiti-installer/smoke_test.py

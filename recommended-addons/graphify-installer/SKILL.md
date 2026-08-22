@@ -7,7 +7,7 @@ decision_authority: ["security-first vetting", "ideal-first design", "documentat
 vetting_reference: pre-release security vetting (2026-05-27, verdict PASS with conditions)
 edition: any
 tier: C (opt-in; not loaded by default)
-license: Apache-2.0 (Graphify, verified from its LICENSE file 2026-08-20); installer license: Apache-2.0
+license: MIT (Graphify AT THE PINNED 0.8.21 — upstream relicensed to Apache-2.0 by 0.9.48; verified 2026-08-22); installer license: Apache-2.0
 upstream_status: active (last release 2026-05-27 v0.8.21 — 116 releases in ~8 weeks)
 maintainer: PyPI account `captainturbo` / GitHub account `safishamsi` (Safi Shamsi, MSc Data Science, University of Birmingham — same human; two account names)
 key_risk: TYPOSQUAT — `pip install graphify` (single-y) installs UNRELATED package; correct is `graphifyy` (double-y)

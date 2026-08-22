@@ -2,7 +2,7 @@
 
 WHY THIS EXISTS
 ---------------
-On 2026-08-20 one review pass found two wrong citations in shipped docs — a
+On 2026-08-22 one review pass found two wrong citations in shipped docs — a
 misattributed author list ("Chalef et al." for a paper whose first author is
 Rasmussen) and an arXiv preprint labelled "peer-reviewed" in two separate
 evidence tables. In the internal planning docs the same pass found a headline

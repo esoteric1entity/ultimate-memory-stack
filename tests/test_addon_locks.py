@@ -16,6 +16,7 @@ silently no longer matches the manifest it claims to lock.
 
 from __future__ import annotations
 
+import ast
 import pathlib
 import re
 
@@ -471,7 +472,7 @@ def test_docs_that_say_regenerate_also_say_you_need_the_source_package(doc):
 # ---------------------------------------------------------------------------
 # Upstream-licence consistency.
 #
-# On 2026-08-20 the graphify add-on stated THREE different things about its
+# On 2026-08-22 the graphify add-on stated THREE different things about its
 # upstream's licence: SKILL.md frontmatter said MIT, smoke_test.py printed "MIT
 # license" as a verified defence-layer fact, and TIER_C_ACTIVATION.md said MIT
 # while noting it had "corrected" an earlier Apache-2.0 — the correction was the
@@ -507,13 +508,29 @@ def test_addon_states_one_upstream_licence_consistently(addon):
         pytest.skip(f"{addon.name}: license: line names no recognised licence")
     declared_norm = _normalise_licence(declared.group(1))
 
-    # Any licence token smoke_test.py PRINTS as fact (string literals only).
-    printed = {
-        _normalise_licence(t)
-        for line in smoke.read_text(encoding="utf-8").splitlines()
-        if "license" in line.lower() and line.lstrip().startswith("print(")
-        for t in LICENCE_TOKEN.findall(line)
-    }
+    # Any licence token smoke_test.py PRINTS as fact.
+    #
+    # Parsed with `ast`, not line-scanning. The first version required
+    # `line.startswith("print(")` and the licence token on the SAME physical
+    # line, so wrapping one print() across two lines — an ordinary, invisible
+    # refactor — silently disabled the whole check. A gate that a reformatter
+    # can switch off without failing is worse than no gate: it reports safety
+    # it is no longer providing.
+    #
+    # This walks every Call node named `print` and collects string constants
+    # anywhere in its arguments, including implicitly concatenated and
+    # multi-line ones. f-string parts are covered too (JoinedStr -> Constant).
+    tree = ast.parse(smoke.read_text(encoding="utf-8"))
+    printed = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "print"):
+            continue
+        for sub in ast.walk(node):
+            if isinstance(sub, ast.Constant) and isinstance(sub.value, str):
+                printed.update(_normalise_licence(t)
+                               for t in LICENCE_TOKEN.findall(sub.value))
     conflicting = printed - {declared_norm}
     assert not conflicting, (
         f"{addon.name}: SKILL.md declares {declared_norm} but smoke_test.py prints "
@@ -534,23 +551,32 @@ def test_ci_has_a_weekly_schedule_with_a_valid_cron():
         workflow simply never fires. This project has previously shipped an
         invalid cron across four surfaces, so "it's in the file" is not enough.
 
-    PyYAML parses a bare `on:` key as the boolean True (the Norway problem's
-    cousin) — hence the two-key lookup below, which is a YAML quirk rather than
-    a bug in the workflow.
+    ⚠️ Deliberately parsed with a REGEX, not PyYAML. The first version of this
+    test opened with `pytest.importorskip("yaml")`, and CI's unit-tests job runs
+    `pip install pytest` and nothing else — so this gate silently SKIPPED on
+    every CI run while passing locally. That is precisely the "a guard nothing
+    invokes" failure this file exists to catch, committed inside the guard
+    itself. A gate must never depend on a package its own CI does not install.
+    (Regex also sidesteps PyYAML parsing a bare `on:` key as the boolean True.)
     """
-    yaml = pytest.importorskip("yaml")
-    wf = yaml.safe_load(
-        (PKG / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8"))
-    triggers = wf.get("on") or wf.get(True) or {}
-    assert "schedule" in triggers, (
+    text = (PKG / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+    assert re.search(r"^\s{2}schedule:\s*$", text, re.MULTILINE), (
         "no `schedule:` trigger in test.yml — the upstream backend probe then "
         "only ever runs when someone pushes, which is not when upstream breaks"
     )
-    entries = triggers["schedule"]
-    assert entries and isinstance(entries, list), f"malformed schedule: {entries!r}"
+    # Tolerate a trailing YAML comment and either quote style. The first version
+    # anchored `\s*$` straight after the closing quote, so adding `# weekly` to a
+    # perfectly valid schedule made this gate FAIL — a false alarm on correct
+    # config, which trains people to ignore the gate. Unquoted scalars are
+    # deliberately NOT matched: GitHub requires the quotes (a bare `* * * * 0`
+    # starts a YAML alias and errors), so an unquoted cron should not silently
+    # look fine here.
+    crons = re.findall(
+        r"""^\s*-\s*cron:\s*["']([^"']+)["']\s*(?:#.*)?$""", text, re.MULTILINE)
+    assert crons, "a `schedule:` block exists but declares no cron entries"
 
-    for entry in entries:
-        cron = entry.get("cron", "")
+    for cron in crons:
         fields = cron.split()
         assert len(fields) == 5, (
             f"cron {cron!r} has {len(fields)} fields, POSIX cron takes 5 — "

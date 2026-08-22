@@ -103,20 +103,39 @@ This installs:
 pip show graphifyy
 ```
 
-Expected output should include:
+Real output for the pinned 0.8.21 (verified 2026-08-22 — the block previously shown here did not
+match any of it):
 ```
 Name: graphifyy
 Version: 0.8.21
-Summary: Codebase symbol graph via Tree-sitter
+Summary: AI coding assistant skill (Claude Code, Codex, ...) - turn any folder of code, docs,
+         papers, images, or videos into a queryable knowledge graph
 Home-page: https://github.com/safishamsi/graphify
-Author: Safi Shamsi (captainturbo on PyPI; safishamsi on GitHub — same human, two account names)
-License: MIT
+Author:
+Author-email:
+License: MIT License
+
+Copyright (c) 2026 Safi Shamsi
+
+Permission is hereby granted, free of charge, ...
 ```
+
+⚠️ **Three things to expect that the old worked example got wrong.**
+1. **`License:` is the FULL licence text**, not the token `MIT` — 0.8.21 puts ~1,068 characters in
+   that field, so it spills over the following lines. Only the first line (`MIT License`) is the
+   signal. See `TIER_C_ACTIVATION.md` §C3: the licence is **per version** — 0.8.21 is MIT, current
+   upstream (0.9.48) is Apache-2.0.
+2. **`Author:` is EMPTY.** The old red flag "Maintainer is NOT captainturbo / Safi Shamsi" could
+   never be checked against this output — there is nothing there to compare. Authorship is visible
+   on the PyPI project page and in the licence copyright line, not in `pip show`.
+3. **`Summary:` is the long AI-assistant description**, not "Codebase symbol graph via Tree-sitter".
 
 **Red flags (STOP if you see any):**
 - `Name: graphify` (single-y) — L2 bypass; uninstall immediately
-- Maintainer is NOT captainturbo / Safi Shamsi
-- License is NOT MIT
+- `Version:` is not `0.8.21` — you did not install from the pinned lock
+- `Home-page:` is not `https://github.com/safishamsi/graphify`
+- The first line of `License:` is not `MIT License` **for 0.8.21** (a *later* version legitimately
+  reads `Apache-2.0`; a *different* licence on 0.8.21 means you did not get the vetted artifact)
 
 ### Step 7 — Smoke test
 
@@ -127,16 +146,20 @@ python smoke_test.py
 Expected output:
 ```
 [smoke_test] Graphify module import:    OK (single-y module name; L2 defense in next step verifies distribution name)
-[smoke_test] L2 identity check:            OK (Name=graphifyy, Version=0.8.21, License=Apache-2.0)
+[smoke_test] L2 identity check:            OK (Name=graphifyy, Version=0.8.21, License=MIT License)
 [smoke_test] Tree-sitter language pack:    OK
-[smoke_test] Symbol extraction (parse): OK (extracted N symbols)
+[smoke_test] Symbol extraction:            OK (5 nodes; alpha_func + BetaClass + gamma_method all found)
 [smoke_test] All checks PASSED
 ```
 
 Notes:
 - The Python **module** is `graphify` (single-y) by upstream design; the typosquat defense is the L2 identity check, which verifies the installed **distribution** is `graphifyy` (double-y) via package metadata.
-- In the Symbol extraction line, the entry-point name in parentheses may be `parse`, `extract_symbols`, or `Graphify` depending on the installed API surface, and `N` is the symbol count (must be non-zero).
-- If no compatible extraction entry-point is found, that line is a `WARN` instead of `OK` — the install is likely valid but the smoke test couldn't auto-verify extraction.
+- The symbol-extraction step calls the real API, `graphify.extract.extract_python(path)`, and
+  **exits 4** if the sample's symbols do not come back. It has no WARN branch.
+  <sub>*It used to. It guessed three top-level entry points — `parse`, `extract_symbols`,
+  `Graphify` — and WARNed while exiting 0 when none matched. `graphify/__init__.py` exports
+  nothing, so none of them could ever resolve: the WARN was the only reachable outcome, and this
+  document described it as a normal possibility. A check that cannot pass is not a check.*</sub>
 
 ### Step 8 — (Optional) Register with memory stack
 

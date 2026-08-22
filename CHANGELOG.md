@@ -31,18 +31,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   registration mandatory and dated, which is the checkable part.
 
 ### Fixed
-- **We stated the wrong licence for the Graphify add-on's upstream, in three places.** `SKILL.md`
-  frontmatter, `TIER_C_ACTIVATION.md`, and `smoke_test.py` all said **MIT**. `Graphify-Labs/graphify`
-  ships **Apache-2.0** — confirmed three ways: its `LICENSE` file read directly, the GitHub API, and
-  PyPI's `license_expression`. Worse, `TIER_C_ACTIVATION.md` recorded this as a 2026-05-19
-  *correction* of an earlier "Apache 2.0" — **the original was right and the correction introduced
-  the error.** A new test refuses to let `SKILL.md` and `smoke_test.py` disagree about a licence,
-  which is what let one wrong value sit unnoticed beside two right ones.
-- **`smoke_test.py` could never actually read the licence it printed.** It read the legacy
-  `License:` metadata field, but graphifyy declares **PEP 639 `License-Expression`** and leaves the
-  legacy field empty — so the check printed `License=<unknown>` while the summary line below it
-  asserted a specific licence as a verified "defense layer". It now tries `License-Expression`,
-  then `License`, then trove classifiers.
+- **The Graphify smoke test's core check could never pass, and CI was about to trust it.** Symbol
+  extraction guessed three top-level entry points (`graphify.parse`, `graphify.extract_symbols`,
+  `graphify.Graphify`) and printed WARN while exiting **0** when none matched.
+  `graphify/__init__.py` exports nothing at all, so none could ever resolve — the WARN branch was
+  the only reachable outcome, and `INSTALL_GRAPHIFY.md` documented it as a normal possibility. It
+  now calls the real API, `graphify.extract.extract_python(path)`, asserts the sample's
+  `alpha_func`, `BetaClass` and `gamma_method` all come back, and **exits 4** otherwise.
+- **`INSTALL_GRAPHIFY.md`'s `pip show` worked example matched none of the real output.** `Summary:`
+  was a different sentence, `License:` is the full 1,068-character licence text rather than the
+  token `MIT`, and **`Author:` is empty** — which made the documented red flag "Maintainer is NOT
+  captainturbo / Safi Shamsi" impossible to check against anything. Replaced with the verified
+  output and red flags a reader can actually evaluate.
+- **Regenerated lockfiles no longer embed the regenerating machine's absolute path.**
+  `regenerate-locks.py` passed absolute paths to `uv pip compile`, which writes the invoking command
+  verbatim into each lock header — so a public-repo file carried a local Windows directory layout
+  and username, and every regeneration from a different checkout produced a spurious header-only
+  diff. Now passes repo-relative paths with `cwd` at the repo root, matching every other lock.
+- **The cron gate rejected a valid schedule carrying a trailing comment**, and the date stamp on the
+  new openai ceiling said 2026-08-20 — a fresh instance of the very defect the same release fixed in
+  21 other places.
+- 🔴 **The Graphiti add-on's shipped lock produced an install that could not be imported at all.**
+  `pip install --require-hashes` succeeded (exit 0) and `import graphiti_core` then failed with
+  `ModuleNotFoundError: No module named 'httpx'`. Root cause: **graphiti-core does not declare
+  httpx**, but imports it directly at `graphiti_core/llm_client/client.py:23` to catch
+  `httpx.HTTPStatusError` in its retry-on-5xx path — relying on getting it transitively from
+  `openai`. **`openai 3.0.0` migrated from `httpx` to `httpx2`**, so it stopped arriving. Fixed by
+  pinning `openai>=1.91.0,<3` and regenerating; the lock now carries `openai==2.54.0` and
+  `httpx==0.28.1`, and the add-on's smoke test passes end to end including a Kuzu ingest→query
+  round trip.
+  A ceiling was the right fix rather than re-adding `httpx`: openai 3.x raises `httpx2` exception
+  types that `except httpx.HTTPStatusError` can never match, so re-adding httpx would have fixed
+  the ImportError and left the 5xx retry **silently dead** — a green import hiding a dead safety
+  net. This is exactly the class v4.0.0 shipped: resolution is not installation, and installation
+  is not working. It surfaced only because the new `addon-smoke` CI job was proven by running it
+  before being wired up.
+- **Three self-inflicted defects in this release's own new gates, found by council review.**
+  (a) The cron-validity test opened with `pytest.importorskip("yaml")` while CI installs only
+  pytest — so it **silently skipped on every CI run** while passing locally: the exact
+  "a guard nothing invokes" failure, committed inside a guard. Rewritten to parse with a regex and
+  depend on nothing. (b) The licence-consistency test only matched a licence token on the same
+  physical line as `print(`, so wrapping one call across two lines silently disabled it; it now
+  parses with `ast`. (c) 21 date stamps read 2026-08-20 when the work was done on 2026-08-22 —
+  a long session crossed days. Stamps belonging to genuine 08-20 work were left alone.
+- **Documented that Graphify's upstream relicensed mid-stream, so the licence depends on the
+  version.** `graphifyy` **0.8.21 — the version this add-on pins and ships — is MIT**; 0.9.0 is MIT;
+  the current 0.9.48 is **Apache-2.0**. The docs said MIT and were **right**; a check of *current*
+  upstream (LICENSE file, GitHub API, PyPI `license_expression` — three sources that agreed with
+  each other and all described 0.9.48) briefly "corrected" them to Apache-2.0 during this release
+  and was reverted. Anyone advancing the pin must re-check the licence for the target version; it
+  does not carry over. A new test refuses to let `SKILL.md` and `smoke_test.py` disagree about a
+  licence, so a future drift cannot sit unnoticed in one file while the other is right.
+- **`smoke_test.py`'s licence read now covers all three places the value can live.** Licence
+  metadata is in PEP 639 `License-Expression` on modern wheels, in the legacy `License` field on
+  older ones — where it may be a short name *or the entire licence text* — or in trove classifiers.
+  Reading only one field meant the check reported a licence it had not actually established, while
+  the summary line beneath it asserted one as a verified "defense layer". It now tries all three
+  and prints only the first line, because graphifyy 0.8.21 stores **1,068 characters of licence
+  text** in that field and was dumping the whole thing into the smoke-test output.
 - **Two wrong citations in shipped documentation.** `ARCHITECTURE.md` attributed `arXiv:2501.13956`
   to "Chalef et al." — Daniel Chalef is the **last of five** authors; the first is Rasmussen. The
   same line also called it "the Graphiti paper" without noting it is titled *"Zep: A Temporal
