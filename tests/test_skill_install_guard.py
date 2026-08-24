@@ -9,7 +9,11 @@ SKILL.md and exercised directly — the documented guard IS the unit under test.
 Note on fixtures: pytest's tmp_path lives under /tmp (Git Bash maps %TEMP% ->
 /tmp; CI uses the real /tmp), which the guard refuses by design — so it cannot
 host an "allowed" case. The behavioral tests use a scratch dir under the repo
-(neither /tmp nor the guard's overridden $HOME) and clean it up.
+(neither /tmp nor the guard's overridden $HOME) and clean it up. That holds
+only while the REPO itself is not checked out under /tmp: from a /tmp checkout
+the scratch dir inherits the refused prefix and the allowed-case tests fail.
+That is the guard working as documented (SKILL.md refuses /tmp/*), not a bug —
+CI checks out under /home/runner, and a local run just needs a non-/tmp clone.
 
 The structural check (`pwd -P` present) runs everywhere. Behavioral checks need
 a clean bash; the symlink case additionally needs OS symlink support (CI ubuntu)

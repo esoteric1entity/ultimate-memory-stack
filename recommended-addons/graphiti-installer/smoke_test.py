@@ -12,8 +12,11 @@ Verifies the Graphiti install works end-to-end:
 
 Authority: SKILL.md Step 7 + INSTALL_GRAPHITI.md Step 7
 Vetting: Sentinel security review — PASS
-Pin contract: graphiti-core>=0.29.1 + kuzu>=0.11.3
-              (hash-pinned closures in locks/requirements-py<VER>.lock)
+Pin contract: graphiti-core>=0.29.1 + kuzu>=0.11.3 + openai>=1.91.0,<3
+              (the openai ceiling keeps httpx — which graphiti-core imports but
+              does not declare — installed and exception-compatible; the full
+              rationale lives in requirements.txt. Hash-pinned closures in
+              locks/requirements-py<VER>.lock)
 
 Exit codes:
   0 = all checks passed

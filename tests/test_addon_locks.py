@@ -137,7 +137,15 @@ def test_locked_version_satisfies_the_manifest_constraint(addon):
     """Catches the subtler drift: the manifest's pin was CHANGED but the lock
     still carries the old resolution, so users install a version the manifest
     forbids."""
-    packaging = pytest.importorskip("packaging.specifiers")
+    # Hard imports, deliberately NOT `pytest.importorskip`. This file's own
+    # CI-wiring test states the rule: a gate must never depend on a package its
+    # own CI does not install. CI installs only pytest — but `packaging` is a
+    # hard dependency OF pytest, so any environment that can run this suite has
+    # it. If that ever stops being true (pytest vendoring it, say), this must
+    # ERROR loudly at test run, not skip silently: a skipped drift gate
+    # reports safety it never provided. (An earlier version used importorskip
+    # here — an unreachable skip today, but the exact shape that let the cron
+    # test skip on every CI run.)
     from packaging.requirements import Requirement
     from packaging.version import InvalidVersion, Version
 

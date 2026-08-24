@@ -81,10 +81,19 @@ jobs:
           PYV="${{ matrix.python }}"
           for lock in recommended-addons/*/locks/requirements-py${PYV}.lock; do
             echo "==== $lock ===="
-            # --require-hashes makes pip refuse any artifact whose hash is not
-            # listed, so a substituted or tampered distribution fails closed.
+            # What this PROVES: the lock resolves, and every requirement in it
+            # carries a hash (--require-hashes refuses a hash-less line). What
+            # it does NOT prove: that the digests are CORRECT — under --dry-run
+            # pip resolves from PEP 658 metadata and never downloads an
+            # artifact, so a corrupted digest passes. Negative-controlled
+            # 2026-08-24 (pip 25.3, cold cache, --no-cache-dir): a lock with
+            # its first sha256 deliberately flipped exited 0 from this exact
+            # command. Digest enforcement lives where installs are real — the
+            # addon-smoke job below (graphify + graphiti) and every user
+            # install, where a wrong digest fails CLOSED: a loud install
+            # failure, not a silent substitution.
             if python -m pip install --dry-run --quiet --require-hashes --report - -r "$lock" >/dev/null; then
-              echo "  OK (hash-verified)"
+              echo "  OK (resolves; hashes present)"
             else
               echo "  FAILED: $lock"
               python -m pip install --dry-run --require-hashes -r "$lock" 2>&1 | tail -20 || true
@@ -265,9 +274,13 @@ jobs:
   # ⚠️ llmlingua is DELIBERATELY EXCLUDED, not overlooked. Its lock closure pulls
   # torch's full CUDA stack (nvidia-cublas, nvidia-cuda-*, ~53 packages, GBs) for
   # a test that only checks imports. `addon-manifests` already proves it resolves
-  # and hash-verifies on all 12 legs, which is the property that broke in v4.0.0.
-  # If llmlingua ever gains a runtime defect that resolution cannot catch, revisit
-  # this with a CPU-only torch index rather than quietly widening the matrix.
+  # on all 12 legs, which is the property that broke in v4.0.0. The named cost of
+  # excluding it: llmlingua is the one add-on whose lock DIGESTS no CI job ever
+  # verifies — the resolve job checks hash PRESENCE, not correctness (see its
+  # comment). Accepted because a wrong digest fails CLOSED at user install time:
+  # a loud availability break, not a silent substitution. If llmlingua ever gains
+  # a runtime defect that resolution cannot catch, revisit with a CPU-only torch
+  # index rather than quietly widening the matrix.
   #
   # One leg only (ubuntu/3.13): these smoke tests assert package identity and
   # backend initialisation, neither of which is OS- or interpreter-specific.
